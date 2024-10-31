@@ -410,8 +410,8 @@ void WorldRenderer::draw(
 
     skybox->refresh(pctx, worldInfo.daytime, 1.0f + worldInfo.fog * 2.0f, 4);
 
-    auto assets = engine->getAssets();
-    auto linesShader = assets->get<Shader>("lines");
+    const auto& assets = *engine->getAssets();
+    auto linesShader = assets.get<Shader>("lines");
 
     // World render scope with diegetic HUD included
     {
@@ -421,7 +421,7 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, &camera, assets, worldInfo.daytime, worldInfo.fog);
+        skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
 
         // Actually world render with depth buffer on
         {
@@ -432,21 +432,64 @@ void WorldRenderer::draw(
             // Debug lines
             if (hudVisible) {
                 renderLines(camera, linesShader, ctx);
-                renderHands(camera, *assets);
+                renderHands(camera, assets);
             }
         }
-
         if (hudVisible && player->debug) {
             renderDebugLines(wctx, camera, linesShader);
         }
+        renderBlockOverlay(wctx, assets);
     }
 
     // Rendering fullscreen quad with
-    auto screenShader = assets->get<Shader>("screen");
+    auto screenShader = assets.get<Shader>("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", timer);
     screenShader->uniform1f("u_dayTime", worldInfo.daytime);
     postProcessing->render(pctx, screenShader);
+}
+
+void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& assets) {
+    int x = std::floor(player->camera->position.x);
+    int y = std::floor(player->camera->position.y);
+    int z = std::floor(player->camera->position.z);
+    auto block = level->chunks->get(x, y, z);
+    if (block && block->id) {
+        const auto& def =
+            level->content->getIndices()->blocks.require(block->id);
+        if (def.overlayTexture.empty()) {
+            return;
+        }
+        DrawContext ctx = wctx.sub();
+        ctx.setDepthTest(false);
+        ctx.setCullFace(false);
+        
+        auto& shader = assets.require<Shader>("ui3d");
+        auto& atlas = assets.require<Atlas>("blocks");
+        shader.use();
+        batch3d->begin();
+        shader.uniformMatrix("u_projview", glm::mat4(1.0f));
+        shader.uniformMatrix("u_apply", glm::mat4(1.0f));
+        auto light = level->chunks->getLight(x, y, z);
+        float s = Lightmap::extract(light, 3) / 15.0f;
+        glm::vec4 tint(
+            glm::min(1.0f, Lightmap::extract(light, 0) / 15.0f + s),
+            glm::min(1.0f, Lightmap::extract(light, 1) / 15.0f + s),
+            glm::min(1.0f, Lightmap::extract(light, 2) / 15.0f + s),
+            1.0f
+        );
+        batch3d->texture(atlas.getTexture());
+        batch3d->sprite(
+            glm::vec3(),
+            glm::vec3(0, 1, 0),
+            glm::vec3(1, 0, 0),
+            2,
+            2,
+            atlas.get(def.overlayTexture),
+            tint
+        );
+        batch3d->flush();
+    }
 }
 
 void WorldRenderer::drawBorders(

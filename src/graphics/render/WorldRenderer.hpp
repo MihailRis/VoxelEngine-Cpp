@@ -67,6 +67,8 @@ class WorldRenderer {
         Shader* linesShader
     );
 
+    void renderBlockOverlay(const DrawContext& context, const Assets& assets);
+
     void setupWorldShader(
         Shader* shader,
         const Camera& camera,

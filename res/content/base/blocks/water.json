@@ -1,5 +1,6 @@
 {
     "texture": "water",
+    "overlay-texture": "water",
     "draw-group": 3,
     "light-passing": true,
     "sky-light-passing": false,

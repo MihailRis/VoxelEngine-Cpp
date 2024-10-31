@@ -185,6 +185,9 @@ public:
     /// @brief Block will be used instead of this if generated on surface
     std::string surfaceReplacement = name;
 
+    /// @brief Texture will be shown on screen if camera is inside of the block
+    std::string overlayTexture;
+
     /// @brief Default block layout will be used by hud.open_block(...)
     std::string uiLayout = name;
 

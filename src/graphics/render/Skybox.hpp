@@ -35,15 +35,17 @@ class Skybox {
     std::vector<skysprite> sprites;
 
     void drawStars(float angle, float opacity);
-    void drawBackground(Camera* camera, Assets* assets, int width, int height);
+    void drawBackground(
+        const Camera& camera, const Assets& assets, int width, int height
+    );
 public:
     Skybox(uint size, Shader* shader);
     ~Skybox();
 
     void draw(
         const DrawContext& pctx, 
-        Camera* camera, 
-        Assets* assets, 
+        const Camera& camera, 
+        const Assets& assets, 
         float daytime,
         float fog
     );
