@@ -40,11 +40,11 @@ Player::Player(
       position(position),
       inventory(std::move(inv)),
       eid(eid),
-      camera(level->getCamera("core:first-person")),
+      fpCamera(level->getCamera("core:first-person")),
       spCamera(level->getCamera("core:third-person-front")),
       tpCamera(level->getCamera("core:third-person-back")),
-      currentCamera(camera) {
-    camera->setFov(glm::radians(90.0f));
+      currentCamera(fpCamera) {
+    fpCamera->setFov(glm::radians(90.0f));
     spCamera->setFov(glm::radians(90.0f));
     tpCamera->setFov(glm::radians(90.0f));
 }
@@ -93,16 +93,16 @@ void Player::updateInput(PlayerInput& input, float delta) {
 
     glm::vec3 dir(0, 0, 0);
     if (input.moveForward) {
-        dir += camera->dir;
+        dir += fpCamera->dir;
     }
     if (input.moveBack) {
-        dir -= camera->dir;
+        dir -= fpCamera->dir;
     }
     if (input.moveRight) {
-        dir += camera->right;
+        dir += fpCamera->right;
     }
     if (input.moveLeft) {
-        dir -= camera->right;
+        dir -= fpCamera->right;
     }
     if (glm::length(dir) > 0.0f) {
         dir = glm::normalize(dir);
@@ -166,7 +166,7 @@ void Player::postUpdate() {
 
     auto& skeleton = entity->getSkeleton();
 
-    skeleton.visible = currentCamera != camera;
+    skeleton.visible = currentCamera != fpCamera;
 
     auto body = skeleton.config->find("body");
     auto head = skeleton.config->find("head");
@@ -289,7 +289,7 @@ void Player::deserialize(const dv::value& src) {
     const auto& posarr = src["position"];
 
     dv::get_vec(posarr, position);
-    camera->position = position;
+    fpCamera->position = position;
 
     const auto& rotarr = src["rotation"];
     dv::get_vec(rotarr, cam);

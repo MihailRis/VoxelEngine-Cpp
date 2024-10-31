@@ -284,7 +284,7 @@ void WorldRenderer::renderDebugLines(
 
     if (showChunkBorders) {
         linesShader->uniformMatrix("u_projview", camera.getProjView());
-        glm::vec3 coord = player->camera->position;
+        glm::vec3 coord = player->fpCamera->position;
         if (coord.x < 0) coord.x--;
         if (coord.z < 0) coord.z--;
         int cx = floordiv(static_cast<int>(coord.x), CHUNK_W);
@@ -432,7 +432,9 @@ void WorldRenderer::draw(
             // Debug lines
             if (hudVisible) {
                 renderLines(camera, linesShader, ctx);
-                renderHands(camera, assets);
+                if (player->currentCamera == player->fpCamera) {
+                    renderHands(camera, assets);
+                }
             }
         }
         if (hudVisible && player->debug) {
@@ -450,9 +452,9 @@ void WorldRenderer::draw(
 }
 
 void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& assets) {
-    int x = std::floor(player->camera->position.x);
-    int y = std::floor(player->camera->position.y);
-    int z = std::floor(player->camera->position.z);
+    int x = std::floor(player->currentCamera->position.x);
+    int y = std::floor(player->currentCamera->position.y);
+    int z = std::floor(player->currentCamera->position.z);
     auto block = level->chunks->get(x, y, z);
     if (block && block->id) {
         const auto& def =
