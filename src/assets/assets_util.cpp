@@ -4,7 +4,7 @@
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Texture.hpp"
 
-util::TextureRegion util::getTextureRegion(
+util::TextureRegion util::get_texture_region(
     const Assets& assets, const std::string& name, const std::string& fallback
 ) {
     size_t sep = name.find(':');
@@ -16,7 +16,7 @@ util::TextureRegion util::getTextureRegion(
             if (auto reg = atlas->getIf(name.substr(sep+1))) {
                 return {atlas->getTexture(), *reg};
             } else if (!fallback.empty()){
-                return util::getTextureRegion(assets, fallback, "");
+                return util::get_texture_region(assets, fallback, "");
             }
         }
     }

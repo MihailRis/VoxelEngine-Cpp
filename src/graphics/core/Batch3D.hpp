@@ -18,7 +18,7 @@ class Batch3D : public Flushable {
     std::unique_ptr<Texture> blank;
     size_t index;
     
-    Texture* currentTexture;
+    const Texture* currentTexture;
 
     void vertex(
         float x, float y, float z,
@@ -47,11 +47,36 @@ public:
     ~Batch3D();
 
     void begin();
-    void texture(Texture* texture);
-    void sprite(glm::vec3 pos, glm::vec3 up, glm::vec3 right, float w, float h, const UVRegion& uv, glm::vec4 tint);
-    void xSprite(float w, float h, const UVRegion& uv, const glm::vec4 tint, bool shading=true);
-    void cube(const glm::vec3 coords, const glm::vec3 size, const UVRegion(&texfaces)[6], const glm::vec4 tint, bool shading=true);
-    void blockCube(const glm::vec3 size, const UVRegion(&texfaces)[6], const glm::vec4 tint, bool shading=true);
+    void texture(const Texture* texture);
+    void sprite(
+        glm::vec3 pos,
+        glm::vec3 up,
+        glm::vec3 right,
+        float w,
+        float h,
+        const UVRegion& uv,
+        glm::vec4 tint
+    );
+    void xSprite(
+        float w,
+        float h,
+        const UVRegion& uv,
+        const glm::vec4 tint,
+        bool shading = true
+    );
+    void cube(
+        const glm::vec3 coords,
+        const glm::vec3 size,
+        const UVRegion (&texfaces)[6],
+        const glm::vec4 tint,
+        bool shading = true
+    );
+    void blockCube(
+        const glm::vec3 size,
+        const UVRegion (&texfaces)[6],
+        const glm::vec4 tint,
+        bool shading = true
+    );
     void vertex(glm::vec3 pos, glm::vec2 uv, glm::vec4 tint);
     void point(glm::vec3 pos, glm::vec4 tint);
     void flush() override;

@@ -176,7 +176,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
         }
         case ItemIconType::SPRITE: {
             auto textureRegion =
-                util::getTextureRegion(*assets, item.icon, "blocks:notfound");
+                util::get_texture_region(*assets, item.icon, "blocks:notfound");
             
             batch->texture(textureRegion.texture);
             batch->rect(

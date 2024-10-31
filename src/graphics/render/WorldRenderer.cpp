@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "assets/Assets.hpp"
+#include "assets/assets_util.hpp"
 #include "content/Content.hpp"
 #include "engine.hpp"
 #include "frontend/LevelFrontend.hpp"
@@ -461,12 +462,14 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& as
         if (def.overlayTexture.empty()) {
             return;
         }
+        auto textureRegion = util::get_texture_region(
+            assets, def.overlayTexture, "blocks:notfound"
+        );
         DrawContext ctx = wctx.sub();
         ctx.setDepthTest(false);
         ctx.setCullFace(false);
         
         auto& shader = assets.require<Shader>("ui3d");
-        auto& atlas = assets.require<Atlas>("blocks");
         shader.use();
         batch3d->begin();
         shader.uniformMatrix("u_projview", glm::mat4(1.0f));
@@ -479,14 +482,14 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& as
             glm::min(1.0f, Lightmap::extract(light, 2) / 15.0f + s),
             1.0f
         );
-        batch3d->texture(atlas.getTexture());
+        batch3d->texture(textureRegion.texture);
         batch3d->sprite(
             glm::vec3(),
             glm::vec3(0, 1, 0),
             glm::vec3(1, 0, 0),
             2,
             2,
-            atlas.get(def.overlayTexture),
+            textureRegion.region,
             tint
         );
         batch3d->flush();

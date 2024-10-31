@@ -13,7 +13,7 @@ namespace util {
         UVRegion region;
     };
 
-    TextureRegion getTextureRegion(
+    TextureRegion get_texture_region(
         const Assets& assets,
         const std::string& name,
         const std::string& fallback

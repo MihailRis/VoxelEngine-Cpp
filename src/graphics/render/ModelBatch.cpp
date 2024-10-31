@@ -154,7 +154,7 @@ void ModelBatch::setTexture(const std::string& name,
         }
     }
 
-    auto textureRegion = util::getTextureRegion(*assets, name, "blocks:notfound");
+    auto textureRegion = util::get_texture_region(*assets, name, "blocks:notfound");
     setTexture(textureRegion.texture);
     region = textureRegion.region;
 }
