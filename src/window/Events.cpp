@@ -231,3 +231,10 @@ void Events::loadBindings(
         }
     }
 }
+
+void Events::enableBindings() {
+    for (auto& entry : bindings) {
+        auto& binding = entry.second;
+        binding.enable = true;
+    }
+}
