@@ -145,6 +145,12 @@ events.on(code: str, handler: function)
 Добавляет обработчик события по его коду, не ограничиваясь стандартными.
 
 ```lua
+events.reset(code: str, [опционально] handler: function)
+```
+
+Удаляет событие, добавляя обработчик, если указан.
+
+```lua
 events.emit(code: str, args...) -> bool
 ```
 

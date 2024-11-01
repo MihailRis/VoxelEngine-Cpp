@@ -23,6 +23,14 @@ function events.on(event, func)
     table.insert(events.handlers[event], func)
 end
 
+function events.reset(event, func)
+    if func == nil then
+        events.handlers[event] = nil
+    else
+        events.handlers[event] = {func}
+    end
+end
+
 function events.remove_by_prefix(prefix)
     for name, handlers in pairs(events.handlers) do
         local actualname = name

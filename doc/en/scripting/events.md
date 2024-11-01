@@ -146,6 +146,12 @@ events.on(code: str, handler: function)
 Adds an event handler by its code, not limited to the standard ones.
 
 ```lua
+events.reset(code: str, [optional] handler: function)
+```
+
+Removes the event, adding a handler if specified.
+
+```lua
 events.emit(code: str, args...) -> bool
 ```
 
