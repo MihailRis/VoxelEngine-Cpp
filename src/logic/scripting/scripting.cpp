@@ -616,7 +616,7 @@ bool scripting::register_event(
     if (lua::getfield(L, name)) {
         lua::pop(L);
         lua::getglobal(L, "events");
-        lua::getfield(L, "on");
+        lua::getfield(L, "reset");
         lua::pushstring(L, id);
         lua::getfield(L, name, -4);
         lua::call_nothrow(L, 2);
@@ -706,6 +706,7 @@ void scripting::load_layout_script(
     uidocscript& script
 ) {
     int env = *senv;
+
     lua::pop(lua::get_main_state(), load_script(env, "layout", file));
     script.onopen = register_event(env, "on_open", prefix + ".open");
     script.onprogress =
