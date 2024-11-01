@@ -12,6 +12,12 @@ Icon type defines a source of an item image displayed in inventory.
 	- **items** (generated from *png* files in *res/textures/items/*)
 - **block** - block preview. Block ID must be specified in **icon** property. Example: *base:wood*.
 
+### Item model - `model-name`
+
+Name of the item model. The model will be loaded automatically.
+Default value is `packid:itemname.model`.
+If the model is not specified, an automatic one will be generated.
+
 ## Behaviour
 
 ### *placing-block*

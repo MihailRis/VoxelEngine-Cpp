@@ -33,11 +33,11 @@ GLTexture::~GLTexture() {
     glDeleteTextures(1, &id);
 }
 
-void GLTexture::bind(){
+void GLTexture::bind() const {
     glBindTexture(GL_TEXTURE_2D, id);
 }
 
-void GLTexture::unbind() {
+void GLTexture::unbind() const {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

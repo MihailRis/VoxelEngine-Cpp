@@ -5,11 +5,13 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <stdexcept>
 #include <typeindex>
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
 
+#include "util/stringutil.hpp"
 #include "graphics/core/TextureAnimation.hpp"
 
 class Assets;
@@ -82,6 +84,15 @@ public:
             return nullptr;
         }
         return static_cast<T*>(found->second.get());
+    }
+
+    template <class T>
+    T& require(const std::string& name) const {
+        T* asset = get<T>(name);
+        if (asset == nullptr) {
+            throw std::runtime_error(util::quote(name) + " not found");
+        }
+        return *asset;
     }
 
     template <class T>

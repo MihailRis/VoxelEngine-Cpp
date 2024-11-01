@@ -7,6 +7,6 @@ class Cubemap : public GLTexture {
 public:
     Cubemap(uint width, uint height, ImageFormat format);
 
-    virtual void bind() override;
-    virtual void unbind() override;
+    virtual void bind() const override;
+    virtual void unbind() const override;
 };

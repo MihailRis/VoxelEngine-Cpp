@@ -10,8 +10,8 @@ public:
     GLTexture(const ubyte* data, uint width, uint height, ImageFormat format);
     virtual ~GLTexture();
 
-    virtual void bind() override;
-    virtual void unbind() override;
+    virtual void bind() const override;
+    virtual void unbind() const override;
     virtual void reload(const ubyte* data);
 
     void setNearestFilter();

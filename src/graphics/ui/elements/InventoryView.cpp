@@ -1,6 +1,7 @@
 #include "InventoryView.hpp"
 
 #include "assets/Assets.hpp"
+#include "assets/assets_util.hpp"
 #include "content/Content.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "frontend/locale.hpp"
@@ -161,9 +162,9 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
 
     auto& item = indices->items.require(stack.getItemId());
     switch (item.iconType) {
-        case item_icon_type::none:
+        case ItemIconType::NONE:
             break;
-        case item_icon_type::block: {
+        case ItemIconType::BLOCK: {
             const Block& cblock = content->blocks.require(item.icon);
             batch->texture(previews->getTexture());
 
@@ -173,23 +174,14 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
                 0, 0, 0, region, false, true, tint);
             break;
         }
-        case item_icon_type::sprite: {
-            size_t index = item.icon.find(':');
-            std::string name = item.icon.substr(index+1);
-            UVRegion region(0.0f, 0.0, 1.0f, 1.0f);
-            if (index == std::string::npos) {
-                batch->texture(assets->get<Texture>(name));
-            } else {
-                std::string atlasname = item.icon.substr(0, index);
-                auto atlas = assets->get<Atlas>(atlasname);
-                if (atlas && atlas->has(name)) {
-                    region = atlas->get(name);
-                    batch->texture(atlas->getTexture());
-                }
-            }
+        case ItemIconType::SPRITE: {
+            auto textureRegion =
+                util::get_texture_region(*assets, item.icon, "blocks:notfound");
+            
+            batch->texture(textureRegion.texture);
             batch->rect(
                 pos.x, pos.y, slotSize, slotSize, 
-                0, 0, 0, region, false, true, tint);
+                0, 0, 0, textureRegion.region, false, true, tint);
             break;
         }
     }
