@@ -152,7 +152,7 @@ events.emit(code: str, args...) -> bool
 Существование события определяется наличием обработчиков.
 
 ```lua
-events.unload(packid: str)
+events.remove_by_prefix(packid: str)
 ```
 
 Удаляет все события с префиксом `packid:`. Вы выходе из мира выгружаются события всех паков, включая `core:`.
