@@ -17,7 +17,7 @@ class Batch2D : public Flushable {
     std::unique_ptr<Texture> blank;
     size_t index;
     glm::vec4 color;
-    Texture* currentTexture;
+    const Texture* currentTexture;
     DrawPrimitive primitive = DrawPrimitive::triangle;
     UVRegion region {0.0f, 0.0f, 1.0f, 1.0f};
 
@@ -40,7 +40,7 @@ public:
     ~Batch2D();
 
     void begin();
-    void texture(Texture* texture);
+    void texture(const Texture* texture);
     void untexture();
     void setRegion(UVRegion region);
     void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);

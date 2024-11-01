@@ -1,5 +1,3 @@
-local item_models = require "core:item_models"
-
 local tsf = entity.transform
 local body = entity.rigidbody
 local rig = entity.skeleton
@@ -27,7 +25,7 @@ end
 
 do -- setup visuals
     local matrix = mat4.idt()
-    scale = item_models.setup(dropitem.id, rig, 0)
+    rig:set_model(0, item.model_name(dropitem.id))
     local bodysize = math.min(scale[1], scale[2], scale[3]) * DROP_SCALE
     body:set_size({scale[1] * DROP_SCALE, bodysize, scale[3] * DROP_SCALE})
     mat4.mul(matrix, rotation, matrix)
@@ -38,9 +36,7 @@ end
 function on_grounded(force)
     local matrix = mat4.idt()
     mat4.rotate(matrix, {0, 1, 0}, math.random()*360, matrix)
-    if model == "aabb" then
-        mat4.rotate(matrix, {1, 0, 0}, 90, matrix)
-    end
+    mat4.rotate(matrix, {1, 0, 0}, 90, matrix)
     mat4.scale(matrix, scale, matrix)
     rig:set_matrix(0, matrix)
     inair = false

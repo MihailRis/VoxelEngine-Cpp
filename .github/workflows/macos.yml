@@ -37,7 +37,7 @@ jobs:
         run: ./dev/fix_dylibs.sh VoxelEngine Release build
 
       - name: Run tests
-        run: ctest --test-dir build
+        run: ctest --output-on-failure --test-dir build
 
       - name: Create DMG
         run: |

@@ -41,7 +41,7 @@ CameraControl::CameraControl(
     const std::shared_ptr<Player>& player, const CameraSettings& settings
 )
     : player(player),
-      camera(player->camera),
+      camera(player->fpCamera),
       settings(settings),
       offset(0.0f, 0.7f, 0.0f) {
 }
@@ -353,7 +353,7 @@ static void pick_block(
 voxel* PlayerController::updateSelection(float maxDistance) {
     auto indices = level->content->getIndices();
     auto chunks = level->chunks.get();
-    auto camera = player->camera.get();
+    auto camera = player->fpCamera.get();
     auto& selection = player->selection;
 
     glm::vec3 end;
@@ -416,7 +416,7 @@ voxel* PlayerController::updateSelection(float maxDistance) {
 void PlayerController::processRightClick(const Block& def, const Block& target) {
     const auto& selection = player->selection;
     auto chunks = level->chunks.get();
-    auto camera = player->camera.get();
+    auto camera = player->fpCamera.get();
 
     blockstate state {};
     state.rotation = determine_rotation(&def, selection.normal, camera->dir);

@@ -26,6 +26,9 @@ entities.get_def(uid: int) -> int
 -- Возвращает имя определения сущности по индексу (строковый ID).
 entities.def_name(id: int) -> str
 
+-- Возвращает значение свойства 'hitbox' сущности
+entities.def_hitbox(id: int) -> vec3
+
 -- Возвращает индекс определения сущности по имени (числовой ID).
 entities.def_index(name: str) -> int
 

@@ -52,7 +52,7 @@ class Player : public Object, public Serializable {
     entityid_t eid;
     entityid_t selectedEid;
 public:
-    std::shared_ptr<Camera> camera, spCamera, tpCamera;
+    std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
     bool debug = false;
     glm::vec3 cam {};
@@ -91,7 +91,7 @@ public:
 
     entityid_t getSelectedEntity() const;
 
-    std::shared_ptr<Inventory> getInventory() const;
+    const std::shared_ptr<Inventory>& getInventory() const;
 
     glm::vec3 getPosition() const {
         return position;

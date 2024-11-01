@@ -37,10 +37,10 @@ LevelFrontend::LevelFrontend(
                 auto soundsCamera = currentPlayer->currentCamera.get();
                 if (soundsCamera == currentPlayer->spCamera.get() ||
                     soundsCamera == currentPlayer->tpCamera.get()) {
-                    soundsCamera = currentPlayer->camera.get();
+                    soundsCamera = currentPlayer->fpCamera.get();
                 }
                 bool relative = player == currentPlayer && 
-                    soundsCamera == currentPlayer->camera.get();
+                    soundsCamera == currentPlayer->fpCamera.get();
                 if (!relative) {
                     pos = player->getPosition();
                 }

@@ -23,6 +23,9 @@ entities.exists(uid: int) -> bool
 -- Returns entity definition index by UID
 entities.get_def(uid: int) -> int
 
+-- Returns entity 'hitbox' property value
+entities.def_hitbox(id: int) -> vec3
+
 -- Returns entity definition name by index (string ID).
 entities.def_name(id: int) -> str
 

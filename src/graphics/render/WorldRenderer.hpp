@@ -23,6 +23,7 @@ class Skybox;
 class PostProcessing;
 class DrawContext;
 class ModelBatch;
+class Assets;
 struct EngineSettings;
 
 namespace model {
@@ -41,16 +42,20 @@ class WorldRenderer {
     std::unique_ptr<ModelBatch> modelBatch;
     float timer = 0.0f;
 
-    bool drawChunk(size_t index, Camera* camera, Shader* shader, bool culling);
-    void drawChunks(Chunks* chunks, Camera* camera, Shader* shader);
+    bool drawChunk(size_t index, const Camera& camera, Shader* shader, bool culling);
+    void drawChunks(Chunks* chunks, const  Camera& camera, Shader* shader);
 
     /// @brief Render block selection lines
     void renderBlockSelection();
+
+    void renderHands(const Camera& camera, const Assets& assets);
     
     /// @brief Render lines (selection and debug)
     /// @param camera active camera
     /// @param linesShader shader used
-    void renderLines(Camera* camera, Shader* linesShader, const DrawContext& pctx);
+    void renderLines(
+        const Camera& camera, Shader* linesShader, const DrawContext& pctx
+    );
 
     /// @brief Render all debug lines (chunks borders, coord system guides)
     /// @param context graphics context
@@ -58,13 +63,15 @@ class WorldRenderer {
     /// @param linesShader shader used
     void renderDebugLines(
         const DrawContext& context, 
-        Camera* camera, 
+        const Camera& camera, 
         Shader* linesShader
     );
 
+    void renderBlockOverlay(const DrawContext& context, const Assets& assets);
+
     void setupWorldShader(
         Shader* shader,
-        Camera* camera,
+        const Camera& camera,
         const EngineSettings& settings,
         float fogFactor
     );
@@ -77,7 +84,7 @@ public:
 
     void draw(
         const DrawContext& context, 
-        Camera* camera, 
+        Camera& camera, 
         bool hudVisible,
         bool pause,
         float delta,
@@ -91,7 +98,7 @@ public:
     /// @param settings engine settings
     void renderLevel(
         const DrawContext& context, 
-        Camera* camera, 
+        const Camera& camera, 
         const EngineSettings& settings,
         float delta,
         bool pause
