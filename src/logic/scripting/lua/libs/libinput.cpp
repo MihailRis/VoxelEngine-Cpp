@@ -133,6 +133,26 @@ static int l_reset_bindings(lua::State*) {
     return 0;
 }
 
+static void enableBinding(std::string& bindname, bool enable) {
+    const auto& bind = Events::bindings.find(bindname);
+    if (bind == Events::bindings.end()) {
+        throw std::runtime_error("unknown binding " + util::quote(bindname));
+    }
+    Events::bindings[bindname].enable = enable;
+}
+
+static int l_enable_binding(lua::State* L) {
+    std::string bindname = lua::require_string(L, 1);
+    enableBinding(bindname, true);
+    return 0;
+}
+
+static int l_disable_binding(lua::State* L) {
+    std::string bindname = lua::require_string(L, 1);
+    enableBinding(bindname, false);
+    return 0;
+}
+
 const luaL_Reg inputlib[] = {
     {"keycode", lua::wrap<l_keycode>},
     {"mousecode", lua::wrap<l_mousecode>},
@@ -143,4 +163,6 @@ const luaL_Reg inputlib[] = {
     {"is_active", lua::wrap<l_is_active>},
     {"is_pressed", lua::wrap<l_is_pressed>},
     {"reset_bindings", lua::wrap<l_reset_bindings>},
+    {"enable_binding", lua::wrap<l_enable_binding>},
+    {"disable_binding", lua::wrap<l_disable_binding>},
     {NULL, NULL}};

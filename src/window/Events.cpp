@@ -78,6 +78,9 @@ void Events::pollEvents() {
 
     for (auto& entry : bindings) {
         auto& binding = entry.second;
+        if (!binding.enable) {
+            continue;
+        }
         binding.justChange = false;
 
         bool newstate = false;
