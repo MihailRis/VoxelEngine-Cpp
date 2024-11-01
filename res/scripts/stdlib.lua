@@ -17,7 +17,10 @@ events = {
 }
 
 function events.on(event, func)
-    events.handlers[event] = func
+    if events.handlers[event] == nil then
+        events.handlers[event] = {}
+    end
+    table.insert(events.handlers[event], func)
 end
 
 function events.remove_by_prefix(prefix)
@@ -37,9 +40,13 @@ function pack.unload(prefix)
 end
 
 function events.emit(event, ...)
-    result = nil
-    if events.handlers[event] then
-        result = result or events.handlers[event](...)
+    local result = nil
+    local handlers = events.handlers[event]
+    if handlers == nil then
+        return nil
+    end
+    for _, func in ipairs(handlers) do
+        result = result or func(...)
     end
     return result
 end
