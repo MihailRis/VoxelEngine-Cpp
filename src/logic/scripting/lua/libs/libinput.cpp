@@ -112,17 +112,25 @@ static int l_is_pressed(lua::State* L) {
     }
 }
 
-static int l_reset_bindings(lua::State*) {
-    auto resFolder = engine->getPaths()->getResourcesFolder();
-    auto configFolder = resFolder/fs::path("config");
+static void resetPackBindings(fs::path& packFolder) {
+    auto configFolder = packFolder/fs::path("config");
     auto bindsFile = configFolder/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(), files::read_string(bindsFile), BindType::REBIND
+            bindsFile.u8string(),
+            files::read_string(bindsFile),
+            BindType::REBIND
         );
-        return 0;
     }
-    return 1;
+}
+
+static int l_reset_bindings(lua::State*) {
+    auto resFolder = engine->getPaths()->getResourcesFolder();
+    resetPackBindings(resFolder);
+    for (auto& pack : engine->getContentPacks()) {
+        resetPackBindings(pack.folder);
+    }
+    return 0;
 }
 
 const luaL_Reg inputlib[] = {

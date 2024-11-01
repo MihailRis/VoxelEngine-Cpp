@@ -108,7 +108,7 @@ void Events::pollEvents() {
 Binding& Events::getBinding(const std::string& name) {
     const auto found = bindings.find(name);
     if (found == bindings.end()) {
-        throw std::runtime_error("binding '" + name + "' does not exists");
+        throw std::runtime_error("binding '" + name + "' does not exist");
     }
     return found->second;
 }
@@ -128,7 +128,7 @@ void Events::bind(const std::string& name, inputtype type, int code) {
 void Events::rebind(const std::string& name, inputtype type, int code) {
     const auto& found = bindings.find(name);
     if (found == bindings.end()) {
-        throw std::runtime_error("binding '" + name + "' does not exists");
+        throw std::runtime_error("binding '" + name + "' does not exist");
     }
     bindings[name] = Binding(type, code);
 }
