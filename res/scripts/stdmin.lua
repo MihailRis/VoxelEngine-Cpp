@@ -109,7 +109,8 @@ function string.explode(separator, str, withpattern)
     local current_pos = 1
 
     for i = 1, string_len(str) do
-        local start_pos, end_pos = string_find(str, separator, current_pos, not withpattern)
+        local start_pos, end_pos = string_find(
+            str, separator, current_pos, not withpattern)
         if (not start_pos) then break end
         ret[i] = string_sub(str, current_pos, start_pos - 1)
         current_pos = end_pos + 1
@@ -139,7 +140,7 @@ function string.formatted_time(seconds, format)
 end
 
 function string.replace(str, tofind, toreplace)
-    local tbl = string.Explode(tofind, str)
+    local tbl = string.explode(tofind, str)
     if (tbl[1]) then return table.concat(tbl, toreplace) end
     return str
 end
