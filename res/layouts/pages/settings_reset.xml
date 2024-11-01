@@ -1,0 +1,7 @@
+<panel size='380, 0' color='#00000080' padding='8' context='menu'>
+	<label multiline='false'>@Reset settings</label>
+	<button onclick='reset("aud")'>@Audio</button>
+	<button onclick='reset("dsp")'>@Display</button>
+	<button onclick='reset("gfx")'>@Graphics</button>
+	<button onclick='reset("ctl")'>@Controls</button>
+</panel>

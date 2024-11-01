@@ -131,7 +131,7 @@ void Engine::loadControls() {
     if (fs::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
         std::string text = files::read_string(controls_file);
-        Events::loadBindings(controls_file.u8string(), text);
+        Events::loadBindings(controls_file.u8string(), text, BindType::BIND);
     }
 }
 
@@ -287,7 +287,7 @@ static void load_configs(const fs::path& root) {
     auto bindsFile = configFolder/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(), files::read_string(bindsFile)
+            bindsFile.u8string(), files::read_string(bindsFile), BindType::BIND
         );
     }
 }

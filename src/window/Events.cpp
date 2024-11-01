@@ -106,9 +106,9 @@ void Events::pollEvents() {
 }
 
 Binding& Events::getBinding(const std::string& name) {
-    auto found = bindings.find(name);
+    const auto found = bindings.find(name);
     if (found == bindings.end()) {
-        throw std::runtime_error("binding '" + name + "' does not exists");
+        throw std::runtime_error("binding '" + name + "' does not exist");
     }
     return found->second;
 }
@@ -126,6 +126,10 @@ void Events::bind(const std::string& name, inputtype type, int code) {
 }
 
 void Events::rebind(const std::string& name, inputtype type, int code) {
+    const auto& found = bindings.find(name);
+    if (found == bindings.end()) {
+        throw std::runtime_error("binding '" + name + "' does not exist");
+    }
     bindings[name] = Binding(type, code);
 }
 
@@ -193,7 +197,8 @@ std::string Events::writeBindings() {
 }
 
 void Events::loadBindings(
-    const std::string& filename, const std::string& source
+    const std::string& filename, const std::string& source,
+    BindType bindType
 ) {
     auto map = toml::parse(filename, source);
     for (auto& [sectionName, section] : map.asObject()) {
@@ -214,7 +219,12 @@ void Events::loadBindings(
                     << util::quote(key) << ")";
                 continue;
             }
-            Events::bind(key, type, code);
+            if (bindType == BindType::BIND) {
+                Events::bind(key, type, code);
+            } else if (bindType == BindType::REBIND) {
+                Events::rebind(key, type, code);
+            }
+            
         }
     }
 }
