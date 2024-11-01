@@ -187,7 +187,15 @@ void scripting::on_world_quit() {
     for (auto& pack : scripting::engine->getContentPacks()) {
         lua::emit_event(L, pack.id + ":.worldquit");
     }
+    scripting::level = nullptr;
+    scripting::content = nullptr;
+    scripting::indices = nullptr;
+    scripting::blocks = nullptr;
+    scripting::controller = nullptr;
+}
 
+void scripting::cleanup() {
+    auto L = lua::get_main_state();
     lua::getglobal(L, "pack");
     for (auto& pack : scripting::engine->getAllContentPacks()) {
         lua::getfield(L, "unload");
@@ -199,11 +207,6 @@ void scripting::on_world_quit() {
     if (lua::getglobal(L, "__scripts_cleanup")) {
         lua::call_nothrow(L, 0);
     }
-    scripting::level = nullptr;
-    scripting::content = nullptr;
-    scripting::indices = nullptr;
-    scripting::blocks = nullptr;
-    scripting::controller = nullptr;
 }
 
 void scripting::on_blocks_tick(const Block& block, int tps) {

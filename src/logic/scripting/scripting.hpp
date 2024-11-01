@@ -62,6 +62,7 @@ namespace scripting {
     void on_world_tick();
     void on_world_save();
     void on_world_quit();
+    void cleanup();
     void on_blocks_tick(const Block& block, int tps);
     void update_block(const Block& block, int x, int y, int z);
     void random_update_block(const Block& block, int x, int y, int z);
