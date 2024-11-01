@@ -1,6 +1,12 @@
 history = session.get_entry("commands_history")
 history_pointer = #history
 
+events.on("core:warning", function (wtype, text)
+    document.problemsLog:add(gui.template("problem", {
+        type="warning", text=wtype..": "..text, id=tostring(math.random())
+    }))
+end)
+
 function setup_variables()
     local pid = hud.get_player()
     local x,y,z = player.get_pos(pid)
