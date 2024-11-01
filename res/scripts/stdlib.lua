@@ -9,22 +9,28 @@ function sleep(timesec)
     end
 end
 
--- events
+------------------------------------------------
+------------------- Events ---------------------
+------------------------------------------------
 events = {
     handlers = {}
 }
 
 function events.on(event, func)
-    -- why an array? length is always = 1
-    -- FIXME: temporary fixed
-    events.handlers[event] = {} -- events.handlers[event] or {}
+    if events.handlers[event] == nil then
+        events.handlers[event] = {}
+    end
     table.insert(events.handlers[event], func)
 end
 
 function events.remove_by_prefix(prefix)
     for name, handlers in pairs(events.handlers) do
-        if name:sub(1, #prefix) == prefix then
-            events.handlers[name] = nil
+        local actualname = name
+        if type(name) == 'table' then
+            actualname = name[1]
+        end
+        if actualname:sub(1, #prefix+1) == prefix..':' then
+            events.handlers[actualname] = nil
         end
     end
 end
@@ -34,11 +40,13 @@ function pack.unload(prefix)
 end
 
 function events.emit(event, ...)
-    result = nil
-    if events.handlers[event] then
-        for _, func in ipairs(events.handlers[event]) do
-            result = result or func(...)
-        end
+    local result = nil
+    local handlers = events.handlers[event]
+    if handlers == nil then
+        return nil
+    end
+    for _, func in ipairs(handlers) do
+        result = result or func(...)
     end
     return result
 end

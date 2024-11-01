@@ -136,3 +136,24 @@ function on_hud_close(playerid: int)
 ```
 
 Called on world close (before saving)
+
+## *events* library
+
+```lua
+events.on(code: str, handler: function)
+```
+
+Adds an event handler by its code, not limited to the standard ones.
+
+```lua
+events.emit(code: str, args...) -> bool
+```
+
+Emits an event by code. If the event does not exist, nothing will happen.
+The existence of an event is determined by the presence of handlers.
+
+```lua
+events.remove_by_prefix(packid: str)
+```
+
+Removes all events with the prefix `packid:`. When you exit the world, events from all packs are unloaded, including `core:`.
