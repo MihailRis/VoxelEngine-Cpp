@@ -305,6 +305,8 @@ static void load_configs(const fs::path& root) {
 }
 
 void Engine::loadContent() {
+    scripting::cleanup();
+
     auto resdir = paths->getResourcesFolder();
 
     std::vector<std::string> names;
@@ -350,6 +352,7 @@ void Engine::loadContent() {
 }
 
 void Engine::resetContent() {
+    scripting::cleanup();
     auto resdir = paths->getResourcesFolder();
     std::vector<PathsRoot> resRoots;
     {

@@ -224,7 +224,7 @@ void Hud::processInput(bool visible) {
             setPause(true);
         }
     }
-    if (!pause && Events::active(BIND_DEVTOOLS_CONSOLE)) {
+    if (!pause && Events::jactive(BIND_DEVTOOLS_CONSOLE)) {
         showOverlay(assets->get<UiDocument>("core:console"), false);
     }
     if (!Window::isFocused() && !pause && !isInventoryOpen()) {

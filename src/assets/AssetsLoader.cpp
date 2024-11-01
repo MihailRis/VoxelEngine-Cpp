@@ -213,12 +213,6 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             loader.tryAddSound(material.breakSound);
         }
 
-        addLayouts(
-            0,
-            "core",
-            loader.getPaths()->getMainRoot() / fs::path("layouts"),
-            loader
-        );
         for (auto& entry : content->getPacks()) {
             auto pack = entry.second.get();
             auto& info = pack->getInfo();
