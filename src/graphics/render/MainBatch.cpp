@@ -4,8 +4,6 @@
 #include "graphics/core/Mesh.hpp"
 #include "graphics/core/ImageData.hpp"
 
-#include "typedefs.hpp"
-
 static const vattr attrs[] = {
     {3}, {2}, {3}, {1}, {0}
 };

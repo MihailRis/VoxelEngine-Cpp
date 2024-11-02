@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <glm/glm.hpp>
 
+#include "typedefs.hpp"
 #include "maths/UVRegion.hpp"
 
 class Mesh;
