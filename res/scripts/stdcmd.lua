@@ -110,6 +110,22 @@ console.add_command(
         return "Time set to " .. args[1]
     end
 )
+
+console.add_command(
+    "time.daycycle operation:[stop|reset]",
+    "Control time.daycycle",
+    function(args, kwargs)
+        local operation = args[1]
+        if operation == "stop" then
+            world.set_day_time_speed(0)
+            return "Daily cycle has stopped"
+        else
+            world.set_day_time_speed(1.0 / 60.0 / 24.0)
+            return "Daily cycle has started"
+        end
+    end
+)
+
 console.add_command(
     "blocks.fill id:str x1:int~pos.x y1:int~pos.y z1:int~pos.z "..
                        "x2:int~pos.x y2:int~pos.y z2:int~pos.z",
