@@ -133,7 +133,7 @@ static int l_reset_bindings(lua::State*) {
     return 0;
 }
 
-static int l_enable_binding(lua::State* L) {
+static int l_set_enabled(lua::State* L) {
     std::string bindname = lua::require_string(L, 1);
     bool enable = lua::toboolean(L, 2);
     const auto& bind = Events::bindings.find(bindname);
@@ -154,5 +154,5 @@ const luaL_Reg inputlib[] = {
     {"is_active", lua::wrap<l_is_active>},
     {"is_pressed", lua::wrap<l_is_pressed>},
     {"reset_bindings", lua::wrap<l_reset_bindings>},
-    {"enable_binding", lua::wrap<l_enable_binding>},
+    {"set_enabled", lua::wrap<l_set_enabled>},
     {NULL, NULL}};

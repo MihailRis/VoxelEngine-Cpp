@@ -67,6 +67,18 @@ input.get_binding_text(bindname: str) -> str
 Returns text representation of button by binding name.
 
 ```python
+input.is_active(bindname: str) -> bool
+```
+
+Checks if the binding is active.
+
+```python
+input.set_enabled(bindname: str, flag: bool)
+```
+
+Enables/disables binding until leaving the world.
+
+```python
 input.is_pressed(code: str) -> bool
 ```
 

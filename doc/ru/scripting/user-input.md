@@ -71,6 +71,12 @@ input.is_active(bindname: str) -> bool
 Проверяет активность привязки.
 
 ```python
+input.set_enabled(bindname: str, flag: bool)
+```
+
+Включает/выключает привязку до выхода из мира.
+
+```python
 input.is_pressed(code: str) -> bool
 ```
 

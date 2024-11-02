@@ -403,6 +403,9 @@ double Engine::getDelta() const {
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
+    // unblock all bindings
+    Events::enableBindings();
+    // reset audio channels (stop all sources)
     audio::reset_channel(audio::get_channel_index("regular"));
     audio::reset_channel(audio::get_channel_index("ambient"));
     this->screen = std::move(screen);

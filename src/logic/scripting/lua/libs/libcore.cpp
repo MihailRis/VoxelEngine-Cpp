@@ -60,8 +60,6 @@ static int l_close_world(lua::State* L) {
     if (save_world) {
         controller->saveWorld();
     }
-    // unblock all bindings
-    Events::enableBindings();
     // destroy LevelScreen and run quit callbacks
     engine->setScreen(nullptr);
     // create and go to menu screen
