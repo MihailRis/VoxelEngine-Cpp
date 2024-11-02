@@ -19,4 +19,7 @@ public:
     ~ParticlesRenderer();
 
     void render(const Assets& assets, const Camera& camera, float delta);
+
+    static size_t visibleParticles;
+    static size_t aliveEmitters;
 };

@@ -1,17 +1,22 @@
 #include "ParticlesRenderer.hpp"
 
 #include "assets/Assets.hpp"
+#include "assets/assets_util.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/render/MainBatch.hpp"
 #include "window/Camera.hpp"
 
+size_t ParticlesRenderer::visibleParticles = 0;
+size_t ParticlesRenderer::aliveEmitters = 0;
+
 ParticlesRenderer::ParticlesRenderer(const Assets& assets)
     : batch(std::make_unique<MainBatch>(1024)) {
 
+    auto region = util::get_texture_region(assets, "blocks:grass_side", "");
     Emitter emitter(glm::vec3(0, 100, 0), Particle {
-        glm::vec3(), glm::vec3(), 5.0f, UVRegion(0,0,1,1)
-    }, assets.get<Texture>("gui/error"), 0.003f, -1);
+        glm::vec3(), glm::vec3(), 5.0f, region.region
+    },region.texture, 0.001f, -1);
     emitters.push_back(std::move(emitter));
 }
 
@@ -24,8 +29,13 @@ void ParticlesRenderer::render(
     const auto& up = camera.up;
 
     batch->begin();
+    
+    aliveEmitters = emitters.size();
+    visibleParticles = 0;
     for (auto& [texture, vec] : particles) {
         batch->setTexture(texture);
+
+        visibleParticles += vec.size();
 
         auto iter = vec.begin();
         while (iter != vec.end()) {

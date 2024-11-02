@@ -63,7 +63,7 @@ WorldRenderer::WorldRenderer(
           &engine->getSettings()
       )),
       particles(std::make_unique<ParticlesRenderer>(*engine->getAssets())) {
-        
+
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
     );
@@ -216,7 +216,7 @@ void WorldRenderer::renderLevel(
         delta,
         pause
     );
-    particles->render(*assets, camera, delta);
+    particles->render(*assets, camera, delta * !pause);
     modelBatch->render();
 
     auto shader = assets->get<Shader>("main");

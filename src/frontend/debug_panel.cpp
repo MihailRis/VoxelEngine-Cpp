@@ -9,6 +9,7 @@
 #include "graphics/ui/elements/TrackBar.hpp"
 #include "graphics/ui/elements/InputBindBox.hpp"
 #include "graphics/render/WorldRenderer.hpp"
+#include "graphics/render/ParticlesRenderer.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "objects/Player.hpp"
 #include "objects/Entities.hpp"
@@ -82,6 +83,12 @@ std::shared_ptr<UINode> create_debug_panel(
         auto& settings = engine->getSettings();
         bool culling = settings.graphics.frustumCulling.get();
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
+    }));
+    panel->add(create_label([=]() {
+        return L"particles: " +
+               std::to_wstring(ParticlesRenderer::visibleParticles) +
+               L" emitters: " +
+               std::to_wstring(ParticlesRenderer::aliveEmitters);
     }));
     panel->add(create_label([=]() {
         return L"chunks: "+std::to_wstring(level->chunks->getChunksCount())+
