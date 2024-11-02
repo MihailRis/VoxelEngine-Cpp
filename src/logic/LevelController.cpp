@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "debug/Logger.hpp"
+#include "engine.hpp"
 #include "files/WorldFiles.hpp"
 #include "interfaces/Object.hpp"
 #include "objects/Entities.hpp"
@@ -15,10 +16,8 @@
 
 static debug::Logger logger("level-control");
 
-LevelController::LevelController(
-    EngineSettings& settings, std::unique_ptr<Level> level
-)
-    : settings(settings),
+LevelController::LevelController(Engine* engine, std::unique_ptr<Level> level)
+    : settings(engine->getSettings()),
       level(std::move(level)),
       blocks(std::make_unique<BlocksController>(
           this->level.get(), settings.chunks.padding.get()
@@ -27,7 +26,7 @@ LevelController::LevelController(
           this->level.get(), settings.chunks.padding.get()
       )),
       player(std::make_unique<PlayerController>(
-          this->level.get(), settings, blocks.get()
+          engine, this->level.get(), blocks.get()
       )) {
     scripting::on_world_load(this);
 }

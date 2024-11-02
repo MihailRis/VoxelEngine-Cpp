@@ -6,6 +6,7 @@
 
 #include "objects/Player.hpp"
 
+class Engine;
 class Camera;
 class Level;
 class Block;
@@ -45,12 +46,14 @@ public:
 };
 
 class PlayerController {
+    Engine* engine;
     Level* level;
     std::shared_ptr<Player> player;
     PlayerInput input {};
     CameraControl camControl;
     BlocksController* blocksController;
 
+    float interactionTimer = 0.0f;
     void updateKeyboard();
     void resetKeyboard();
     void updatePlayer(float delta);
@@ -65,9 +68,7 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        Level* level,
-        const EngineSettings& settings,
-        BlocksController* blocksController
+        Engine* const engine, Level* level, BlocksController* blocksController
     );
     void update(float delta, bool input, bool pause);
     void postUpdate(float delta, bool input, bool pause);
