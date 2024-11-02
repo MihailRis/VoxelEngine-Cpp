@@ -7,6 +7,7 @@
 #include "typedefs.hpp"
 
 #include "maths/UVRegion.hpp"
+#include "maths/util.hpp"
 
 class Emitter;
 
@@ -50,6 +51,8 @@ class Emitter {
     float timer = 0.0f;
     /// @brief Random velocity magnitude applying to spawned particles
     glm::vec3 explosion {8.0f};
+
+    util::PseudoRandom random;    
 public:
     ParticleBehaviour behaviour;
 

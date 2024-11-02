@@ -39,7 +39,7 @@ void Emitter::update(float delta, std::vector<Particle>& particles) {
         // spawn particle
         Particle particle = prototype;
         particle.emitter = this;
-        particle.random = rand();
+        particle.random = random.rand32();
         particle.position = position;
         particle.velocity += glm::ballRand(1.0f) * explosion;
         particles.push_back(std::move(particle));

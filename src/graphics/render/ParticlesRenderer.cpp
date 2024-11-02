@@ -22,7 +22,7 @@ ParticlesRenderer::ParticlesRenderer(
     auto region = util::get_texture_region(assets, "blocks:grass_top", "");
     emitters.push_back(std::make_unique<Emitter>(glm::vec3(0, 80, 0), Particle {
         nullptr, 0, glm::vec3(), glm::vec3(), 5.0f, region.region
-    },region.texture, 0.002f, -1));
+    }, region.texture, 0.002f, -1));
 }
 
 ParticlesRenderer::~ParticlesRenderer() = default;
@@ -71,7 +71,7 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
                 light = MainBatch::sampleLight(
                     particle.position, chunks, backlight
                 );
-                light *= 0.7f + (particle.random % 300) * 0.001f;
+                light *= 0.8f + (particle.random % 200) * 0.001f;
             }
             batch->quad(
                 particle.position,
