@@ -1,0 +1,6 @@
+<container id="%{id}" size="32" tooltip="%{text}">
+    <image src="gui/%{type}" size="32"/>
+    <label pos="36,2">%{text}</label>
+    <image src="gui/cross" interactive="true" size="16" gravity="top-right" 
+           onclick="document['%{id}']:destruct()"></image>
+</container>
