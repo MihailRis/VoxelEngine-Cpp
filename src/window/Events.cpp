@@ -78,6 +78,10 @@ void Events::pollEvents() {
 
     for (auto& entry : bindings) {
         auto& binding = entry.second;
+        if (!binding.enable) {
+            binding.state = false;
+            continue;
+        }
         binding.justChange = false;
 
         bool newstate = false;
@@ -226,5 +230,12 @@ void Events::loadBindings(
             }
             
         }
+    }
+}
+
+void Events::enableBindings() {
+    for (auto& entry : bindings) {
+        auto& binding = entry.second;
+        binding.enable = true;
     }
 }

@@ -60,4 +60,5 @@ public:
         const std::string& filename, const std::string& source,
         BindType bindType
     );
+    static void enableBindings();
 };

@@ -137,6 +137,7 @@ struct Binding {
     int code;
     bool state = false;
     bool justChange = false;
+    bool enable = true;
 
     Binding() = default;
     Binding(inputtype type, int code) : type(type), code(code) {
