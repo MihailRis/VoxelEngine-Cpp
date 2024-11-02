@@ -6,21 +6,37 @@
 #include "graphics/core/Texture.hpp"
 #include "graphics/render/MainBatch.hpp"
 #include "window/Camera.hpp"
+#include "world/Level.hpp"
+#include "voxels/Chunks.hpp"
 
 size_t ParticlesRenderer::visibleParticles = 0;
 size_t ParticlesRenderer::aliveEmitters = 0;
 
-ParticlesRenderer::ParticlesRenderer(const Assets& assets)
-    : batch(std::make_unique<MainBatch>(1024)) {
+ParticlesRenderer::ParticlesRenderer(const Assets& assets, const Level& level)
+    : batch(std::make_unique<MainBatch>(1024)), level(level) {
 
-    auto region = util::get_texture_region(assets, "blocks:grass_side", "");
-    Emitter emitter(glm::vec3(0, 100, 0), Particle {
+    auto region = util::get_texture_region(assets, "blocks:bazalt", "");
+    emitters.push_back(std::make_unique<Emitter>(glm::vec3(0, 100, 0), Particle {
         nullptr, glm::vec3(), glm::vec3(), 5.0f, region.region
-    },region.texture, 0.001f, 1000);
-    emitters.push_back(std::make_unique<Emitter>(emitter));
+    },region.texture, 0.002f, -1));
 }
 
 ParticlesRenderer::~ParticlesRenderer() = default;
+
+static inline void update_particle(
+    Particle& particle, float delta, const Chunks& chunks
+) {
+    const auto& behave = particle.emitter->behaviour;
+    auto& pos = particle.position;
+    auto& vel = particle.velocity;
+
+    vel += delta * behave.gravity;
+    if (behave.collision && chunks.isObstacleAt(pos + vel * delta)) {
+        vel *= 0.0f;
+    }
+    pos += vel * delta;
+    particle.lifetime -= delta;
+}
 
 void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
     const auto& right = camera.right;
@@ -41,7 +57,7 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
         while (iter != vec.end()) {
             auto& particle = *iter;
 
-            particle.position += particle.velocity * delta;
+            update_particle(particle, delta, *level.chunks);
 
             batch->quad(
                 particle.position,
@@ -52,8 +68,6 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
                 glm::vec3(1.0f),
                 particle.region
             );
-
-            particle.lifetime -= delta;
             if (particle.lifetime <= 0.0f) {
                 iter = vec.erase(iter);
             } else {

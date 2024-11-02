@@ -26,6 +26,11 @@ struct Particle {
 
 class Texture;
 
+struct ParticleBehaviour {
+    bool collision = true;
+    glm::vec3 gravity {0.0f, -16.0f, 0.0f};
+};
+
 class Emitter {
     /// @brief Static position or entity
     std::variant<glm::vec3, entityid_t> origin;
@@ -42,8 +47,10 @@ class Emitter {
     /// to spawn on update. May be innacurate.
     float timer = 0.0f;
     /// @brief Random velocity magnitude applying to spawned particles
-    glm::vec3 explosion {1.0f};
+    glm::vec3 explosion {8.0f};
 public:
+    ParticleBehaviour behaviour;
+
     Emitter(
         std::variant<glm::vec3, entityid_t> origin,
         Particle prototype,
@@ -51,6 +58,8 @@ public:
         float spawnInterval,
         int count
     );
+
+    explicit Emitter(const Emitter&) = delete;
 
     /// @return Emitter particles texture
     const Texture* getTexture() const;

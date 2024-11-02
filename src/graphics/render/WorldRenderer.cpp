@@ -62,8 +62,9 @@ WorldRenderer::WorldRenderer(
           level->chunks.get(),
           &engine->getSettings()
       )),
-      particles(std::make_unique<ParticlesRenderer>(*engine->getAssets())) {
-
+      particles(std::make_unique<ParticlesRenderer>(
+          *engine->getAssets(), *frontend->getLevel()
+      )) {
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
     );

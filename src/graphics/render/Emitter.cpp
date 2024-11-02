@@ -15,7 +15,8 @@ Emitter::Emitter(
       prototype(std::move(prototype)),
       texture(texture),
       spawnInterval(spawnInterval),
-      count(count) {
+      count(count),
+      behaviour() {
     this->prototype.emitter = this;
 }
 
@@ -37,6 +38,7 @@ void Emitter::update(float delta, std::vector<Particle>& particles) {
     while (count && timer > spawnInterval) {
         // spawn particle
         Particle particle = prototype;
+        particle.emitter = this;
         particle.position = position;
         particle.velocity += glm::ballRand(1.0f) * explosion;
         particles.push_back(std::move(particle));
