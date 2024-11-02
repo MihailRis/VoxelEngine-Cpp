@@ -489,7 +489,7 @@ void PlayerController::updateInteraction() {
     if (interactionTimer > 0.0f) {
         interactionTimer -= static_cast<float>(engine->getDelta());
     }
-    bool xkey = Events::pressed(keycode::X);
+    bool xkey = Events::active(BIND_PLAYER_FAST_INTERACTOIN);
     float maxDistance = xkey ? 200.0f : 10.0f;
     bool longInteraction = interactionTimer <= 0 || xkey;
     bool lclick = Events::jactive(BIND_PLAYER_ATTACK) ||
