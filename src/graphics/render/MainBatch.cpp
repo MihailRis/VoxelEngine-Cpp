@@ -52,6 +52,11 @@ void MainBatch::flush() {
     index = 0;
 }
 
+void MainBatch::begin() {
+    texture = nullptr;
+    blank->bind();
+}
+
 void MainBatch::prepare(int vertices) {
     if (index + VERTEX_SIZE * vertices > capacity * VERTEX_SIZE) {
         flush();

@@ -40,6 +40,7 @@
 #include "graphics/core/PostProcessing.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
+#include "ParticlesRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
@@ -56,9 +57,13 @@ WorldRenderer::WorldRenderer(
       frustumCulling(std::make_unique<Frustum>()),
       lineBatch(std::make_unique<LineBatch>()),
       modelBatch(std::make_unique<ModelBatch>(
-          20'000, engine->getAssets(), level->chunks.get(), 
+          20'000,
+          engine->getAssets(),
+          level->chunks.get(),
           &engine->getSettings()
-      )) {
+      )),
+      particles(std::make_unique<ParticlesRenderer>(*engine->getAssets())) {
+        
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
     );
@@ -189,7 +194,7 @@ void WorldRenderer::setupWorldShader(
 }
 
 void WorldRenderer::renderLevel(
-    const DrawContext&,
+    const DrawContext& ctx,
     const Camera& camera,
     const EngineSettings& settings,
     float delta,
@@ -211,6 +216,7 @@ void WorldRenderer::renderLevel(
         delta,
         pause
     );
+    particles->render(*assets, camera, delta);
     modelBatch->render();
 
     auto shader = assets->get<Shader>("main");

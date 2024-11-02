@@ -29,13 +29,18 @@ public:
 
     ~MainBatch();
 
+    void begin();
+
     void prepare(int vertices);
     void setTexture(const Texture* texture);
     void setTexture(const Texture* texture, const UVRegion& region);
     void flush();
 
     inline void vertex(
-        glm::vec3 pos, glm::vec2 uv, glm::vec4 light, glm::vec3 tint
+        const glm::vec3& pos,
+        const glm::vec2& uv,
+        const glm::vec4& light,
+        const glm::vec3& tint
     ) {
         float* buffer = this->buffer.get();
         buffer[index++] = pos.x;
@@ -58,5 +63,54 @@ public:
         compressed.integer |= (static_cast<uint32_t>(light.a * 255) & 0xff);
 
         buffer[index++] = compressed.floating;
+    }
+
+    inline void quad(
+        const glm::vec3& pos,
+        const glm::vec3& right,
+        const glm::vec3& up,
+        const glm::vec2& size,
+        const glm::vec4& light,
+        const glm::vec3& tint,
+        const UVRegion& subregion
+    ) {
+        prepare(6);
+        vertex(
+            pos - right * size.x * 0.5f - up * size.y * 0.5f,
+            {subregion.u1, subregion.v1},
+            light,
+            tint
+        );
+        vertex(
+            pos + right * size.x * 0.5f - up * size.y * 0.5f,
+            {subregion.u2, subregion.v1},
+            light,
+            tint
+        );
+        vertex(
+            pos + right * size.x * 0.5f + up * size.y * 0.5f,
+            {subregion.u2, subregion.v2},
+            light,
+            tint
+        );
+
+        vertex(
+            pos - right * size.x * 0.5f - up * size.y * 0.5f,
+            {subregion.u1, subregion.v1},
+            light,
+            tint
+        );
+        vertex(
+            pos + right * size.x * 0.5f + up * size.y * 0.5f,
+            {subregion.u2, subregion.v2},
+            light,
+            tint
+        );
+        vertex(
+            pos - right * size.x * 0.5f + up * size.y * 0.5f,
+            {subregion.u1, subregion.v2},
+            light,
+            tint
+        );
     }
 };
