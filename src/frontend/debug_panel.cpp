@@ -184,6 +184,18 @@ std::shared_ptr<UINode> create_debug_panel(
     }
     {
         auto checkbox = std::make_shared<FullCheckBox>(
+            L"Day Cycle", glm::vec2(400, 24)
+        );
+        checkbox->setSupplier([&]() {
+            return worldInfo.dayCycle;
+        });
+        checkbox->setConsumer([&](bool checked) {
+            worldInfo.dayCycle = checked;
+        });
+        panel->add(checkbox);
+    }
+    {
+        auto checkbox = std::make_shared<FullCheckBox>(
             L"Show Chunk Borders", glm::vec2(400, 24)
         );
         checkbox->setSupplier([=]() {

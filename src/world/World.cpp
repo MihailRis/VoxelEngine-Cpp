@@ -40,8 +40,10 @@ World::~World() {
 }
 
 void World::updateTimers(float delta) {
-    info.daytime += delta * info.daytimeSpeed * DAYIME_SPECIFIC_SPEED;
-    info.daytime = std::fmod(info.daytime, 1.0f);
+    if (info.dayCycle) {
+        info.daytime += delta * info.daytimeSpeed * DAYIME_SPECIFIC_SPEED;
+        info.daytime = std::fmod(info.daytime, 1.0f);
+    }
     info.totalTime += delta;
 }
 
@@ -219,6 +221,7 @@ void WorldInfo::deserialize(const dv::value& root) {
         auto& timeobj = root["time"];
         daytime = timeobj["day-time"].asNumber();
         daytimeSpeed = timeobj["day-time-speed"].asNumber();
+        dayCycle = timeobj["day-cycle"].asBoolean();
         totalTime = timeobj["total-time"].asNumber();
     }
     if (root.has("weather")) {
@@ -242,6 +245,7 @@ dv::value WorldInfo::serialize() const {
     auto& timeobj = root.object("time");
     timeobj["day-time"] = daytime;
     timeobj["day-time-speed"] = daytimeSpeed;
+    timeobj["day-cycle"] = dayCycle;
     timeobj["total-time"] = totalTime;
 
     auto& weatherobj = root.object("weather");

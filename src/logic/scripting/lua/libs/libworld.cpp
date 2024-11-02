@@ -49,6 +49,12 @@ static int l_get_list(lua::State* L) {
     return 1;
 }
 
+static int l_set_day_cycle(lua::State* L) {
+    bool flag = lua::toboolean(L, 1);
+    require_world_info().dayCycle = flag;
+    return 0;
+}
+
 static int l_get_total_time(lua::State* L) {
     return lua::pushnumber(L, require_world_info().totalTime);
 }
@@ -100,6 +106,7 @@ static int l_get_generator(lua::State* L) {
 const luaL_Reg worldlib[] = {
     {"get_list", lua::wrap<l_get_list>},
     {"get_total_time", lua::wrap<l_get_total_time>},
+    {"set_day_cycle", lua::wrap<l_set_day_cycle>},
     {"get_day_time", lua::wrap<l_get_day_time>},
     {"set_day_time", lua::wrap<l_set_day_time>},
     {"set_day_time_speed", lua::wrap<l_set_day_time_speed>},

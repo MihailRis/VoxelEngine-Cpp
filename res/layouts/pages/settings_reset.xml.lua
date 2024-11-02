@@ -7,6 +7,7 @@ function reset(category)
 		reset_graphics()
 	elseif category == "ctl" then
 		reset_control()
+		world.set_day_cycle(false)
 	end
 end
 

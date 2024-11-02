@@ -37,6 +37,9 @@ struct WorldInfo : public Serializable {
     // looking bad
     float daytimeSpeed = 1.0f;
 
+    /// @breif on/off Day/night loop timer
+    bool dayCycle = true;
+
     /// @brief total time passed in the world (not depending on daytimeSpeed)
     double totalTime = 0.0;
 
