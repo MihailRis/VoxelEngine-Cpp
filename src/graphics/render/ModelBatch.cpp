@@ -65,17 +65,7 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
                       bool backlight) {
     glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     gpos += lightsOffset;
-    light_t light = chunks->getLight(
-        std::floor(gpos.x), 
-        std::floor(std::min(CHUNK_H-1.0f, gpos.y)), 
-        std::floor(gpos.z));
-    light_t minIntensity = backlight ? 1 : 0;
-    glm::vec4 lights(
-        glm::max(Lightmap::extract(light, 0), minIntensity) / 15.0f,
-        glm::max(Lightmap::extract(light, 1), minIntensity) / 15.0f,
-        glm::max(Lightmap::extract(light, 2), minIntensity) / 15.0f,
-        glm::max(Lightmap::extract(light, 3), minIntensity) / 15.0f
-    );
+    glm::vec4 lights = MainBatch::sampleLight(gpos, *chunks, backlight);
     setTexture(mesh.texture, varTextures);
     size_t vcount = mesh.vertices.size();
     const auto& vertexData = mesh.vertices.data();

@@ -112,7 +112,7 @@ bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
     return indices->blocks.get(v->id)->obstacle;  //-V522
 }
 
-ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel) {
+ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel) const {
     if (y < 0 || y >= CHUNK_H) {
         return 0;
     }
@@ -132,7 +132,7 @@ ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel) {
     return chunk->lightmap.get(lx, y, lz, channel);
 }
 
-light_t Chunks::getLight(int32_t x, int32_t y, int32_t z) {
+light_t Chunks::getLight(int32_t x, int32_t y, int32_t z) const {
     if (y < 0 || y >= CHUNK_H) {
         return 0;
     }

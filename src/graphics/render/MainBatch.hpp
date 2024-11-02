@@ -9,6 +9,7 @@
 
 class Mesh;
 class Texture;
+class Chunks;
 
 class MainBatch {
     std::unique_ptr<float[]> const buffer;
@@ -35,6 +36,10 @@ public:
     void setTexture(const Texture* texture);
     void setTexture(const Texture* texture, const UVRegion& region);
     void flush();
+
+    static glm::vec4 sampleLight(
+        const glm::vec3& pos, const Chunks& chunks, bool backlight
+    );
 
     inline void vertex(
         const glm::vec3& pos,

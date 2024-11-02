@@ -39,11 +39,14 @@ void Emitter::update(float delta, std::vector<Particle>& particles) {
         // spawn particle
         Particle particle = prototype;
         particle.emitter = this;
+        particle.random = rand();
         particle.position = position;
         particle.velocity += glm::ballRand(1.0f) * explosion;
         particles.push_back(std::move(particle));
         timer -= spawnInterval;
-        count--;
+        if (count > 0) {
+            count--;
+        }
     }
 }
 

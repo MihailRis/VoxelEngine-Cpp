@@ -14,6 +14,7 @@ struct Particle {
     /// @brief Pointer used to access common behaviour.
     /// Emitter must be utilized after all related particles despawn.
     Emitter* emitter;
+    int random;
     /// @brief Global position
     glm::vec3 position;
     /// @brief Linear velocity
@@ -28,6 +29,7 @@ class Texture;
 
 struct ParticleBehaviour {
     bool collision = true;
+    bool lighting = true;
     glm::vec3 gravity {0.0f, -16.0f, 0.0f};
 };
 
