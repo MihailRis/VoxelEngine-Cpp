@@ -16,6 +16,7 @@ Emitter::Emitter(
       texture(texture),
       spawnInterval(spawnInterval),
       count(count) {
+    this->prototype.emitter = this;
 }
 
 const Texture* Emitter::getTexture() const {

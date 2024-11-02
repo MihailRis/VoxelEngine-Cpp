@@ -8,10 +8,19 @@
 
 #include "maths/UVRegion.hpp"
 
+class Emitter;
+
 struct Particle {
+    /// @brief Pointer used to access common behaviour.
+    /// Emitter must be utilized after all related particles despawn.
+    Emitter* emitter;
+    /// @brief Global position
     glm::vec3 position;
+    /// @brief Linear velocity
     glm::vec3 velocity;
+    /// @brief Remaining life time
     float lifetime;
+    /// @brief UV region
     UVRegion region;
 };
 
@@ -43,6 +52,7 @@ public:
         int count
     );
 
+    /// @return Emitter particles texture
     const Texture* getTexture() const;
 
     /// @brief Update emitter and spawn particles
@@ -50,7 +60,9 @@ public:
     /// @param particles destination particles vector
     void update(float delta, std::vector<Particle>& particles);    
 
+    /// @brief Set initial random velocity magitude
     void setExplosion(const glm::vec3& magnitude);
 
+    /// @return true if the emitter has spawned all particles
     bool isDead() const;
 };

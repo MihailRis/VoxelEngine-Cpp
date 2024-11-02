@@ -203,7 +203,8 @@ void WorldRenderer::renderLevel(
     auto assets = engine->getAssets();
 
     bool culling = engine->getSettings().graphics.frustumCulling.get();
-    float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get() - 2);
+    float fogFactor =
+        15.0f / static_cast<float>(settings.chunks.loadDistance.get() - 2);
 
     auto entityShader = assets->get<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
@@ -216,7 +217,7 @@ void WorldRenderer::renderLevel(
         delta,
         pause
     );
-    particles->render(*assets, camera, delta * !pause);
+    particles->render(camera, delta * !pause);
     modelBatch->render();
 
     auto shader = assets->get<Shader>("main");
