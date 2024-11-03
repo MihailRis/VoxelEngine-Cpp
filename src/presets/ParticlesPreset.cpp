@@ -36,6 +36,12 @@ dv::value ParticlesPreset::serialize() const {
     root["spawn_spread"] = dv::to_value(size);
     root["spawn_shape"] = to_string(spawnShape);
     root["random_sub_uv"] = randomSubUV;
+    if (!frames.empty()) {
+        auto& arr = root.list("animation");
+        for (const auto& frame : frames) {
+            arr.add(frame);
+        }
+    }
     return root;
 }
 
@@ -62,5 +68,14 @@ void ParticlesPreset::deserialize(const dv::value& src) {
     }
     if (src.has("spawn_shape")) {
         spawnShape = ParticleSpawnShape_from(src["spawn_shape"].asString());
+    }
+    if (src.has("frames")) {
+        for (const auto& frame : src["frames"]) {
+            frames.push_back(frame.asString());
+        }
+        if (!frames.empty()) {
+            texture = frames.at(0);
+            randomSubUV = 1.0f;
+        }
     }
 }

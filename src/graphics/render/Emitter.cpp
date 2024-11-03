@@ -58,6 +58,9 @@ void Emitter::update(
     } else if (auto entityId = std::get_if<entityid_t>(&origin)) {
         if (auto entity = level.entities->get(*entityId)) {
             position = entity->getTransform().pos;
+        } else {
+            stop();
+            return;
         }
     }
     const float maxDistance = preset.maxDistance;
@@ -100,6 +103,10 @@ void Emitter::update(
             count--;
         }
     }
+}
+
+void Emitter::stop() {
+    count = 0;
 }
 
 bool Emitter::isDead() const {

@@ -1,6 +1,7 @@
 #include "ParticlesRenderer.hpp"
 
 #include "assets/Assets.hpp"
+#include "assets/assets_util.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/render/MainBatch.hpp"
@@ -17,6 +18,7 @@ ParticlesRenderer::ParticlesRenderer(
 )
     : batch(std::make_unique<MainBatch>(1024)),
       level(level),
+      assets(assets),
       settings(settings) {}
 
 ParticlesRenderer::~ParticlesRenderer() = default;
@@ -59,6 +61,23 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
             auto& particle = *iter;
             auto& preset = particle.emitter->preset;
 
+            if (!preset.frames.empty()) {
+                float time = preset.lifetime - particle.lifetime;
+                int framesCount = preset.frames.size();
+                int frameid = time / preset.lifetime * framesCount;
+                int frameid2 = glm::min(
+                    (time + delta) / preset.lifetime * framesCount,
+                    framesCount - 1.0f
+                );
+                if (frameid2 != frameid) {
+                    auto tregion = util::get_texture_region(
+                        assets, preset.frames.at(frameid2), ""
+                    );
+                    if (tregion.texture == texture) {
+                        particle.region = tregion.region;
+                    }
+                }
+            }
             update_particle(particle, delta, chunks);
 
             glm::vec4 light(1, 1, 1, 0);

@@ -15,6 +15,7 @@ struct GraphicsSettings;
 
 class ParticlesRenderer {
     const Level& level;
+    const Assets& assets;
     const GraphicsSettings* settings;
     std::unordered_map<const Texture*, std::vector<Particle>> particles;
     std::vector<std::unique_ptr<Emitter>> emitters;

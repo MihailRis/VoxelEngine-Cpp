@@ -75,7 +75,10 @@ public:
         const glm::vec3& cameraPosition,
         std::vector<Particle>& particles
     );
-    
+
+    /// @brief Set remaining particles count to 0
+    void stop();
+
     /// @return true if the emitter has spawned all particles
     bool isDead() const;
 };
