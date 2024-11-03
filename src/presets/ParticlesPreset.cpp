@@ -23,25 +23,27 @@ ParticleSpawnShape ParticleSpawnShape_from(std::string_view s) {
 
 dv::value ParticlesPreset::serialize() const {
     auto root = dv::object();
-    root["texture"] = texture;
+    if (frames.empty()) {
+        root["texture"] = texture;
+    } else {
+        auto& arr = root.list("animation");
+        for (const auto& frame : frames) {
+            arr.add(frame);
+        }
+    }
     root["collision"] = collision;
     root["lighting"] = lighting;
     root["max_distance"] = maxDistance;
     root["spawn_interval"] = spawnInterval;
     root["lifetime"] = lifetime;
     root["lifetime_spread"] = lifetimeSpread;
+    root["velocity"] = dv::to_value(velocity);
     root["acceleration"] = dv::to_value(acceleration);
     root["explosion"] = dv::to_value(explosion);
     root["size"] = dv::to_value(size);
     root["spawn_spread"] = dv::to_value(size);
     root["spawn_shape"] = to_string(spawnShape);
     root["random_sub_uv"] = randomSubUV;
-    if (!frames.empty()) {
-        auto& arr = root.list("animation");
-        for (const auto& frame : frames) {
-            arr.add(frame);
-        }
-    }
     return root;
 }
 
@@ -54,6 +56,9 @@ void ParticlesPreset::deserialize(const dv::value& src) {
     src.at("lifetime").get(lifetime);
     src.at("lifetime_spread").get(lifetimeSpread);
     src.at("random_sub_uv").get(randomSubUV);
+    if (src.has("velocity")) {
+        dv::get_vec(src["velocity"], velocity);
+    }
     if (src.has("acceleration")) {
         dv::get_vec(src["acceleration"], acceleration);
     }
