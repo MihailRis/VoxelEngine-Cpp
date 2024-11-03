@@ -4,6 +4,21 @@
 
 #include "interfaces/Serializable.hpp"
 
+enum ParticleSpawnShape {
+    /// @brief Coordinates are regulary distributed within 
+    /// the volume of a ball.
+    BALL = 0,
+    /// @brief Coordinates are regulary distributed on 
+    /// a sphere.
+    SPHERE,
+    /// @brief Coordinates are uniform distributed within 
+    /// the volume of a box.
+    BOX
+};
+
+std::string to_string(ParticleSpawnShape shape);
+ParticleSpawnShape ParticleSpawnShape_from(std::string_view s);
+
 struct ParticlesPreset : public Serializable {
     /// @brief Collision detection
     bool collision = true;
@@ -25,6 +40,10 @@ struct ParticlesPreset : public Serializable {
     glm::vec3 explosion {2.0f};
     /// @brief Particle size
     glm::vec3 size {0.1f};
+    /// @brief Spawn spread shape
+    ParticleSpawnShape spawnShape;
+    /// @brief Spawn spread
+    glm::vec3 spawnSpread {};
     /// @brief Texture name
     std::string texture = "";
     /// @brief Size of random sub-uv region

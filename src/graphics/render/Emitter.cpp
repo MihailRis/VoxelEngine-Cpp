@@ -30,6 +30,19 @@ const Texture* Emitter::getTexture() const {
     return texture;
 }
 
+static inline glm::vec3 generate_coord(ParticleSpawnShape shape) {
+    switch (shape) {
+        case ParticleSpawnShape::BALL:
+            return glm::ballRand(1.0f);
+        case ParticleSpawnShape::SPHERE:
+            return glm::sphericalRand(1.0f);
+        case ParticleSpawnShape::BOX:
+            return glm::linearRand(glm::vec3(-1.0f), glm::vec3(1.0f));
+        default:
+            return {};
+    }
+}
+
 void Emitter::update(
     float delta,
     const glm::vec3& cameraPosition,
@@ -66,7 +79,11 @@ void Emitter::update(
         Particle particle = prototype;
         particle.emitter = this;
         particle.random = random.rand32();
-        particle.position = position;
+
+        glm::vec3 spawnOffset = generate_coord(preset.spawnShape);
+        spawnOffset *= preset.spawnSpread;
+
+        particle.position = position + spawnOffset;
         particle.lifetime *= 1.0f - preset.lifetimeSpread * random.randFloat();
         particle.velocity += glm::ballRand(1.0f) * preset.explosion;
         if (preset.randomSubUV < 1.0f) {
