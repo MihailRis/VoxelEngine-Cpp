@@ -119,7 +119,7 @@ void ParticlesRenderer::render(const Camera& camera, float delta) {
         } else {
             vec = &found->second;
         }
-        emitter.update(delta, *vec);
+        emitter.update(delta, camera.position, *vec);
         iter++;
     }
 }

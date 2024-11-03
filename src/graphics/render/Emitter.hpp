@@ -15,6 +15,7 @@ struct Particle {
     /// @brief Pointer used to access common behaviour.
     /// Emitter must be utilized after all related particles despawn.
     Emitter* emitter;
+    /// @brief Some random integer for visuals configuration.
     int random;
     /// @brief Global position
     glm::vec3 position;
@@ -44,15 +45,17 @@ class Emitter {
     /// @brief Particles spawn interval
     float spawnInterval;
     /// @brief Number of particles should be spawned before emitter deactivation.
-    /// -1 is infinite
+    /// -1 is infinite.
     int count;
     /// @brief Spawn timer used to determine number of particles 
     /// to spawn on update. May be innacurate.
     float timer = 0.0f;
-    /// @brief Random velocity magnitude applying to spawned particles
+    /// @brief Random velocity magnitude applying to spawned particles.
     glm::vec3 explosion {8.0f};
+    /// @brief Max distance of actually spawning particles.
+    float maxDistance = 32.0f;
 
-    util::PseudoRandom random;    
+    util::PseudoRandom random;
 public:
     ParticleBehaviour behaviour;
 
@@ -71,8 +74,13 @@ public:
 
     /// @brief Update emitter and spawn particles
     /// @param delta delta time
+    /// @param cameraPosition current camera global position
     /// @param particles destination particles vector
-    void update(float delta, std::vector<Particle>& particles);    
+    void update(
+        float delta,
+        const glm::vec3& cameraPosition,
+        std::vector<Particle>& particles
+    );
 
     /// @brief Set initial random velocity magitude
     void setExplosion(const glm::vec3& magnitude);

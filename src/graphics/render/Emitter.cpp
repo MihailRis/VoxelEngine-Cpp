@@ -1,7 +1,10 @@
 #include "Emitter.hpp"
 
 #include <glm/gtc/random.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 
+#include "window/Camera.hpp"
 #include "graphics/core/Texture.hpp"
 
 Emitter::Emitter(
@@ -24,8 +27,12 @@ const Texture* Emitter::getTexture() const {
     return texture;
 }
 
-void Emitter::update(float delta, std::vector<Particle>& particles) {
-    if (count == 0) {
+void Emitter::update(
+    float delta,
+    const glm::vec3& cameraPosition,
+    std::vector<Particle>& particles
+) {
+    if (count == 0 || (count == -1 && spawnInterval < FLT_EPSILON)) {
         return;
     }
     glm::vec3 position {};
@@ -33,6 +40,18 @@ void Emitter::update(float delta, std::vector<Particle>& particles) {
         position = *staticPos;
     } else {
         // TODO: implement for entity origin
+    }
+    if (glm::distance2(position, cameraPosition) > maxDistance * maxDistance) {
+        if (count > 0) {
+            if (spawnInterval < FLT_EPSILON) {
+                count = 0;
+                return;
+            }
+            int skipped = timer / spawnInterval;
+            count = std::max(0, count - skipped);
+            timer -= skipped * spawnInterval;
+        }
+        return;
     }
     timer += delta;
     while (count && timer > spawnInterval) {
