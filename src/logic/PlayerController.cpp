@@ -189,7 +189,7 @@ void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
 }
 
 PlayerController::PlayerController(
-    Engine* const engine, Level* level,
+    Engine* engine, Level* level,
     BlocksController* blocksController
 )
     : engine(engine), level(level),
@@ -485,7 +485,7 @@ void PlayerController::updateInteraction() {
     auto indices = level->content->getIndices();
     auto chunks = level->chunks.get();
     const auto& selection = player->selection;
-
+    
     if (interactionTimer > 0.0f) {
         interactionTimer -= static_cast<float>(engine->getDelta());
     }

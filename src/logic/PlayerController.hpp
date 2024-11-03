@@ -68,7 +68,7 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        Engine* const engine, Level* level, BlocksController* blocksController
+        Engine* engine, Level* level, BlocksController* blocksController
     );
     void update(float delta, bool input, bool pause);
     void postUpdate(float delta, bool input, bool pause);
