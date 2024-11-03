@@ -6,6 +6,7 @@
 
 #include "content/Content.hpp"
 #include "core_defs.hpp"
+#include "engine.hpp"
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
 #include "items/ItemStack.hpp"
@@ -26,6 +27,7 @@
 #include "BlocksController.hpp"
 #include "scripting/scripting.hpp"
 
+const float INTERACTION_RELOAD = 0.160f;
 const float STEPS_SPEED = 2.2f;
 const float CAM_SHAKE_OFFSET = 0.0075f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;
@@ -187,13 +189,12 @@ void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
 }
 
 PlayerController::PlayerController(
-    Level* level,
-    const EngineSettings& settings,
+    Engine* engine, Level* level,
     BlocksController* blocksController
 )
-    : level(level),
+    : engine(engine), level(level),
       player(level->getObject<Player>(0)),
-      camControl(player, settings.camera),
+      camControl(player, engine->getSettings().camera),
       blocksController(blocksController) {
 }
 
@@ -484,13 +485,20 @@ void PlayerController::updateInteraction() {
     auto indices = level->content->getIndices();
     auto chunks = level->chunks.get();
     const auto& selection = player->selection;
-
-    bool xkey = Events::pressed(keycode::X);
-    bool lclick = Events::jactive(BIND_PLAYER_ATTACK) ||
-                  (xkey && Events::active(BIND_PLAYER_ATTACK));
-    bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
-                  (xkey && Events::active(BIND_PLAYER_BUILD));
+    
+    if (interactionTimer > 0.0f) {
+        interactionTimer -= static_cast<float>(engine->getDelta());
+    }
+    bool xkey = Events::active(BIND_PLAYER_FAST_INTERACTOIN);
     float maxDistance = xkey ? 200.0f : 10.0f;
+    bool longInteraction = interactionTimer <= 0 || xkey;
+    bool lclick = Events::jactive(BIND_PLAYER_ATTACK) ||
+        (longInteraction && Events::active(BIND_PLAYER_ATTACK));
+    bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
+        (longInteraction && Events::active(BIND_PLAYER_BUILD));
+    if (lclick || rclick) {
+        interactionTimer = INTERACTION_RELOAD;
+    }
 
     auto inventory = player->getInventory();
     const ItemStack& stack = inventory->getSlot(player->getChosenSlot());

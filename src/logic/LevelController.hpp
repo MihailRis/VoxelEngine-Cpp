@@ -6,6 +6,7 @@
 #include "ChunksController.hpp"
 #include "PlayerController.hpp"
 
+class Engine;
 class Level;
 class Player;
 struct EngineSettings;
@@ -19,7 +20,7 @@ class LevelController {
     std::unique_ptr<ChunksController> chunks;
     std::unique_ptr<PlayerController> player;
 public:
-    LevelController(EngineSettings& settings, std::unique_ptr<Level> level);
+    LevelController(Engine* engine, std::unique_ptr<Level> level);
 
     /// @param delta time elapsed since the last update
     /// @param input is user input allowed to be handled

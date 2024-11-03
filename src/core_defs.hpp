@@ -27,6 +27,8 @@ inline const std::string BIND_PLAYER_FLIGHT = "player.flight";
 inline const std::string BIND_PLAYER_ATTACK = "player.attack";
 inline const std::string BIND_PLAYER_BUILD = "player.build";
 inline const std::string BIND_PLAYER_PICK = "player.pick";
+inline const std::string BIND_PLAYER_FAST_INTERACTOIN =
+    "player.fast_interaction";
 inline const std::string BIND_HUD_INVENTORY = "hud.inventory";
 
 class EnginePaths;
