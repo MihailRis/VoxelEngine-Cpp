@@ -9,6 +9,7 @@
 #include "maths/UVRegion.hpp"
 #include "maths/util.hpp"
 
+class Level;
 class Emitter;
 
 struct Particle {
@@ -36,6 +37,7 @@ struct ParticleBehaviour {
 };
 
 class Emitter {
+    const Level& level;
     /// @brief Static position or entity
     std::variant<glm::vec3, entityid_t> origin;
     /// @brief Particle prototype
@@ -60,6 +62,7 @@ public:
     ParticleBehaviour behaviour;
 
     Emitter(
+        const Level& level,
         std::variant<glm::vec3, entityid_t> origin,
         Particle prototype,
         const Texture* texture,

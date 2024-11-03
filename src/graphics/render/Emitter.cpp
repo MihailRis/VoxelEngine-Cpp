@@ -6,15 +6,19 @@
 
 #include "window/Camera.hpp"
 #include "graphics/core/Texture.hpp"
+#include "objects/Entities.hpp"
+#include "world/Level.hpp"
 
 Emitter::Emitter(
+    const Level& level,
     std::variant<glm::vec3, entityid_t> origin,
     Particle prototype,
     const Texture* texture,
     float spawnInterval,
     int count
 )
-    : origin(std::move(origin)),
+    : level(level),
+      origin(std::move(origin)),
       prototype(std::move(prototype)),
       texture(texture),
       spawnInterval(spawnInterval),
@@ -38,8 +42,10 @@ void Emitter::update(
     glm::vec3 position {};
     if (auto staticPos = std::get_if<glm::vec3>(&origin)) {
         position = *staticPos;
-    } else {
-        // TODO: implement for entity origin
+    } else if (auto entityId = std::get_if<entityid_t>(&origin)) {
+        if (auto entity = level.entities->get(*entityId)) {
+            position = entity->getTransform().pos;
+        }
     }
     if (glm::distance2(position, cameraPosition) > maxDistance * maxDistance) {
         if (count > 0) {

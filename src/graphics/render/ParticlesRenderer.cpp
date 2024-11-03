@@ -19,10 +19,15 @@ ParticlesRenderer::ParticlesRenderer(
     : batch(std::make_unique<MainBatch>(1024)),
       level(level),
       settings(settings) {
-    auto region = util::get_texture_region(assets, "blocks:grass_top", "");
-    emitters.push_back(std::make_unique<Emitter>(glm::vec3(0, 80, 0), Particle {
-        nullptr, 0, glm::vec3(), glm::vec3(), 5.0f, region.region
-    }, region.texture, 0.002f, -1));
+    auto region = util::get_texture_region(assets, "blocks:grass_side", "");
+    emitters.push_back(std::make_unique<Emitter>(
+        level,
+        glm::vec3(0, 80, 0),
+        Particle {nullptr, 0, glm::vec3(), glm::vec3(), 5.0f, region.region},
+        region.texture,
+        0.002f,
+        -1
+    ));
 }
 
 ParticlesRenderer::~ParticlesRenderer() = default;
