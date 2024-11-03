@@ -37,7 +37,7 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
 
-    controller = std::make_unique<LevelController>(settings, std::move(level));
+    controller = std::make_unique<LevelController>(engine, std::move(level));
     frontend = std::make_unique<LevelFrontend>(controller->getPlayer(), controller.get(), assets);
 
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());

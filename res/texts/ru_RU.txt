@@ -92,6 +92,7 @@ hud.inventory=Инвентарь
 player.pick=Подобрать Блок
 player.attack=Атаковать / Сломать
 player.build=Поставить Блок
+player.fast_interaction=Ускоренное взаимодействие
 player.flight=Полёт
 player.drop=Выбросить Предмет
 camera.zoom=Приближение

@@ -6,6 +6,7 @@
 
 #include "content/Content.hpp"
 #include "core_defs.hpp"
+#include "settings.hpp"
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
 #include "items/ItemStack.hpp"
@@ -26,6 +27,7 @@
 #include "BlocksController.hpp"
 #include "scripting/scripting.hpp"
 
+const float INTERACTION_RELOAD = 0.160f;
 const float STEPS_SPEED = 2.2f;
 const float CAM_SHAKE_OFFSET = 0.0075f;
 const float CAM_SHAKE_OFFSET_Y = 0.031f;
@@ -187,11 +189,10 @@ void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
 }
 
 PlayerController::PlayerController(
-    Level* level,
-    const EngineSettings& settings,
+    const EngineSettings& settings, Level* level,
     BlocksController* blocksController
 )
-    : level(level),
+    : settings(settings), level(level),
       player(level->getObject<Player>(0)),
       camControl(player, settings.camera),
       blocksController(blocksController) {
@@ -262,7 +263,7 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
     player->postUpdate();
     camControl.update(this->input, pause ? 0.0f : delta, level->chunks.get());
     if (input) {
-        updateInteraction();
+        updateInteraction(delta);
     } else {
         player->selection = {};
     }
@@ -480,17 +481,24 @@ void PlayerController::updateEntityInteraction(
     }
 }
 
-void PlayerController::updateInteraction() {
+void PlayerController::updateInteraction(float delta) {
     auto indices = level->content->getIndices();
     auto chunks = level->chunks.get();
     const auto& selection = player->selection;
-
-    bool xkey = Events::pressed(keycode::X);
-    bool lclick = Events::jactive(BIND_PLAYER_ATTACK) ||
-                  (xkey && Events::active(BIND_PLAYER_ATTACK));
-    bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
-                  (xkey && Events::active(BIND_PLAYER_BUILD));
+    
+    if (interactionTimer > 0.0f) {
+        interactionTimer -= delta;
+    }
+    bool xkey = Events::active(BIND_PLAYER_FAST_INTERACTOIN);
     float maxDistance = xkey ? 200.0f : 10.0f;
+    bool longInteraction = interactionTimer <= 0 || xkey;
+    bool lclick = Events::jactive(BIND_PLAYER_ATTACK) ||
+        (longInteraction && Events::active(BIND_PLAYER_ATTACK));
+    bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
+        (longInteraction && Events::active(BIND_PLAYER_BUILD));
+    if (lclick || rclick) {
+        interactionTimer = INTERACTION_RELOAD;
+    }
 
     auto inventory = player->getInventory();
     const ItemStack& stack = inventory->getSlot(player->getChosenSlot());
