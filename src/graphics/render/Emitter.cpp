@@ -67,7 +67,16 @@ void Emitter::update(
         particle.emitter = this;
         particle.random = random.rand32();
         particle.position = position;
+        particle.lifetime *= 1.0f - preset.lifetimeSpread * random.randFloat();
         particle.velocity += glm::ballRand(1.0f) * preset.explosion;
+        if (preset.randomSubUV < 1.0f) {
+            particle.region.autoSub(
+                preset.randomSubUV,
+                preset.randomSubUV,
+                random.randFloat(),
+                random.randFloat()
+            );
+        }
         particles.push_back(std::move(particle));
         timer -= spawnInterval;
         if (count > 0) {

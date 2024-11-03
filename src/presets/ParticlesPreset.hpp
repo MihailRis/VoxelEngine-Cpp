@@ -15,6 +15,8 @@ struct ParticlesPreset : public Serializable {
     float spawnInterval = 0.1f;
     /// @brief Particle life time
     float lifetime = 5.0f;
+    /// @brief Life time spread divided by lifetime
+    float lifetimeSpread = 0.2f;
     /// @brief Initial velocity
     glm::vec3 velocity {};
     /// @brief Velocity acceleration
@@ -25,6 +27,8 @@ struct ParticlesPreset : public Serializable {
     glm::vec3 size {0.1f};
     /// @brief Texture name
     std::string texture = "";
+    /// @brief Size of random sub-uv region
+    float randomSubUV = 1.0f;
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
