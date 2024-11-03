@@ -23,7 +23,7 @@ Emitter::Emitter(
       texture(texture),
       spawnInterval(spawnInterval),
       count(count),
-      behaviour() {
+      preset() {
     this->prototype.emitter = this;
 }
 
@@ -47,6 +47,7 @@ void Emitter::update(
             position = entity->getTransform().pos;
         }
     }
+    const float maxDistance = preset.maxDistance;
     if (glm::distance2(position, cameraPosition) > maxDistance * maxDistance) {
         if (count > 0) {
             if (spawnInterval < FLT_EPSILON) {

@@ -8,6 +8,7 @@
 
 #include "maths/UVRegion.hpp"
 #include "maths/util.hpp"
+#include "presets/ParticlesPreset.hpp"
 
 class Level;
 class Emitter;
@@ -30,12 +31,6 @@ struct Particle {
 
 class Texture;
 
-struct ParticleBehaviour {
-    bool collision = true;
-    bool lighting = true;
-    glm::vec3 gravity {0.0f, -16.0f, 0.0f};
-};
-
 class Emitter {
     const Level& level;
     /// @brief Static position or entity
@@ -54,12 +49,10 @@ class Emitter {
     float timer = 0.0f;
     /// @brief Random velocity magnitude applying to spawned particles.
     glm::vec3 explosion {8.0f};
-    /// @brief Max distance of actually spawning particles.
-    float maxDistance = 32.0f;
 
     util::PseudoRandom random;
 public:
-    ParticleBehaviour behaviour;
+    ParticlesPreset preset;
 
     Emitter(
         const Level& level,

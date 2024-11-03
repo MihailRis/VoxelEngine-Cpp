@@ -35,12 +35,12 @@ ParticlesRenderer::~ParticlesRenderer() = default;
 static inline void update_particle(
     Particle& particle, float delta, const Chunks& chunks
 ) {
-    const auto& behave = particle.emitter->behaviour;
+    const auto& preset = particle.emitter->preset;
     auto& pos = particle.position;
     auto& vel = particle.velocity;
 
-    vel += delta * behave.gravity;
-    if (behave.collision && chunks.isObstacleAt(pos + vel * delta)) {
+    vel += delta * preset.acceleration;
+    if (preset.collision && chunks.isObstacleAt(pos + vel * delta)) {
         vel *= 0.0f;
     }
     pos += vel * delta;
@@ -72,7 +72,7 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
             update_particle(particle, delta, chunks);
 
             glm::vec4 light(1, 1, 1, 0);
-            if (particle.emitter->behaviour.lighting) {
+            if (particle.emitter->preset.lighting) {
                 light = MainBatch::sampleLight(
                     particle.position, chunks, backlight
                 );
