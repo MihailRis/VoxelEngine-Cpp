@@ -12,18 +12,17 @@
 Emitter::Emitter(
     const Level& level,
     std::variant<glm::vec3, entityid_t> origin,
-    Particle prototype,
+    ParticlesPreset preset,
     const Texture* texture,
-    float spawnInterval,
+    const UVRegion& region,
     int count
 )
     : level(level),
       origin(std::move(origin)),
-      prototype(std::move(prototype)),
+      prototype({this, 0, glm::vec3(), preset.velocity, preset.lifetime, region}),
       texture(texture),
-      spawnInterval(spawnInterval),
       count(count),
-      preset() {
+      preset(std::move(preset)) {
     this->prototype.emitter = this;
 }
 
@@ -36,6 +35,7 @@ void Emitter::update(
     const glm::vec3& cameraPosition,
     std::vector<Particle>& particles
 ) {
+    const float spawnInterval = preset.spawnInterval;
     if (count == 0 || (count == -1 && spawnInterval < FLT_EPSILON)) {
         return;
     }
@@ -67,17 +67,13 @@ void Emitter::update(
         particle.emitter = this;
         particle.random = random.rand32();
         particle.position = position;
-        particle.velocity += glm::ballRand(1.0f) * explosion;
+        particle.velocity += glm::ballRand(1.0f) * preset.explosion;
         particles.push_back(std::move(particle));
         timer -= spawnInterval;
         if (count > 0) {
             count--;
         }
     }
-}
-
-void Emitter::setExplosion(const glm::vec3& magnitude) {
-    explosion = magnitude;
 }
 
 bool Emitter::isDead() const {

@@ -44,6 +44,7 @@
 #include "ChunksRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
+#include "Emitter.hpp"
 
 bool WorldRenderer::showChunkBorders = false;
 bool WorldRenderer::showEntitiesDebug = false;
@@ -532,6 +533,10 @@ void WorldRenderer::drawBorders(
         lineBatch->line(ex, i, sz, sx, i, sz, 0, 0.8f, 0, 1);
     }
     lineBatch->flush();
+}
+
+void WorldRenderer::addEmitter(std::unique_ptr<Emitter> emitter) {
+    particles->add(std::move(emitter));
 }
 
 void WorldRenderer::clear() {

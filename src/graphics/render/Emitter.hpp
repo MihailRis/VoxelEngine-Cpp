@@ -31,24 +31,22 @@ struct Particle {
 
 class Texture;
 
+using EmitterOrigin = std::variant<glm::vec3, entityid_t>;
+
 class Emitter {
     const Level& level;
     /// @brief Static position or entity
-    std::variant<glm::vec3, entityid_t> origin;
+    EmitterOrigin origin;
     /// @brief Particle prototype
     Particle prototype;
     /// @brief Particle
     const Texture* texture;
-    /// @brief Particles spawn interval
-    float spawnInterval;
     /// @brief Number of particles should be spawned before emitter deactivation.
     /// -1 is infinite.
     int count;
     /// @brief Spawn timer used to determine number of particles 
     /// to spawn on update. May be innacurate.
     float timer = 0.0f;
-    /// @brief Random velocity magnitude applying to spawned particles.
-    glm::vec3 explosion {8.0f};
 
     util::PseudoRandom random;
 public:
@@ -57,9 +55,9 @@ public:
     Emitter(
         const Level& level,
         std::variant<glm::vec3, entityid_t> origin,
-        Particle prototype,
+        ParticlesPreset preset,
         const Texture* texture,
-        float spawnInterval,
+        const UVRegion& region,
         int count
     );
 
@@ -77,10 +75,7 @@ public:
         const glm::vec3& cameraPosition,
         std::vector<Particle>& particles
     );
-
-    /// @brief Set initial random velocity magitude
-    void setExplosion(const glm::vec3& magnitude);
-
+    
     /// @return true if the emitter has spawned all particles
     bool isDead() const;
 };

@@ -1,7 +1,6 @@
 #include "ParticlesRenderer.hpp"
 
 #include "assets/Assets.hpp"
-#include "assets/assets_util.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/render/MainBatch.hpp"
@@ -18,17 +17,7 @@ ParticlesRenderer::ParticlesRenderer(
 )
     : batch(std::make_unique<MainBatch>(1024)),
       level(level),
-      settings(settings) {
-    auto region = util::get_texture_region(assets, "blocks:grass_side", "");
-    emitters.push_back(std::make_unique<Emitter>(
-        level,
-        glm::vec3(0, 80, 0),
-        Particle {nullptr, 0, glm::vec3(), glm::vec3(), 5.0f, region.region},
-        region.texture,
-        0.002f,
-        -1
-    ));
-}
+      settings(settings) {}
 
 ParticlesRenderer::~ParticlesRenderer() = default;
 
@@ -68,21 +57,22 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
         auto iter = vec.begin();
         while (iter != vec.end()) {
             auto& particle = *iter;
+            auto& preset = particle.emitter->preset;
 
             update_particle(particle, delta, chunks);
 
             glm::vec4 light(1, 1, 1, 0);
-            if (particle.emitter->preset.lighting) {
+            if (preset.lighting) {
                 light = MainBatch::sampleLight(
                     particle.position, chunks, backlight
                 );
-                light *= 0.8f + (particle.random % 200) * 0.001f;
+                light *= 0.9f + (particle.random % 100) * 0.001f;
             }
             batch->quad(
                 particle.position,
                 right,
                 up,
-                glm::vec2(0.3f),
+                preset.size,
                 light,
                 glm::vec3(1.0f),
                 particle.region
@@ -127,4 +117,8 @@ void ParticlesRenderer::render(const Camera& camera, float delta) {
         emitter.update(delta, camera.position, *vec);
         iter++;
     }
+}
+
+void ParticlesRenderer::add(std::unique_ptr<Emitter> emitter) {
+    emitters.push_back(std::move(emitter));
 }

@@ -8,8 +8,6 @@
 
 #include <glm/glm.hpp>
 
-#include "Emitter.hpp"
-
 class Level;
 class Player;
 class Camera;
@@ -27,6 +25,7 @@ class PostProcessing;
 class DrawContext;
 class ModelBatch;
 class Assets;
+class Emitter;
 struct EngineSettings;
 
 namespace model {
@@ -108,6 +107,8 @@ public:
         float delta,
         bool pause
     );
+
+    void addEmitter(std::unique_ptr<Emitter> emitter);
 
     void clear();
 };

@@ -4,6 +4,7 @@
 #include "engine.hpp"
 #include "files/files.hpp"
 #include "frontend/hud.hpp"
+#include "graphics/render/WorldRenderer.hpp"
 #include "objects/Player.hpp"
 #include "lua/libs/api_lua.hpp"
 #include "lua/lua_engine.hpp"
@@ -14,10 +15,14 @@ using namespace scripting;
 static debug::Logger logger("scripting-hud");
 
 Hud* scripting::hud = nullptr;
+WorldRenderer* scripting::renderer = nullptr;
 
-void scripting::on_frontend_init(Hud* hud) {
+void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
     scripting::hud = hud;
+    scripting::renderer = renderer;
+
     lua::openlib(lua::get_main_state(), "hud", hudlib);
+    lua::openlib(lua::get_main_state(), "particles", particleslib);
 
     for (auto& pack : engine->getContentPacks()) {
         lua::emit_event(

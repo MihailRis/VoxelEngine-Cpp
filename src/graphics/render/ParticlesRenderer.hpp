@@ -31,6 +31,8 @@ public:
 
     void render(const Camera& camera, float delta);
 
+    void add(std::unique_ptr<Emitter> emitter);
+
     static size_t visibleParticles;
     static size_t aliveEmitters;
 };
