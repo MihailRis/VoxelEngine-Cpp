@@ -16,12 +16,6 @@ world.get_day_time() -> number
 -- Set day time value.
 world.set_day_time(time: number)
 
--- Returns current fog value.
-world.get_fog() -> number
-
--- Set fog value.
-world.set_fog(value: number)
-
 -- Sets the specified day time cycle speed.
 world.set_day_time_speed(value: number)
 

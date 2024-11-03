@@ -62,15 +62,6 @@ static int l_set_day_time(lua::State* L) {
     require_world_info().daytime = std::fmod(value, 1.0);
     return 0;
 }
-static int l_get_fog(lua::State* L) {
-    return lua::pushnumber(L, require_world_info().fog);
-}
-
-static int l_set_fog(lua::State* L) {
-    auto value = lua::tonumber(L, 1);
-    require_world_info().fog = std::fmod(value, 1.0);
-    return 0;
-}
 
 static int l_set_day_time_speed(lua::State* L) {
     auto value = lua::tonumber(L, 1);
@@ -111,8 +102,6 @@ const luaL_Reg worldlib[] = {
     {"get_total_time", lua::wrap<l_get_total_time>},
     {"get_day_time", lua::wrap<l_get_day_time>},
     {"set_day_time", lua::wrap<l_set_day_time>},
-    {"get_fog", lua::wrap<l_get_fog>},
-    {"set_fog", lua::wrap<l_set_fog>},
     {"set_day_time_speed", lua::wrap<l_set_day_time_speed>},
     {"get_day_time_speed", lua::wrap<l_get_day_time_speed>},
     {"get_seed", lua::wrap<l_get_seed>},
