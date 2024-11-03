@@ -26,7 +26,7 @@ LevelController::LevelController(Engine* engine, std::unique_ptr<Level> level)
           this->level.get(), settings.chunks.padding.get()
       )),
       player(std::make_unique<PlayerController>(
-          engine, this->level.get(), blocks.get()
+        settings, this->level.get(), blocks.get()
       )) {
     scripting::on_world_load(this);
 }

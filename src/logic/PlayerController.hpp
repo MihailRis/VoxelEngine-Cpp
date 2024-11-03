@@ -14,6 +14,7 @@ class Chunks;
 class BlocksController;
 struct Hitbox;
 struct CameraSettings;
+struct EngineSettings;
 
 class CameraControl {
     std::shared_ptr<Player> player;
@@ -46,7 +47,7 @@ public:
 };
 
 class PlayerController {
-    Engine* engine;
+    const EngineSettings& settings;
     Level* level;
     std::shared_ptr<Player> player;
     PlayerInput input {};
@@ -58,7 +59,7 @@ class PlayerController {
     void resetKeyboard();
     void updatePlayer(float delta);
     void updateEntityInteraction(entityid_t eid, bool lclick, bool rclick);
-    void updateInteraction();
+    void updateInteraction(float delta);
 
     float stepsTimer = 0.0f;
     void onFootstep(const Hitbox& hitbox);
@@ -68,7 +69,7 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        Engine* engine, Level* level, BlocksController* blocksController
+        const EngineSettings& settings, Level* level, BlocksController* blocksController
     );
     void update(float delta, bool input, bool pause);
     void postUpdate(float delta, bool input, bool pause);
