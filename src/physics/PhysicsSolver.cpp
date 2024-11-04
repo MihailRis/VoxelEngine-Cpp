@@ -152,7 +152,7 @@ static bool calc_collision_neg(
         return false;
     }
     glm::vec3 offset(0.0f, stepHeight, 0.0f);
-    for (int iy = 0; iy <= ((half-offset)[ny]-E)*2/s; iy++) {
+    for (int iy = 0; iy <= ((half-offset*0.5f)[ny]-E)*2/s; iy++) {
         glm::vec3 coord;
         coord[ny] = ((pos+offset)[ny]-half[ny]+E) + iy * s;
         for (int iz = 0; iz <= (half[nz]-E)*2/s; iz++){
@@ -185,7 +185,7 @@ static void calc_collision_pos(
         return;
     }
     glm::vec3 offset(0.0f, stepHeight, 0.0f);
-    for (int iy = 0; iy <= ((half-offset)[ny]-E)*2/s; iy++) {
+    for (int iy = 0; iy <= ((half-offset*0.5f)[ny]-E)*2/s; iy++) {
         glm::vec3 coord;
         coord[ny] = ((pos+offset)[ny]-half[ny]+E) + iy * s;
         for (int iz = 0; iz <= (half[nz]-E)*2/s; iz++) {
