@@ -10,7 +10,7 @@
 #include "voxels/Block.hpp"
 
 LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
-    : contentIds(contentIds), 
+    : blockDefs(contentIds->blocks.getDefs()),
       chunks(chunks), 
       channel(channel) {
 }
@@ -18,10 +18,14 @@ LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int c
 void LightSolver::add(int x, int y, int z, int emission) {
     if (emission <= 1)
         return;
+    Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
+    if (chunk == nullptr)
+        return;
+    ubyte light = chunk->lightmap.get(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel);
+    if (emission < light) return;
 
     addqueue.push(lightentry {x, y, z, ubyte(emission)});
 
-    Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
     chunk->flags.modified = true;
     chunk->lightmap.set(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel, emission);
 }
@@ -72,8 +76,17 @@ void LightSolver::solve(){
 
                 ubyte light = chunk->lightmap.get(lx,y,lz, channel);
                 if (light != 0 && light == entry.light-1){
+                    voxel* vox = chunks->get(x, y, z);
+                    if (vox && vox->id != 0) {
+                        const Block* block = blockDefs[vox->id];
+                        if (uint8_t emission = block->emission[channel]) {
+                            addqueue.push(lightentry {x, y, z, emission});
+                            chunk->lightmap.set(lx, y, lz, channel, emission);
+                        }
+                        else chunk->lightmap.set(lx, y, lz, channel, 0);
+                    }
+                    else chunk->lightmap.set(lx, y, lz, channel, 0);
                     remqueue.push(lightentry {x, y, z, light});
-                    chunk->lightmap.set(lx, y, lz, channel, 0);
                 }
                 else if (light >= entry.light){
                     addqueue.push(lightentry {x, y, z, light});
@@ -82,7 +95,6 @@ void LightSolver::solve(){
         }
     }
 
-    const Block* const* blockDefs = contentIds->blocks.getDefs();
     while (!addqueue.empty()){
         const lightentry entry = addqueue.front();
         addqueue.pop();

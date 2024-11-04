@@ -4,6 +4,7 @@
 
 class Chunks;
 class ContentIndices;
+class Block;
 
 struct lightentry {
     int x;
@@ -15,7 +16,7 @@ struct lightentry {
 class LightSolver {
     std::queue<lightentry> addqueue;
     std::queue<lightentry> remqueue;
-    const ContentIndices* const contentIds;
+    const Block* const* blockDefs;
     Chunks* chunks;
     int channel;
 public:
