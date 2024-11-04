@@ -68,6 +68,18 @@ static int l_model_name(lua::State* L) {
     return 0;
 }
 
+static int l_emission(lua::State* L) {
+    if (auto def = get_item_def(L, 1)) {
+        lua::createtable(L, 4, 0);
+        for (int i = 0; i < 4; ++i) {
+            lua::pushinteger(L, def->emission[i]);
+            lua::rawseti(L, i+1);
+        }
+        return 1;
+    }
+    return 0;
+}
+
 const luaL_Reg itemlib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -77,4 +89,5 @@ const luaL_Reg itemlib[] = {
     {"caption", lua::wrap<l_caption>},
     {"placing_block", lua::wrap<l_placing_block>},
     {"model_name", lua::wrap<l_model_name>},
+    {"emission", lua::wrap<l_emission>},
     {NULL, NULL}};

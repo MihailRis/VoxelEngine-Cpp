@@ -24,4 +24,7 @@ item.placing_block(itemid: int) -> int
 
 -- Returns the value of the `model-name` property
 item.model_name(itemid: int) -> str
+
+-- Returns item emission property value
+item.emission(itemid: int) -> str
 ```
