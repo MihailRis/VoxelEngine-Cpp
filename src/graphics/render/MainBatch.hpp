@@ -118,4 +118,12 @@ public:
             tint
         );
     }
+
+    void cube(
+        const glm::vec3& coord,
+        const glm::vec3& size,
+        const UVRegion(&texfaces)[6],
+        const glm::vec4& tint,
+        bool shading
+    );
 };

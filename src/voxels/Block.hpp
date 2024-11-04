@@ -116,8 +116,8 @@ public:
 
     std::vector<std::string> modelTextures = {};
     std::vector<BoxModel> modelBoxes = {};
-    std::vector<glm::vec3> modelExtraPoints =
-        {};                               // initially made for tetragons
+    // initially made for tetragons
+    std::vector<glm::vec3> modelExtraPoints = {};
     std::vector<UVRegion> modelUVs = {};  // boxes' tex-UVs also there
 
     /// @brief id of used BlockMaterial, may specify non-existing material
