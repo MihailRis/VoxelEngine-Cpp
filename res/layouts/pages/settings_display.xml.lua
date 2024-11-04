@@ -59,4 +59,6 @@ function on_open()
     create_checkbox("display.fullscreen", "Fullscreen")
     create_checkbox("camera.shaking", "Camera Shaking")
     create_checkbox("camera.inertia", "Camera Inertia")
+    create_checkbox("camera.fov-effects", "Camera FOV Effects")
+    create_checkbox("display.limit-fps-iconified", "Limit Background FPS")
 end

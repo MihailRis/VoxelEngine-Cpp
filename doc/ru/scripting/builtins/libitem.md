@@ -8,7 +8,7 @@ item.name(itemid: int) -> str
 item.index(name: str) -> int
 
 -- Возвращает название предмета, отображаемое в интерфейсе.
-item.caption(blockid: int) -> str
+item.caption(itemid: int) -> str
 
 -- Возвращает максимальный размер стопки для предмета.
 item.stack_size(itemid: int) -> int
@@ -18,6 +18,15 @@ item.defs_count() -> int
 
 -- Возвращает имя иконки предмета для использования в свойстве 'src' элемента image
 item.icon(itemid: int) -> str
+
+-- Возвращает числовой id блока, назначенного как 'placing-block' или 0
+item.placing_block(itemid: int) -> int
+
+-- Возвращает значение свойства `model-name`
+item.model_name(itemid: int) -> str
+
+-- Возвращает emission параметр у предмета
+item.emission(itemid: int) -> str
 ```
 
 

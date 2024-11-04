@@ -51,6 +51,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("samples", &settings.display.samples);
     builder.add("framerate", &settings.display.framerate);
     builder.add("fullscreen", &settings.display.fullscreen);
+    builder.add("limit-fps-iconified", &settings.display.limitFpsIconified);
 
     builder.section("camera");
     builder.add("sensitivity", &settings.camera.sensitivity);
@@ -97,6 +98,26 @@ dv::value SettingsHandler::getValue(const std::string& name) const {
         return flag->get();
     } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
         return string->get();
+    } else {
+        throw std::runtime_error("type is not implemented for '" + name + "'");
+    }
+}
+
+dv::value SettingsHandler::getDefault(const std::string& name) const {
+    auto found = map.find(name);
+    if (found == map.end()) {
+        throw std::runtime_error("setting '" + name + "' does not exist");
+    }
+    auto setting = found->second;
+
+    if (auto number = dynamic_cast<NumberSetting*>(setting)) {
+        return static_cast<number_t>(number->getDefault());
+    } else if (auto integer = dynamic_cast<IntegerSetting*>(setting)) {
+        return static_cast<integer_t>(integer->getDefault());
+    } else if (auto flag = dynamic_cast<FlagSetting*>(setting)) {
+        return flag->getDefault();
+    } else if (auto string = dynamic_cast<StringSetting*>(setting)) {
+        return string->getDefault();
     } else {
         throw std::runtime_error("type is not implemented for '" + name + "'");
     }

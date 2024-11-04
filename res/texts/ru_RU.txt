@@ -38,7 +38,10 @@ menu.Page not found=Страница не найдена
 menu.Quit=Выход
 menu.Save and Quit to Menu=Сохранить и Выйти в Меню
 menu.Settings=Настройки
+menu.Reset settings=Сбросить настройки
 menu.Contents Menu=Меню контентпаков
+menu.Open data folder=Открыть папку данных
+menu.Open content folder=Открыть папку [content]
 
 world.Seed=Зерно
 world.Name=Название
@@ -57,6 +60,7 @@ settings.Ambient=Фон
 settings.Backlight=Подсветка
 settings.Camera Shaking=Тряска Камеры
 settings.Camera Inertia=Инерция Камеры
+settings.Camera FOV Effects=Эффекты поля зрения
 settings.Fog Curve=Кривая Тумана
 settings.FOV=Поле Зрения
 settings.Fullscreen=Полный экран
@@ -72,6 +76,7 @@ settings.Regular Sounds=Обычные Звуки
 settings.UI Sounds=Звуки Интерфейса
 settings.V-Sync=Вертикальная Синхронизация
 settings.Key=Кнопка
+settings.Limit Background FPS=Ограничить фоновую частоту кадров
 
 # Управление
 chunks.reload=Перезагрузить Чанки
@@ -88,6 +93,7 @@ hud.inventory=Инвентарь
 player.pick=Подобрать Блок
 player.attack=Атаковать / Сломать
 player.build=Поставить Блок
+player.fast_interaction=Ускоренное взаимодействие
 player.flight=Полёт
 player.drop=Выбросить Предмет
 camera.zoom=Приближение

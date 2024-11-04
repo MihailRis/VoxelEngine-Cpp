@@ -360,6 +360,13 @@ std::string BasicParser::parseString(char quote, bool closeRequired) {
                 ss << (char)parseSimpleInt(8);
                 continue;
             }
+            if (c == 'u') {
+                int codepoint = parseSimpleInt(16);
+                ubyte bytes[4];
+                int size = util::encode_utf8(codepoint, bytes);
+                ss.write(reinterpret_cast<char*>(bytes), size);
+                continue;
+            }
             switch (c) {
                 case 'n': ss << '\n'; break;
                 case 'r': ss << '\r'; break;

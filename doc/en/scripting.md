@@ -21,6 +21,7 @@ Subsections:
     - [player](scripting/builtins/libplayer.md)
     - [quat](scripting/builtins/libquat.md)
     - [time](scripting/builtins/libtime.md)
+    - [utf8](scripting/builtins/libutf8.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)
     - [world](scripting/builtins/libworld.md)
 - [Module core:bit_converter](scripting/modules/core_bit_converter.md)

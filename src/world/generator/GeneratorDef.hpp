@@ -209,6 +209,12 @@ struct GeneratorDef {
     /// @brief Heightmap blocks per dot
     uint heightsBPD = 4;
 
+    /// @brief Biome parameter maps interpolation method
+    InterpolationType biomesInterpolation = InterpolationType::LINEAR;
+
+    /// @brief Height maps interpolation method
+    InterpolationType heightsInterpolation = InterpolationType::LINEAR;
+
     /// @brief Number of chunks must be generated before and after wide
     /// structures placement triggered
     uint wideStructsChunksRadius = 3;

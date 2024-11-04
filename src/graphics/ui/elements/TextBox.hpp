@@ -17,6 +17,7 @@ namespace gui {
         std::wstring placeholder;
         wstringsupplier supplier = nullptr;
         wstringconsumer consumer = nullptr;
+        wstringconsumer subconsumer = nullptr;
         wstringchecker validator = nullptr;
         runnable onEditStart = nullptr;
         runnable onUpPressed;
@@ -65,6 +66,8 @@ namespace gui {
         void performEditingKeyboardEvents(keycode key);
 
         void refreshLabel();
+
+        void onInput();
     public:
         TextBox(
             std::wstring placeholder, 
@@ -78,6 +81,10 @@ namespace gui {
         /// @brief Consumer called on stop editing text (textbox defocus)
         /// @param consumer std::wstring consumer function
         virtual void setTextConsumer(wstringconsumer consumer);
+
+        /// @brief Sub-consumer called while editing text
+        /// @param consumer std::wstring consumer function
+        virtual void setTextSubConsumer(wstringconsumer consumer);
 
         /// @brief Text validator called while text editing and returns true if
         /// text is valid

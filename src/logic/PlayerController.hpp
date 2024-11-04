@@ -6,6 +6,7 @@
 
 #include "objects/Player.hpp"
 
+class Engine;
 class Camera;
 class Level;
 class Block;
@@ -13,6 +14,7 @@ class Chunks;
 class BlocksController;
 struct Hitbox;
 struct CameraSettings;
+struct EngineSettings;
 
 class CameraControl {
     std::shared_ptr<Player> player;
@@ -45,17 +47,19 @@ public:
 };
 
 class PlayerController {
+    const EngineSettings& settings;
     Level* level;
     std::shared_ptr<Player> player;
     PlayerInput input {};
     CameraControl camControl;
     BlocksController* blocksController;
 
+    float interactionTimer = 0.0f;
     void updateKeyboard();
     void resetKeyboard();
     void updatePlayer(float delta);
     void updateEntityInteraction(entityid_t eid, bool lclick, bool rclick);
-    void updateInteraction();
+    void updateInteraction(float delta);
 
     float stepsTimer = 0.0f;
     void onFootstep(const Hitbox& hitbox);
@@ -65,9 +69,7 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        Level* level,
-        const EngineSettings& settings,
-        BlocksController* blocksController
+        const EngineSettings& settings, Level* level, BlocksController* blocksController
     );
     void update(float delta, bool input, bool pause);
     void postUpdate(float delta, bool input, bool pause);

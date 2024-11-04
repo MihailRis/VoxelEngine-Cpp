@@ -307,13 +307,13 @@ void WorldGenerator::generateBiomes(
         copy->resize(
             floordiv(CHUNK_W, def.heightsBPD) + 1,
             floordiv(CHUNK_D, def.heightsBPD) + 1,
-            InterpolationType::LINEAR
+            def.heightsInterpolation
         );
         prototype.heightmapInputs.push_back(std::move(copy));
     }
     for (const auto& map : biomeParams) {
         map->resize(
-            CHUNK_W + bpd, CHUNK_D + bpd, InterpolationType::LINEAR
+            CHUNK_W + bpd, CHUNK_D + bpd, def.biomesInterpolation
         );
         map->crop(0, 0, CHUNK_W, CHUNK_D);
     }
@@ -345,7 +345,7 @@ void WorldGenerator::generateHeightmap(
     );
     prototype.heightmap->clamp();
     prototype.heightmap->resize(
-        CHUNK_W + bpd, CHUNK_D + bpd, InterpolationType::LINEAR
+        CHUNK_W + bpd, CHUNK_D + bpd, def.heightsInterpolation
     );
     prototype.heightmap->crop(0, 0, CHUNK_W, CHUNK_D);
     prototype.level = ChunkPrototypeLevel::HEIGHTMAP;

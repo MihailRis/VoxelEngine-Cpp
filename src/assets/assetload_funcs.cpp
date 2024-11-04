@@ -10,6 +10,7 @@
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/obj.hpp"
+#include "coders/vec3.hpp"
 #include "constants.hpp"
 #include "debug/Logger.hpp"
 #include "files/engine_paths.hpp"
@@ -23,6 +24,7 @@
 #include "graphics/core/Texture.hpp"
 #include "graphics/core/TextureAnimation.hpp"
 #include "objects/rigging.hpp"
+#include "util/stringutil.hpp"
 #include "Assets.hpp"
 #include "AssetsLoader.hpp"
 
@@ -39,18 +41,32 @@ static bool animation(
     Atlas* dstAtlas
 );
 
-assetload::postfunc assetload::
-    texture(AssetsLoader*, const ResPaths* paths, const std::string& filename, const std::string& name, const std::shared_ptr<AssetCfg>&) {
-    std::shared_ptr<ImageData> image(
-        imageio::read(paths->find(filename + ".png").u8string()).release()
-    );
-    return [name, image](auto assets) {
-        assets->store(Texture::from(image.get()), name);
-    };
+assetload::postfunc assetload::texture(
+    AssetsLoader*,
+    const ResPaths* paths,
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
+    auto actualFile = paths->find(filename + ".png").u8string();
+    try {
+        std::shared_ptr<ImageData> image(imageio::read(actualFile).release());
+        return [name, image, actualFile](auto assets) {
+            assets->store(Texture::from(image.get()), name);
+        };
+    } catch (const std::runtime_error& err) {
+        logger.error() << actualFile << ": " << err.what();
+        return [](auto) {};
+    }
 }
 
-assetload::postfunc assetload::
-    shader(AssetsLoader*, const ResPaths* paths, const std::string& filename, const std::string& name, const std::shared_ptr<AssetCfg>&) {
+assetload::postfunc assetload::shader(
+    AssetsLoader*,
+    const ResPaths* paths,
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
     fs::path vertexFile = paths->find(filename + ".glslv");
     fs::path fragmentFile = paths->find(filename + ".glslf");
 
@@ -181,8 +197,7 @@ assetload::postfunc assetload::sound(
         if (!fs::exists(variantFile)) {
             break;
         }
-        baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM)
-        );
+        baseSound->variants.emplace_back(audio::load_sound(variantFile, keepPCM));
     }
 
     auto sound = baseSound.release();
@@ -191,21 +206,50 @@ assetload::postfunc assetload::sound(
     };
 }
 
-assetload::postfunc assetload::
-    model(AssetsLoader* loader, const ResPaths* paths, const std::string& file, const std::string& name, const std::shared_ptr<AssetCfg>&) {
-    auto path = paths->find(file + ".obj");
+static void request_textures(AssetsLoader* loader, const model::Model& model) {
+    for (auto& mesh : model.meshes) {
+        if (mesh.texture.find('$') == std::string::npos) {
+            auto filename = TEXTURES_FOLDER + "/" + mesh.texture;
+            loader->add(
+                AssetType::TEXTURE, filename, mesh.texture, nullptr
+            );
+        }
+    }
+}
+
+assetload::postfunc assetload::model(
+    AssetsLoader* loader,
+    const ResPaths* paths,
+    const std::string& file,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
+    auto path = paths->find(file + ".vec3");
+    if (fs::exists(path)) {
+        auto bytes = files::read_bytes_buffer(path);
+        auto modelVEC3 = std::make_shared<vec3::File>(vec3::load(path.u8string(), bytes));
+        return [loader, name, modelVEC3=std::move(modelVEC3)](Assets* assets) {
+            for (auto& [modelName, model] : modelVEC3->models) {
+                request_textures(loader, model.model);
+                std::string fullName = name;
+                if (name != modelName) {
+                    fullName += "." + modelName;
+                }
+                assets->store(
+                    std::make_unique<model::Model>(model.model),
+                    fullName
+                );
+                logger.info() << "store model " << util::quote(modelName)
+                              << " as " << util::quote(fullName);
+            }
+        };
+    }
+    path = paths->find(file + ".obj");
     auto text = files::read_string(path);
     try {
         auto model = obj::parse(path.u8string(), text).release();
         return [=](Assets* assets) {
-            for (auto& mesh : model->meshes) {
-                if (mesh.texture.find('$') == std::string::npos) {
-                    auto filename = TEXTURES_FOLDER + "/" + mesh.texture;
-                    loader->add(
-                        AssetType::TEXTURE, filename, mesh.texture, nullptr
-                    );
-                }
-            }
+            request_textures(loader, *model);
             assets->store(std::unique_ptr<model::Model>(model), name);
         };
     } catch (const parsing_error& err) {

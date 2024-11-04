@@ -38,7 +38,7 @@ namespace files {
     uint append_bytes(const fs::path& file, const ubyte* data, size_t size);
 
     /// @brief Write string to the file
-    bool write_string(const fs::path& filename, const std::string content);
+    bool write_string(const fs::path& filename, std::string_view content);
 
     /// @brief Write dynamic data to the JSON file
     /// @param nice if true, human readable format will be used, otherwise

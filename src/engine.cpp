@@ -20,6 +20,7 @@
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
+#include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
@@ -131,7 +132,7 @@ void Engine::loadControls() {
     if (fs::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
         std::string text = files::read_string(controls_file);
-        Events::loadBindings(controls_file.u8string(), text);
+        Events::loadBindings(controls_file.u8string(), text, BindType::BIND);
     }
 }
 
@@ -184,8 +185,11 @@ void Engine::mainloop() {
         if (!Window::isIconified()) {
             renderFrame(batch);
         }
-        Window::setFramerate(Window::isIconified() ? 20 : 
-                             settings.display.framerate.get());
+        Window::setFramerate(
+            Window::isIconified() && settings.display.limitFpsIconified.get()
+                ? 20
+                : settings.display.framerate.get()
+        );
 
         processPostRunnables();
 
@@ -280,6 +284,17 @@ void Engine::loadAssets() {
         }
     }
     assets = std::move(new_assets);
+    
+    if (content) {
+        for (auto& [name, def] : content->items.getDefs()) {
+            assets->store(
+                std::make_unique<model::Model>(
+                    ModelsGenerator::generate(*def, *content, *assets)
+                ),
+                name + ".model"
+            );
+        }
+    }
 }
 
 static void load_configs(const fs::path& root) {
@@ -287,12 +302,14 @@ static void load_configs(const fs::path& root) {
     auto bindsFile = configFolder/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(), files::read_string(bindsFile)
+            bindsFile.u8string(), files::read_string(bindsFile), BindType::BIND
         );
     }
 }
 
 void Engine::loadContent() {
+    scripting::cleanup();
+
     auto resdir = paths->getResourcesFolder();
 
     std::vector<std::string> names;
@@ -338,6 +355,7 @@ void Engine::loadContent() {
 }
 
 void Engine::resetContent() {
+    scripting::cleanup();
     auto resdir = paths->getResourcesFolder();
     std::vector<PathsRoot> resRoots;
     {
@@ -388,6 +406,9 @@ double Engine::getDelta() const {
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
+    // unblock all bindings
+    Events::enableBindings();
+    // reset audio channels (stop all sources)
     audio::reset_channel(audio::get_channel_index("regular"));
     audio::reset_channel(audio::get_channel_index("ambient"));
     this->screen = std::move(screen);

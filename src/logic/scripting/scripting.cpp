@@ -164,32 +164,40 @@ void scripting::on_world_load(LevelController* controller) {
 
     auto L = lua::get_main_state();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        lua::emit_event(L, pack.id + ".worldopen");
+        lua::emit_event(L, pack.id + ":.worldopen");
     }
 }
 
 void scripting::on_world_tick() {
     auto L = lua::get_main_state();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        lua::emit_event(L, pack.id + ".worldtick");
+        lua::emit_event(L, pack.id + ":.worldtick");
     }
 }
 
 void scripting::on_world_save() {
     auto L = lua::get_main_state();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        lua::emit_event(L, pack.id + ".worldsave");
+        lua::emit_event(L, pack.id + ":.worldsave");
     }
 }
 
 void scripting::on_world_quit() {
     auto L = lua::get_main_state();
     for (auto& pack : scripting::engine->getContentPacks()) {
-        lua::emit_event(L, pack.id + ".worldquit");
+        lua::emit_event(L, pack.id + ":.worldquit");
     }
+    scripting::level = nullptr;
+    scripting::content = nullptr;
+    scripting::indices = nullptr;
+    scripting::blocks = nullptr;
+    scripting::controller = nullptr;
+}
 
+void scripting::cleanup() {
+    auto L = lua::get_main_state();
     lua::getglobal(L, "pack");
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : scripting::engine->getAllContentPacks()) {
         lua::getfield(L, "unload");
         lua::pushstring(L, pack.id);
         lua::call_nothrow(L, 1);
@@ -199,11 +207,6 @@ void scripting::on_world_quit() {
     if (lua::getglobal(L, "__scripts_cleanup")) {
         lua::call_nothrow(L, 0);
     }
-    scripting::level = nullptr;
-    scripting::content = nullptr;
-    scripting::indices = nullptr;
-    scripting::blocks = nullptr;
-    scripting::controller = nullptr;
 }
 
 void scripting::on_blocks_tick(const Block& block, int tps) {
@@ -248,7 +251,7 @@ void scripting::on_block_placed(
         if (pack->worldfuncsset.onblockplaced) {
             lua::emit_event(
                 lua::get_main_state(),
-                packid + ".blockplaced",
+                packid + ":.blockplaced",
                 world_event_args
             );
         }
@@ -280,7 +283,7 @@ void scripting::on_block_broken(
         if (pack->worldfuncsset.onblockbroken) {
             lua::emit_event(
                 lua::get_main_state(),
-                packid + ".blockbroken",
+                packid + ":.blockbroken",
                 world_event_args
             );
         }
@@ -613,7 +616,7 @@ bool scripting::register_event(
     if (lua::getfield(L, name)) {
         lua::pop(L);
         lua::getglobal(L, "events");
-        lua::getfield(L, "on");
+        lua::getfield(L, "reset");
         lua::pushstring(L, id);
         lua::getfield(L, name, -4);
         lua::call_nothrow(L, 2);
@@ -686,14 +689,14 @@ void scripting::load_world_script(
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "world", file));
     register_event(env, "init", prefix + ".init");
-    register_event(env, "on_world_open", prefix + ".worldopen");
-    register_event(env, "on_world_tick", prefix + ".worldtick");
-    register_event(env, "on_world_save", prefix + ".worldsave");
-    register_event(env, "on_world_quit", prefix + ".worldquit");
+    register_event(env, "on_world_open", prefix + ":.worldopen");
+    register_event(env, "on_world_tick", prefix + ":.worldtick");
+    register_event(env, "on_world_save", prefix + ":.worldsave");
+    register_event(env, "on_world_quit", prefix + ":.worldquit");
     funcsset.onblockplaced =
-        register_event(env, "on_block_placed", prefix + ".blockplaced");
+        register_event(env, "on_block_placed", prefix + ":.blockplaced");
     funcsset.onblockbroken =
-        register_event(env, "on_block_broken", prefix + ".blockbroken");
+        register_event(env, "on_block_broken", prefix + ":.blockbroken");
 }
 
 void scripting::load_layout_script(
@@ -703,6 +706,7 @@ void scripting::load_layout_script(
     uidocscript& script
 ) {
     int env = *senv;
+
     lua::pop(lua::get_main_state(), load_script(env, "layout", file));
     script.onopen = register_event(env, "on_open", prefix + ".open");
     script.onprogress =

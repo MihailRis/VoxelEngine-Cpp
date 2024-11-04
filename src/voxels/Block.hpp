@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <array>
 
 #include "maths/UVRegion.hpp"
 #include "maths/aabb.hpp"
@@ -111,7 +112,7 @@ public:
     std::string caption;
 
     /// @brief Textures set applied to block sides
-    std::string textureFaces[6];  // -x,x, -y,y, -z,z
+    std::array<std::string, 6> textureFaces;  // -x,x, -y,y, -z,z
 
     std::vector<std::string> modelTextures = {};
     std::vector<BoxModel> modelBoxes = {};
@@ -183,6 +184,9 @@ public:
 
     /// @brief Block will be used instead of this if generated on surface
     std::string surfaceReplacement = name;
+
+    /// @brief Texture will be shown on screen if camera is inside of the block
+    std::string overlayTexture;
 
     /// @brief Default block layout will be used by hud.open_block(...)
     std::string uiLayout = name;

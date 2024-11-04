@@ -1,4 +1,6 @@
 #include "EntityDef.hpp"
+
+
 void EntityDef::cloneTo(EntityDef& dst) {
     dst.components = components;
     dst.bodyType = bodyType;
@@ -8,5 +10,4 @@ void EntityDef::cloneTo(EntityDef& dst) {
     dst.skeletonName = skeletonName;
     dst.blocking = blocking;
     dst.save = save;
-
 }

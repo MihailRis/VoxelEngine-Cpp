@@ -29,6 +29,8 @@ struct DisplaySettings {
     IntegerSetting samples {0};
     /// @brief Framerate limit
     IntegerSetting framerate {-1, -1, 120};
+    /// @brief Limit framerate when window is iconified
+    FlagSetting limitFpsIconified {false};
 };
 
 struct ChunksSettings {

@@ -11,6 +11,7 @@ function set_page(btn, page)
     document.s_dsp.enabled = true
     document.s_gfx.enabled = true
     document.s_ctl.enabled = true
+    document.s_rst.enabled = true
     document[btn].enabled = false
     document.menu.page = page
 end

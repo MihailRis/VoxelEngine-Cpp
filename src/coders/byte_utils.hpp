@@ -52,6 +52,8 @@ public:
     ByteReader(const ubyte* data);
 
     void checkMagic(const char* data, size_t size);
+    /// @brief Get N bytes
+    void get(char* dst, size_t size);
     /// @brief Read one byte (unsigned 8 bit integer)
     ubyte get();
     /// @brief Read one byte (unsigned 8 bit integer) without pointer move

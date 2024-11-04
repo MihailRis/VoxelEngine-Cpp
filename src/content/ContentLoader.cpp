@@ -326,6 +326,7 @@ void ContentLoader::loadBlock(
     root.at("ui-layout").get(def.uiLayout);
     root.at("inventory-size").get(def.inventorySize);
     root.at("tick-interval").get(def.tickInterval);
+    root.at("overlay-texture").get(def.overlayTexture);
 
     if (root.has("fields")) {
         def.dataStruct = std::make_unique<StructLayout>();
@@ -418,17 +419,18 @@ void ContentLoader::loadItem(
     std::string iconTypeStr = "";
     root.at("icon-type").get(iconTypeStr);
     if (iconTypeStr == "none") {
-        def.iconType = item_icon_type::none;
+        def.iconType = ItemIconType::NONE;
     } else if (iconTypeStr == "block") {
-        def.iconType = item_icon_type::block;
+        def.iconType = ItemIconType::BLOCK;
     } else if (iconTypeStr == "sprite") {
-        def.iconType = item_icon_type::sprite;
+        def.iconType = ItemIconType::SPRITE;
     } else if (iconTypeStr.length()) {
         logger.error() << name << ": unknown icon type" << iconTypeStr;
     }
     root.at("icon").get(def.icon);
     root.at("placing-block").get(def.placingBlock);
     root.at("script-name").get(def.scriptName);
+    root.at("model-name").get(def.modelName);
     root.at("stack-size").get(def.stackSize);
 
     // item light emission [r, g, b] where r,g,b in range [0..15]
@@ -532,7 +534,7 @@ void ContentLoader::loadBlock(
         auto& item = builder.items.create(full + BLOCK_ITEM_SUFFIX);
         item.generated = true;
         item.caption = def.caption;
-        item.iconType = item_icon_type::block;
+        item.iconType = ItemIconType::BLOCK;
         item.icon = full;
         item.placingBlock = full;
 

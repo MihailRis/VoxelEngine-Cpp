@@ -9,6 +9,11 @@
 
 inline constexpr short KEYS_BUFFER_SIZE = 1036;
 
+enum class BindType {
+    BIND = 0,
+    REBIND = 1
+};
+
 class Events {
     static bool keys[KEYS_BUFFER_SIZE];
     static uint frames[KEYS_BUFFER_SIZE];
@@ -52,6 +57,8 @@ public:
 
     static std::string writeBindings();
     static void loadBindings(
-        const std::string& filename, const std::string& source
+        const std::string& filename, const std::string& source,
+        BindType bindType
     );
+    static void enableBindings();
 };

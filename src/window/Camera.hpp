@@ -18,6 +18,8 @@ public:
     bool perspective = true;
     bool flipped = false;
     float aspect = 0.0f;
+    float near = 0.05f;
+    float far = 1500.0f;
 
     Camera() {
         updateVectors();
@@ -27,9 +29,9 @@ public:
     void updateVectors();
     void rotate(float x, float y, float z);
 
-    glm::mat4 getProjection();
-    glm::mat4 getView(bool position = true);
-    glm::mat4 getProjView(bool position = true);
+    glm::mat4 getProjection() const;
+    glm::mat4 getView(bool position = true) const;
+    glm::mat4 getProjView(bool position = true) const;
 
     void setFov(float fov);
     float getFov() const;

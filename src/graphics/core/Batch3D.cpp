@@ -106,7 +106,7 @@ void Batch3D::face(
            tint.r, tint.g, tint.b, tint.a);
 }
 
-void Batch3D::texture(Texture* new_texture){
+void Batch3D::texture(const Texture* new_texture){
     if (currentTexture == new_texture)
         return;
     flush();

@@ -1,6 +1,14 @@
 history = session.get_entry("commands_history")
 history_pointer = #history
 
+local warning_id = 0
+events.on("core:warning", function (wtype, text)
+    document.problemsLog:add(gui.template("problem", {
+        type="warning", text=wtype..": "..text, id=tostring(warning_id)
+    }))
+    warning_id = warning_id + 1
+end)
+
 function setup_variables()
     local pid = hud.get_player()
     local x,y,z = player.get_pos(pid)
@@ -27,7 +35,7 @@ function on_history_up()
 end
 
 function on_history_down()
-    if history_pointer == #history-1 then
+    if history_pointer >= #history-1 then
         return
     end
     history_pointer = history_pointer + 1
