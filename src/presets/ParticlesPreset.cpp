@@ -34,6 +34,7 @@ dv::value ParticlesPreset::serialize() const {
     root["collision"] = collision;
     root["lighting"] = lighting;
     root["max_distance"] = maxDistance;
+    root["global_up_vector"] = globalUpVector;
     root["spawn_interval"] = spawnInterval;
     root["lifetime"] = lifetime;
     root["lifetime_spread"] = lifetimeSpread;
@@ -51,6 +52,7 @@ void ParticlesPreset::deserialize(const dv::value& src) {
     src.at("texture").get(texture);
     src.at("collision").get(collision);
     src.at("lighting").get(lighting);
+    src.at("global_up_vector").get(globalUpVector);
     src.at("max_distance").get(maxDistance);
     src.at("spawn_interval").get(spawnInterval);
     src.at("lifetime").get(lifetime);

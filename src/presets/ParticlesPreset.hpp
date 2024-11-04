@@ -24,6 +24,8 @@ struct ParticlesPreset : public Serializable {
     bool collision = true;
     /// @brief Apply lighting
     bool lighting = true;
+    /// @brief Use global up vector instead of camera-dependent one
+    bool globalUpVector = false;
     /// @brief Max distance of actually spawning particles.
     float maxDistance = 16.0f;
     /// @brief Particles spawn interval
