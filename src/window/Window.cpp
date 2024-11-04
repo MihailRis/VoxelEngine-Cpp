@@ -14,6 +14,8 @@
 #include "util/ObjectsKeeper.hpp"
 #include "Events.hpp"
 
+#include "util/platform.hpp"
+
 static debug::Logger logger("window");
 
 GLFWwindow* Window::window = nullptr;
@@ -357,11 +359,14 @@ bool Window::isFullscreen() {
 void Window::swapBuffers() {
     glfwSwapBuffers(window);
     Window::resetScissor();
-    double currentTime = time();
-    if (framerate > 0 && currentTime - prevSwap < (1.0 / framerate)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(
-            (1.0 / framerate - (currentTime - prevSwap)) * 1000
-        )));
+    if (framerate > 0) {
+        auto elapsedTime = time() - prevSwap;
+        auto frameTime = 1.0 / framerate;
+        if (elapsedTime < frameTime) {
+            platform::sleep(
+                static_cast<size_t>((frameTime - elapsedTime) * 1000)
+            );
+        }
     }
     prevSwap = time();
 }

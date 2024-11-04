@@ -5,9 +5,10 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <thread>
 
-#include "typedefs.hpp"
 #include "stringutil.hpp"
+#include "typedefs.hpp"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -34,6 +35,27 @@ std::string platform::detect_locale() {
         .replace(2, 1, "_")
         .substr(0, 5);
 }
+
+void platform::sleep(size_t millis) {
+    // Uses implementation from the SFML library
+    // https://github.com/SFML/SFML/blob/master/src/SFML/System/Win32/SleepImpl.cpp
+
+    // Get the minimum supported timer resolution on this system
+    static const UINT periodMin = []{
+        TIMECAPS tc;
+        timeGetDevCaps(&tc, sizeof(TIMECAPS));
+        return tc.wPeriodMin;
+    }();
+
+    // Set the timer resolution to the minimum for the Sleep call
+    timeBeginPeriod(periodMin);
+
+    // Wait...
+    Sleep(static_cast<DWORD>(millis));
+
+    // Reset the timer resolution back to the system default
+    timeEndPeriod(periodMin);
+}
 #else
 
 void platform::configure_encoding() {
@@ -47,6 +69,10 @@ std::string platform::detect_locale() {
 
     return preferredLocaleName.substr(0, 5);
 }
+
+void platform::sleep(size_t millis) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(millis));
+}
 #endif
 
 void platform::open_folder(const std::filesystem::path& folder) {
@@ -54,11 +80,11 @@ void platform::open_folder(const std::filesystem::path& folder) {
         return;
     }
 #ifdef __APPLE__
-    auto cmd = "open "+util::quote(folder.u8string());
+    auto cmd = "open " + util::quote(folder.u8string());
 #elif defined(_WIN32)
-    auto cmd = "start explorer "+util::quote(folder.u8string());
+    auto cmd = "start explorer " + util::quote(folder.u8string());
 #else
-    auto cmd = "xdg-open "+util::quote(folder.u8string());
+    auto cmd = "xdg-open " + util::quote(folder.u8string());
 #endif
     system(cmd.c_str());
 }

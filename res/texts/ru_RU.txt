@@ -76,6 +76,7 @@ settings.Regular Sounds=Обычные Звуки
 settings.UI Sounds=Звуки Интерфейса
 settings.V-Sync=Вертикальная Синхронизация
 settings.Key=Кнопка
+settings.Limit Background FPS=Ограничить фоновую частоту кадров
 
 # Управление
 chunks.reload=Перезагрузить Чанки
