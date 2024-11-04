@@ -10,4 +10,6 @@ namespace platform {
     /// @brief Open folder using system file manager asynchronously
     /// @param folder target folder
     void open_folder(const std::filesystem::path& folder);
+    /// Makes the current thread sleep for the specified amount of milliseconds.
+    void sleep(size_t millis);
 }
