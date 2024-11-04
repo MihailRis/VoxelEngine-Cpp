@@ -285,9 +285,9 @@ void ContentLoader::loadBlock(
     // block light emission [r, g, b] where r,g,b in range [0..15]
     if (auto found = root.at("emission")) {
         const auto& emissionarr = *found;
-        def.emission[0] = emissionarr[0].asInteger();
-        def.emission[1] = emissionarr[1].asInteger();
-        def.emission[2] = emissionarr[2].asInteger();
+        for (size_t i = 0; i < 3; i++) {
+            def.emission[i] = std::clamp(emissionarr[i].asInteger(), static_cast<integer_t>(0), static_cast<integer_t>(15));
+        }
     }
 
     // block size
