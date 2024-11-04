@@ -12,6 +12,8 @@ class Shader;
 class Assets;
 class Camera;
 class Batch3D;
+class Shader;
+class Cubemap;
 class Framebuffer;
 class DrawContext;
 
@@ -33,11 +35,16 @@ class Skybox {
     std::unique_ptr<Mesh> mesh;
     std::unique_ptr<Batch3D> batch3d;
     std::vector<skysprite> sprites;
+    int frameid = 0;
+
+    float prevMie = -1.0f;
+    float prevT = -1.0f;
 
     void drawStars(float angle, float opacity);
     void drawBackground(
         const Camera& camera, const Assets& assets, int width, int height
     );
+    void refreshFace(uint face, Cubemap* cubemap);
 public:
     Skybox(uint size, Shader* shader);
     ~Skybox();
