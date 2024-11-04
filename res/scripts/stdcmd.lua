@@ -120,7 +120,7 @@ console.add_command(
             world.set_day_time_speed(0)
             return "Daily cycle has stopped"
         else
-            world.set_day_time_speed(1.0 / 60.0 / 24.0)
+            world.set_day_time_speed(1.0)
             return "Daily cycle has started"
         end
     end
