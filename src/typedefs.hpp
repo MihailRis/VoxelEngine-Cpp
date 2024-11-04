@@ -12,6 +12,7 @@ using integer_t = int64_t;
 using number_t = double;
 
 using uint = unsigned int;
+using u64id_t = uint64_t;
 
 /// @brief use for bytes arrays
 using ubyte = uint8_t;
