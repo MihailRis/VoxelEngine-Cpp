@@ -51,6 +51,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("samples", &settings.display.samples);
     builder.add("framerate", &settings.display.framerate);
     builder.add("fullscreen", &settings.display.fullscreen);
+    builder.add("limit-fps-iconified", &settings.display.limitFpsIconified);
 
     builder.section("camera");
     builder.add("sensitivity", &settings.camera.sensitivity);
