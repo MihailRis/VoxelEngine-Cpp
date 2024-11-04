@@ -63,19 +63,28 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
                       const glm::mat3& rotation, glm::vec3 tint,
                       const texture_names_map* varTextures,
                       bool backlight) {
-    glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    gpos += lightsOffset;
-    glm::vec4 lights = MainBatch::sampleLight(gpos, *chunks, backlight);
+
+
     setTexture(mesh.texture, varTextures);
     size_t vcount = mesh.vertices.size();
     const auto& vertexData = mesh.vertices.data();
+
+    glm::vec4 lights(1, 1, 1, 0);
+    if (mesh.lighting) {
+        glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        gpos += lightsOffset;
+        lights = MainBatch::sampleLight(gpos, *chunks, backlight);
+    }
     for (size_t i = 0; i < vcount / 3; i++) {
         batch->prepare(3);
         for (size_t j = 0; j < 3; j++) {
             const auto vert = vertexData[i * 3 + j];
-            auto norm = rotation * vert.normal;
-            float d = glm::dot(norm, SUN_VECTOR);
-            d = 0.8f + d * 0.2f;
+            float d = 1.0f;
+            if (mesh.lighting) {
+                auto norm = rotation * vert.normal;
+                d = glm::dot(norm, SUN_VECTOR);
+                d = 0.8f + d * 0.2f;
+            }
             batch->vertex(matrix * glm::vec4(vert.coord, 1.0f), vert.uv, lights*d, tint);
         }
     }

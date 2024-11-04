@@ -92,7 +92,7 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
             batch->quad(
                 particle.position,
                 right,
-                up,
+                preset.globalUpVector ? glm::vec3(0, 1, 0) : up,
                 preset.size,
                 light,
                 glm::vec3(1.0f),
