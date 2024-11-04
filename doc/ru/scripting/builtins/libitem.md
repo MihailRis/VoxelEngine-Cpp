@@ -24,6 +24,9 @@ item.placing_block(itemid: int) -> int
 
 -- Возвращает значение свойства `model-name`
 item.model_name(itemid: int) -> str
+
+-- Возвращает emission параметр у предмета
+item.emission(itemid: int) -> str
 ```
 
 
