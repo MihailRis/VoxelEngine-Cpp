@@ -2,6 +2,7 @@
 
 #include "logic/scripting/scripting_hud.hpp"
 #include "graphics/render/WorldRenderer.hpp"
+#include "graphics/render/ParticlesRenderer.hpp"
 #include "graphics/render/Emitter.hpp"
 #include "assets/assets_util.hpp"
 #include "engine.hpp"
@@ -34,11 +35,19 @@ static int l_emit(lua::State* L) {
         region.region,
         count
     );
-    renderer->addEmitter(std::move(emitter));
+    return lua::pushinteger(L, renderer->particles->add(std::move(emitter)));
+}
+
+static int l_stop(lua::State* L) {
+    u64id_t id = lua::touinteger(L, 1);
+    if (auto emitter = renderer->particles->getEmitter(id)) {
+        emitter->stop();
+    }
     return 0;
 }
 
 const luaL_Reg particleslib[] = {
     {"emit", lua::wrap<l_emit>},
+    {"stop", lua::wrap<l_stop>},
     {NULL, NULL}
 };

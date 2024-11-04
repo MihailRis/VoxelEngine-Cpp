@@ -535,10 +535,6 @@ void WorldRenderer::drawBorders(
     lineBatch->flush();
 }
 
-void WorldRenderer::addEmitter(std::unique_ptr<Emitter> emitter) {
-    particles->add(std::move(emitter));
-}
-
 void WorldRenderer::clear() {
     renderer->clear();
 }

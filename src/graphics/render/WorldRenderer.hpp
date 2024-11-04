@@ -8,6 +8,8 @@
 
 #include <glm/glm.hpp>
 
+#include "typedefs.hpp"
+
 class Level;
 class Player;
 class Camera;
@@ -42,7 +44,6 @@ class WorldRenderer {
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
-    std::unique_ptr<ParticlesRenderer> particles;
     
     float timer = 0.0f;
 
@@ -80,6 +81,8 @@ class WorldRenderer {
         float fogFactor
     );
 public:
+    std::unique_ptr<ParticlesRenderer> particles;
+
     static bool showChunkBorders;
     static bool showEntitiesDebug;
 
@@ -107,8 +110,6 @@ public:
         float delta,
         bool pause
     );
-
-    void addEmitter(std::unique_ptr<Emitter> emitter);
 
     void clear();
 };
