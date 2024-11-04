@@ -5,6 +5,7 @@
 
 #include "core_defs.hpp"
 #include "data/StructLayout.hpp"
+#include "presets/ParticlesPreset.hpp"
 #include "util/stringutil.hpp"
 
 std::string to_string(BlockModel model) {
@@ -142,6 +143,7 @@ void Block::cloneTo(Block& dst) {
     dst.inventorySize = inventorySize;
     dst.tickInterval = tickInterval;
     dst.overlayTexture = overlayTexture;
+    dst.particles = std::make_unique<ParticlesPreset>(*particles);
 }
 
 static std::set<std::string, std::less<>> RESERVED_BLOCK_FIELDS {

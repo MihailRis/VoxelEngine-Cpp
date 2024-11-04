@@ -22,6 +22,7 @@
 #include "voxels/Block.hpp"
 #include "data/dv_util.hpp"
 #include "data/StructLayout.hpp"
+#include "presets/ParticlesPreset.hpp"
 
 namespace fs = std::filesystem;
 using namespace data;
@@ -333,6 +334,11 @@ void ContentLoader::loadBlock(
         def.dataStruct->deserialize(root["fields"]);
 
         perform_user_block_fields(def.name, *def.dataStruct);
+    }
+
+    if (root.has("particles")) {
+        def.particles = std::make_unique<ParticlesPreset>();
+        def.particles->deserialize(root["particles"]);
     }
 
     if (def.tickInterval == 0) {

@@ -12,6 +12,7 @@ class WorldRenderer;
 class TextureAnimator;
 class PostProcessing;
 class ContentPackRuntime;
+class Decorator;
 class Level;
 
 class LevelScreen : public Screen {
@@ -20,6 +21,7 @@ class LevelScreen : public Screen {
     std::unique_ptr<WorldRenderer> worldRenderer;
     std::unique_ptr<TextureAnimator> animator;
     std::unique_ptr<PostProcessing> postProcessing;
+    std::unique_ptr<Decorator> decorator;
     std::unique_ptr<Hud> hud;
 
     void saveWorldPreview();

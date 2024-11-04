@@ -25,7 +25,7 @@ struct ParticlesPreset : public Serializable {
     /// @brief Apply lighting
     bool lighting = true;
     /// @brief Max distance of actually spawning particles.
-    float maxDistance = 32.0f;
+    float maxDistance = 16.0f;
     /// @brief Particles spawn interval
     float spawnInterval = 0.1f;
     /// @brief Particle life time

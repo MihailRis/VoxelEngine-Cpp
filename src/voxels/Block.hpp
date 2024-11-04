@@ -10,6 +10,8 @@
 #include "maths/aabb.hpp"
 #include "typedefs.hpp"
 
+struct ParticlesPreset;
+
 namespace data {
     class StructLayout;
 }
@@ -198,6 +200,8 @@ public:
     uint tickInterval = 1;
 
     std::unique_ptr<data::StructLayout> dataStruct;
+
+    std::unique_ptr<ParticlesPreset> particles;
 
     /// @brief Runtime indices (content indexing results)
     struct {

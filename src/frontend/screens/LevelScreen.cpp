@@ -14,6 +14,7 @@
 #include "graphics/core/PostProcessing.hpp"
 #include "graphics/core/Viewport.hpp"
 #include "graphics/render/WorldRenderer.hpp"
+#include "graphics/render/Decorator.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "logic/LevelController.hpp"
@@ -29,20 +30,25 @@
 
 static debug::Logger logger("level-screen");
 
-LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> level)
+LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> levelPtr)
  : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) 
 {
+    Level* level = levelPtr.get();
+
     auto& settings = engine->getSettings();
     auto assets = engine->getAssets();
     auto menu = engine->getGUI()->getMenu();
     menu->reset();
 
-    controller = std::make_unique<LevelController>(engine, std::move(level));
+    controller = std::make_unique<LevelController>(engine, std::move(levelPtr));
     frontend = std::make_unique<LevelFrontend>(controller->getPlayer(), controller.get(), assets);
 
     worldRenderer = std::make_unique<WorldRenderer>(engine, frontend.get(), controller->getPlayer());
     hud = std::make_unique<Hud>(engine, frontend.get(), controller->getPlayer());
-    
+
+    decorator =
+        std::make_unique<Decorator>(*level, *worldRenderer->particles, *assets);
+
     keepAlive(settings.graphics.backlight.observe([=](bool) {
         controller->getLevel()->chunks->saveAndClear();
         worldRenderer->clear();
@@ -156,6 +162,7 @@ void LevelScreen::update(float delta) {
     }
     controller->update(glm::min(delta, 0.2f), !inputLocked, hud->isPause());
     hud->update(hudVisible);
+    decorator->update(delta, *camera);
 }
 
 void LevelScreen::draw(float delta) {
