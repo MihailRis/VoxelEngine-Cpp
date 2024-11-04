@@ -106,16 +106,6 @@ bool WorldRenderer::drawChunk(
     if (mesh == nullptr) {
         return false;
     }
-    if (culling) {
-        glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
-        glm::vec3 max(
-            chunk->x * CHUNK_W + CHUNK_W,
-            chunk->top,
-            chunk->z * CHUNK_D + CHUNK_D
-        );
-
-        if (!frustumCulling->isBoxVisible(min, max)) return false;
-    }
     glm::vec3 coord(chunk->x * CHUNK_W + 0.5f, 0.5f, chunk->z * CHUNK_D + 0.5f);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
     shader->uniformMatrix("u_model", model);
@@ -134,9 +124,25 @@ void WorldRenderer::drawChunks(
 
     // [warning] this whole method is not thread-safe for chunks
 
+    bool culling = engine->getSettings().graphics.frustumCulling.get();
+    if (culling) {
+        frustumCulling->update(camera.getProjView());
+    }
+
     std::vector<size_t> indices;
     for (size_t i = 0; i < chunks->getVolume(); i++) {
-        if (chunks->getChunks()[i] == nullptr) continue;
+        auto chunk = chunks->getChunks()[i];
+        if (chunk == nullptr) continue;
+        if (culling) {
+            glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+            glm::vec3 max(
+                chunk->x * CHUNK_W + CHUNK_W,
+                chunk->top,
+                chunk->z * CHUNK_D + CHUNK_D
+            );
+
+            if (!frustumCulling->isBoxVisible(min, max)) continue;
+        }
         indices.emplace_back(i);
     }
     float px = camera.position.x / static_cast<float>(CHUNK_W) - 0.5f;
@@ -151,10 +157,7 @@ void WorldRenderer::drawChunks(
         auto bdz = (b->z - pz);
         return (adx * adx + adz * adz > bdx * bdx + bdz * bdz);
     });
-    bool culling = engine->getSettings().graphics.frustumCulling.get();
-    if (culling) {
-        frustumCulling->update(camera.getProjView());
-    }
+    
     chunks->visible = 0;
     for (size_t i = 0; i < indices.size(); i++) {
         chunks->visible += drawChunk(indices[i], camera, shader, culling);
