@@ -8,12 +8,15 @@
 
 #include <glm/glm.hpp>
 
+#include "typedefs.hpp"
+
 class Level;
 class Player;
 class Camera;
 class Batch3D;
 class LineBatch;
 class ChunksRenderer;
+class ParticlesRenderer;
 class Shader;
 class Frustum;
 class Engine;
@@ -24,6 +27,7 @@ class PostProcessing;
 class DrawContext;
 class ModelBatch;
 class Assets;
+class Emitter;
 struct EngineSettings;
 
 namespace model {
@@ -40,6 +44,7 @@ class WorldRenderer {
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
+    
     float timer = 0.0f;
 
     bool drawChunk(size_t index, const Camera& camera, Shader* shader, bool culling);
@@ -76,6 +81,8 @@ class WorldRenderer {
         float fogFactor
     );
 public:
+    std::unique_ptr<ParticlesRenderer> particles;
+
     static bool showChunkBorders;
     static bool showEntitiesDebug;
 

@@ -22,4 +22,15 @@ struct UVRegion {
     inline float getHeight() const {
         return fabs(v2 - v1);
     }
+
+    void autoSub(float w, float h, float x, float y) {
+        x *= 1.0f - w;
+        y *= 1.0f - h;
+        float uvw = getWidth();
+        float uvh = getHeight();
+        u1 = u1 + uvw * x;
+        v1 = v1 + uvh * y;
+        u2 = u1 + uvw * w;
+        v2 = v1 + uvh * h;
+    }
 };

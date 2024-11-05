@@ -40,9 +40,11 @@
 #include "graphics/core/PostProcessing.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
+#include "ParticlesRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
+#include "Emitter.hpp"
 
 bool WorldRenderer::showChunkBorders = false;
 bool WorldRenderer::showEntitiesDebug = false;
@@ -56,8 +58,15 @@ WorldRenderer::WorldRenderer(
       frustumCulling(std::make_unique<Frustum>()),
       lineBatch(std::make_unique<LineBatch>()),
       modelBatch(std::make_unique<ModelBatch>(
-          20'000, engine->getAssets(), level->chunks.get(), 
+          20'000,
+          engine->getAssets(),
+          level->chunks.get(),
           &engine->getSettings()
+      )),
+      particles(std::make_unique<ParticlesRenderer>(
+          *engine->getAssets(),
+          *frontend->getLevel(),
+          &engine->getSettings().graphics
       )) {
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
@@ -189,7 +198,7 @@ void WorldRenderer::setupWorldShader(
 }
 
 void WorldRenderer::renderLevel(
-    const DrawContext&,
+    const DrawContext& ctx,
     const Camera& camera,
     const EngineSettings& settings,
     float delta,
@@ -198,7 +207,8 @@ void WorldRenderer::renderLevel(
     auto assets = engine->getAssets();
 
     bool culling = engine->getSettings().graphics.frustumCulling.get();
-    float fogFactor = 15.0f / ((float)settings.chunks.loadDistance.get() - 2);
+    float fogFactor =
+        15.0f / static_cast<float>(settings.chunks.loadDistance.get() - 2);
 
     auto entityShader = assets->get<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
@@ -211,6 +221,7 @@ void WorldRenderer::renderLevel(
         delta,
         pause
     );
+    particles->render(camera, delta * !pause);
     modelBatch->render();
 
     auto shader = assets->get<Shader>("main");

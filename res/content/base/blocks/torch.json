@@ -15,5 +15,21 @@
     "obstacle": false,
     "grounded": true,
     "rotation": "pipe",
-    "material": "base:wood"
+    "material": "base:wood",
+    "particles": {
+        "lifetime": 2.0,
+        "spawn_interval": 0.3,
+        "acceleration": [0, 0, 0],
+        "velocity": [0, 0.3, 0],
+        "explosion": [0, 0, 0],
+        "size": [0.2, 0.2, 0.2],
+        "spawn_shape": "ball",
+        "spawn_spread": [0.05, 0.05, 0.05],
+        "lighting": false,
+        "frames": [
+            "particles:fire_0",
+            "particles:smoke_0",
+            "particles:smoke_1"
+        ]
+    }
 }

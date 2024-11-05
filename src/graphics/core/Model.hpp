@@ -4,6 +4,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "maths/UVRegion.hpp"
+
 namespace model {
     struct Vertex {
         glm::vec3 coord;
@@ -14,9 +16,27 @@ namespace model {
     struct Mesh {
         std::string texture;
         std::vector<Vertex> vertices;
-    
-        void addPlane(glm::vec3 pos, glm::vec3 right, glm::vec3 up, glm::vec3 norm);
-        void addBox(glm::vec3 pos, glm::vec3 size);
+        bool lighting = true;
+
+        void addPlane(
+            const glm::vec3& pos,
+            const glm::vec3& right,
+            const glm::vec3& up,
+            const glm::vec3& norm
+        );
+        void addPlane(
+            const glm::vec3& pos,
+            const glm::vec3& right,
+            const glm::vec3& up,
+            const glm::vec3& norm,
+            const UVRegion& region
+        );
+        void addBox(const glm::vec3& pos, const glm::vec3& size);
+        void addBox(
+            const glm::vec3& pos,
+            const glm::vec3& size,
+            const UVRegion (&texfaces)[6]
+        );
         void scale(const glm::vec3& size);
     };
 

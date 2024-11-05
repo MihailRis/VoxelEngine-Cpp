@@ -10,6 +10,8 @@
 #include "maths/aabb.hpp"
 #include "typedefs.hpp"
 
+struct ParticlesPreset;
+
 namespace data {
     class StructLayout;
 }
@@ -116,8 +118,8 @@ public:
 
     std::vector<std::string> modelTextures = {};
     std::vector<BoxModel> modelBoxes = {};
-    std::vector<glm::vec3> modelExtraPoints =
-        {};                               // initially made for tetragons
+    // initially made for tetragons
+    std::vector<glm::vec3> modelExtraPoints = {};
     std::vector<UVRegion> modelUVs = {};  // boxes' tex-UVs also there
 
     /// @brief id of used BlockMaterial, may specify non-existing material
@@ -198,6 +200,8 @@ public:
     uint tickInterval = 1;
 
     std::unique_ptr<data::StructLayout> dataStruct;
+
+    std::unique_ptr<ParticlesPreset> particles;
 
     /// @brief Runtime indices (content indexing results)
     struct {

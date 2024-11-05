@@ -49,36 +49,36 @@ public:
     void begin();
     void texture(const Texture* texture);
     void sprite(
-        glm::vec3 pos,
-        glm::vec3 up,
-        glm::vec3 right,
+        const glm::vec3& pos,
+        const glm::vec3& up,
+        const glm::vec3& right,
         float w,
         float h,
         const UVRegion& uv,
-        glm::vec4 tint
+        const glm::vec4& tint
     );
     void xSprite(
         float w,
         float h,
         const UVRegion& uv,
-        const glm::vec4 tint,
+        const glm::vec4& tint,
         bool shading = true
     );
     void cube(
-        const glm::vec3 coords,
-        const glm::vec3 size,
+        const glm::vec3& coords,
+        const glm::vec3& size,
         const UVRegion (&texfaces)[6],
-        const glm::vec4 tint,
+        const glm::vec4& tint,
         bool shading = true
     );
     void blockCube(
-        const glm::vec3 size,
+        const glm::vec3& size,
         const UVRegion (&texfaces)[6],
-        const glm::vec4 tint,
+        const glm::vec4& tint,
         bool shading = true
     );
-    void vertex(glm::vec3 pos, glm::vec2 uv, glm::vec4 tint);
-    void point(glm::vec3 pos, glm::vec4 tint);
+    void vertex(const glm::vec3& pos, const glm::vec2& uv, const glm::vec4& tint);
+    void point(const glm::vec3& pos, const glm::vec4& tint);
     void flush() override;
     void flushPoints();
 };

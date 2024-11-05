@@ -27,6 +27,7 @@
     ],
     "atlases": [
         "blocks",
-        "items"
+        "items",
+        "particles"
     ]
 }
