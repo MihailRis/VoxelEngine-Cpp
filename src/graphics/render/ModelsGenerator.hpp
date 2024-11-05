@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/core/Model.hpp"
+#include "graphics/commons/Model.hpp"
 
 struct ItemDef;
 class Assets;

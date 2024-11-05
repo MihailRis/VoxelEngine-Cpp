@@ -8,7 +8,7 @@
 
 #include "typedefs.hpp"
 #include "util/Buffer.hpp"
-#include "graphics/core/Model.hpp"
+#include "graphics/commons/Model.hpp"
 
 /// See /doc/specs/vec3_model_spec.md
 namespace vec3 {

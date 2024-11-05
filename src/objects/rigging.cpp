@@ -3,7 +3,7 @@
 #include "assets/Assets.hpp"
 #include "coders/json.hpp"
 #include "data/dv_util.hpp"
-#include "graphics/core/Model.hpp"
+#include "graphics/commons/Model.hpp"
 #include "graphics/render/ModelBatch.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
