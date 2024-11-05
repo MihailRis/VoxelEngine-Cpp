@@ -429,7 +429,7 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
             return;
         }
     }
-    auto coord = selection.actualPosition;
+    glm::ivec3 coord = selection.actualPosition;
     if (!target.replaceable) {
         coord += selection.normal;
     } else if (def.rotations.name == BlockRotProfile::PIPE_NAME) {
@@ -437,12 +437,10 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
     }
     blockid_t chosenBlock = def.rt.id;
 
-
     if (def.obstacle) {
-        std::vector<AABB> hitboxes = def.rotatable ? def.rt.hitboxes[state.rotation] : def.hitboxes;
-        for (AABB blockAABB : hitboxes) {
-            bool blocked = level->entities->hasBlockingInside(blockAABB.move(coord));
-            if (blocked) {
+        const auto& hitboxes = def.rt.hitboxes[state.rotation];
+        for (const AABB& blockAABB : hitboxes) {
+            if (level->entities->hasBlockingInside(blockAABB.translated(coord))) {
                 return;
             }
         }
