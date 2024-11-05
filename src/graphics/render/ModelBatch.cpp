@@ -1,8 +1,8 @@
 #include "ModelBatch.hpp"
 
 #include "assets/assets_util.hpp"
+#include "graphics/commons/Model.hpp"
 #include "graphics/core/Mesh.hpp"
-#include "graphics/core/Model.hpp"
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Texture.hpp"
 #include "assets/Assets.hpp"

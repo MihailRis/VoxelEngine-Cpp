@@ -42,7 +42,6 @@ class ContentLoader {
         GeneratorDef& def, const std::string& full, const std::string& name
     );
 
-    static void loadCustomBlockModel(Block& def, const dv::value& primitives);
     static void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
     void loadBlock(
         Block& def, const std::string& name, const fs::path& file

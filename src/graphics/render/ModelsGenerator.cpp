@@ -48,6 +48,60 @@ static inline UVRegion get_region_for(
     return texreg.region;
 }
 
+model::Model ModelsGenerator::fromCustom(
+    const Assets& assets,
+    const std::vector<BoxModel>& modelBoxes,
+    const std::vector<std::string>& modelTextures,
+    const std::vector<glm::vec3>& points,
+    bool lighting
+) {
+    auto model = model::Model();
+    for (size_t i = 0; i < modelBoxes.size(); i++) {
+        auto& mesh = model.addMesh("blocks:" + modelTextures[i * 6]);
+        mesh.lighting = lighting;
+        const UVRegion boxtexfaces[6] = {
+            get_region_for(modelTextures[i * 6], assets),
+            get_region_for(modelTextures[i * 6 + 1], assets),
+            get_region_for(modelTextures[i * 6 + 2], assets),
+            get_region_for(modelTextures[i * 6 + 3], assets),
+            get_region_for(modelTextures[i * 6 + 4], assets),
+            get_region_for(modelTextures[i * 6 + 5], assets)
+        };
+        mesh.addBox(
+            modelBoxes[i].center(), modelBoxes[i].size() * 0.5f, boxtexfaces
+        );
+    }
+    glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 norm {0, 1, 0};
+    for (size_t i = 0; i < points.size() / 4; i++) {
+        auto texture = "blocks:" + modelTextures[modelBoxes.size() * 6 + i];
+
+        auto& mesh = model.addMesh(texture);
+        mesh.lighting = lighting;
+
+        auto reg = get_region_for(texture, assets);
+        mesh.vertices.push_back(
+            {points[i * 4 + 0] - poff, glm::vec2(reg.u1, reg.v1), norm}
+        );
+        mesh.vertices.push_back(
+            {points[i * 4 + 1] - poff, glm::vec2(reg.u2, reg.v1), norm}
+        );
+        mesh.vertices.push_back(
+            {points[i * 4 + 2] - poff, glm::vec2(reg.u2, reg.v2), norm}
+        );
+        mesh.vertices.push_back(
+            {points[i * 4 + 3] - poff, glm::vec2(reg.u1, reg.v1), norm}
+        );
+        mesh.vertices.push_back(
+            {points[i * 4 + 4] - poff, glm::vec2(reg.u2, reg.v2), norm}
+        );
+        mesh.vertices.push_back(
+            {points[i * 4 + 0] - poff, glm::vec2(reg.u1, reg.v2), norm}
+        );
+    }
+    return model;
+}
+
 model::Model ModelsGenerator::generate(
     const ItemDef& def, const Content& content, const Assets& assets
 ) {
@@ -59,55 +113,7 @@ model::Model ModelsGenerator::generate(
                 "blocks:" + blockDef.textureFaces.at(0), assets
             );
         } else if (blockDef.model == BlockModel::custom) {
-            model = model::Model();
-            for (size_t i = 0; i < blockDef.modelBoxes.size(); i++) {
-                auto& mesh =
-                    model.addMesh("blocks:" + blockDef.modelTextures[i * 6]);
-                mesh.lighting = !blockDef.shadeless;
-                const UVRegion (&boxtexfaces)[6] = {
-                    get_region_for(blockDef.modelTextures[i * 6], assets),
-                    get_region_for(blockDef.modelTextures[i * 6 + 1], assets),
-                    get_region_for(blockDef.modelTextures[i * 6 + 2], assets),
-                    get_region_for(blockDef.modelTextures[i * 6 + 3], assets),
-                    get_region_for(blockDef.modelTextures[i * 6 + 4], assets),
-                    get_region_for(blockDef.modelTextures[i * 6 + 5], assets)
-                };
-                mesh.addBox(
-                    blockDef.modelBoxes[i].center(),
-                    blockDef.modelBoxes[i].size()*0.5f, boxtexfaces
-                );
-            }
-            const auto& points = blockDef.modelExtraPoints;
-            glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
-            glm::vec3 norm {0, 1, 0};
-            for (size_t i = 0; i < blockDef.modelExtraPoints.size() / 4; i++) {
-                auto texture =
-                    "blocks:" +
-                    blockDef.modelTextures[blockDef.modelBoxes.size() * 6 + i];
-                    
-                auto& mesh = model.addMesh(texture);
-                mesh.lighting = !blockDef.shadeless;
-
-                auto reg = get_region_for(texture, assets);
-                mesh.vertices.push_back(
-                    {points[i * 4 + 0] - poff, glm::vec2(reg.u1, reg.v1), norm}
-                );
-                mesh.vertices.push_back(
-                    {points[i * 4 + 1] - poff, glm::vec2(reg.u2, reg.v1), norm}
-                );
-                mesh.vertices.push_back(
-                    {points[i * 4 + 2] - poff, glm::vec2(reg.u2, reg.v2), norm}
-                );
-                mesh.vertices.push_back(
-                    {points[i * 4 + 3] - poff, glm::vec2(reg.u1, reg.v1), norm}
-                );
-                mesh.vertices.push_back(
-                    {points[i * 4 + 4] - poff, glm::vec2(reg.u2, reg.v2), norm}
-                );
-                mesh.vertices.push_back(
-                    {points[i * 4 + 0] - poff, glm::vec2(reg.u1, reg.v2), norm}
-                );
-            }
+            model = assets.require<model::Model>(blockDef.modelName);
             for (auto& mesh : model.meshes) {
                 mesh.scale(glm::vec3(0.3f));
             }
@@ -134,4 +140,68 @@ model::Model ModelsGenerator::generate(
     } else {
         return model::Model();
     }
+}
+
+model::Model ModelsGenerator::loadCustomBlockModel(
+    const dv::value& primitives, const Assets& assets, bool lighting
+) {
+    std::vector<AABB> modelBoxes;
+    std::vector<std::string> modelTextures;
+    std::vector<glm::vec3> modelExtraPoints;
+
+    if (primitives.has("aabbs")) {
+        const auto& modelboxes = primitives["aabbs"];
+        for (uint i = 0; i < modelboxes.size(); i++) {
+            // Parse aabb
+            const auto& boxarr = modelboxes[i];
+            AABB modelbox;
+            modelbox.a = glm::vec3(
+                boxarr[0].asNumber(), boxarr[1].asNumber(), boxarr[2].asNumber()
+            );
+            modelbox.b = glm::vec3(
+                boxarr[3].asNumber(), boxarr[4].asNumber(), boxarr[5].asNumber()
+            );
+            modelbox.b += modelbox.a;
+            modelBoxes.push_back(modelbox);
+
+            if (boxarr.size() == 7) {
+                for (uint j = 6; j < 12; j++) {
+                    modelTextures.emplace_back(boxarr[6].asString());
+                }
+            } else if (boxarr.size() == 12) {
+                for (uint j = 6; j < 12; j++) {
+                    modelTextures.emplace_back(boxarr[j].asString());
+                }
+            } else {
+                for (uint j = 6; j < 12; j++) {
+                    modelTextures.emplace_back("notfound");
+                }
+            }
+        }
+    }
+    if (primitives.has("tetragons")) {
+        const auto& modeltetragons = primitives["tetragons"];
+        for (uint i = 0; i < modeltetragons.size(); i++) {
+            // Parse tetragon to points
+            const auto& tgonobj = modeltetragons[i];
+            glm::vec3 p1(
+                tgonobj[0].asNumber(), tgonobj[1].asNumber(), tgonobj[2].asNumber()
+            );
+            glm::vec3 xw(
+                tgonobj[3].asNumber(), tgonobj[4].asNumber(), tgonobj[5].asNumber()
+            );
+            glm::vec3 yh(
+                tgonobj[6].asNumber(), tgonobj[7].asNumber(), tgonobj[8].asNumber()
+            );
+            modelExtraPoints.push_back(p1);
+            modelExtraPoints.push_back(p1 + xw);
+            modelExtraPoints.push_back(p1 + xw + yh);
+            modelExtraPoints.push_back(p1 + yh);
+
+            modelTextures.emplace_back(tgonobj[9].asString());
+        }
+    }
+    return fromCustom(
+        assets, modelBoxes, modelTextures, modelExtraPoints, lighting
+    );
 }

@@ -1,6 +1,7 @@
 #include "BlocksRenderer.hpp"
 
 #include "graphics/core/Mesh.hpp"
+#include "graphics/commons/Model.hpp"
 #include "maths/UVRegion.hpp"
 #include "constants.hpp"
 #include "content/Content.hpp"
@@ -180,40 +181,6 @@ void BlocksRenderer::face(
     index(0, 1, 2, 0, 2, 3);
 }
 
-void BlocksRenderer::tetragonicFace(
-    const glm::vec3& coord, 
-    const glm::vec3& p1, const glm::vec3& p2, 
-    const glm::vec3& p3, const glm::vec3& p4,
-    const glm::vec3& X, const glm::vec3& Y, const glm::vec3& Z,
-    const UVRegion& texreg,
-    bool lights
-) {    
-    const auto fp1 = (p1.x - 0.5f) * X + (p1.y - 0.5f) * Y + (p1.z - 0.5f) * Z;
-    const auto fp2 = (p2.x - 0.5f) * X + (p2.y - 0.5f) * Y + (p2.z - 0.5f) * Z;
-    const auto fp3 = (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z;
-    const auto fp4 = (p4.x - 0.5f) * X + (p4.y - 0.5f) * Y + (p4.z - 0.5f) * Z;
-
-    glm::vec4 tint(1.0f);
-    if (lights) {
-        auto dir = glm::cross(fp2 - fp1, fp3 - fp1);
-        auto normal = glm::normalize(dir);
-
-        float d = glm::dot(normal, SUN_VECTOR);
-        d = 0.8f + d * 0.2f;
-        tint *= d;
-        tint *= pickLight(coord);
-        // debug normal
-        // tint.x = normal.x * 0.5f + 0.5f;
-        // tint.y = normal.y * 0.5f + 0.5f;
-        // tint.z = normal.z * 0.5f + 0.5f;
-    }
-    vertex(coord + fp1, texreg.u1, texreg.v1, tint);
-    vertex(coord + fp2, texreg.u2, texreg.v1, tint);
-    vertex(coord + fp3, texreg.u2, texreg.v2, tint);
-    vertex(coord + fp4, texreg.u1, texreg.v2, tint);
-    index(0, 1, 3, 1, 2, 3);
-}
-
 void BlocksRenderer::blockXSprite(
     int x, int y, int z, 
     const glm::vec3& size, 
@@ -319,29 +286,30 @@ void BlocksRenderer::blockCustomModel(
         Z = orient.axisZ;
     }
 
-    for (size_t i = 0; i < block->modelBoxes.size(); i++) {
-        AABB box = block->modelBoxes[i];
-        auto size = box.size();
-        if (block->rotatable) {
-            orient.transform(box);
+    const auto& model = cache->getModel(block->rt.id);
+    for (const auto& mesh : model.meshes) {
+        if (vertexOffset + BlocksRenderer::VERTEX_SIZE * mesh.vertices.size() > capacity) {
+            overflow = true;
+            return;
         }
-        glm::vec3 center_coord = coord - glm::vec3(0.5f) + box.center();
-        faceAO(center_coord, X * size.x, Y * size.y, Z * size.z, block->modelUVs[i * 6 + 5], lights); // north
-        faceAO(center_coord, -X * size.x, Y * size.y, -Z * size.z, block->modelUVs[i * 6 + 4], lights); // south
-        faceAO(center_coord, X * size.x, -Z * size.z, Y * size.y, block->modelUVs[i * 6 + 3], lights); // top
-        faceAO(center_coord, -X * size.x, -Z * size.z, -Y * size.y, block->modelUVs[i * 6 + 2], lights); // bottom
-        faceAO(center_coord, -Z * size.z, Y * size.y, X * size.x, block->modelUVs[i * 6 + 1], lights); // west
-        faceAO(center_coord, Z * size.z, Y * size.y, -X * size.x, block->modelUVs[i * 6 + 0], lights); // east
-    }
-    
-    for (size_t i = 0; i < block->modelExtraPoints.size()/4; i++) {
-        tetragonicFace(coord,
-            block->modelExtraPoints[i * 4 + 0],
-            block->modelExtraPoints[i * 4 + 1],
-            block->modelExtraPoints[i * 4 + 2],
-            block->modelExtraPoints[i * 4 + 3],
-            X, Y, Z,
-            block->modelUVs[block->modelBoxes.size()*6 + i], lights);
+        int i = 0;
+        for (const auto& vertex : mesh.vertices) {
+            auto n =
+                vertex.normal.x * X + vertex.normal.y * Y + vertex.normal.z * Z;
+            float d = glm::dot(glm::normalize(n), SUN_VECTOR);
+            d = 0.8f + d * 0.2f;
+            const auto& vcoord = vertex.coord - 0.5f;
+            vertexAO(
+                coord + vcoord.x * X + vcoord.y * Y + vcoord.z * Z,
+                vertex.uv.x,
+                vertex.uv.y,
+                glm::vec4(1, 1, 1, 1),
+                glm::vec3(1, 0, 0),
+                glm::vec3(0, 1, 0),
+                n
+            );
+            indexBuffer[indexSize++] = indexOffset++;
+        }
     }
 }
 

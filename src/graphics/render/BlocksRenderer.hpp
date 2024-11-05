@@ -82,16 +82,6 @@ class BlocksRenderer {
         const UVRegion& region,
         bool lights
     );
-    void tetragonicFace(
-        const glm::vec3& coord,
-        const glm::vec3& p1, const glm::vec3& p2,
-        const glm::vec3& p3, const glm::vec3& p4,
-        const glm::vec3& X,
-        const glm::vec3& Y,
-        const glm::vec3& Z,
-        const UVRegion& texreg,
-        bool lights
-    );
     void blockCube(
         const glm::ivec3& coord,
         const UVRegion(&faces)[6], 

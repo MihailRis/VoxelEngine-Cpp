@@ -5,7 +5,7 @@
 #include "byte_utils.hpp"
 #include "util/data_io.hpp"
 #include "util/stringutil.hpp"
-#include "graphics/core/Model.hpp"
+#include "graphics/commons/Model.hpp"
 
 inline constexpr int VERSION = 1;
 

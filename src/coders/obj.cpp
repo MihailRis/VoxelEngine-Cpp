@@ -1,6 +1,6 @@
 #include "obj.hpp"
 
-#include "graphics/core/Model.hpp"
+#include "graphics/commons/Model.hpp"
 #include "commons.hpp"
 
 using namespace model;
