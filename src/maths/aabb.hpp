@@ -34,6 +34,10 @@ struct AABB {
         return (a + b) * 0.5f;
     }
 
+    inline AABB move(glm::vec3 pos) const {
+        return AABB(a + pos, b + pos);
+    }
+
     /// @brief Multiply AABB size from center
     inline void scale(const glm::vec3 mul) {
         glm::vec3 center = (a + b) * 0.5f;
