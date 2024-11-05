@@ -24,6 +24,7 @@ Emitter::Emitter(
       count(count),
       preset(std::move(preset)) {
     this->prototype.emitter = this;
+    timer = preset.spawnInterval;
 }
 
 const Texture* Emitter::getTexture() const {
