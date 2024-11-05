@@ -224,9 +224,9 @@ void ContentLoader::loadBlock(
     if (auto model = BlockModel_from(modelName)) {
         if (*model == BlockModel::custom) {
             if (root.has("model-primitives")) {
-                loadCustomBlockModel(def, root["model-primitives"]);
+                def.customModelRaw = root["model-primitives"];
             } else {
-                logger.error() << name << ": no 'model-primitives' found";
+                throw std::runtime_error(name + ": no 'model-primitives' found");
             }
         }
         def.model = *model;
@@ -277,8 +277,6 @@ void ContentLoader::loadBlock(
         );
         aabb.b += aabb.a;
         def.hitboxes = {aabb};
-    } else if (!def.modelBoxes.empty()) {
-        def.hitboxes = def.modelBoxes;
     } else {
         def.hitboxes = {AABB()};
     }
@@ -347,61 +345,6 @@ void ContentLoader::loadBlock(
 
     if (def.hidden && def.pickingItem == def.name + BLOCK_ITEM_SUFFIX) {
         def.pickingItem = CORE_EMPTY;
-    }
-}
-
-void ContentLoader::loadCustomBlockModel(Block& def, const dv::value& primitives) {
-    if (primitives.has("aabbs")) {
-        const auto& modelboxes = primitives["aabbs"];
-        for (uint i = 0; i < modelboxes.size(); i++) {
-            // Parse aabb
-            const auto& boxarr = modelboxes[i];
-            AABB modelbox;
-            modelbox.a = glm::vec3(
-                boxarr[0].asNumber(), boxarr[1].asNumber(), boxarr[2].asNumber()
-            );
-            modelbox.b = glm::vec3(
-                boxarr[3].asNumber(), boxarr[4].asNumber(), boxarr[5].asNumber()
-            );
-            modelbox.b += modelbox.a;
-            def.modelBoxes.push_back(modelbox);
-
-            if (boxarr.size() == 7) {
-                for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.emplace_back(boxarr[6].asString());
-                }
-            } else if (boxarr.size() == 12) {
-                for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.emplace_back(boxarr[j].asString());
-                }
-            } else {
-                for (uint j = 6; j < 12; j++) {
-                    def.modelTextures.emplace_back("notfound");
-                }
-            }
-        }
-    }
-    if (primitives.has("tetragons")) {
-        const auto& modeltetragons = primitives["tetragons"];
-        for (uint i = 0; i < modeltetragons.size(); i++) {
-            // Parse tetragon to points
-            const auto& tgonobj = modeltetragons[i];
-            glm::vec3 p1(
-                tgonobj[0].asNumber(), tgonobj[1].asNumber(), tgonobj[2].asNumber()
-            );
-            glm::vec3 xw(
-                tgonobj[3].asNumber(), tgonobj[4].asNumber(), tgonobj[5].asNumber()
-            );
-            glm::vec3 yh(
-                tgonobj[6].asNumber(), tgonobj[7].asNumber(), tgonobj[8].asNumber()
-            );
-            def.modelExtraPoints.push_back(p1);
-            def.modelExtraPoints.push_back(p1 + xw);
-            def.modelExtraPoints.push_back(p1 + xw + yh);
-            def.modelExtraPoints.push_back(p1 + yh);
-
-            def.modelTextures.emplace_back(tgonobj[9].asString());
-        }
     }
 }
 

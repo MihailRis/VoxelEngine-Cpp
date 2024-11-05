@@ -64,41 +64,41 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
             {
                 glm::vec3 pmul = glm::vec3(size * 0.63f);
                 glm::vec3 hitbox = glm::vec3();
-                for (const auto& box : def.modelBoxes) {
-                    hitbox = glm::max(hitbox, box.size());
-                }
+                // for (const auto& box : def.modelBoxes) {
+                //     hitbox = glm::max(hitbox, box.size());
+                // }
                 offset.y += (1.0f - hitbox).y * 0.5f;
                 shader->uniformMatrix("u_apply", glm::translate(glm::mat4(1.0f), offset));
-                for (size_t i = 0; i < def.modelBoxes.size(); i++) {
-                    const UVRegion (&boxtexfaces)[6] = {
-                        def.modelUVs[i * 6],
-                        def.modelUVs[i * 6 + 1],
-                        def.modelUVs[i * 6 + 2],
-                        def.modelUVs[i * 6 + 3],
-                        def.modelUVs[i * 6 + 4],
-                        def.modelUVs[i * 6 + 5]
-                    };
-                    batch->cube(
-                        def.modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * pmul, 
-                        def.modelBoxes[i].size() * pmul, 
-                        boxtexfaces, glm::vec4(1.0f), !def.rt.emissive
-                    );
-                }
+                // for (size_t i = 0; i < def.modelBoxes.size(); i++) {
+                //     const UVRegion (&boxtexfaces)[6] = {
+                //         def.modelUVs[i * 6],
+                //         def.modelUVs[i * 6 + 1],
+                //         def.modelUVs[i * 6 + 2],
+                //         def.modelUVs[i * 6 + 3],
+                //         def.modelUVs[i * 6 + 4],
+                //         def.modelUVs[i * 6 + 5]
+                //     };
+                //     batch->cube(
+                //         def.modelBoxes[i].a * glm::vec3(1.0f, 1.0f, -1.0f) * pmul, 
+                //         def.modelBoxes[i].size() * pmul, 
+                //         boxtexfaces, glm::vec4(1.0f), !def.rt.emissive
+                //     );
+                // }
                 
-                auto& points = def.modelExtraPoints;
-                glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
+                // auto& points = def.modelExtraPoints;
+                // glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
 
-                for (size_t i = 0; i < def.modelExtraPoints.size() / 4; i++) {
-                    const UVRegion& reg = def.modelUVs[def.modelBoxes.size() * 6 + i];
+                // for (size_t i = 0; i < def.modelExtraPoints.size() / 4; i++) {
+                //     const UVRegion& reg = def.modelUVs[def.modelBoxes.size() * 6 + i];
                     
-                    batch->vertex((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
-                    batch->vertex((points[i * 4 + 1] - poff) * pmul, glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
-                    batch->vertex((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
-                    batch->vertex((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
-                    batch->vertex((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
-                    batch->vertex((points[i * 4 + 3] - poff) * pmul, glm::vec2(reg.u1, reg.v2), glm::vec4(1.0));
-                }
-                batch->flush();
+                //     batch->vertex((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
+                //     batch->vertex((points[i * 4 + 1] - poff) * pmul, glm::vec2(reg.u2, reg.v1), glm::vec4(1.0));
+                //     batch->vertex((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
+                //     batch->vertex((points[i * 4 + 0] - poff) * pmul, glm::vec2(reg.u1, reg.v1), glm::vec4(1.0));
+                //     batch->vertex((points[i * 4 + 2] - poff) * pmul, glm::vec2(reg.u2, reg.v2), glm::vec4(1.0));
+                //     batch->vertex((points[i * 4 + 3] - poff) * pmul, glm::vec2(reg.u1, reg.v2), glm::vec4(1.0));
+                // }
+                // batch->flush();
             }
             break;
         case BlockModel::xsprite: {

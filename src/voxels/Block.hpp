@@ -6,6 +6,7 @@
 #include <vector>
 #include <array>
 
+#include "data/dv.hpp"
 #include "maths/UVRegion.hpp"
 #include "maths/aabb.hpp"
 #include "typedefs.hpp"
@@ -116,12 +117,6 @@ public:
     /// @brief Textures set applied to block sides
     std::array<std::string, 6> textureFaces;  // -x,x, -y,y, -z,z
 
-    std::vector<std::string> modelTextures = {};
-    std::vector<BoxModel> modelBoxes = {};
-    // initially made for tetragons
-    std::vector<glm::vec3> modelExtraPoints = {};
-    std::vector<UVRegion> modelUVs = {};  // boxes' tex-UVs also there
-
     /// @brief id of used BlockMaterial, may specify non-existing material
     std::string material = DEFAULT_MATERIAL;
 
@@ -136,6 +131,9 @@ public:
 
     /// @brief Block model type
     BlockModel model = BlockModel::block;
+
+    /// @brief Custom model raw data
+    dv::value customModelRaw = nullptr;
 
     /// @brief Does the block passing lights into itself
     bool lightPassing = false;

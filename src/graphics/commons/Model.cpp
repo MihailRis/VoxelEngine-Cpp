@@ -36,7 +36,7 @@ void Mesh::addPlane(
 
     vertices.push_back({pos-right-up, {uv.u1, uv.v1}, norm});
     vertices.push_back({pos+right+up, {uv.u2, uv.v2}, norm});
-    vertices.push_back({pos-right+up, {uv.u1, uv.u2}, norm});
+    vertices.push_back({pos-right+up, {uv.u1, uv.v2}, norm});
 }
 
 void Mesh::addBox(const glm::vec3& pos, const glm::vec3& size) {

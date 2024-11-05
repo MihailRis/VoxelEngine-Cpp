@@ -2,10 +2,12 @@
 
 #include "graphics/commons/Model.hpp"
 #include "maths/aabb.hpp"
+#include "data/dv.hpp"
 
 struct ItemDef;
 class Assets;
 class Content;
+struct Block;
 
 class ModelsGenerator {
 public:
@@ -19,5 +21,9 @@ public:
         const std::vector<std::string>& modelTextures,
         const std::vector<glm::vec3>& points,
         bool lighting
+    );
+
+    static model::Model loadCustomBlockModel(
+        const dv::value& primitives, const Assets& assets, bool lighting
     );
 };

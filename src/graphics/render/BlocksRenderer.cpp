@@ -1,6 +1,7 @@
 #include "BlocksRenderer.hpp"
 
 #include "graphics/core/Mesh.hpp"
+#include "graphics/commons/Model.hpp"
 #include "maths/UVRegion.hpp"
 #include "constants.hpp"
 #include "content/Content.hpp"
@@ -303,6 +304,7 @@ void BlocksRenderer::blockAABB(
     }
 }
 
+#include <iostream>
 void BlocksRenderer::blockCustomModel(
     const glm::ivec3& icoord, const Block* block, ubyte rotation, bool lights, bool ao
 ) {
@@ -319,29 +321,31 @@ void BlocksRenderer::blockCustomModel(
         Z = orient.axisZ;
     }
 
-    for (size_t i = 0; i < block->modelBoxes.size(); i++) {
-        AABB box = block->modelBoxes[i];
-        auto size = box.size();
-        if (block->rotatable) {
-            orient.transform(box);
+    const auto& model = cache->getModel(block->rt.id);
+    for (const auto& mesh : model.meshes) {
+        if (vertexOffset + BlocksRenderer::VERTEX_SIZE * mesh.vertices.size() > capacity) {
+            overflow = true;
+            return;
         }
-        glm::vec3 center_coord = coord - glm::vec3(0.5f) + box.center();
-        faceAO(center_coord, X * size.x, Y * size.y, Z * size.z, block->modelUVs[i * 6 + 5], lights); // north
-        faceAO(center_coord, -X * size.x, Y * size.y, -Z * size.z, block->modelUVs[i * 6 + 4], lights); // south
-        faceAO(center_coord, X * size.x, -Z * size.z, Y * size.y, block->modelUVs[i * 6 + 3], lights); // top
-        faceAO(center_coord, -X * size.x, -Z * size.z, -Y * size.y, block->modelUVs[i * 6 + 2], lights); // bottom
-        faceAO(center_coord, -Z * size.z, Y * size.y, X * size.x, block->modelUVs[i * 6 + 1], lights); // west
-        faceAO(center_coord, Z * size.z, Y * size.y, -X * size.x, block->modelUVs[i * 6 + 0], lights); // east
-    }
-    
-    for (size_t i = 0; i < block->modelExtraPoints.size()/4; i++) {
-        tetragonicFace(coord,
-            block->modelExtraPoints[i * 4 + 0],
-            block->modelExtraPoints[i * 4 + 1],
-            block->modelExtraPoints[i * 4 + 2],
-            block->modelExtraPoints[i * 4 + 3],
-            X, Y, Z,
-            block->modelUVs[block->modelBoxes.size()*6 + i], lights);
+        int i = 0;
+        for (const auto& vertex : mesh.vertices) {
+            if ((i++) % 6 < 3) {
+            //    continue;
+            }
+            float d = glm::dot(glm::normalize(vertex.normal), SUN_VECTOR);
+            d = 0.8f + d * 0.2f;
+            const auto& n = vertex.normal;
+            vertexAO(
+                coord + vertex.coord - 0.5f,
+                vertex.uv.x,
+                vertex.uv.y,
+                glm::vec4(1, 1, 1, 0),
+                glm::vec3(n.x, -n.z, n.y),
+                glm::vec3(0, 1, 0),
+                n
+            );
+            indexBuffer[indexSize++] = indexOffset++;
+        }
     }
 }
 
