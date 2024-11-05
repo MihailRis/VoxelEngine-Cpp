@@ -20,6 +20,10 @@ static WorldInfo& require_world_info() {
     return level->getWorld()->getInfo();
 }
 
+static int l_is_open(lua::State* L) {
+    return lua::pushboolean(L, level != nullptr);
+}
+
 static int l_get_list(lua::State* L) {
     auto paths = engine->getPaths();
     auto worlds = paths->scanForWorlds();
@@ -98,6 +102,7 @@ static int l_get_generator(lua::State* L) {
 }
 
 const luaL_Reg worldlib[] = {
+    {"is_open", lua::wrap<l_is_open>},
     {"get_list", lua::wrap<l_get_list>},
     {"get_total_time", lua::wrap<l_get_total_time>},
     {"get_day_time", lua::wrap<l_get_day_time>},

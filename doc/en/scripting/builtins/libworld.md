@@ -1,6 +1,9 @@
 # *world* library
 
 ```lua
+-- Checks if world is open
+world.is_open() -> bool
+
 -- Returns worlds information.
 world.get_list() -> tables array {
     -- world name
