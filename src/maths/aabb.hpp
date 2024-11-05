@@ -34,7 +34,7 @@ struct AABB {
         return (a + b) * 0.5f;
     }
 
-    inline AABB move(glm::vec3 pos) const {
+    inline AABB translated(const glm::vec3& pos) const {
         return AABB(a + pos, b + pos);
     }
 

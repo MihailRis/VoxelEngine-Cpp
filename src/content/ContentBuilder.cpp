@@ -41,6 +41,7 @@ std::unique_ptr<Content> ContentBuilder::build() {
                 def.rt.hitboxes[i].reserve(def.hitboxes.size());
                 for (AABB aabb : def.hitboxes) {
                     def.rotations.variants[i].transform(aabb);
+                    aabb.fix();
                     def.rt.hitboxes[i].push_back(aabb);
                 }
             }
