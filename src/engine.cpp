@@ -288,14 +288,17 @@ void Engine::loadAssets() {
     if (content) {
         for (auto& [name, def] : content->blocks.getDefs()) {
             if (def->model == BlockModel::custom) {
-                assets->store(
-                    std::make_unique<model::Model>(
-                        ModelsGenerator::loadCustomBlockModel(
-                            def->customModelRaw, *assets, !def->shadeless
-                        )
-                    ),
-                    name + ".model"
-                );
+                if (def->modelName.empty()) {
+                    assets->store(
+                        std::make_unique<model::Model>(
+                            ModelsGenerator::loadCustomBlockModel(
+                                def->customModelRaw, *assets, !def->shadeless
+                            )
+                        ),
+                        name + ".model"
+                    );
+                    def->modelName = def->name + ".model";
+                }
             }
         }
         for (auto& [name, def] : content->items.getDefs()) {

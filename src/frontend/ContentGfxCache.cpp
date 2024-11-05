@@ -30,7 +30,7 @@ ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets)
         }
         if (def->model == BlockModel::custom) {
             models[def->rt.id] =
-                assets->require<model::Model>(def->name + ".model");
+                assets->require<model::Model>(def->modelName);
         }
     }
 }

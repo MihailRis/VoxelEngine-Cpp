@@ -135,6 +135,8 @@ public:
     /// @brief Custom model raw data
     dv::value customModelRaw = nullptr;
 
+    std::string modelName = "";
+
     /// @brief Does the block passing lights into itself
     bool lightPassing = false;
 

@@ -113,7 +113,7 @@ model::Model ModelsGenerator::generate(
                 "blocks:" + blockDef.textureFaces.at(0), assets
             );
         } else if (blockDef.model == BlockModel::custom) {
-            model = assets.require<model::Model>(blockDef.name+".model");
+            model = assets.require<model::Model>(blockDef.modelName);
             for (auto& mesh : model.meshes) {
                 mesh.scale(glm::vec3(0.3f));
             }

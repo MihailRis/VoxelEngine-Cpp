@@ -219,14 +219,15 @@ void ContentLoader::loadBlock(
     }
 
     // block model
-    std::string modelName;
-    root.at("model").get(modelName);
-    if (auto model = BlockModel_from(modelName)) {
+    std::string modelTypeName;
+    root.at("model").get(modelTypeName);
+    root.at("model-name").get(def.modelName);
+    if (auto model = BlockModel_from(modelTypeName)) {
         if (*model == BlockModel::custom) {
             if (root.has("model-primitives")) {
                 def.customModelRaw = root["model-primitives"];
-            } else {
-                throw std::runtime_error(name + ": no 'model-primitives' found");
+            } else if (def.modelName.empty()) {
+                throw std::runtime_error(name + ": no 'model-primitives' or 'model-name' found");
             }
             for (uint i = 0; i < 6; i++) {
                 std::string& texture = def.textureFaces[i];
@@ -236,8 +237,8 @@ void ContentLoader::loadBlock(
             }
         }
         def.model = *model;
-    } else if (!modelName.empty()) {
-        logger.error() << "unknown model " << modelName;
+    } else if (!modelTypeName.empty()) {
+        logger.error() << "unknown model " << modelTypeName;
         def.model = BlockModel::none;
     }
 
