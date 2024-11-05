@@ -72,10 +72,18 @@ static int l_set_origin(lua::State* L) {
     return 0;
 }
 
+static int l_is_alive(lua::State* L) {
+    u64id_t id = lua::touinteger(L, 1);
+    if (auto emitter = renderer->particles->getEmitter(id)) {
+        return lua::pushboolean(L, !emitter->isDead());
+    }
+    return lua::pushboolean(L, false);
+}
 
 const luaL_Reg particleslib[] = {
     {"emit", lua::wrap<l_emit>},
     {"stop", lua::wrap<l_stop>},
+    {"is_alive", lua::wrap<l_is_alive>},
     {"get_origin", lua::wrap<l_get_origin>},
     {"set_origin", lua::wrap<l_set_origin>},
     {NULL, NULL}
