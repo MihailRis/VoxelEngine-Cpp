@@ -1,8 +1,5 @@
 #include "Decorator.hpp"
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/norm.hpp>
-
 #include "ParticlesRenderer.hpp"
 #include "assets/assets_util.hpp"
 #include "content/Content.hpp"
