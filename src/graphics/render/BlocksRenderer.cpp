@@ -181,40 +181,6 @@ void BlocksRenderer::face(
     index(0, 1, 2, 0, 2, 3);
 }
 
-void BlocksRenderer::tetragonicFace(
-    const glm::vec3& coord, 
-    const glm::vec3& p1, const glm::vec3& p2, 
-    const glm::vec3& p3, const glm::vec3& p4,
-    const glm::vec3& X, const glm::vec3& Y, const glm::vec3& Z,
-    const UVRegion& texreg,
-    bool lights
-) {    
-    const auto fp1 = (p1.x - 0.5f) * X + (p1.y - 0.5f) * Y + (p1.z - 0.5f) * Z;
-    const auto fp2 = (p2.x - 0.5f) * X + (p2.y - 0.5f) * Y + (p2.z - 0.5f) * Z;
-    const auto fp3 = (p3.x - 0.5f) * X + (p3.y - 0.5f) * Y + (p3.z - 0.5f) * Z;
-    const auto fp4 = (p4.x - 0.5f) * X + (p4.y - 0.5f) * Y + (p4.z - 0.5f) * Z;
-
-    glm::vec4 tint(1.0f);
-    if (lights) {
-        auto dir = glm::cross(fp2 - fp1, fp3 - fp1);
-        auto normal = glm::normalize(dir);
-
-        float d = glm::dot(normal, SUN_VECTOR);
-        d = 0.8f + d * 0.2f;
-        tint *= d;
-        tint *= pickLight(coord);
-        // debug normal
-        // tint.x = normal.x * 0.5f + 0.5f;
-        // tint.y = normal.y * 0.5f + 0.5f;
-        // tint.z = normal.z * 0.5f + 0.5f;
-    }
-    vertex(coord + fp1, texreg.u1, texreg.v1, tint);
-    vertex(coord + fp2, texreg.u2, texreg.v1, tint);
-    vertex(coord + fp3, texreg.u2, texreg.v2, tint);
-    vertex(coord + fp4, texreg.u1, texreg.v2, tint);
-    index(0, 1, 3, 1, 2, 3);
-}
-
 void BlocksRenderer::blockXSprite(
     int x, int y, int z, 
     const glm::vec3& size, 
