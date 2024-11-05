@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include "graphics/commons/Model.hpp"
+
 class Content;
 class Assets;
 struct UVRegion;
