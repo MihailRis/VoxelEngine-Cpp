@@ -102,6 +102,12 @@ function on_block_broken(blockid, x, y, z, playerid)
 
 Вызывается после разрушения блока игроком
 
+```lua
+function on_block_interact(blockid, x, y, z, playerid) -> bool
+```
+
+Вызывается при нажатии на блок ПКМ. Предотвращает установку блоков, если возвращает `true`
+
 ## События макета
 
 События прописываются в файле `layouts/имя_макета.xml.lua`.

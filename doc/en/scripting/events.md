@@ -102,6 +102,12 @@ function on_block_broken(blockid, x, y, z, playerid)
 
 Called on block broken by player
 
+```lua
+function on_block_interact(blockid, x, y, z, playerid) -> bool
+```
+
+Called on block RMB click interaction. Prevents block placing if **true** returned.
+
 ## Layout events
 
 Script *layouts/layout_name.xml.lua* events.
