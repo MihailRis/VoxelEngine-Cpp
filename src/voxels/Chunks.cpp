@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include <algorithm>
+#include <stdexcept>
 #include <vector>
 
 #include "data/StructLayout.hpp"
@@ -59,6 +60,14 @@ voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
     int lx = x - cx * CHUNK_W;
     int lz = z - cz * CHUNK_D;
     return &chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
+}
+
+voxel& Chunks::require(int32_t x, int32_t y, int32_t z) const {
+    auto voxel = get(x, y, z);
+    if (voxel == nullptr) {
+        throw std::runtime_error("voxel does not exist");
+    }
+    return *voxel;
 }
 
 const AABB* Chunks::isObstacleAt(float x, float y, float z) const {
@@ -243,7 +252,10 @@ void Chunks::repairSegments(
 }
 
 bool Chunks::checkReplaceability(
-    const Block& def, blockstate state, glm::ivec3 origin, blockid_t ignore
+    const Block& def,
+    blockstate state,
+    const glm::ivec3& origin,
+    blockid_t ignore
 ) {
     const auto& rotation = def.rotations.variants[state.rotation];
     const auto size = def.size;
@@ -269,7 +281,7 @@ bool Chunks::checkReplaceability(
 }
 
 void Chunks::setRotationExtended(
-    const Block& def, blockstate state, glm::ivec3 origin, uint8_t index
+    const Block& def, blockstate state, const glm::ivec3& origin, uint8_t index
 ) {
     auto newstate = state;
     newstate.rotation = index;
@@ -418,8 +430,8 @@ void Chunks::set(
 }
 
 voxel* Chunks::rayCast(
-    glm::vec3 start,
-    glm::vec3 dir,
+    const glm::vec3& start,
+    const glm::vec3& dir,
     float maxDist,
     glm::vec3& end,
     glm::ivec3& norm,
@@ -557,7 +569,7 @@ voxel* Chunks::rayCast(
 }
 
 glm::vec3 Chunks::rayCastToObstacle(
-    glm::vec3 start, glm::vec3 dir, float maxDist
+    const glm::vec3& start, const glm::vec3& dir, float maxDist
 ) {
     const float px = start.x;
     const float py = start.y;
