@@ -2,6 +2,7 @@
 #include "delegates.hpp"
 #include "engine.hpp"
 #include "settings.hpp"
+#include "hud.hpp"
 #include "content/Content.hpp"
 #include "graphics/core/Mesh.hpp"
 #include "graphics/ui/elements/CheckBox.hpp"
@@ -37,6 +38,7 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
 }
 
 // TODO: move to xml
+// TODO: move to xml finally
 std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
     Level* level, 
@@ -210,6 +212,18 @@ std::shared_ptr<UINode> create_debug_panel(
         });
         checkbox->setConsumer([=](bool checked) {
             WorldRenderer::showEntitiesDebug = checked;
+        });
+        panel->add(checkbox);
+    }
+    {
+        auto checkbox = std::make_shared<FullCheckBox>(
+            L"Show Generator Minimap", glm::vec2(400, 24)
+        );
+        checkbox->setSupplier([=]() {
+            return Hud::showGeneratorMinimap;
+        });
+        checkbox->setConsumer([=](bool checked) {
+            Hud::showGeneratorMinimap = checked;
         });
         panel->add(checkbox);
     }

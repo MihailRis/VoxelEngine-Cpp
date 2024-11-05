@@ -172,6 +172,8 @@ public:
 
     std::shared_ptr<Inventory> getBlockInventory();
 
+    static bool showGeneratorMinimap;
+
     /// @brief Runtime updating debug visualization texture
     inline static std::string DEBUG_WORLDGEN_IMAGE = "#debug.img.worldgen";
 };

@@ -56,6 +56,8 @@
 
 using namespace gui;
 
+bool Hud::showGeneratorMinimap = false;
+
 // implemented in debug_panel.cpp
 extern std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
@@ -361,7 +363,7 @@ void Hud::update(bool visible) {
     }
     cleanup();
 
-    if (player->debug) {
+    if (player->debug && showGeneratorMinimap) {
         updateWorldGenDebugVisualization();
     }
 }
