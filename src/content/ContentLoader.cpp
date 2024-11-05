@@ -228,6 +228,12 @@ void ContentLoader::loadBlock(
             } else {
                 throw std::runtime_error(name + ": no 'model-primitives' found");
             }
+            for (uint i = 0; i < 6; i++) {
+                std::string& texture = def.textureFaces[i];
+                if (texture == TEXTURE_NOTFOUND) {
+                    texture = "";
+                }
+            }
         }
         def.model = *model;
     } else if (!modelName.empty()) {
