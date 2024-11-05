@@ -230,17 +230,6 @@ void scripting::random_update_block(const Block& block, const glm::ivec3& pos) {
     });
 }
 
-static std::function<int(lua::State*)> create_world_block_event_args(
-    const glm::ivec3& pos, const Block& block, Player* player
-) {
-    return [&](lua::State* L) {
-        lua::pushinteger(L, block.rt.id);
-        lua::pushivec_stack(L, pos);
-        lua::pushinteger(L, player ? player->getId() : -1);
-        return 5;
-    };
-}
-
 void scripting::on_block_placed(
     Player* player, const Block& block, const glm::ivec3& pos
 ) {
@@ -252,12 +241,16 @@ void scripting::on_block_placed(
             return 4;
         });
     }
+    auto args = [&](lua::State* L) {
+        lua::pushinteger(L, block.rt.id);
+        lua::pushivec_stack(L, pos);
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 5;
+    };
     for (auto& [packid, pack] : content->getPacks()) {
         if (pack->worldfuncsset.onblockplaced) {
             lua::emit_event(
-                lua::get_main_state(),
-                packid + ":.blockplaced",
-                create_world_block_event_args(pos, block, player)
+                lua::get_main_state(), packid + ":.blockplaced", args
             );
         }
     }
@@ -278,12 +271,16 @@ void scripting::on_block_broken(
             }
         );
     }
+    auto args = [&](lua::State* L) {
+        lua::pushinteger(L, block.rt.id);
+        lua::pushivec_stack(L, pos);
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 5;
+    };
     for (auto& [packid, pack] : content->getPacks()) {
         if (pack->worldfuncsset.onblockbroken) {
             lua::emit_event(
-                lua::get_main_state(),
-                packid + ":.blockbroken",
-                create_world_block_event_args(pos, block, player)
+                lua::get_main_state(), packid + ":.blockbroken", args
             );
         }
     }
@@ -298,12 +295,16 @@ bool scripting::on_block_interact(
         lua::pushinteger(L, player->getId());
         return 4;
     });
+    auto args = [&](lua::State* L) {
+        lua::pushinteger(L, block.rt.id);
+        lua::pushivec_stack(L, pos);
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 5;
+    };
     for (auto& [packid, pack] : content->getPacks()) {
         if (pack->worldfuncsset.onblockinteract) {
             lua::emit_event(
-                lua::get_main_state(),
-                packid + ":.blockinteract",
-                create_world_block_event_args(pos, block, player)
+                lua::get_main_state(), packid + ":.blockinteract", args
             );
         }
     }
