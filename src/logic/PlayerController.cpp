@@ -437,11 +437,15 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
     }
     blockid_t chosenBlock = def.rt.id;
 
-    AABB blockAABB(coord, coord + 1);
-    bool blocked = level->entities->hasBlockingInside(blockAABB);
 
-    if (def.obstacle && blocked) {
-        return;
+    if (def.obstacle) {
+        std::vector<AABB> hitboxes = def.rotatable ? def.rt.hitboxes[state.rotation] : def.hitboxes;
+        for (AABB blockAABB : hitboxes) {
+            bool blocked = level->entities->hasBlockingInside(blockAABB.move(coord));
+            if (blocked) {
+                return;
+            }
+        }
     }
     auto vox = chunks->get(coord);
     if (vox == nullptr) {
