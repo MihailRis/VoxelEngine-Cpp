@@ -304,7 +304,6 @@ void BlocksRenderer::blockAABB(
     }
 }
 
-#include <iostream>
 void BlocksRenderer::blockCustomModel(
     const glm::ivec3& icoord, const Block* block, ubyte rotation, bool lights, bool ao
 ) {
@@ -329,18 +328,17 @@ void BlocksRenderer::blockCustomModel(
         }
         int i = 0;
         for (const auto& vertex : mesh.vertices) {
-            if ((i++) % 6 < 3) {
-            //    continue;
-            }
-            float d = glm::dot(glm::normalize(vertex.normal), SUN_VECTOR);
+            auto n =
+                vertex.normal.x * X + vertex.normal.y * Y + vertex.normal.z * Z;
+            float d = glm::dot(glm::normalize(n), SUN_VECTOR);
             d = 0.8f + d * 0.2f;
-            const auto& n = vertex.normal;
+            const auto& vcoord = vertex.coord - 0.5f;
             vertexAO(
-                coord + vertex.coord - 0.5f,
+                coord + vcoord.x * X + vcoord.y * Y + vcoord.z * Z,
                 vertex.uv.x,
                 vertex.uv.y,
-                glm::vec4(1, 1, 1, 0),
-                glm::vec3(n.x, -n.z, n.y),
+                glm::vec4(1, 1, 1, 1),
+                glm::vec3(1, 0, 0),
                 glm::vec3(0, 1, 0),
                 n
             );
