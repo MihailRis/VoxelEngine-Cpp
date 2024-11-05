@@ -64,7 +64,7 @@ void BlocksController::breakBlock(
     );
     chunks->set(x, y, z, 0, {});
     lighting->onBlockSet(x, y, z, 0);
-    scripting::on_block_broken(player, def, x, y, z);
+    scripting::on_block_broken(player, def, glm::ivec3(x, y, z));
     if (def.rt.extended) {
         updateSides(x, y, z , def.size.x, def.size.y, def.size.z);
     } else {
@@ -80,7 +80,7 @@ void BlocksController::placeBlock(
     );
     chunks->set(x, y, z, def.rt.id, state);
     lighting->onBlockSet(x, y, z, def.rt.id);
-    scripting::on_block_placed(player, def, x, y, z);
+    scripting::on_block_placed(player, def, glm::ivec3(x, y, z));
     if (def.rt.extended) {
         updateSides(x, y, z , def.size.x, def.size.y, def.size.z);
     } else {
@@ -91,7 +91,7 @@ void BlocksController::placeBlock(
 void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = chunks->get(x, y, z);
     if (vox == nullptr) return;
-    auto& def = level->content->getIndices()->blocks.require(vox->id);
+    const auto& def = level->content->getIndices()->blocks.require(vox->id);
     if (def.grounded) {
         const auto& vec = get_ground_direction(def, vox->state.rotation);
         if (!chunks->isSolidBlock(x + vec.x, y + vec.y, z + vec.z)) {
@@ -100,7 +100,7 @@ void BlocksController::updateBlock(int x, int y, int z) {
         }
     }
     if (def.rt.funcsset.update) {
-        scripting::update_block(def, x, y, z);
+        scripting::update_block(def, glm::ivec3(x, y, z));
     }
 }
 
@@ -144,7 +144,10 @@ void BlocksController::randomTick(
             auto& block = indices->blocks.require(vox.id);
             if (block.rt.funcsset.randupdate) {
                 scripting::random_update_block(
-                    block, chunk.x * CHUNK_W + bx, by, chunk.z * CHUNK_D + bz
+                    block,
+                    glm::ivec3(
+                        chunk.x * CHUNK_W + bx, by, chunk.z * CHUNK_D + bz
+                    )
                 );
             }
         }

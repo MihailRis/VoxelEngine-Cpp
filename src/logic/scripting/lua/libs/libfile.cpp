@@ -23,7 +23,7 @@ static fs::path resolve_path_soft(const std::string& path) {
     return engine->getPaths()->resolve(path, false);
 }
 
-static int l_file_find(lua::State* L) {
+static int l_find(lua::State* L) {
     auto path = lua::require_string(L, 1);
     try {
         return lua::pushstring(L, engine->getResPaths()->findRaw(path));
@@ -32,12 +32,12 @@ static int l_file_find(lua::State* L) {
     }
 }
 
-static int l_file_resolve(lua::State* L) {
+static int l_resolve(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     return lua::pushstring(L, path.u8string());
 }
 
-static int l_file_read(lua::State* L) {
+static int l_read(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
         return lua::pushstring(L, files::read_string(path));
@@ -47,7 +47,7 @@ static int l_file_read(lua::State* L) {
     );
 }
 
-static int l_file_write(lua::State* L) {
+static int l_write(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     std::string text = lua::require_string(L, 2);
     files::write_string(path, text);
@@ -58,7 +58,7 @@ static std::set<std::string> writeable_entry_points {
     "world", "export", "config"
 };
 
-static int l_file_remove(lua::State* L) {
+static int l_remove(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
@@ -68,7 +68,7 @@ static int l_file_remove(lua::State* L) {
     return lua::pushboolean(L, fs::remove(path));
 }
 
-static int l_file_remove_tree(lua::State* L) {
+static int l_remove_tree(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
@@ -78,22 +78,22 @@ static int l_file_remove_tree(lua::State* L) {
     return lua::pushinteger(L, fs::remove_all(path));
 }
 
-static int l_file_exists(lua::State* L) {
+static int l_exists(lua::State* L) {
     fs::path path = resolve_path_soft(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::exists(path));
 }
 
-static int l_file_isfile(lua::State* L) {
+static int l_isfile(lua::State* L) {
     fs::path path = resolve_path_soft(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::is_regular_file(path));
 }
 
-static int l_file_isdir(lua::State* L) {
+static int l_isdir(lua::State* L) {
     fs::path path = resolve_path_soft(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::is_directory(path));
 }
 
-static int l_file_length(lua::State* L) {
+static int l_length(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::exists(path)) {
         return lua::pushinteger(L, fs::file_size(path));
@@ -102,17 +102,17 @@ static int l_file_length(lua::State* L) {
     }
 }
 
-static int l_file_mkdir(lua::State* L) {
+static int l_mkdir(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::create_directory(path));
 }
 
-static int l_file_mkdirs(lua::State* L) {
+static int l_mkdirs(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     return lua::pushboolean(L, fs::create_directories(path));
 }
 
-static int l_file_read_bytes(lua::State* L) {
+static int l_read_bytes(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
         size_t length = static_cast<size_t>(fs::file_size(path));
@@ -154,7 +154,7 @@ static int read_bytes_from_table(
     }
 }
 
-static int l_file_write_bytes(lua::State* L) {
+static int l_write_bytes(lua::State* L) {
     int pathIndex = 1;
 
     if (!lua::isstring(L, pathIndex)) {
@@ -181,7 +181,7 @@ static int l_file_write_bytes(lua::State* L) {
     }
 }
 
-static int l_file_list_all_res(lua::State* L, const std::string& path) {
+static int l_list_all_res(lua::State* L, const std::string& path) {
     auto files = engine->getResPaths()->listdirRaw(path);
     lua::createtable(L, files.size(), 0);
     for (size_t i = 0; i < files.size(); i++) {
@@ -191,10 +191,10 @@ static int l_file_list_all_res(lua::State* L, const std::string& path) {
     return 1;
 }
 
-static int l_file_list(lua::State* L) {
+static int l_list(lua::State* L) {
     std::string dirname = lua::require_string(L, 1);
     if (dirname.find(':') == std::string::npos) {
-        return l_file_list_all_res(L, dirname);
+        return l_list_all_res(L, dirname);
     }
     fs::path path = resolve_path(dirname);
     if (!fs::is_directory(path)) {
@@ -214,7 +214,7 @@ static int l_file_list(lua::State* L) {
     return 1;
 }
 
-static int l_file_gzip_compress(lua::State* L) {
+static int l_gzip_compress(lua::State* L) {
     std::vector<ubyte> bytes;
 
     int result = read_bytes_from_table(L, -1, bytes);
@@ -233,7 +233,7 @@ static int l_file_gzip_compress(lua::State* L) {
     }
 }
 
-static int l_file_gzip_decompress(lua::State* L) {
+static int l_gzip_decompress(lua::State* L) {
     std::vector<ubyte> bytes;
 
     int result = read_bytes_from_table(L, -1, bytes);
@@ -252,7 +252,7 @@ static int l_file_gzip_decompress(lua::State* L) {
     }
 }
 
-static int l_file_read_combined_list(lua::State* L) {
+static int l_read_combined_list(lua::State* L) {
     std::string path = lua::require_string(L, 1);
     if (path.find(':') != std::string::npos) {
         throw std::runtime_error("entry point must not be specified");
@@ -260,23 +260,32 @@ static int l_file_read_combined_list(lua::State* L) {
     return lua::pushvalue(L, engine->getResPaths()->readCombinedList(path));
 }
 
+static int l_read_combined_object(lua::State* L) {
+    std::string path = lua::require_string(L, 1);
+    if (path.find(':') != std::string::npos) {
+        throw std::runtime_error("entry point must not be specified");
+    }
+    return lua::pushvalue(L, engine->getResPaths()->readCombinedObject(path));
+}
+
 const luaL_Reg filelib[] = {
-    {"exists", lua::wrap<l_file_exists>},
-    {"find", lua::wrap<l_file_find>},
-    {"isdir", lua::wrap<l_file_isdir>},
-    {"isfile", lua::wrap<l_file_isfile>},
-    {"length", lua::wrap<l_file_length>},
-    {"list", lua::wrap<l_file_list>},
-    {"mkdir", lua::wrap<l_file_mkdir>},
-    {"mkdirs", lua::wrap<l_file_mkdirs>},
-    {"read_bytes", lua::wrap<l_file_read_bytes>},
-    {"read", lua::wrap<l_file_read>},
-    {"remove", lua::wrap<l_file_remove>},
-    {"remove_tree", lua::wrap<l_file_remove_tree>},
-    {"resolve", lua::wrap<l_file_resolve>},
-    {"write_bytes", lua::wrap<l_file_write_bytes>},
-    {"write", lua::wrap<l_file_write>},
-    {"gzip_compress", lua::wrap<l_file_gzip_compress>},
-    {"gzip_decompress", lua::wrap<l_file_gzip_decompress>},
-    {"read_combined_list", lua::wrap<l_file_read_combined_list>},
+    {"exists", lua::wrap<l_exists>},
+    {"find", lua::wrap<l_find>},
+    {"isdir", lua::wrap<l_isdir>},
+    {"isfile", lua::wrap<l_isfile>},
+    {"length", lua::wrap<l_length>},
+    {"list", lua::wrap<l_list>},
+    {"mkdir", lua::wrap<l_mkdir>},
+    {"mkdirs", lua::wrap<l_mkdirs>},
+    {"read_bytes", lua::wrap<l_read_bytes>},
+    {"read", lua::wrap<l_read>},
+    {"remove", lua::wrap<l_remove>},
+    {"remove_tree", lua::wrap<l_remove_tree>},
+    {"resolve", lua::wrap<l_resolve>},
+    {"write_bytes", lua::wrap<l_write_bytes>},
+    {"write", lua::wrap<l_write>},
+    {"gzip_compress", lua::wrap<l_gzip_compress>},
+    {"gzip_decompress", lua::wrap<l_gzip_decompress>},
+    {"read_combined_list", lua::wrap<l_read_combined_list>},
+    {"read_combined_object", lua::wrap<l_read_combined_object>},
     {NULL, NULL}};

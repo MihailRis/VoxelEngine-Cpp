@@ -97,6 +97,7 @@ struct ContentPackStats {
 struct world_funcs_set {
     bool onblockplaced : 1;
     bool onblockbroken : 1;
+    bool onblockinteract : 1;
 };
 
 class ContentPackRuntime {

@@ -91,6 +91,14 @@ function refresh()
     packs_cur:clear()
     packs_add:clear()
 
+    -- lock pack that contains used generator
+    if world.is_open() then
+        local genpack, genname = parse_path(world.get_generator())
+        if genpack ~= "core" then
+            table.insert(base_packs, genpack)
+        end
+    end
+
     for i,id in ipairs(packs_installed) do
         local packinfo = pack.get_info(id)
         packinfo.index = i
