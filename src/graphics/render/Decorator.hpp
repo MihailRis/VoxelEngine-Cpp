@@ -10,6 +10,8 @@ class Level;
 class Chunks;
 class Camera;
 class Assets;
+struct Block;
+class LevelController;
 class ParticlesRenderer;
 
 class Decorator {
@@ -22,9 +24,10 @@ class Decorator {
     void update(
         float delta, const glm::ivec3& areaStart, const glm::ivec3& areaCenter
     );
+    void addParticles(const Block& def, const glm::ivec3& pos);
 public:
     Decorator(
-        const Level& level, ParticlesRenderer& particles, const Assets& assets
+        LevelController& level, ParticlesRenderer& particles, const Assets& assets
     );
 
     void update(float delta, const Camera& camera);

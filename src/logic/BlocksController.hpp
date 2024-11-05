@@ -20,7 +20,7 @@ enum class BlockInteraction { step, destruction, placing };
 
 /// @brief Player argument is nullable
 using on_block_interaction = std::function<
-    void(Player*, glm::ivec3, const Block&, BlockInteraction type)>;
+    void(Player*, const glm::ivec3&, const Block&, BlockInteraction type)>;
 
 /// BlocksController manages block updates and data (inventories, metadata)
 class BlocksController {

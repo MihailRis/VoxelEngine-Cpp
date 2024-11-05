@@ -7,6 +7,7 @@
 #include "voxels/Block.hpp"
 #include "world/Level.hpp"
 #include "window/Camera.hpp"
+#include "logic/LevelController.hpp"
 
 /// @brief Not greather than 64 for this BIG_PRIME value
 inline constexpr int UPDATE_AREA_DIAMETER = 32;
@@ -19,9 +20,32 @@ inline constexpr int ITERATIONS = 512;
 inline constexpr int BIG_PRIME = 666667;
 
 Decorator::Decorator(
-    const Level& level, ParticlesRenderer& particles, const Assets& assets
+    LevelController& controller, ParticlesRenderer& particles, const Assets& assets
 )
-    : level(level), particles(particles), assets(assets) {
+    : level(*controller.getLevel()), particles(particles), assets(assets) {
+    controller.getBlocksController()->listenBlockInteraction(
+    [this](auto player, const auto& pos, const auto& def, BlockInteraction type) {
+        if (type == BlockInteraction::placing && def.particles) {
+            addParticles(def, pos);
+        }
+    });
+}
+
+void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
+    const auto& found = blockEmitters.find(pos);
+    if (found == blockEmitters.end()) {
+        auto treg = util::get_texture_region(
+            assets, def.particles->texture, ""
+        );
+        blockEmitters[pos] = particles.add(std::make_unique<Emitter>(
+            level,
+            glm::vec3{pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
+            *def.particles,
+            treg.texture,
+            treg.region,
+            -1
+        ));
+    }
 }
 
 void Decorator::update(
@@ -42,20 +66,7 @@ void Decorator::update(
     if (auto vox = chunks.get(pos)) {
         const auto& def = indices.blocks.require(vox->id);
         if (def.particles) {
-            const auto& found = blockEmitters.find(pos);
-            if (found == blockEmitters.end()) {
-                auto treg = util::get_texture_region(
-                    assets, def.particles->texture, ""
-                );
-                blockEmitters[pos] = particles.add(std::make_unique<Emitter>(
-                    level,
-                    glm::vec3{pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
-                    *def.particles,
-                    treg.texture,
-                    treg.region,
-                    -1
-                ));
-            }
+            addParticles(def, pos);
         }
     }
 }
