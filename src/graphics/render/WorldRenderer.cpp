@@ -342,7 +342,9 @@ void WorldRenderer::renderDebugLines(
     lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
 }
 
-void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
+void WorldRenderer::renderHands(
+    const Camera& camera, const Assets& assets, float delta
+) {
     auto entityShader = assets.get<Shader>("entity");
     auto indices = level->content->getIndices();
 
@@ -370,7 +372,7 @@ void WorldRenderer::renderHands(const Camera& camera, const Assets& assets) {
     glm::quat rot0 = glm::quat_cast(prevRotation);
     glm::quat rot1 = glm::quat_cast(rotation);
     glm::quat finalRot =
-        glm::slerp(rot0, rot1, static_cast<float>(engine->getDelta() * speed));
+        glm::slerp(rot0, rot1, static_cast<float>(delta * speed));
     rotation = glm::mat4_cast(finalRot);
     matrix = rotation * matrix *
              glm::rotate(
@@ -444,7 +446,7 @@ void WorldRenderer::draw(
             if (hudVisible) {
                 renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
-                    renderHands(camera, assets);
+                    renderHands(camera, assets, delta * !pause);
                 }
             }
         }

@@ -53,7 +53,7 @@ class WorldRenderer {
     /// @brief Render block selection lines
     void renderBlockSelection();
 
-    void renderHands(const Camera& camera, const Assets& assets);
+    void renderHands(const Camera& camera, const Assets& assets, float delta);
     
     /// @brief Render lines (selection and debug)
     /// @param camera active camera
