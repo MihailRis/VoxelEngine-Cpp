@@ -120,6 +120,7 @@ void Block::cloneTo(Block& dst) {
     std::copy(&emission[0], &emission[3], dst.emission);
     dst.size = size;
     dst.model = model;
+    dst.drawGroup = drawGroup;
     dst.lightPassing = lightPassing;
     dst.skyLightPassing = skyLightPassing;
     dst.shadeless = shadeless;
