@@ -46,8 +46,37 @@ static int l_stop(lua::State* L) {
     return 0;
 }
 
+static int l_get_origin(lua::State* L) {
+    u64id_t id = lua::touinteger(L, 1);
+    if (auto emitter = renderer->particles->getEmitter(id)) {
+        const auto& origin = emitter->getOrigin();
+        if (auto pos = std::get_if<glm::vec3>(&origin)) {
+            return lua::pushvec3(L, *pos);
+        } else if (auto entityid = std::get_if<entityid_t>(&origin)) {
+            return lua::pushinteger(L, *entityid);
+        }
+    }
+    return 0;
+}
+
+static int l_set_origin(lua::State* L) {
+    u64id_t id = lua::touinteger(L, 1);
+    if (auto emitter = renderer->particles->getEmitter(id)) {
+        EmitterOrigin origin;
+        if (lua::istable(L, 2)) {
+            emitter->setOrigin(lua::tovec3(L, 2));
+        } else {
+            emitter->setOrigin(static_cast<entityid_t>(lua::tointeger(L, 2)));
+        }
+    }
+    return 0;
+}
+
+
 const luaL_Reg particleslib[] = {
     {"emit", lua::wrap<l_emit>},
     {"stop", lua::wrap<l_stop>},
+    {"get_origin", lua::wrap<l_get_origin>},
+    {"set_origin", lua::wrap<l_set_origin>},
     {NULL, NULL}
 };

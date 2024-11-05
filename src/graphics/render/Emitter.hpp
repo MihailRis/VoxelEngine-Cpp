@@ -81,4 +81,8 @@ public:
 
     /// @return true if the emitter has spawned all particles
     bool isDead() const;
+
+    const EmitterOrigin& getOrigin() const;
+
+    void setOrigin(const EmitterOrigin& origin);
 };
