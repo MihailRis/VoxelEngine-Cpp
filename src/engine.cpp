@@ -360,7 +360,7 @@ void Engine::loadContent() {
     for (auto& pack : contentPacks) {
         ContentLoader(&pack, contentBuilder, *resPaths).load();
         load_configs(pack.folder);
-    } 
+    }
 
     content = contentBuilder.build();
 
@@ -421,8 +421,6 @@ double Engine::getDelta() const {
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
-    // unblock all bindings
-    Events::enableBindings();
     // reset audio channels (stop all sources)
     audio::reset_channel(audio::get_channel_index("regular"));
     audio::reset_channel(audio::get_channel_index("ambient"));

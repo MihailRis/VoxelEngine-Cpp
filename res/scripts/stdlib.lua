@@ -208,10 +208,16 @@ function _rules.listen(name, handler)
 end
 
 function _rules.create(name, value, handler)
-    _rules.set(name, value)
+    local handlerid
     if handler ~= nil then
-        return _rules.listen(name, handler)
+        handlerid = _rules.listen(name, handler)
     end
+    if _rules.get(name) == nil then
+        _rules.set(name, value)
+    else 
+        handler(_rules.get(name))
+    end
+    return handlerid
 end
 
 function _rules.unlisten(name, id)
@@ -240,11 +246,34 @@ function __vc_create_hud_rules()
         input.set_enabled("player.attack", value)
     end)
     _rules.create("allow-cheat-movement", true, function(value)
-        input.set_enabled("player.cheat", value)
+        input.set_enabled("movement.cheat", value)
     end)
     _rules.create("allow-debug-cheats", true, function(value)
         hud._set_debug_cheats(value)
     end)
+end
+
+local RULES_FILE = "world:rules.toml"
+function __vc_on_world_open()
+    if not file.exists(RULES_FILE) then
+        return
+    end
+    local rule_values = toml.parse(file.read(RULES_FILE))
+    for name, value in pairs(rule_values) do
+        _rules.set(name, value)
+    end
+end
+
+function __vc_on_world_save()
+    local rule_values = {}
+    for name, rule in pairs(rules.rules) do
+        rule_values[name] = rule.value
+    end
+    file.write(RULES_FILE, toml.tostring(rule_values))
+end
+
+function __vc_on_world_quit()
+    _rules.clear()
 end
 
 -- --------- Deprecated functions ------ --
