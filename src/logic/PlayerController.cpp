@@ -494,7 +494,9 @@ void PlayerController::updateInteraction(float delta) {
     bool xkey = Events::active(BIND_PLAYER_FAST_INTERACTOIN);
     float maxDistance = xkey ? 200.0f : 10.0f;
     bool longInteraction = interactionTimer <= 0 || xkey;
-    bool lclick = Events::jactive(BIND_PLAYER_ATTACK) ||
+    bool lclick = Events::jactive(BIND_PLAYER_DESTROY) ||
+        (longInteraction && Events::active(BIND_PLAYER_DESTROY));
+    bool lattack = Events::jactive(BIND_PLAYER_ATTACK) ||
         (longInteraction && Events::active(BIND_PLAYER_ATTACK));
     bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
         (longInteraction && Events::active(BIND_PLAYER_BUILD));
@@ -512,7 +514,7 @@ void PlayerController::updateInteraction(float delta) {
             scripting::on_item_use(player.get(), item);
         }
         if (selection.entity) {
-            updateEntityInteraction(selection.entity, lclick, rclick);
+            updateEntityInteraction(selection.entity, lattack, rclick);
         }
         return;
     }

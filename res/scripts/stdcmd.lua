@@ -33,7 +33,7 @@ console.add_command(
             local str = "Available commands:"
 
             for i,k in ipairs(commands) do
-                if rules.get("cheat-commands") or not table.has(console.cheats, k) then
+                if rules.get("allow-cheats") or not table.has(console.cheats, k) then
                     str = str .. "\n  " .. build_scheme(console.get_command_info(k))
                 end
             end

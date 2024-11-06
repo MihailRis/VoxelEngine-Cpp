@@ -21,6 +21,7 @@
     - [pack](scripting/builtins/libpack.md)
     - [player](scripting/builtins/libplayer.md)
     - [quat](scripting/builtins/libquat.md)
+    - [rules](scripting/builtins/librules.md)
     - [time](scripting/builtins/libtime.md)
     - [utf8](scripting/builtins/libutf8.md)
     - [vec2, vec3, vec4](scripting/builtins/libvecn.md)

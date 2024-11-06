@@ -61,7 +61,7 @@ function submit(text)
     if name == nil then
         name = text
     end
-    if not rules.get("cheat-commands") and table.has(console.cheats, name) then
+    if not rules.get("allow-cheats") and table.has(console.cheats, name) then
         console.log("cheat commands are disabled")
         document.prompt.text = ""
         document.prompt.focused = true
