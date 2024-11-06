@@ -60,9 +60,10 @@ bool Hud::showGeneratorMinimap = false;
 
 // implemented in debug_panel.cpp
 extern std::shared_ptr<UINode> create_debug_panel(
-    Engine* engine, 
-    Level* level, 
-    Player* player
+    Engine* engine,
+    Level* level,
+    Player* player,
+    bool allowDebugCheats
 );
 
 HudElement::HudElement(
@@ -149,7 +150,8 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
 static constexpr uint WORLDGEN_IMG_SIZE = 128U;
 
 Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
-    : assets(engine->getAssets()),
+    : engine(engine),
+      assets(engine->getAssets()),
       gui(engine->getGUI()),
       frontend(frontend),
       player(player),
@@ -175,12 +177,14 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     uicamera->perspective = false;
     uicamera->flipped = true;
 
-    debugPanel = create_debug_panel(engine, frontend->getLevel(), player);
+    debugPanel = create_debug_panel(
+        engine, frontend->getLevel(), player, allowDebugCheats
+    );
     debugPanel->setZIndex(2);
+    gui->add(debugPanel);
     
     gui->add(darkOverlay);
     gui->add(hotbarView);
-    gui->add(debugPanel);
     gui->add(contentAccessPanel);
 
     auto dplotter = std::make_shared<Plotter>(350, 250, 2000, 16);
@@ -637,4 +641,15 @@ bool Hud::isContentAccess() const {
 
 void Hud::setContentAccess(bool flag) {
     showContentPanel = flag;
+}
+
+void Hud::setDebugCheats(bool flag) {
+    allowDebugCheats = flag;
+    
+    gui->remove(debugPanel);
+    debugPanel = create_debug_panel(
+        engine, frontend->getLevel(), player, allowDebugCheats
+    );
+    debugPanel->setZIndex(2);
+    gui->add(debugPanel);
 }
