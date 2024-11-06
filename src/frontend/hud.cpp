@@ -348,7 +348,7 @@ void Hud::update(bool visible) {
     }
 
     glm::vec2 invSize = contentAccessPanel->getSize();
-    contentAccessPanel->setVisible(inventoryView != nullptr);
+    contentAccessPanel->setVisible(inventoryView != nullptr && showContentPanel);
     contentAccessPanel->setSize(glm::vec2(invSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
     hotbarView->setVisible(visible && !(secondUI && !inventoryView));
@@ -553,7 +553,9 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
     const uint height = viewport.getHeight();
     
     if (inventoryOpen) {
-        float caWidth = inventoryView ? contentAccess->getSize().x : 0.0f;
+        float caWidth = inventoryView && showContentPanel
+                            ? contentAccess->getSize().x
+                            : 0.0f;
         contentAccessPanel->setPos(glm::vec2(width-caWidth, 0));
 
         glm::vec2 invSize = inventoryView ? inventoryView->getSize() : glm::vec2();
@@ -627,4 +629,12 @@ std::shared_ptr<Inventory> Hud::getBlockInventory() {
         return nullptr;
     }
     return blockUI->getInventory();
+}
+
+bool Hud::isContentAccess() const {
+    return showContentPanel;
+}
+
+void Hud::setContentAccess(bool flag) {
+    showContentPanel = flag;
 }

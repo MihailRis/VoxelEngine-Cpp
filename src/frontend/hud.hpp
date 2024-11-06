@@ -105,6 +105,8 @@ class Hud : public util::ObjectsKeeper {
     glm::ivec3 blockPos {};
     /// @brief Id of the block open (used to detect block destruction or replacement)
     blockid_t currentblockid = 0;
+    /// @brief Show content access panel
+    bool showContentPanel = true;
 
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI = nullptr;
@@ -171,6 +173,10 @@ public:
     Player* getPlayer() const;
 
     std::shared_ptr<Inventory> getBlockInventory();
+
+    bool isContentAccess() const;
+
+    void setContentAccess(bool flag);
 
     static bool showGeneratorMinimap;
 

@@ -168,6 +168,64 @@ end
 
 math.randomseed(time.uptime() * 1536227939)
 
+rules = {nexid = 1, rules = {}}
+local _rules = rules
+
+function _rules.get_rule(name)
+    local rule = _rules.rules[name]
+    if rule == nil then
+        rule = {listeners={}}
+        _rules.rules[name] = rule
+    end
+    return rule
+end
+
+function _rules.get(name)
+    local rule = _rules.rules[name]
+    if rule == nil then
+        return nil
+    end
+    return rule.value
+end
+
+function _rules.set(name, value)
+    local rule = _rules.get_rule(name)
+    rule.value = value
+    for _, handler in pairs(rule.listeners) do
+        handler(value)
+    end
+end
+
+function _rules.listen(name, handler)
+    local rule = _rules.get_rule(name)
+    local id = _rules.nexid
+    _rules.nextid = _rules.nexid + 1
+    rule.listeners[utf8.encode(id)] = handler
+    return id
+end
+
+function _rules.create(name, value, handler)
+    print(name, value, handler)
+    _rules.set(name, value)
+    return _rules.listen(name, handler)
+end
+
+function _rules.unlisten(name, id)
+    local rule = _rules.get_rule(name)
+    rule.listeners[utf8.encode(id)] = nil
+end
+
+function _rules.clear()
+    _rules.rules = {}
+    _rules.nextid = 1
+end
+
+function __vc_create_hud_rules()
+    _rules.create("show-content-access", hud._is_content_access(), function(value)
+        hud._set_content_access(value)
+    end)
+end
+
 -- --------- Deprecated functions ------ --
 local function wrap_deprecated(func, name, alternatives)
     return function (...)

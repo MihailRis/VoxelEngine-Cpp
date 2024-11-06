@@ -223,3 +223,35 @@ console.add_command(
         fragment:place({x, y, z}, rotation)
     end
 )
+
+console.add_command(
+    "rule.set name:str value:bool",
+    "Set rule value",
+    function(args, kwargs)
+        local name = args[1]
+        local value = args[2]
+        rules.set(name, value)
+        return "rule '"..name.."' set to "..tostring(value)
+    end
+)
+
+console.add_command(
+    "rule.list",
+    "Show registered rules list",
+    function(args, kwargs)
+        local names = ""
+        for name, rule in pairs(rules.rules) do
+            if #names > 0 then
+                names = names .. "\n  "
+            else
+                names = "  "
+            end
+            local value = rule.value
+            if value == nil then
+                value = "not set"
+            end
+            names = names .. name .. ":\t" .. tostring(value)
+        end
+        return "registered rules:\n" .. names
+    end
+)
