@@ -21,8 +21,14 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
     scripting::hud = hud;
     scripting::renderer = renderer;
 
-    lua::openlib(lua::get_main_state(), "hud", hudlib);
-    lua::openlib(lua::get_main_state(), "particles", particleslib);
+    auto L = lua::get_main_state();
+
+    lua::openlib(L, "hud", hudlib);
+    lua::openlib(L, "particles", particleslib);
+
+    if (lua::getglobal(L, "__vc_create_hud_rules")) {
+        lua::call_nothrow(L, 0, 0);
+    }
 
     for (auto& pack : engine->getContentPacks()) {
         lua::emit_event(

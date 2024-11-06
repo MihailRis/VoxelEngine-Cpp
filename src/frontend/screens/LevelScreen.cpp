@@ -87,6 +87,8 @@ void LevelScreen::initializePack(ContentPackRuntime* pack) {
 LevelScreen::~LevelScreen() {
     saveWorldPreview();
     scripting::on_frontend_close();
+    // unblock all bindings
+    Events::enableBindings();
     controller->onWorldQuit();
     engine->getPaths()->setCurrentWorldFolder(fs::path());
 }

@@ -103,6 +103,9 @@ function time.post_runnable(runnable)
     table.insert(__post_runnables, runnable)
 end
 
+---  Console library extension ---
+console.cheats = {}
+
 local log_element = Document.new("core:console").log
 function console.log(...)
     local args = {...}
@@ -167,6 +170,119 @@ entities.get_all = function(uids)
 end
 
 math.randomseed(time.uptime() * 1536227939)
+
+rules = {nexid = 1, rules = {}}
+local _rules = rules
+
+function _rules.get_rule(name)
+    local rule = _rules.rules[name]
+    if rule == nil then
+        rule = {listeners={}}
+        _rules.rules[name] = rule
+    end
+    return rule
+end
+
+function _rules.get(name)
+    local rule = _rules.rules[name]
+    if rule == nil then
+        return nil
+    end
+    return rule.value
+end
+
+function _rules.set(name, value)
+    local rule = _rules.get_rule(name)
+    rule.value = value
+    for _, handler in pairs(rule.listeners) do
+        handler(value)
+    end
+end
+
+function _rules.reset(name)
+    local rule = _rules.get_rule(name)
+    _rules.set(rule.default)
+end
+
+function _rules.listen(name, handler)
+    local rule = _rules.get_rule(name)
+    local id = _rules.nexid
+    _rules.nextid = _rules.nexid + 1
+    rule.listeners[utf8.encode(id)] = handler
+    return id
+end
+
+function _rules.create(name, value, handler)
+    local rule = _rules.get_rule(name)
+    rule.default = value
+
+    local handlerid
+    if handler ~= nil then
+        handlerid = _rules.listen(name, handler)
+    end
+    if _rules.get(name) == nil then
+        _rules.set(name, value)
+    else 
+        handler(_rules.get(name))
+    end
+    return handlerid
+end
+
+function _rules.unlisten(name, id)
+    local rule = _rules.get_rule(name)
+    rule.listeners[utf8.encode(id)] = nil
+end
+
+function _rules.clear()
+    _rules.rules = {}
+    _rules.nextid = 1
+
+    _rules.create("cheat-commands", true)
+end
+
+function __vc_create_hud_rules()
+    _rules.create("show-content-access", hud._is_content_access(), function(value)
+        hud._set_content_access(value)
+    end)
+    _rules.create("allow-flight", true, function(value)
+        input.set_enabled("player.flight", value)
+    end)
+    _rules.create("allow-noclip", true, function(value)
+        input.set_enabled("player.noclip", value)
+    end)
+    _rules.create("allow-destruct", true, function(value)
+        input.set_enabled("player.attack", value)
+    end)
+    _rules.create("allow-cheat-movement", true, function(value)
+        input.set_enabled("movement.cheat", value)
+    end)
+    _rules.create("allow-debug-cheats", true, function(value)
+        hud._set_debug_cheats(value)
+    end)
+end
+
+local RULES_FILE = "world:rules.toml"
+function __vc_on_world_open()
+    if not file.exists(RULES_FILE) then
+        return
+    end
+    local rule_values = toml.parse(file.read(RULES_FILE))
+    for name, value in pairs(rule_values) do
+        _rules.set(name, value)
+    end
+end
+
+function __vc_on_world_save()
+    local rule_values = {}
+    for name, rule in pairs(rules.rules) do
+        rule_values[name] = rule.value
+    end
+    file.write(RULES_FILE, toml.tostring(rule_values))
+end
+
+function __vc_on_world_quit()
+    _rules.clear()
+end
 
 -- --------- Deprecated functions ------ --
 local function wrap_deprecated(func, name, alternatives)
