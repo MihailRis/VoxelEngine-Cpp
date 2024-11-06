@@ -113,6 +113,15 @@ std::shared_ptr<UINode> create_debug_panel(
                    L" "+stream.str();
         }
     }));
+    panel->add(create_label([=]() -> std::wstring {
+        const auto& vox = player->selection.vox;
+        if (vox.id == BLOCK_VOID) {
+            return L"x: - y: - z: -";
+        }
+        return L"x: " + std::to_wstring(player->selection.actualPosition.x) +
+               L" y: " + std::to_wstring(player->selection.actualPosition.y) +
+               L" z: " + std::to_wstring(player->selection.actualPosition.z);
+    }));
     panel->add(create_label([=]() {
         auto eid = player->getSelectedEntity();
         if (eid == ENTITY_NONE) {
