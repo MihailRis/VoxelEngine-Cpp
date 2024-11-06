@@ -19,3 +19,4 @@
 - [Свойства блоков](block-properties.md)
 - [Свойства предметов](item-properties.md)
 - [Скриптинг](scripting.md)
+- [Частицы](particles.md)
