@@ -16,6 +16,9 @@ utf8.length(text: str) -> int
 -- Возвращает код первого символа строки
 utf8.codepoint(chars: str) -> int
 
+-- Кодирует код в в UTF-8
+utf8.encode(codepoint: int) -> str
+
 -- Возвращает подстроку от позиции startchar до endchar включительно
 utf8.sub(text: str, startchar: int, [опционально] endchar: int) -> str
 

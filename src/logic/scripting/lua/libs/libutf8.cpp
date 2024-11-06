@@ -6,8 +6,8 @@
 #include "../lua_custom_types.hpp"
 #include "util/stringutil.hpp"
 
-static int l_encode(lua::State* L) {
-    std::string_view string = lua::require_string(L, 1);
+static int l_tobytes(lua::State* L) {
+    std::string_view string = lua::require_lstring(L, 1);
     if (lua::toboolean(L, 2)) {
         lua::createtable(L, string.length(), 0);
         for (size_t i = 0; i < string.length(); i++) {
@@ -23,11 +23,16 @@ static int l_encode(lua::State* L) {
     return 1;
 }
 
-static int l_decode(lua::State* L) {
+static int l_tostring(lua::State* L) {
     if (lua::istable(L, 1)) {
         size_t size = lua::objlen(L, 1);
         util::Buffer<char> buffer(size);
-        return lua::pushstring(L, std::string(buffer.data(), size));
+        for (size_t i = 0; i < size; i++) {
+            lua::rawgeti(L, i + 1);
+            buffer[i] = lua::tointeger(L, -1);
+            lua::pop(L);
+        }
+        return lua::pushlstring(L, buffer.data(), size);
     } else if (auto bytes = lua::touserdata<lua::LuaBytearray>(L, 1)) {
         return lua::pushstring(
             L,
@@ -80,13 +85,21 @@ static int l_lower(lua::State* L) {
     return lua::pushstring(L, util::u32str2str_utf8(string));
 }
 
+static int l_encode(lua::State* L) {
+    auto integer = lua::tointeger(L, 1);
+    ubyte bytes[4];
+    size_t count = util::encode_utf8(integer, bytes);
+    return lua::pushlstring(L, bytes, count);
+}
+
 const luaL_Reg utf8lib[] = {
-    {"tobytes", lua::wrap<l_encode>},
-    {"tostring", lua::wrap<l_decode>},
+    {"tobytes", lua::wrap<l_tobytes>},
+    {"tostring", lua::wrap<l_tostring>},
     {"length", lua::wrap<l_length>},
     {"codepoint", lua::wrap<l_codepoint>},
     {"sub", lua::wrap<l_sub>},
     {"upper", lua::wrap<l_upper>},
     {"lower", lua::wrap<l_lower>},
+    {"encode", lua::wrap<l_encode>},
     {NULL, NULL}
 };

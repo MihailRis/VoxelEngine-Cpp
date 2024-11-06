@@ -94,7 +94,7 @@ static int l_meta_index(lua::State* L) {
     if (static_cast<size_t>(index) > data.size()) {
         return 0;
     }
-    return pushinteger(L, data[index]);
+    return pushinteger(L, data.at(index));
 }
 
 static int l_meta_newindex(lua::State* L) {
