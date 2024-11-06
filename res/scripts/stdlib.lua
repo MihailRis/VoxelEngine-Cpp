@@ -199,6 +199,11 @@ function _rules.set(name, value)
     end
 end
 
+function _rules.reset(name)
+    local rule = _rules.get_rule(name)
+    _rules.set(rule.default)
+end
+
 function _rules.listen(name, handler)
     local rule = _rules.get_rule(name)
     local id = _rules.nexid
@@ -208,6 +213,9 @@ function _rules.listen(name, handler)
 end
 
 function _rules.create(name, value, handler)
+    local rule = _rules.get_rule(name)
+    rule.default = value
+
     local handlerid
     if handler ~= nil then
         handlerid = _rules.listen(name, handler)
