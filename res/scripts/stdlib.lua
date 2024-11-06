@@ -244,7 +244,7 @@ function _rules.clear()
 end
 
 function __vc_create_hud_rules()
-    _rules.create("show-content-access", hud._is_content_access(), function(value)
+    _rules.create("allow-content-access", hud._is_content_access(), function(value)
         hud._set_content_access(value)
         input.set_enabled("player.pick", value)
     end)
