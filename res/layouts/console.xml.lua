@@ -52,6 +52,22 @@ function submit(text)
     add_to_history(text)
     setup_variables()
     
+    text = text:trim()
+    local name
+    for s in text:gmatch("%S+") do
+        name = s
+        break
+    end
+    if name == nil then
+        name = text
+    end
+    if not rules.get("cheat-commands") and table.has(console.cheats, name) then
+        console.log("cheat commands are disabled")
+        document.prompt.text = ""
+        document.prompt.focused = true
+        return
+    end
+    
     document.log.caret = -1
     local status, result = pcall(console.execute, text)
     if result then

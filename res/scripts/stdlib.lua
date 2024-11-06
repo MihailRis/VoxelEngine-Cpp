@@ -103,6 +103,9 @@ function time.post_runnable(runnable)
     table.insert(__post_runnables, runnable)
 end
 
+---  Console library extension ---
+console.cheats = {}
+
 local log_element = Document.new("core:console").log
 function console.log(...)
     local args = {...}
@@ -205,9 +208,10 @@ function _rules.listen(name, handler)
 end
 
 function _rules.create(name, value, handler)
-    print(name, value, handler)
     _rules.set(name, value)
-    return _rules.listen(name, handler)
+    if handler ~= nil then
+        return _rules.listen(name, handler)
+    end
 end
 
 function _rules.unlisten(name, id)
@@ -218,6 +222,8 @@ end
 function _rules.clear()
     _rules.rules = {}
     _rules.nextid = 1
+
+    _rules.create("cheat-commands", true)
 end
 
 function __vc_create_hud_rules()

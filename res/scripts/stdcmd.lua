@@ -28,17 +28,17 @@ console.add_command(
     function(args, kwargs)
         local name = args[1]
         if #name == 0 then
-
             local commands = console.get_commands_list()
             table.sort(commands)
             local str = "Available commands:"
 
             for i,k in ipairs(commands) do
-                str = str .. "\n  " .. build_scheme(console.get_command_info(k))
+                if rules.get("cheat-commands") or not table.has(console.cheats, k) then
+                    str = str .. "\n  " .. build_scheme(console.get_command_info(k))
+                end
             end
 
             return str .. "\nuse 'help <command>'"
-
         end
 
         local command = console.get_command_info(name)
@@ -255,3 +255,13 @@ console.add_command(
         return "registered rules:\n" .. names
     end
 )
+
+console.cheats = {
+    "blocks.fill",
+    "tp",
+    "fragment.place",
+    "time.set",
+    "time.daycycle",
+    "entity.despawn",
+    "player.respawn"
+}
