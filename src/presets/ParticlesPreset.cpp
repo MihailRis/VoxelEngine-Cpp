@@ -26,7 +26,7 @@ dv::value ParticlesPreset::serialize() const {
     if (frames.empty()) {
         root["texture"] = texture;
     } else {
-        auto& arr = root.list("animation");
+        auto& arr = root.list("frames");
         for (const auto& frame : frames) {
             arr.add(frame);
         }
