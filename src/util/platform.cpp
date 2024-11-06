@@ -12,6 +12,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
+#pragma comment(lib, "winmm.lib")
 
 void platform::configure_encoding() {
     // set utf-8 encoding to console output
