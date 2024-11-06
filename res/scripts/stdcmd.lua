@@ -113,7 +113,7 @@ console.add_command(
 
 console.add_command(
     "time.daycycle operation:[stop|reset]",
-    "Control time.daycycle",
+    "Control time.daycycle. Operations: stop, reset",
     function(args, kwargs)
         local operation = args[1]
         if operation == "stop" then
@@ -198,7 +198,7 @@ console.add_command(
 )
 
 console.add_command(
-    "fragment.crop filename:str",
+    "fragment.crop file:str",
     "Crop fragment",
     function(args, kwargs)
         local filename = args[1]
