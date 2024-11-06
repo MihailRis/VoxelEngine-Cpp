@@ -504,7 +504,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
             paste(L"\n");
         } else {
             defocus();
-            if (validate()) {
+            if (validate() && consumer) {
                 consumer(label->getText());
             }
         }
