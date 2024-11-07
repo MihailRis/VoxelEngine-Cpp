@@ -134,3 +134,8 @@ function parse_path(path: string) -> string, string
 ```lua
 function timeit(iters: integer, func: func, ...)
 ```
+
+Вызывает остановку корутины до тех пор, пока не пройдёт количество секунд, указанное в **timesec**. Функция может быть использована только внутри корутины
+```lua
+function sleep(timesec: number)
+```
