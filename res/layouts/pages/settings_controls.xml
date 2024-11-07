@@ -6,8 +6,8 @@
     </trackbar>
     <panel id='search_panel' size='380,60' padding='2' interval='1' color='#0000004C'>
         <textbox id='search_textbox' multiline='false' size='300,20' sub-consumer='function(x) refresh_search() end'></textbox>
+        <checkbox size='100,24' id='search_key_checkbox' consumer='function(x) refresh_search() end'>@settings.Controls Search Mode</checkbox>
     </panel>
-    <checkbox size='100,24' id='search_key_checkbox' consumer='function(x) refresh_search() end'>@settings.Controls Search Mode</checkbox>
     <panel id='bindings_panel' size='380,204' padding='2' interval='1' max-length='300' color='#0000004C'>
         <!-- content is generated in script -->
     </panel>
