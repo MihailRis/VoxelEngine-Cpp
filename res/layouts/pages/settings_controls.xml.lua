@@ -44,11 +44,6 @@ function on_open()
     document.sensitivity_track.value = core.get_setting("camera.sensitivity")
     refresh_sensitivity()
 
-    document.search_panel:add(string.format(
-        "<checkbox size='100,24' id='search_key_checkbox' consumer='function(x) refresh_search() end' tooltip='%s'>%s</checkbox>", 
-        gui.str("controls.key.tooltip", "settings"), gui.str("Key", "settings")
-    ))
-
     local panel = document.bindings_panel
     local bindings = input.get_bindings()
     table.sort(bindings, function(a, b) return a > b end)
