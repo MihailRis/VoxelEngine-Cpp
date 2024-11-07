@@ -20,7 +20,6 @@ pack.remove-confirm=Удалить весь поставляемый паком/
 # Подсказки
 graphics.gamma.tooltip=Кривая яркости освещения
 graphics.backlight.tooltip=Подсветка, предотвращающая полную темноту
-controls.key.tooltip=Поиск по привязвнной кнопки управления
 
 # Меню
 menu.Apply=Применить
@@ -76,6 +75,7 @@ settings.Regular Sounds=Обычные Звуки
 settings.UI Sounds=Звуки Интерфейса
 settings.V-Sync=Вертикальная Синхронизация
 settings.Key=Кнопка
+settings.Controls Search Mode=Поиск по привязанной кнопки управления
 settings.Limit Background FPS=Ограничить фоновую частоту кадров
 
 # Управление
