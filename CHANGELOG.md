@@ -88,6 +88,29 @@ Documented:
 - file.list
 - file.list_all_res
 - input.is_active
+- table.copy
+- table.count_pairs
+- table.random
+- table.has
+- table.index
+- table.remove_value
+- table.tostring
+- string.explode
+- string.split
+- string.pattern_safe
+- string.formatted_time
+- string.replace
+- string.trim
+- string.trim_left
+- string.trim_right
+- string.starts_with
+- string.ends_with
+- math.clamp
+- math.rand
+- is_array
+- parse_path
+- timeit
+- sleep
 
 ## Changes
 
