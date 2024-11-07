@@ -1,7 +1,4 @@
 function on_open(params)
-    if params then
-        mode = params.mode
-    end
     refresh()
 end
 
