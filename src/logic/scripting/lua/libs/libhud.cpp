@@ -36,6 +36,26 @@ static int l_close_inventory(lua::State*) {
     return 0;
 }
 
+static int l_open(lua::State* L) {
+    auto invid = lua::tointeger(L, 1);
+    auto layoutid = lua::require_string(L, 2);
+    bool playerInventory = !lua::toboolean(L, 3);
+
+    auto assets = engine->getAssets();
+    auto layout = assets->get<UiDocument>(layoutid);
+    if (layout == nullptr) {
+        throw std::runtime_error("there is no ui layout " + util::quote(layoutid));
+    }
+
+    hud->openInventory(
+        layout,
+        level->inventories->get(invid),
+        playerInventory
+    );
+
+    return 0;
+}
+
 static int l_open_block(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
@@ -154,6 +174,7 @@ static int l_set_debug_cheats(lua::State* L) {
 const luaL_Reg hudlib[] = {
     {"open_inventory", lua::wrap<l_open_inventory>},
     {"close_inventory", lua::wrap<l_close_inventory>},
+    {"open", lua::wrap<l_open>},
     {"open_block", lua::wrap<l_open_block>},
     {"open_permanent", lua::wrap<l_open_permanent>},
     {"show_overlay", lua::wrap<l_show_overlay>},
