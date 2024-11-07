@@ -11,8 +11,6 @@
 #include "maths/UVRegion.hpp"
 #include "voxels/Block.hpp"
 
-#include <iostream>
-
 ContentGfxCache::ContentGfxCache(const Content* content, Assets* assets)
     : content(content) {
     auto indices = content->getIndices();
