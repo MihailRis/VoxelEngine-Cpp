@@ -235,6 +235,16 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
                 }
             }
         }
+        for (const auto& [_, def] : content->blocks.getDefs()) {
+            if (!def->modelName.empty() &&
+                def->modelName.find(':') == std::string::npos) {
+                loader.add(
+                    AssetType::MODEL,
+                    MODELS_FOLDER + "/" + def->modelName,
+                    def->modelName
+                );
+            }
+        }
         for (const auto& [_, def] : content->items.getDefs()) {
             if (def->modelName.find(':') == std::string::npos) {
                 loader.add(

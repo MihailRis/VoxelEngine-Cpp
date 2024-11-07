@@ -38,6 +38,6 @@ struct UVRegion {
     inline glm::vec2 apply(const glm::vec2& uv) {
         float w = getWidth();
         float h = getHeight();
-        return glm::vec2(u1 + uv.x / w, v1 + uv.y / h);
+        return glm::vec2(u1 + uv.x * w, v1 + uv.y * h);
     }
 };

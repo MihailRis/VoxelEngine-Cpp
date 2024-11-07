@@ -263,6 +263,9 @@ function __vc_create_hud_rules()
     _rules.create("allow-cheat-movement", true, function(value)
         input.set_enabled("movement.cheat", value)
     end)
+    _rules.create("allow-fast-interaction", true, function(value)
+        input.set_enabled("player.fast_interaction", value)
+    end)
     _rules.create("allow-debug-cheats", true, function(value)
         hud._set_debug_cheats(value)
     end)
@@ -290,6 +293,9 @@ end
 function __vc_on_world_quit()
     _rules.clear()
 end
+
+assets = {}
+assets.load_texture = core.__load_texture
 
 -- --------- Deprecated functions ------ --
 local function wrap_deprecated(func, name, alternatives)

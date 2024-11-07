@@ -1,12 +1,19 @@
 history = session.get_entry("commands_history")
 history_pointer = #history
 
+local warnings_all = {}
+
 local warning_id = 0
 events.on("core:warning", function (wtype, text)
+    local full = wtype..": "..text
+    if table.has(warnings_all, full) then
+        return
+    end
     document.problemsLog:add(gui.template("problem", {
-        type="warning", text=wtype..": "..text, id=tostring(warning_id)
+        type="warning", text=full, id=tostring(warning_id)
     }))
     warning_id = warning_id + 1
+    table.insert(warnings_all, full)
 end)
 
 function setup_variables()

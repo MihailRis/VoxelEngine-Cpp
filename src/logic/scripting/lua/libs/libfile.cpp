@@ -8,6 +8,7 @@
 #include "files/files.hpp"
 #include "util/stringutil.hpp"
 #include "api_lua.hpp"
+#include "../lua_engine.hpp"
 
 namespace fs = std::filesystem;
 using namespace scripting;
@@ -47,16 +48,30 @@ static int l_read(lua::State* L) {
     );
 }
 
+static std::set<std::string> writeable_entry_points {
+    "world", "export", "config"
+};
+
+static fs::path get_writeable_path(lua::State* L) {
+    std::string rawpath = lua::require_string(L, 1);
+    fs::path path = resolve_path(rawpath);
+    auto entryPoint = rawpath.substr(0, rawpath.find(':'));
+    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
+        lua::emit_event(L, "core:warning", [=](auto L) {
+            lua::pushstring(L, "writing to read-only entry point");
+            lua::pushstring(L, entryPoint);
+            return 2;
+        });
+    }
+    return path;
+}
+
 static int l_write(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
+    fs::path path = get_writeable_path(L);
     std::string text = lua::require_string(L, 2);
     files::write_string(path, text);
     return 1;
 }
-
-static std::set<std::string> writeable_entry_points {
-    "world", "export", "config"
-};
 
 static int l_remove(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
@@ -155,15 +170,9 @@ static int read_bytes_from_table(
 }
 
 static int l_write_bytes(lua::State* L) {
-    int pathIndex = 1;
+    fs::path path = get_writeable_path(L);
 
-    if (!lua::isstring(L, pathIndex)) {
-        throw std::runtime_error("string expected");
-    }
-
-    fs::path path = resolve_path(lua::require_string(L, pathIndex));
-
-    if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, -1)) {
+    if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, 2)) {
         auto& bytes = bytearray->data();
         return lua::pushboolean(
             L, files::write_bytes(path, bytes.data(), bytes.size())

@@ -1,6 +1,6 @@
-# 0.23 - 2024.10.19
+# 0.24 - 2024.11.07
 
-[Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.23/doc/en/main-page.md) for 0.23
+[Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.24/doc/en/main-page.md) for 0.24
 
 Table of contents:
 
@@ -11,76 +11,128 @@ Table of contents:
 
 ## Added
 
-- world generation engine instead of hardcoded generator
-- world generators
-    - core:default
-    - base:demo
-- block fields (metadata)
-- resource aliases (resource-aliases.json)
-    - cameras
-- libraries
-    - generation
-    - bjson
-- commands:
-	- fragment.save
-	- fragment.crop
-- blocks:
-	- core:obstacle
-	- core:struct_air
-	- base:coal_ore
-- settings:
-	- graphics.chunk-max-vertices
-	- graphics.chunk-max-renderers
+- particles
+- VEC3 models support
+- handhold item display
+- rules
+- events:
+  - on_block_broken (documented)
+  - on_block_placed (documented)
+  - on_block_interact
+- libraries:
+  - gfx.particles
+  - utf8
+  - rules
+- bindings:
+  - player.destroy
+  - player.fast_interaction
+- water overlay
+- block models from OBJ or VEC3
+- bicubic heightmaps interpolation method
+- unicode escapes support
+- fragments placements
+- console commands:
+  - time.daycycle
+  - fragment.place
+  - rule.list
+  - rule.set
+- text field 'subconsumer'
+- shader uniforms:
+  - u_lightDir to main shader
+  - u_dayTime to skybox shader
 - block properties:
-	- surface-replacement
-	- fields
-- 'parent' property for blocks, items and entities
-- filesystem entry points:
-	- config
-	- export
-- lua usertypes:
-	- Heightmap
-	- VoxelFragment
-- raycast filter
-- (project) add unit tests framework (gtest)
-- (project) change project title to VoxelCore
+  - overlay-texture
+  - model-name
+- item properties:
+  - model-name
+- 'Open content folder' buttons
+- 'Background framerate limit' setting
 
 ### Functions
 
-- debug.print
-- pack.shared_file
-- block.get_field
-- block.set_field
-- item.caption
+- core.open_folder
+- world.get_generator
+- world.is_open
+- item.placing_block
+- item.model_name
+- item.emission
+- entities.get_hitbox
+- utf8.tobytes
+- utf8.tostring
+- utf8.length
+- utf8.codepoint
+- utf8.encode
+- utf8.sub
+- utf8.upper
+- utf8.lower
+- file.read_combined_object
+- fragment:place
+- rules.create
+- rules.listen
+- rules.unlisten
+- rules.get
+- rules.set
+- rules.reset
+- input.set_enabled
+- hud._is_content_access
+- hud._set_content_access
+- hud._set_debug_cheats
+- gfx.particles.emit
+- gfx.particles.stop
+- gfx.particles.get_origin
+- gfx.particles.set_origin
+- assets.load_texture
+
+Documented:
 - file.read_combined_list
-- cameras.get(int)
-- bjson.tobytes
-- bjson.frombytes
-- generation.create_fragment
-- generation.load_fragment
-- generation.save_fragment
-- generation.get_default_generator
-- generation.get_generators
-- uinode:getContentOffset
+- file.list
+- file.list_all_res
+- input.is_active
+- table.copy
+- table.count_pairs
+- table.random
+- table.has
+- table.index
+- table.remove_value
+- table.tostring
+- string.explode
+- string.split
+- string.pattern_safe
+- string.formatted_time
+- string.replace
+- string.trim
+- string.trim_left
+- string.trim_right
+- string.starts_with
+- string.ends_with
+- math.clamp
+- math.rand
+- is_array
+- parse_path
+- timeit
+- sleep
 
 ## Changes
 
-- upgrade world regions format
-- upgrade toml parser to 1.0.0 support
-- json.tostring now accepts any supported value
-- json.parse now accepts any supported value as root element
+- major skybox optimization
+- chunks-renderer optimization
+- libspng replaced with libpng on Windows
+- console commands:
+  - blocks.fill
+  - fragment.save
+- added 'def' to core.get_setting_info tables
+- water texture
 
 ## Fixes
 
-- [fix: extended block always main segment passed to on_iteract](https://github.com/MihailRis/VoxelEngine-Cpp/commit/fbca439b2da5a236a122c29488dc8809044ae919)
-- [fix: backlight setting not applying on change](https://github.com/MihailRis/VoxelEngine-Cpp/commit/d59fac61bb5ae5949b49f10ac71c22b595dcdff7 "fix: backlight setting not applying on change")
-- [fix: backlight not applied to entities](https://github.com/MihailRis/VoxelEngine-Cpp/commit/45a1e1df82967141dfb6d4b9b298deb4dfbf44c0 "fix: backlight not applied to entities")
-- [fix: extended block always main segment passed to on_iteract](https://github.com/MihailRis/VoxelEngine-Cpp/commit/fbca439b2da5a236a122c29488dc8809044ae919 "fix: extended block always main segment passed to on_iteract")
-- [fix block.get_hitbox with non rotatable blocks](https://github.com/MihailRis/VoxelEngine-Cpp/commit/b9074ebe4788d0016a9fd7563b59816b6300c06d "fix block.get_hitbox with non rotatable blocks")
-- [fix: entity shading is incorrect when it is upper than max height](https://github.com/MihailRis/VoxelEngine-Cpp/commit/45a793d6475b4d5b7c59e9c18492aa45767e2236 "fix: entity shading is incorrect when it is upper than max height")
-- [fix: toggle fullscreen GLFW invalid enum error](https://github.com/MihailRis/VoxelEngine-Cpp/commit/85bea6f17dc7815569a28e70423b704c476ed410 "fix: toggle fullscreen GLFW invalid enum error")
-- [fix: flight can stop on noclip enabled](https://github.com/MihailRis/VoxelEngine-Cpp/commit/f63ab345eaaf7885cfd0298a99cea58a423741fb "fix: flight can stop on noclip enabled")
-- [fix: block model "x" preview](https://github.com/MihailRis/VoxelEngine-Cpp/pull/300)
-- [Batch3D::point() buffer overflow](https://github.com/MihailRis/VoxelEngine-Cpp/pull/302)
-- [fix player entity teleport using debug_panel](https://github.com/MihailRis/VoxelEngine-Cpp/commit/ba9417a7e4638a3b09568895e4af5b702da80c16)
-- fix fatal animator error
+- [fix fatal error on editing texbox not having any consumer](https://github.com/MihailRis/VoxelEngine-Cpp/commit/22fa082fc6299ffa3196d62c67e01b849c35b8eb)
+- [fix commands boolean type support](https://github.com/MihailRis/VoxelEngine-Cpp/commit/a50cb109c8e3ca0f7a591bf126f07aee36c962e6)
+- [fix potential null dereferences on incorrect block.* functions use](https://github.com/MihailRis/VoxelEngine-Cpp/commit/961773c9f9745c15eb8d697c1538ac8e21f24da3)
+- [fix: draw-group not copied](https://github.com/MihailRis/VoxelEngine-Cpp/commit/dc8bad2af67e70b0b2346f516028e5795f597737)
+- [fix: generator-providing pack may be removed](https://github.com/MihailRis/VoxelEngine-Cpp/commit/6f2f365278eb1866c773890471b7269a5ef45305)
+- [fix colision check on block place](https://github.com/MihailRis/VoxelEngine-Cpp/commit/726ee8ad703bc57530b881450b8839aaec6b97c9)
+- [fix collision detection bug](https://github.com/MihailRis/VoxelEngine-Cpp/commit/7fcc34ba4cf14097dfda26054b028c5e8771d26c)
+- [fix: blocks lighting bug fix](https://github.com/MihailRis/VoxelEngine-Cpp/commit/9d3e872f88de2648f8c0f2e4611b30f5ce8999cf)
+- [fix: inaccurate framerate limit on Windows](https://github.com/MihailRis/VoxelEngine-Cpp/commit/3f531bbf98da5ad751dce1220c5c5fdf35f86c92)
+- [fix block.get_hitbox again](https://github.com/MihailRis/VoxelEngine-Cpp/commit/edad594101e5808ccf14e0edefedbe87cb8f983b)
+- [fix string.replace](https://github.com/MihailRis/VoxelEngine-Cpp/commit/44fd5416a9a110a12f8b3f2d369e5638055b306e)
