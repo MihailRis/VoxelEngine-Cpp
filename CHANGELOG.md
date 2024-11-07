@@ -20,6 +20,7 @@ Table of contents:
   - on_block_placed (documented)
   - on_block_interact
 - libraries:
+  - gfx.particles
   - utf8
   - rules
 - bindings:
@@ -76,6 +77,11 @@ Table of contents:
 - hud._is_content_access
 - hud._set_content_access
 - hud._set_debug_cheats
+- gfx.particles.emit
+- gfx.particles.stop
+- gfx.particles.get_origin
+- gfx.particles.set_origin
+- assets.load_texture
 
 Documented:
 - file.read_combined_list

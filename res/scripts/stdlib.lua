@@ -291,6 +291,9 @@ function __vc_on_world_quit()
     _rules.clear()
 end
 
+assets = {}
+assets.load_texture = core.__load_texture
+
 -- --------- Deprecated functions ------ --
 local function wrap_deprecated(func, name, alternatives)
     return function (...)

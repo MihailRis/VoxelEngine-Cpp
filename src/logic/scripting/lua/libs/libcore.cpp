@@ -181,6 +181,49 @@ static int l_get_setting_info(lua::State* L) {
     throw std::runtime_error("unsupported setting type");
 }
 
+#include "coders/png.hpp"
+#include "debug/Logger.hpp"
+#include "files/files.hpp"
+#include "graphics/core/Texture.hpp"
+
+/// FIXME: replace with in-memory implementation
+
+static void load_texture(
+    const ubyte* bytes, size_t size, const std::string& destname
+) {
+    auto path = engine->getPaths()->resolve("export:.__vc_imagedata");
+    try {
+        files::write_bytes(path, bytes, size);
+        engine->getAssets()->store(png::load_texture(path.u8string()), destname);
+        std::filesystem::remove(path);
+    } catch (const std::runtime_error& err) {
+        debug::Logger logger("lua.corelib");
+        logger.error() << "could not to decode image: " << err.what();
+    }
+}
+
+static int l_load_texture(lua::State* L) {
+    if (lua::istable(L, 1)) {
+        lua::pushvalue(L, 1);
+        size_t size = lua::objlen(L, 1);
+        util::Buffer<ubyte> buffer(size);
+        for (size_t i = 0; i < size; i++) {
+            lua::rawgeti(L, i + 1);
+            buffer[i] = lua::tointeger(L, -1);
+            lua::pop(L);
+        }
+        lua::pop(L);
+        load_texture(buffer.data(), buffer.size(), lua::require_string(L, 2));
+    } else if (auto bytes = lua::touserdata<lua::LuaBytearray>(L, 1)) {
+        load_texture(
+            bytes->data().data(),
+            bytes->data().size(),
+            lua::require_string(L, 2)
+        );
+    }
+    return 0;
+}
+
 #include "util/platform.hpp"
 
 static int l_open_folder(lua::State* L) {
@@ -208,4 +251,6 @@ const luaL_Reg corelib[] = {
     {"get_setting_info", lua::wrap<l_get_setting_info>},
     {"open_folder", lua::wrap<l_open_folder>},
     {"quit", lua::wrap<l_quit>},
-    {NULL, NULL}};
+    {"__load_texture", lua::wrap<l_load_texture>},
+    {NULL, NULL}
+};
