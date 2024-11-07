@@ -14,7 +14,7 @@ function table.copy(t: table) -> table
 function table.count_pairs(t: table) -> integer
 ```
 
-Возвращает один элемент из переданной позиции на случайной позиции
+Возвращает один элемент из переданной таблицы на случайной позиции
 ```lua
 function table.random(t: table) -> object
 ```
@@ -91,12 +91,12 @@ function string.starts_with(str: string, start: string) -> bool
 function string.ends_with(str: string, endStr: string) -> bool
 ```
 
-Также важно подметить, что все вышеперечисленные функции, расширяющие **string** можно использовать как метаметоды на экземплярах строк, тоесть: 
+Также важно подметить, что все выше перечисленные функции, расширяющие **string** можно использовать как мета-методы на экземплярах строк, т.е.: 
 
 ```lua
 local str = "ABA str BAB"
 
-if str:starts_with("ABA") and str:ends_with(BAB) then
+if str:starts_with("ABA") and str:ends_with("BAB") then
 	print(str:replace("BA", "DC"))
 end
 ```
@@ -105,7 +105,7 @@ end
 
 ## Расширения для math
 
-Ограничивает число **_in** по лимитам **low** и **high**. Т.е.: Если **_in** больше чем **high** - вернётся **high**, если **_in** меньше чем **low** - вернётся **low**. В противном случае вернётся само число, так как оно попадает в заданный диапазон
+Ограничивает число **_in** по лимитам **low** и **high**. Т.е.: Если **_in** больше чем **high** - вернётся **high**, если **_in** меньше чем **low** - вернётся **low**. В противном случае вернётся само число
 ```lua
 function math.clamp(_in, low, high)
 ```
@@ -130,7 +130,7 @@ function is_array(x: table) -> bool
 function parse_path(path: string) -> string, string
 ```
 
-Вызывает функцию **func** **iters** раз передавая ей аргументы `...`, а после выводит в консоль время в микросекундах, которое прошло с момента вызова **timeit**
+Вызывает функцию **func** **iters** раз, передавая ей аргументы `...`, а после выводит в консоль время в микросекундах, которое прошло с момента вызова **timeit**
 ```lua
 function timeit(iters: integer, func: func, ...)
 ```
