@@ -194,11 +194,11 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
 
     assets->store(Texture::from(debugImgWorldGen.get()), DEBUG_WORLDGEN_IMAGE);
 
-    add(HudElement(hud_element_mode::permanent, nullptr, 
-        guiutil::create(
+    debugMinimap = guiutil::create(
             "<image src='"+DEBUG_WORLDGEN_IMAGE+
             "' pos='0' size='256' gravity='top-right' margin='0,20,0,0'/>"
-        ), true));
+        );
+    add(HudElement(hud_element_mode::permanent, nullptr, debugMinimap, true));
 }
 
 Hud::~Hud() {
@@ -367,6 +367,7 @@ void Hud::update(bool visible) {
     }
     cleanup();
 
+    debugMinimap->setVisible(player->debug && showGeneratorMinimap);
     if (player->debug && showGeneratorMinimap) {
         updateWorldGenDebugVisualization();
     }

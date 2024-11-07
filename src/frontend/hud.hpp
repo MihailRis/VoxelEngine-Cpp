@@ -113,6 +113,8 @@ class Hud : public util::ObjectsKeeper {
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI = nullptr;
 
+    std::shared_ptr<gui::UINode> debugMinimap = nullptr;
+
     std::unique_ptr<ImageData> debugImgWorldGen;
     
     std::shared_ptr<gui::InventoryView> createContentAccess();
