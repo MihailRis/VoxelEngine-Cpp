@@ -42,6 +42,8 @@ struct ParticlesPreset : public Serializable {
     glm::vec3 explosion {2.0f};
     /// @brief Particle size
     glm::vec3 size {0.1f};
+    /// @brief Particles size spread
+    float sizeSpread = 0.2f;
     /// @brief Spawn spread shape
     ParticleSpawnShape spawnShape = BALL;
     /// @brief Spawn spread
