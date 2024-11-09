@@ -292,23 +292,29 @@ void BlocksRenderer::blockCustomModel(
             overflow = true;
             return;
         }
-        int i = 0;
-        for (const auto& vertex : mesh.vertices) {
-            auto n =
-                vertex.normal.x * X + vertex.normal.y * Y + vertex.normal.z * Z;
-            float d = glm::dot(glm::normalize(n), SUN_VECTOR);
-            d = 0.8f + d * 0.2f;
-            const auto& vcoord = vertex.coord - 0.5f;
-            vertexAO(
-                coord + vcoord.x * X + vcoord.y * Y + vcoord.z * Z,
-                vertex.uv.x,
-                vertex.uv.y,
-                glm::vec4(1, 1, 1, 1),
-                glm::vec3(1, 0, 0),
-                glm::vec3(0, 1, 0),
-                n
-            );
-            indexBuffer[indexSize++] = indexOffset++;
+        for (int triangle = 0; triangle < mesh.vertices.size() / 3; triangle++) {
+            auto r = mesh.vertices[triangle * 3 + (triangle % 2) * 2].coord -
+                     mesh.vertices[triangle * 3 + 1].coord;
+            r = glm::normalize(r);
+
+            for (int i = 0; i < 3; i++) {
+                const auto& vertex = mesh.vertices[triangle * 3 + i];
+                auto n = vertex.normal.x * X + vertex.normal.y * Y +
+                         vertex.normal.z * Z;
+                float d = glm::dot(n, SUN_VECTOR);
+                d = 0.8f + d * 0.2f;
+                const auto& vcoord = vertex.coord - 0.5f;
+                vertexAO(
+                    coord + vcoord.x * X + vcoord.y * Y + vcoord.z * Z,
+                    vertex.uv.x,
+                    vertex.uv.y,
+                    glm::vec4(d, d, d, d),
+                    glm::cross(r, n),
+                    r,
+                    n
+                );
+                indexBuffer[indexSize++] = indexOffset++;
+            }
         }
     }
 }
