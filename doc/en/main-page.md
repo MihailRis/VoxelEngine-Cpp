@@ -17,3 +17,4 @@ Documentation for the engine of version 0.24.
 - [Scripting](scripting.md)
 - [World generator engine](world-generator.md)
 - [XML UI building](xml-ui-layouts.md)
+- [Particles](particles.md)
