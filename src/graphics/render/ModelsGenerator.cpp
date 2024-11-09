@@ -60,43 +60,42 @@ model::Model ModelsGenerator::fromCustom(
         auto& mesh = model.addMesh("blocks:" + modelTextures[i * 6]);
         mesh.lighting = lighting;
         const UVRegion boxtexfaces[6] = {
-            get_region_for(modelTextures[i * 6], assets),
-            get_region_for(modelTextures[i * 6 + 1], assets),
-            get_region_for(modelTextures[i * 6 + 2], assets),
-            get_region_for(modelTextures[i * 6 + 3], assets),
+            get_region_for(modelTextures[i * 6 + 5], assets),
             get_region_for(modelTextures[i * 6 + 4], assets),
-            get_region_for(modelTextures[i * 6 + 5], assets)
+            get_region_for(modelTextures[i * 6 + 3], assets),
+            get_region_for(modelTextures[i * 6 + 2], assets),
+            get_region_for(modelTextures[i * 6 + 1], assets),
+            get_region_for(modelTextures[i * 6 + 0], assets)
         };
         mesh.addBox(
             modelBoxes[i].center(), modelBoxes[i].size() * 0.5f, boxtexfaces
         );
     }
-    glm::vec3 poff = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 norm {0, 1, 0};
     for (size_t i = 0; i < points.size() / 4; i++) {
-        auto texture = "blocks:" + modelTextures[modelBoxes.size() * 6 + i];
+        auto texture = modelTextures[modelBoxes.size() * 6 + i];
 
         auto& mesh = model.addMesh(texture);
         mesh.lighting = lighting;
 
         auto reg = get_region_for(texture, assets);
         mesh.vertices.push_back(
-            {points[i * 4 + 0] - poff, glm::vec2(reg.u1, reg.v1), norm}
+            {points[i * 4 + 0], glm::vec2(reg.u1, reg.v1), norm}
         );
         mesh.vertices.push_back(
-            {points[i * 4 + 1] - poff, glm::vec2(reg.u2, reg.v1), norm}
+            {points[i * 4 + 1], glm::vec2(reg.u2, reg.v1), norm}
         );
         mesh.vertices.push_back(
-            {points[i * 4 + 2] - poff, glm::vec2(reg.u2, reg.v2), norm}
+            {points[i * 4 + 2], glm::vec2(reg.u2, reg.v2), norm}
         );
         mesh.vertices.push_back(
-            {points[i * 4 + 3] - poff, glm::vec2(reg.u1, reg.v1), norm}
+            {points[i * 4 + 0], glm::vec2(reg.u1, reg.v1), norm}
         );
         mesh.vertices.push_back(
-            {points[i * 4 + 4] - poff, glm::vec2(reg.u2, reg.v2), norm}
+            {points[i * 4 + 2], glm::vec2(reg.u2, reg.v2), norm}
         );
         mesh.vertices.push_back(
-            {points[i * 4 + 0] - poff, glm::vec2(reg.u1, reg.v2), norm}
+            {points[i * 4 + 3], glm::vec2(reg.u1, reg.v2), norm}
         );
     }
     return model;
