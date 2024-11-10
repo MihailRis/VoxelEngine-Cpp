@@ -42,6 +42,7 @@ struct ContentPack {
     std::string version = "0.0";
     std::string creator = "";
     std::string description = "no description";
+    std::string source = "";
     fs::path folder;
     std::vector<DependencyPack> dependencies;
 

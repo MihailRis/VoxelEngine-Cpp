@@ -88,6 +88,7 @@ ContentPack ContentPack::read(const fs::path& folder) {
         root.at("creator").get(pack.creator);
     }
     root.at("description").get(pack.description);
+    root.at("source").get(pack.source);
     pack.folder = folder;
 
     if (auto found = root.at("dependencies")) {
