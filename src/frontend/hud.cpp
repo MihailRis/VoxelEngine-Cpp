@@ -389,6 +389,39 @@ void Hud::openInventory() {
 }
 
 void Hud::openInventory(
+    UiDocument* doc,
+    std::shared_ptr<Inventory> inv,
+    bool playerInventory
+) {
+    if (inv == nullptr) {
+        // why try to open nox-existent inventory??
+        return;
+    }
+
+    if (isInventoryOpen()) {
+        closeInventory();
+    }
+    auto level = frontend->getLevel();
+    auto content = level->content;
+    secondInvView = std::dynamic_pointer_cast<InventoryView>(doc->getRoot());
+    if (secondInvView == nullptr) {
+        throw std::runtime_error("secondary UI root element must be 'inventory'");
+    }
+    secondUI = secondInvView;
+
+    if (playerInventory) {
+        openInventory();
+    } else {
+        inventoryOpen = true;
+    }
+    if (inv == nullptr) {
+        inv = level->inventories->createVirtual(secondInvView->getSlotsCount());
+    }
+    secondInvView->bind(inv, content);
+    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+}
+
+void Hud::openInventory(
     glm::ivec3 block, 
     UiDocument* doc, 
     std::shared_ptr<Inventory> blockinv, 

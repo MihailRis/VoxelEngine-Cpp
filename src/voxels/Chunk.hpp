@@ -44,7 +44,7 @@ public:
 
     Chunk(int x, int z);
 
-    bool isEmpty();
+    bool isEmpty() const;
 
     void updateHeights();
 

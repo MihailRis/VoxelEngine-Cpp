@@ -72,11 +72,9 @@ bool Window::isFocused() {
 
 void window_size_callback(GLFWwindow*, int width, int height) {
     if (width && height) {
-        if (Window::isFocused()) {
-            glViewport(0, 0, width, height);
-            Window::width = width;
-            Window::height = height;
-        }
+        glViewport(0, 0, width, height);
+        Window::width = width;
+        Window::height = height;
 
         if (!Window::isFullscreen() && !Window::isMaximized()) {
             Window::getSettings()->width.set(width);

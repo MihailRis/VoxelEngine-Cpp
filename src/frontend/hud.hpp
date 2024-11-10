@@ -102,6 +102,8 @@ class Hud : public util::ObjectsKeeper {
     std::shared_ptr<gui::InventoryView> inventoryView = nullptr;
     /// @brief Block inventory view
     std::shared_ptr<gui::InventoryView> blockUI = nullptr;
+    /// @brief Secondary inventory view
+    std::shared_ptr<gui::InventoryView> secondInvView = nullptr;
     /// @brief Position of the block open
     glm::ivec3 blockPos {};
     /// @brief Id of the block open (used to detect block destruction or replacement)
@@ -145,6 +147,16 @@ public:
 
     /// @brief Show player inventory in inventory-mode
     void openInventory();
+
+    /// @brief Show inventory in inventory-mode
+    /// @param doc ui layout
+    /// @param inv inventory
+    /// @param playerInventory show player inventory too
+    void openInventory(
+        UiDocument* doc,
+        std::shared_ptr<Inventory> inv,
+        bool playerInventory
+    );
     
     /// @brief Show block inventory in inventory-mode
     /// @param block block position
