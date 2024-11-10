@@ -2,7 +2,7 @@ name: Macos Build
 
 on:
   push:
-    branches: [ "main", "release-**"]
+    branches: [ "main", "release-**", "curl"]
   pull_request:
     branches: [ "main" ]
 
