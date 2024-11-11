@@ -19,6 +19,9 @@ size_t write_callback(char* ptr, size_t size, size_t nmemb, void* userdata) {
 
 class CurlHttp : public Http {
     CURL* curl;
+
+    size_t totalUpload = 0;
+    size_t totalDownload = 0;
 public:
     CurlHttp(CURL* curl) : curl(curl) {
     }
@@ -33,7 +36,25 @@ public:
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
         CURLcode res = curl_easy_perform(curl);
+        if (res == CURLE_OK) {
+            long size;
+            if (!curl_easy_getinfo(curl, CURLINFO_REQUEST_SIZE, &size)) {
+                totalUpload += size;
+            }
+            if (!curl_easy_getinfo(curl, CURLINFO_HEADER_SIZE, &size)) {
+                totalDownload += size;
+            }
+            totalDownload += buffer.size();
+        }
         callback(res, std::move(buffer));
+    }
+
+    size_t getTotalUpload() const override {
+        return totalUpload;
+    }
+
+    size_t getTotalDownload() const override {
+        return totalDownload;
     }
 
     static std::unique_ptr<CurlHttp> create() {
@@ -52,6 +73,14 @@ Network::~Network() = default;
 
 void Network::httpGet(const std::string& url, const OnResponse& callback) {
     http->get(url, callback);
+}
+
+size_t Network::getTotalUpload() const {
+    return http->getTotalUpload();
+}
+
+size_t Network::getTotalDownload() const {
+    return http->getTotalDownload();
 }
 
 std::unique_ptr<Network> Network::create(const NetworkSettings& settings) {

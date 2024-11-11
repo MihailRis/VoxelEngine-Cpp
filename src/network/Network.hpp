@@ -16,6 +16,8 @@ namespace network {
         virtual ~Http() {}
 
         virtual void get(const std::string& url, const OnResponse& callback) = 0;
+        virtual size_t getTotalUpload() const = 0;
+        virtual size_t getTotalDownload() const = 0;
     };
 
     class Network {
@@ -25,6 +27,9 @@ namespace network {
         ~Network();
 
         void httpGet(const std::string& url, const OnResponse& callback);
+
+        size_t getTotalUpload() const;
+        size_t getTotalDownload() const;
 
         static std::unique_ptr<Network> create(const NetworkSettings& settings);
     };

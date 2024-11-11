@@ -15,4 +15,6 @@ TEST(curltest, curltest) {
             std::cout << value << std::endl;
         }
     );
+    std::cout << "upload: " << network->getTotalUpload() << " B" << std::endl;
+    std::cout << "download: " << network->getTotalDownload() << " B" << std::endl;
 }
