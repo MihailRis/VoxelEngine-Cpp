@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include <functional>
 
 #include "typedefs.hpp"
 #include "settings.hpp"
@@ -25,10 +24,32 @@ namespace network {
         virtual size_t getTotalDownload() const = 0;
     };
 
+    class Socket {
+    public:
+        virtual int recv(void* buffer, size_t length, bool blocking) = 0;
+        virtual int send(const void* buffer, size_t length) = 0;
+        virtual void close() = 0;
+        virtual bool isOpen() const = 0;
+
+        virtual size_t getTotalUpload() const = 0;
+        virtual size_t getTotalDownload() const = 0;
+    };
+
+    class Tcp {
+    public:
+        virtual ~Tcp() {}
+
+        virtual std::shared_ptr<Socket> connect(
+            const std::string& address, int port
+        ) = 0;
+    };
+
     class Network {
         std::unique_ptr<Http> http;
+        std::unique_ptr<Tcp> tcp;
+        std::vector<std::shared_ptr<Socket>> connections;
     public:
-        Network(std::unique_ptr<Http> http);
+        Network(std::unique_ptr<Http> http, std::unique_ptr<Tcp> tcp);
         ~Network();
 
         void httpGet(
@@ -36,6 +57,8 @@ namespace network {
             OnResponse onResponse,
             OnReject onReject = nullptr
         );
+
+        std::shared_ptr<Socket> connect(const std::string& address, int port);
 
         size_t getTotalUpload() const;
         size_t getTotalDownload() const;
