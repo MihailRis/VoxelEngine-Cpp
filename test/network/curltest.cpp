@@ -9,9 +9,12 @@ TEST(curltest, curltest) {
     network->httpGet(
         "https://raw.githubusercontent.com/MihailRis/VoxelEngine-Cpp/refs/"
         "heads/curl/res/content/base/blocks/lamp.json",
-        [=](int code, std::vector<char> data) {
-            auto v = std::string_view(data.data(), data.size());
-            auto value = json::parse(v);
+        [](std::vector<char> data) {
+            if (data.empty()) {
+                return;
+            }
+            auto view = std::string_view(data.data(), data.size());
+            auto value = json::parse(view);
             std::cout << value << std::endl;
         }
     );

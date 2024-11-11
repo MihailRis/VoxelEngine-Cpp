@@ -9,7 +9,9 @@ using namespace network;
 
 static debug::Logger logger("network");
 
-size_t write_callback(char* ptr, size_t size, size_t nmemb, void* userdata) {
+static size_t write_callback(
+    char* ptr, size_t size, size_t nmemb, void* userdata
+) {
     auto& buffer = *reinterpret_cast<std::vector<char>*>(userdata);
     size_t psize = buffer.size();
     buffer.resize(psize + size * nmemb);
@@ -30,7 +32,8 @@ public:
         curl_easy_cleanup(curl);
     }
 
-    void get(const std::string& url, const OnResponse& callback) override {
+    void get(const std::string& url, OnResponse onResponse, OnReject onReject)
+        override {
         std::vector<char> buffer;
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
@@ -45,8 +48,16 @@ public:
                 totalDownload += size;
             }
             totalDownload += buffer.size();
+            if (onResponse) {
+                onResponse(std::move(buffer));
+            }
+        } else {
+            auto message = curl_easy_strerror(res);
+            logger.error() << message << " (" << url << ")";
+            if (onReject) {
+                onReject(message);
+            }
         }
-        callback(res, std::move(buffer));
     }
 
     size_t getTotalUpload() const override {
@@ -71,8 +82,10 @@ Network::Network(std::unique_ptr<Http> http) : http(std::move(http)) {
 
 Network::~Network() = default;
 
-void Network::httpGet(const std::string& url, const OnResponse& callback) {
-    http->get(url, callback);
+void Network::httpGet(
+    const std::string& url, OnResponse onResponse, OnReject onReject
+) {
+    http->get(url, onResponse, onReject);
 }
 
 size_t Network::getTotalUpload() const {
