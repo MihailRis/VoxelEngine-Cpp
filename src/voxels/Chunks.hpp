@@ -21,6 +21,7 @@ class WorldFiles;
 class LevelEvents;
 class Block;
 class Level;
+class VoxelsVolume;
 
 /// Player-centred chunks matrix
 class Chunks {
@@ -55,8 +56,8 @@ public:
 
     bool putChunk(const std::shared_ptr<Chunk>& chunk);
 
-    Chunk* getChunk(int32_t x, int32_t z);
-    Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z);
+    Chunk* getChunk(int32_t x, int32_t z) const;
+    Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z) const;
     voxel* get(int32_t x, int32_t y, int32_t z) const;
     voxel& require(int32_t x, int32_t y, int32_t z) const;
 
@@ -118,6 +119,8 @@ public:
     bool isSolidBlock(int32_t x, int32_t y, int32_t z);
     bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
     bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
+
+    void getVoxels(VoxelsVolume* volume, bool backlight = false) const;
 
     void setCenter(int32_t x, int32_t z);
     void resize(uint32_t newW, uint32_t newD);

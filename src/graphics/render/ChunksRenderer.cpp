@@ -26,7 +26,7 @@ public:
     {}
 
     RendererResult operator()(const std::shared_ptr<Chunk>& chunk) override {
-        renderer.build(chunk.get(), level->chunksStorage.get());
+        renderer.build(chunk.get(), level->chunks.get());
         if (renderer.isCancelled()) {
             return RendererResult {
                 glm::ivec2(chunk->x, chunk->z), true, MeshData()};
@@ -66,7 +66,7 @@ ChunksRenderer::~ChunksRenderer() {
 std::shared_ptr<Mesh> ChunksRenderer::render(const std::shared_ptr<Chunk>& chunk, bool important) {
     chunk->flags.modified = false;
     if (important) {
-        auto mesh = renderer->render(chunk.get(), level->chunksStorage.get());
+        auto mesh = renderer->render(chunk.get(), level->chunks.get());
         meshes[glm::ivec2(chunk->x, chunk->z)] = mesh;
         return mesh;
     }

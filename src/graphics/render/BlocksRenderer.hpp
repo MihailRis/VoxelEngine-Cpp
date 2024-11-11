@@ -19,7 +19,7 @@ class Block;
 class Chunk;
 class Chunks;
 class VoxelsVolume;
-class ChunksStorage;
+class Chunks;
 class ContentGfxCache;
 struct EngineSettings;
 struct UVRegion;
@@ -140,8 +140,8 @@ public:
     BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings* settings);
     virtual ~BlocksRenderer();
 
-    void build(const Chunk* chunk, const ChunksStorage* chunks);
-    std::shared_ptr<Mesh> render(const Chunk* chunk, const ChunksStorage* chunks);
+    void build(const Chunk* chunk, const Chunks* chunks);
+    std::shared_ptr<Mesh> render(const Chunk* chunk, const Chunks* chunks);
     MeshData createMesh();
     VoxelsVolume* getVoxelsBuffer() const;
 
