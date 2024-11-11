@@ -26,8 +26,8 @@ namespace network {
 
     class Socket {
     public:
-        virtual int recv(void* buffer, size_t length, bool blocking) = 0;
-        virtual int send(const void* buffer, size_t length) = 0;
+        virtual int recv(char* buffer, size_t length, bool blocking) = 0;
+        virtual int send(const char* buffer, size_t length) = 0;
         virtual void close() = 0;
         virtual bool isOpen() const = 0;
 

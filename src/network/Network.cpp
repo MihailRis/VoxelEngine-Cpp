@@ -102,13 +102,13 @@ static inline int connectsocket(
 }
 
 static inline int recvsocket(
-    int descriptor, void* buf, size_t len, int flags
+    int descriptor, char* buf, size_t len, int flags
 ) noexcept {
     return recv(descriptor, buf, len, flags);
 }
 
 static inline int sendsocket(
-    int descriptor, const void* buf, size_t len, int flags
+    int descriptor, const char* buf, size_t len, int flags
 ) noexcept {
     return send(descriptor, buf, len, flags);
 }
@@ -146,7 +146,7 @@ public:
         freeaddrinfo(addr);
     }
 
-    int recv(void* buffer, size_t length, bool blocking) override {
+    int recv(char* buffer, size_t length, bool blocking) override {
         int len = recvsocket(descriptor, buffer, length, blocking ? MSG_WAITALL : MSG_DONTWAIT);
         if (len == 0) {
             int err = errno;
@@ -162,7 +162,7 @@ public:
         return len;
     }
 
-    int send(const void* buffer, size_t length) override {
+    int send(const char* buffer, size_t length) override {
         int len = sendsocket(descriptor, buffer, length, 0);
         if (len == -1) {
             int err = errno;
