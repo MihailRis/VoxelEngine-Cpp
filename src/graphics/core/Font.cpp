@@ -52,8 +52,7 @@ static inline void draw_glyph(
     uint c, 
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval,
-    float lineHeight
+    float glyphInterval
 ) {
     batch.sprite(
         pos.x + offset.x * right.x,
@@ -73,8 +72,7 @@ static inline void draw_glyph(
     uint c, 
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval,
-    float lineHeight
+    float glyphInterval
 ) {
     batch.sprite(
         pos + right * offset.x + up * offset.y,
@@ -95,8 +93,7 @@ static inline void draw_text(
     const glm::vec3& pos,
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval,
-    float lineHeight
+    float glyphInterval
 ) {
     uint page = 0;
     uint next = MAX_CODEPAGES;
@@ -112,14 +109,7 @@ static inline void draw_text(
             if (charpage == page){
                 batch.texture(font.getPage(charpage));
                 draw_glyph(
-                    batch,
-                    pos,
-                    glm::vec2(x, y),
-                    c,
-                    right,
-                    up,
-                    glyphInterval,
-                    lineHeight
+                    batch, pos, glm::vec2(x, y), c, right, up, glyphInterval
                 );
             }
             else if (charpage > page && charpage < next){
@@ -148,14 +138,11 @@ void Font::draw(
     Batch2D& batch, std::wstring_view text, int x, int y, float scale
 ) const {
     draw_text(
-        *this,
-        batch,
-        text,
+        *this, batch, text,
         glm::vec3(x, y, 0),
         glm::vec3(glyphInterval*scale, 0, 0),
         glm::vec3(0, lineHeight*scale, 0),
-        glyphInterval/static_cast<float>(lineHeight),
-        lineHeight
+        glyphInterval/static_cast<float>(lineHeight)
     );
 }
 
@@ -167,13 +154,9 @@ void Font::draw(
     const glm::vec3& up
 ) const {
     draw_text(
-        *this,
-        batch,
-        text,
-        pos,
+        *this, batch, text, pos,
         right * static_cast<float>(glyphInterval),
         up * static_cast<float>(lineHeight),
-        glyphInterval/static_cast<float>(lineHeight),
-        lineHeight
+        glyphInterval/static_cast<float>(lineHeight)
     );
 }
