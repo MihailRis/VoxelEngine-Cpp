@@ -102,8 +102,13 @@ static bool append_atlas(AtlasBuilder& atlas, const fs::path& file) {
     return true;
 }
 
-assetload::postfunc assetload::
-    atlas(AssetsLoader*, const ResPaths* paths, const std::string& directory, const std::string& name, const std::shared_ptr<AssetCfg>&) {
+assetload::postfunc assetload::atlas(
+    AssetsLoader*,
+    const ResPaths* paths,
+    const std::string& directory,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
         if (!imageio::is_read_supported(file.extension().u8string())) continue;
@@ -120,8 +125,13 @@ assetload::postfunc assetload::
     };
 }
 
-assetload::postfunc assetload::
-    font(AssetsLoader*, const ResPaths* paths, const std::string& filename, const std::string& name, const std::shared_ptr<AssetCfg>&) {
+assetload::postfunc assetload::font(
+    AssetsLoader*,
+    const ResPaths* paths,
+    const std::string& filename,
+    const std::string& name,
+    const std::shared_ptr<AssetCfg>&
+) {
     auto pages = std::make_shared<std::vector<std::unique_ptr<ImageData>>>();
     for (size_t i = 0; i <= 4; i++) {
         std::string pagefile = filename + "_" + std::to_string(i) + ".png";
