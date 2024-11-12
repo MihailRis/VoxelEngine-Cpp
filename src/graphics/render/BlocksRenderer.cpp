@@ -434,10 +434,27 @@ glm::vec4 BlocksRenderer::pickSoftLight(
 }
 
 void BlocksRenderer::render(const voxel* voxels) {
-    int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
-    int end = chunk->top * (CHUNK_W * CHUNK_D);
+    int totalBegin = chunk->bottom * (CHUNK_W * CHUNK_D);
+    int totalEnd = chunk->top * (CHUNK_W * CHUNK_D);
+
+    int beginEnds[256][2] {};
+    for (int i = totalBegin; i < totalEnd; i++) {
+        const voxel& vox = voxels[i];
+        blockid_t id = vox.id;
+        const auto& def = *blockDefsCache[id];
+    
+        if (beginEnds[def.drawGroup][0] == 0) {
+            beginEnds[def.drawGroup][0] = i+1;
+        }
+        beginEnds[def.drawGroup][1] = i;
+    }
     for (const auto drawGroup : *content->drawGroups) {
-        for (int i = begin; i < end; i++) {
+        int begin = beginEnds[drawGroup][0];
+        if (begin == 0) {
+            continue;
+        }
+        int end = beginEnds[drawGroup][1];
+        for (int i = begin-1; i <= end; i++) {
             const voxel& vox = voxels[i];
             blockid_t id = vox.id;
             blockstate state = vox.state;
