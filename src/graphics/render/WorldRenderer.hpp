@@ -80,6 +80,13 @@ class WorldRenderer {
         const EngineSettings& settings,
         float fogFactor
     );
+
+    void renderTexts(
+        const DrawContext& context,
+        const Camera& camera,
+        const EngineSettings& settings,
+        bool hudVisible
+    );
 public:
     std::unique_ptr<ParticlesRenderer> particles;
 

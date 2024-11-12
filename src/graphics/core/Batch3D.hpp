@@ -57,6 +57,16 @@ public:
         const UVRegion& uv,
         const glm::vec4& tint
     );
+    void sprite(
+        const glm::vec3& pos,
+        const glm::vec3& up,
+        const glm::vec3& right,
+        float w,
+        float h,
+        int atlasRes,
+        int index,
+        glm::vec4 tint
+    );
     void xSprite(
         float w,
         float h,

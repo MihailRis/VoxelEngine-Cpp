@@ -3,6 +3,8 @@
 #include <utility>
 #include "Texture.hpp"
 #include "Batch2D.hpp"
+#include "Batch3D.hpp"
+#include "window/Camera.hpp"
 
 inline constexpr uint GLYPH_SIZE = 16;
 inline constexpr uint MAX_CODEPAGES = 10000; // idk ho many codepages unicode has
@@ -35,41 +37,76 @@ bool Font::isPrintableChar(uint codepoint) const {
     }
 }
 
-int Font::calcWidth(const std::wstring& text, size_t length) {
+int Font::calcWidth(const std::wstring& text, size_t length) const {
     return calcWidth(text, 0, length);
 }
 
-int Font::calcWidth(const std::wstring& text, size_t offset, size_t length) {
+int Font::calcWidth(const std::wstring& text, size_t offset, size_t length) const {
     return std::min(text.length()-offset, length) * glyphInterval;
 }
 
 static inline void drawGlyph(
-    Batch2D* batch, int x, int y, uint c, int glyphSize
+    Batch2D& batch, 
+    const glm::vec3& pos, 
+    const glm::vec2& offset, 
+    uint c, 
+    int glyphSize, 
+    const Camera*
 ) {
-    batch->sprite(x, y, glyphSize, glyphSize, 16, c, batch->getColor());
+    batch.sprite(
+        pos.x + offset.x,
+        pos.y + offset.y,
+        glyphSize,
+        glyphSize,
+        16,
+        c,
+        batch.getColor()
+    );
 }
 
-void Font::draw(Batch2D* batch, std::wstring_view text, int x, int y) {
+static inline void drawGlyph(
+    Batch3D& batch, 
+    const glm::vec3& pos, 
+    const glm::vec2& offset, 
+    uint c, 
+    int glyphSize, 
+    const Camera* camera
+) {
+    batch.sprite(
+        pos + camera->right * offset.x + camera->up * offset.y,
+        camera->up, camera->right,
+        glyphSize * 0.5f,
+        glyphSize * 0.5f,
+        16,
+        c,
+        glm::vec4(1.0f)
+    );
+}
+
+template <class Batch>
+static inline void draw_text(
+    const Font& font,
+    Batch& batch,
+    std::wstring_view text,
+    const glm::vec3& pos,
+    float glyphInterval,
+    float lineHeight,
+    const Camera* camera
+) {
     uint page = 0;
     uint next = MAX_CODEPAGES;
-    int init_x = x;
+    float x = 0;
+    float y = 0;
     do {
         for (uint c : text){
-            if (!isPrintableChar(c)) {
+            if (!font.isPrintableChar(c)) {
                 x += glyphInterval;
                 continue;
             }
             uint charpage = c >> 8;
             if (charpage == page){
-                Texture* texture = nullptr;
-                if (charpage < pages.size()) {
-                    texture = pages[charpage].get();
-                }
-                if (texture == nullptr){
-                    texture = pages[0].get();
-                }
-                batch->texture(texture);
-                drawGlyph(batch, x, y, c, lineHeight);
+                batch.texture(font.getPage(charpage));
+                drawGlyph(batch, pos, glm::vec2(x, y), c, lineHeight, camera);
             }
             else if (charpage > page && charpage < next){
                 next = charpage;
@@ -78,6 +115,49 @@ void Font::draw(Batch2D* batch, std::wstring_view text, int x, int y) {
         }
         page = next;
         next = MAX_CODEPAGES;
-        x = init_x;
+        x = 0.0f;
     } while (page < MAX_CODEPAGES);
+}
+
+const Texture* Font::getPage(int charpage) const {
+    Texture* texture = nullptr;
+    if (charpage < pages.size()) {
+        texture = pages[charpage].get();
+    }
+    if (texture == nullptr){
+        texture = pages[0].get();
+    }
+    return texture;
+}
+
+void Font::draw(
+    Batch2D& batch, std::wstring_view text, int x, int y, float scale
+) const {
+    draw_text(
+        *this,
+        batch,
+        text,
+        glm::vec3(x, y, 0),
+        glyphInterval * scale,
+        lineHeight * scale,
+        nullptr
+    );
+}
+
+void Font::draw(
+    Batch3D& batch,
+    const Camera& camera,
+    std::wstring_view text,
+    const glm::vec3& pos,
+    float scale
+) const {
+    draw_text(
+        *this,
+        batch,
+        text,
+        pos,
+        glyphInterval * scale,
+        lineHeight * scale,
+        &camera
+    );
 }

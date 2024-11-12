@@ -118,6 +118,22 @@ void Batch3D::texture(const Texture* new_texture){
 }
 
 void Batch3D::sprite(
+    const glm::vec3& pos,
+    const glm::vec3& up,
+    const glm::vec3& right,
+    float w,
+    float h,
+    int atlasRes,
+    int index,
+    glm::vec4 tint
+) {
+    float scale = 1.0f / static_cast<float>(atlasRes);
+    float u = (index % atlasRes) * scale;
+    float v = 1.0f - ((index / atlasRes) * scale) - scale;
+    sprite(pos, up, right, w, h, UVRegion(u, v, u+scale, v+scale), tint);
+}
+
+void Batch3D::sprite(
     const glm::vec3& pos, 
     const glm::vec3& up, 
     const glm::vec3& right, 

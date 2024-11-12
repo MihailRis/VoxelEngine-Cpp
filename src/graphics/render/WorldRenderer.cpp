@@ -40,6 +40,7 @@
 #include "graphics/core/PostProcessing.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
+#include "graphics/core/Font.hpp"
 #include "ParticlesRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "ModelBatch.hpp"
@@ -405,6 +406,29 @@ void WorldRenderer::renderHands(
     skybox->unbind();
 }
 
+void WorldRenderer::renderTexts(
+    const DrawContext& context,
+    const Camera& camera,
+    const EngineSettings& settings,
+    bool hudVisible
+) {
+    const auto& assets = *engine->getAssets();
+    auto& shader = assets.require<Shader>("ui3d");
+    auto& font = assets.require<Font>("normal");
+    shader.uniformMatrix("u_projview", camera.getProjView());
+    shader.uniformMatrix("u_apply", glm::mat4(1.0f));
+    batch3d->begin();
+    std::wstring string = L"Segmentation fault (core dumped)";
+    font.draw(
+        *batch3d,
+        camera,
+        string,
+        glm::vec3(0, 100, 0) -
+            camera.right * (font.calcWidth(string, string.length()) * 0.5f)
+    );
+    batch3d->flush();
+}
+
 void WorldRenderer::draw(
     const DrawContext& pctx,
     Camera& camera,
@@ -441,6 +465,7 @@ void WorldRenderer::draw(
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
+            renderTexts(ctx, camera, settings, hudVisible);
             renderLevel(ctx, camera, settings, delta, pause);
             // Debug lines
             if (hudVisible) {
