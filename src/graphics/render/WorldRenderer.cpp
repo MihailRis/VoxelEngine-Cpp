@@ -477,15 +477,15 @@ void WorldRenderer::draw(
             renderTexts(ctx, camera, settings, hudVisible);
             renderLevel(ctx, camera, settings, delta, pause);
             // Debug lines
+            if (hudVisible && player->debug) {
+                renderDebugLines(ctx, camera, linesShader);
+            }
             if (hudVisible) {
                 renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
                     renderHands(camera, assets, delta * !pause);
                 }
             }
-        }
-        if (hudVisible && player->debug) {
-            renderDebugLines(wctx, camera, linesShader);
         }
         renderBlockOverlay(wctx, assets);
     }
