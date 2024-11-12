@@ -74,6 +74,7 @@ Properties:
 | ----------- | ------ | ---- | ----- | ------------------------------------------------------------------------------------ |
 | text        | string | yes  | yes   | entered text or placeholder                                                          |
 | placeholder | string | yes  | yes   | placeholder (used if nothing has been entered)                                       |
+| hint        | string | yes  | yes   | text to display when nothing is entered                                              |
 | caret       | int    | yes  | yes   | carriage position. `textbox.caret = -1` will set the position to the end of the text |
 | editable    | bool   | yes  | yes   | text mutability                                                                      |
 | multiline   | bool   | yes  | yes   | multiline support                                                                    |

@@ -15,7 +15,10 @@ class VoxelFragment;
 struct GeneratorDef;
 
 struct VoxelStructureMeta {
+    /// @brief Structure name
     std::string name;
+    /// @brief Structure lowering on placement
+    int lowering = 0;
 };
 
 struct BlocksLayer {

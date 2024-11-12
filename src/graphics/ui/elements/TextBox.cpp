@@ -127,7 +127,7 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
 
 void TextBox::refreshLabel() {
     label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
-    label->setText(getText());
+    label->setText(input.empty() && !hint.empty() ? hint : getText());
 
     if (autoresize && font) {
         auto size = getSize();
@@ -505,7 +505,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
         } else {
             defocus();
             if (validate() && consumer) {
-                consumer(label->getText());
+                consumer(getText());
             }
         }
     } else if (key == keycode::TAB) {
@@ -627,7 +627,7 @@ glm::vec4 TextBox::getErrorColor() const {
     return invalidColor;
 }
 
-std::wstring TextBox::getText() const {
+const std::wstring& TextBox::getText() const {
     if (input.empty())
         return placeholder;
     return input;
@@ -638,12 +638,21 @@ void TextBox::setText(const std::wstring& value) {
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
 }
 
-std::wstring TextBox::getPlaceholder() const {
+const std::wstring& TextBox::getPlaceholder() const {
     return placeholder;
 }
 
 void TextBox::setPlaceholder(const std::wstring& placeholder) {
     this->placeholder = placeholder;
+}
+
+
+const std::wstring& TextBox::getHint() const {
+    return hint;
+}
+
+void TextBox::setHint(const std::wstring& text) {
+    this->hint = text;
 }
 
 std::wstring TextBox::getSelection() const {

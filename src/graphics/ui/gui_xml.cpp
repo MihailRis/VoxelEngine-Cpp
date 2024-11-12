@@ -67,7 +67,11 @@ static runnable create_runnable(
     return nullptr;
 }
 
-static onaction create_action(UiXmlReader& reader, const xml::xmlelement& element, const std::string& name) {
+static onaction create_action(
+    const UiXmlReader& reader,
+    const xml::xmlelement& element,
+    const std::string& name
+) {
     auto callback = create_runnable(reader, element, name);
     if (callback == nullptr) {
         return nullptr;
@@ -76,7 +80,9 @@ static onaction create_action(UiXmlReader& reader, const xml::xmlelement& elemen
 }
 
 /* Read basic UINode properties */
-static void _readUINode(UiXmlReader& reader, const xml::xmlelement& element, UINode& node) {
+static void _readUINode(
+    const UiXmlReader& reader, const xml::xmlelement& element, UINode& node
+) {
     if (element->has("id")) {
         node.setId(element->attr("id").getText());
     }
@@ -331,8 +337,11 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, const xml::xmle
 
 static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlelement& element) {
     auto placeholder = util::str2wstr_utf8(element->attr("placeholder", "").getText());
+    auto hint = util::str2wstr_utf8(element->attr("hint", "").getText());
     auto text = readAndProcessInnerText(element, reader.getContext());
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
+    textbox->setHint(hint);
+    
     _readPanel(reader, element, *textbox);
     textbox->setText(text);
 

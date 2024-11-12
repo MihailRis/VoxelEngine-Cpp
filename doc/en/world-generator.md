@@ -72,16 +72,19 @@ Fragments used by the generator must present in the directory:
 
 ## Structures
 
-A structure is a set of rules for inserting a fragment into the world by the generator. It currently has no properties, being created as empty objects in the `generators/generator_name.files/structures.toml` file. Example:
+A structure is a set of rules for inserting a fragment into the world by the generator. Structures are declared as objects in the file `generators/generator_name.files/structures.toml`. Example:
 ```toml
 tree0 = {}
 tree1 = {}
 tree2 = {}
-tower = {}
+tower = {lowering=2}
 coal_ore0 = {}
 ```
 
 Currently, the name of the structure must match the name of the fragment used.
+
+Available properties:
+- lowering - depth of structure lowering.
 
 ## Biomes
 

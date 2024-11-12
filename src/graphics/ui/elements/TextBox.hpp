@@ -13,23 +13,35 @@ namespace gui {
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
         std::shared_ptr<Label> label;
+        /// @brief Current user input
         std::wstring input;
+        /// @brief Text will be used if nothing entered
         std::wstring placeholder;
+        /// @brief Text will be shown when nothing entered
+        std::wstring hint;
+        /// @brief Text supplier called every frame when not focused
         wstringsupplier supplier = nullptr;
+        /// @brief Text supplier called on Enter pressed
         wstringconsumer consumer = nullptr;
+        /// @brief Text supplier called while input
         wstringconsumer subconsumer = nullptr;
+        /// @brief Text validator returning boolean value
         wstringchecker validator = nullptr;
+        /// @brief Function called on focus
         runnable onEditStart = nullptr;
+        /// @brief Function called on up arrow pressed
         runnable onUpPressed;
+        /// @brief Function called on down arrow pressed
         runnable onDownPressed;
+        /// @brief Is current input valid
         bool valid = true;
-        /// @brief text input pointer, value may be greather than text length
+        /// @brief Text input pointer, value may be greather than text length
         size_t caret = 0;
-        /// @brief actual local (line) position of the caret on vertical move
+        /// @brief Actual local (line) position of the caret on vertical move
         size_t maxLocalCaret = 0;
         size_t textOffset = 0;
         int textInitX;
-        /// @brief last time of the caret was moved (used for blink animation)
+        /// @brief Last time of the caret was moved (used for blink animation)
         double caretLastMove = 0.0;
         Font* font = nullptr;
 
@@ -101,17 +113,24 @@ namespace gui {
         virtual glm::vec4 getErrorColor() const;
         
         /// @brief Get TextBox content text or placeholder if empty
-        virtual std::wstring getText() const;
+        virtual const std::wstring& getText() const;
 
         /// @brief Set TextBox content text
         virtual void setText(const std::wstring &value);
 
         /// @brief Get text placeholder
-        virtual std::wstring getPlaceholder() const;
+        virtual const std::wstring& getPlaceholder() const;
 
         /// @brief Set text placeholder
         /// @param text will be used instead of empty
         virtual void setPlaceholder(const std::wstring& text);
+
+        /// @brief Get textbox hint
+        virtual const std::wstring& getHint() const;
+
+        /// @brief Set textbox hint
+        /// @param text will be shown instead of empty
+        virtual void setHint(const std::wstring& text);
         
         /// @brief Get selected text
         virtual std::wstring getSelection() const;
