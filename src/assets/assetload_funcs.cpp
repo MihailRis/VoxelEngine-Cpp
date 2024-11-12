@@ -32,7 +32,7 @@ static debug::Logger logger("assetload-funcs");
 
 namespace fs = std::filesystem;
 
-static bool animation(
+static bool load_animation(
     Assets* assets,
     const ResPaths* paths,
     const std::string& atlasName,
@@ -120,7 +120,7 @@ assetload::postfunc assetload::atlas(
         atlas->prepare();
         assets->store(std::unique_ptr<Atlas>(atlas), name);
         for (const auto& file : names) {
-            animation(assets, paths, name, directory, file, atlas);
+            load_animation(assets, paths, name, directory, file, atlas);
         }
     };
 }
@@ -133,16 +133,26 @@ assetload::postfunc assetload::font(
     const std::shared_ptr<AssetCfg>&
 ) {
     auto pages = std::make_shared<std::vector<std::unique_ptr<ImageData>>>();
-    for (size_t i = 0; i <= 4; i++) {
+    for (size_t i = 0; i <= 1024; i++) {
         std::string pagefile = filename + "_" + std::to_string(i) + ".png";
-        pagefile = paths->find(pagefile).string();
-        pages->push_back(imageio::read(pagefile));
+        auto file = paths->find(pagefile);
+        if (fs::exists(file)) {
+            pages->push_back(imageio::read(file.u8string()));
+        } else if (i == 0) {
+            throw std::runtime_error("font must have page 0");
+        } else {
+            pages->push_back(nullptr);
+        }
     }
     return [=](auto assets) {
         int res = pages->at(0)->getHeight() / 16;
         std::vector<std::unique_ptr<Texture>> textures;
         for (auto& page : *pages) {
-            textures.emplace_back(Texture::from(page.get()));
+            if (page == nullptr) {
+                textures.emplace_back(nullptr);
+            } else {
+                textures.emplace_back(Texture::from(page.get()));
+            }
         }
         assets->store(
             std::make_unique<Font>(std::move(textures), res, 4), name
@@ -326,11 +336,9 @@ static TextureAnimation create_animation(
         if (elem.second > 0) {
             frame.duration = static_cast<float>(elem.second) / 1000.0f;
         }
-        frame.srcPos =
-            glm::ivec2(
-                region.u1 * srcWidth, srcHeight - region.v2 * srcHeight
-            ) -
-            extension;
+        frame.srcPos = glm::ivec2(
+            region.u1 * srcWidth, srcHeight - region.v2 * srcHeight
+        ) - extension;
         animation.addFrame(frame);
     }
     return animation;
@@ -348,7 +356,7 @@ inline bool contains(
     return false;
 }
 
-static bool animation(
+static bool load_animation(
     Assets* assets,
     const ResPaths* paths,
     const std::string& atlasName,
