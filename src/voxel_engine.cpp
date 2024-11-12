@@ -13,6 +13,10 @@ static debug::Logger logger("main");
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
 
+#ifdef DVOXELENGINE_COMMIT_HASH
+    logger.info() << "commit " << VOXELENGINE_COMMIT_HASH;
+#endif
+
     EnginePaths paths;
     if (!parse_cmdline(argc, argv, paths))
         return EXIT_SUCCESS;

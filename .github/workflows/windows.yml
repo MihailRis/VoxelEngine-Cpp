@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON -DVOXELENGINE_COMMIT_HASH="${GITHUB_SHA}" ..
           cmake --build . --config Release
       - name: Package for Windows
         run: |
