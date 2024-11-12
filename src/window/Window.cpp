@@ -211,9 +211,12 @@ int Window::initialize(DisplaySettings* settings) {
     setFramerate(settings->framerate.get());
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
-    logger.info() << "GL Vendor: " << (char*)vendor;
-    logger.info() << "GL Renderer: " << (char*)renderer;
+    logger.info() << "GL Vendor: " << reinterpret_cast<const char*>(vendor);
+    logger.info() << "GL Renderer: " << reinterpret_cast<const char*>(renderer);
     logger.info() << "GLFW: " << glfwGetVersionString();
+    glm::vec2 scale;
+    glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &scale.x, &scale.y);
+    logger.info() << "monitor content scale: " << scale.x << "x" << scale.y;
 
     input_util::initialize();
     return 0;
