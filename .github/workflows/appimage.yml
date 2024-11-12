@@ -34,7 +34,7 @@ jobs:
           sudo make install
           cd ../..
       - name: configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1 -DVOXELENGINE_COMMIT_HASH="${GITHUB_SHA}"
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1
       - name: build
         run: cmake --build build -t install
       - name: Build AppImage
