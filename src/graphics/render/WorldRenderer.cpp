@@ -419,12 +419,19 @@ void WorldRenderer::renderTexts(
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
     std::wstring string = L"Segmentation fault (core dumped)";
+    glm::vec3 pos(0, 100, 0);
+    auto zvec = camera.position - pos;
+    zvec.y = 0;
+    std::swap(zvec.x, zvec.z);
+    zvec.z *= -1;
+    zvec = glm::normalize(zvec);
+    
     font.draw(
         *batch3d,
-        camera,
         string,
-        glm::vec3(0, 100, 0) -
-            camera.right * (font.calcWidth(string, string.length()) * 0.5f)
+        pos - zvec * (font.calcWidth(string, string.length()) * 0.5f),
+        zvec,
+        camera.up
     );
     batch3d->flush();
 }

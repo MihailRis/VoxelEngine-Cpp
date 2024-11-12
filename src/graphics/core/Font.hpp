@@ -50,10 +50,10 @@ public:
 
     void draw(
         Batch3D& batch,
-        const Camera& camera,
         std::wstring_view text,
         const glm::vec3& pos,
-        float scale = 1
+        const glm::vec3& right={1, 0, 0},
+        const glm::vec3& up={0, 1, 0}
     ) const;
 
     const Texture* getPage(int page) const;

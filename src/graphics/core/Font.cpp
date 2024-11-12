@@ -45,38 +45,42 @@ int Font::calcWidth(const std::wstring& text, size_t offset, size_t length) cons
     return std::min(text.length()-offset, length) * glyphInterval;
 }
 
-static inline void drawGlyph(
+static inline void draw_glyph(
     Batch2D& batch, 
     const glm::vec3& pos, 
     const glm::vec2& offset, 
     uint c, 
-    int glyphSize, 
-    const Camera*
+    const glm::vec3& right,
+    const glm::vec3& up,
+    float glyphInterval,
+    float lineHeight
 ) {
     batch.sprite(
-        pos.x + offset.x,
-        pos.y + offset.y,
-        glyphSize,
-        glyphSize,
+        pos.x + offset.x * right.x,
+        pos.y + offset.y * right.y,
+        right.x / glyphInterval,
+        up.y,
         16,
         c,
         batch.getColor()
     );
 }
 
-static inline void drawGlyph(
+static inline void draw_glyph(
     Batch3D& batch, 
     const glm::vec3& pos, 
     const glm::vec2& offset, 
     uint c, 
-    int glyphSize, 
-    const Camera* camera
+    const glm::vec3& right,
+    const glm::vec3& up,
+    float glyphInterval,
+    float lineHeight
 ) {
     batch.sprite(
-        pos + camera->right * offset.x + camera->up * offset.y,
-        camera->up, camera->right,
-        glyphSize * 0.5f,
-        glyphSize * 0.5f,
+        pos + right * offset.x + up * offset.y,
+        up, right / glyphInterval,
+        0.5f,
+        0.5f,
         16,
         c,
         glm::vec4(1.0f)
@@ -89,33 +93,43 @@ static inline void draw_text(
     Batch& batch,
     std::wstring_view text,
     const glm::vec3& pos,
+    const glm::vec3& right,
+    const glm::vec3& up,
     float glyphInterval,
-    float lineHeight,
-    const Camera* camera
+    float lineHeight
 ) {
     uint page = 0;
     uint next = MAX_CODEPAGES;
-    float x = 0;
-    float y = 0;
+    int x = 0;
+    int y = 0;
     do {
         for (uint c : text){
             if (!font.isPrintableChar(c)) {
-                x += glyphInterval;
+                x++;
                 continue;
             }
             uint charpage = c >> 8;
             if (charpage == page){
                 batch.texture(font.getPage(charpage));
-                drawGlyph(batch, pos, glm::vec2(x, y), c, lineHeight, camera);
+                draw_glyph(
+                    batch,
+                    pos,
+                    glm::vec2(x, y),
+                    c,
+                    right,
+                    up,
+                    glyphInterval,
+                    lineHeight
+                );
             }
             else if (charpage > page && charpage < next){
                 next = charpage;
             }
-            x += glyphInterval;
+            x++;
         }
         page = next;
         next = MAX_CODEPAGES;
-        x = 0.0f;
+        x = 0;
     } while (page < MAX_CODEPAGES);
 }
 
@@ -138,26 +152,28 @@ void Font::draw(
         batch,
         text,
         glm::vec3(x, y, 0),
-        glyphInterval * scale,
-        lineHeight * scale,
-        nullptr
+        glm::vec3(glyphInterval*scale, 0, 0),
+        glm::vec3(0, lineHeight*scale, 0),
+        glyphInterval/static_cast<float>(lineHeight),
+        lineHeight
     );
 }
 
 void Font::draw(
     Batch3D& batch,
-    const Camera& camera,
     std::wstring_view text,
     const glm::vec3& pos,
-    float scale
+    const glm::vec3& right,
+    const glm::vec3& up
 ) const {
     draw_text(
         *this,
         batch,
         text,
         pos,
-        glyphInterval * scale,
-        lineHeight * scale,
-        &camera
+        right * static_cast<float>(glyphInterval),
+        up * static_cast<float>(lineHeight),
+        glyphInterval/static_cast<float>(lineHeight),
+        lineHeight
     );
 }
