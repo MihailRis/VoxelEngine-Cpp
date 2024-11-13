@@ -44,6 +44,8 @@ class WorldRenderer {
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
+
+    std::vector<size_t> indices;
     
     float timer = 0.0f;
 

@@ -22,6 +22,7 @@
 #include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
+#include "util/listutil.hpp"
 #include "settings.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
@@ -92,6 +93,9 @@ bool WorldRenderer::drawChunk(
     size_t index, const Camera& camera, Shader& shader, bool culling
 ) {
     auto chunk = level->chunks->getChunks()[index];
+    if (chunk == nullptr) {
+        return false;
+    }
     if (!chunk->flags.lighted) {
         return false;
     }
@@ -135,21 +139,29 @@ void WorldRenderer::drawChunks(
 
     // [warning] this whole method is not thread-safe for chunks
 
-    std::vector<size_t> indices;
-    for (size_t i = 0; i < chunks->getVolume(); i++) {
-        if (chunks->getChunks()[i] == nullptr) continue;
-        indices.emplace_back(i);
+    if (indices.size() != chunks->getVolume()) {
+        indices.clear();
+        for (size_t i = 0; i < chunks->getVolume(); i++) {
+            indices.emplace_back(i);
+        }
     }
     float px = camera.position.x / static_cast<float>(CHUNK_W) - 0.5f;
     float pz = camera.position.z / static_cast<float>(CHUNK_D) - 0.5f;
-    std::sort(indices.begin(), indices.end(), [chunks, px, pz](auto i, auto j) {
-        const auto& chunksBuffer = chunks->getChunks();
-        const auto a = chunksBuffer[i].get();
-        const auto b = chunksBuffer[j].get();
-        auto adx = (a->x - px);
-        auto adz = (a->z - pz);
-        auto bdx = (b->x - px);
-        auto bdz = (b->z - pz);
+    int chunksWidth = chunks->getWidth();
+    int chunksOffsetX = chunks->getOffsetX();
+    int chunksOffsetY = chunks->getOffsetY();
+    util::insertion_sort(indices.begin(), indices.end(), 
+        [chunks, px, pz, chunksWidth, chunksOffsetX, chunksOffsetY]
+        (auto i, auto j) 
+    {
+        int ax = i % chunksWidth + chunksOffsetX;
+        int az = i / chunksWidth + chunksOffsetY;
+        int bx = j % chunksWidth + chunksOffsetX;
+        int bz = j / chunksWidth + chunksOffsetY;
+        auto adx = (ax - px);
+        auto adz = (az - pz);
+        auto bdx = (bx - px);
+        auto bdz = (bz - pz);
         return (adx * adx + adz * adz > bdx * bdx + bdz * bdz);
     });
     bool culling = engine->getSettings().graphics.frustumCulling.get();
