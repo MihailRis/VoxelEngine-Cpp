@@ -5,6 +5,15 @@
 #include <vector>
 
 namespace util {
+    template<typename Iter>
+    inline void insertion_sort(Iter first, Iter last) {
+        for (Iter it = first; it != last; ++it) {
+            std::rotate(
+                std::upper_bound(first, it, *it), it, std::next(it)
+            );
+        }
+    }
+
     template<typename Iter, typename Compare>
     inline void insertion_sort(Iter first, Iter last, Compare compare) {
         for (Iter it = first; it != last; ++it) {

@@ -139,38 +139,32 @@ void WorldRenderer::drawChunks(
 
     // [warning] this whole method is not thread-safe for chunks
 
+    int chunksWidth = chunks->getWidth();
+    int chunksOffsetX = chunks->getOffsetX();
+    int chunksOffsetY = chunks->getOffsetY();
+
     if (indices.size() != chunks->getVolume()) {
         indices.clear();
-        for (size_t i = 0; i < chunks->getVolume(); i++) {
-            indices.emplace_back(i);
+        for (int i = 0; i < chunks->getVolume(); i++) {
+            indices.push_back(ChunksSortEntry {i, 0});
         }
     }
     float px = camera.position.x / static_cast<float>(CHUNK_W) - 0.5f;
     float pz = camera.position.z / static_cast<float>(CHUNK_D) - 0.5f;
-    int chunksWidth = chunks->getWidth();
-    int chunksOffsetX = chunks->getOffsetX();
-    int chunksOffsetY = chunks->getOffsetY();
-    util::insertion_sort(indices.begin(), indices.end(), 
-        [chunks, px, pz, chunksWidth, chunksOffsetX, chunksOffsetY]
-        (auto i, auto j) 
-    {
-        int ax = i % chunksWidth + chunksOffsetX;
-        int az = i / chunksWidth + chunksOffsetY;
-        int bx = j % chunksWidth + chunksOffsetX;
-        int bz = j / chunksWidth + chunksOffsetY;
-        auto adx = (ax - px);
-        auto adz = (az - pz);
-        auto bdx = (bx - px);
-        auto bdz = (bz - pz);
-        return (adx * adx + adz * adz > bdx * bdx + bdz * bdz);
-    });
+    for (auto& index : indices) {
+        int x = index.index % chunksWidth + chunksOffsetX - px;
+        int z = index.index / chunksWidth + chunksOffsetY - pz;
+        index.d = x * x + z * z;
+    }
+    util::insertion_sort(indices.begin(), indices.end());
+
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     if (culling) {
         frustumCulling->update(camera.getProjView());
     }
     chunks->visible = 0;
     for (size_t i = 0; i < indices.size(); i++) {
-        chunks->visible += drawChunk(indices[i], camera, shader, culling);
+        chunks->visible += drawChunk(indices[i].index, camera, shader, culling);
     }
 }
 
