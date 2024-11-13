@@ -154,7 +154,7 @@ void WorldRenderer::drawChunks(
     for (auto& index : indices) {
         float x = index.index % chunksWidth + chunksOffsetX - px;
         float z = index.index / chunksWidth + chunksOffsetY - pz;
-        index.d = (x * x + z * z) * 16;
+        index.d = (x * x + z * z) * 1024;
     }
     util::insertion_sort(indices.begin(), indices.end());
 
