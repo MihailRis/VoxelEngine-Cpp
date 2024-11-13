@@ -253,14 +253,16 @@ void EngineController::reconfigPacks(
     bool hasIndices = false;
 
     std::stringstream ss;
-    for (const auto& id : packsToRemove) {
-        auto runtime = content->getPackRuntime(id);
-        if (runtime && runtime->getStats().hasSavingContent()) {
-            if (hasIndices) {
-                ss << ", ";
+    if (content) {
+        for (const auto& id : packsToRemove) {
+            auto runtime = content->getPackRuntime(id);
+            if (runtime && runtime->getStats().hasSavingContent()) {
+                if (hasIndices) {
+                    ss << ", ";
+                }
+                hasIndices = true;
+                ss << id;
             }
-            hasIndices = true;
-            ss << id;
         }
     }
 
