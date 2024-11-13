@@ -152,9 +152,9 @@ void WorldRenderer::drawChunks(
     float px = camera.position.x / static_cast<float>(CHUNK_W) - 0.5f;
     float pz = camera.position.z / static_cast<float>(CHUNK_D) - 0.5f;
     for (auto& index : indices) {
-        int x = index.index % chunksWidth + chunksOffsetX - px;
-        int z = index.index / chunksWidth + chunksOffsetY - pz;
-        index.d = x * x + z * z;
+        float x = index.index % chunksWidth + chunksOffsetX - px;
+        float z = index.index / chunksWidth + chunksOffsetY - pz;
+        index.d = (x * x + z * z) * 16;
     }
     util::insertion_sort(indices.begin(), indices.end());
 
