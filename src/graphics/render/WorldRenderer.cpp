@@ -32,6 +32,7 @@
 #include "world/Level.hpp"
 #include "world/LevelEvents.hpp"
 #include "world/World.hpp"
+#include "presets/NotePreset.hpp"
 #include "graphics/commons/Model.hpp"
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Batch3D.hpp"
@@ -47,6 +48,7 @@
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
 #include "Emitter.hpp"
+#include "TextNote.hpp"
 
 bool WorldRenderer::showChunkBorders = false;
 bool WorldRenderer::showEntitiesDebug = false;
@@ -162,9 +164,14 @@ void WorldRenderer::drawChunks(
     if (culling) {
         frustumCulling->update(camera.getProjView());
     }
+
     chunks->visible = 0;
-    for (size_t i = 0; i < indices.size(); i++) {
-        chunks->visible += drawChunk(indices[i].index, camera, shader, culling);
+    if (GLEW_ARB_multi_draw_indirect && false) {
+        // TODO: implement Multi Draw Indirect chunks draw
+    } else {
+        for (size_t i = 0; i < indices.size(); i++) {
+            chunks->visible += drawChunk(indices[i].index, camera, shader, culling);
+        }
     }
 }
 
@@ -412,36 +419,71 @@ void WorldRenderer::renderHands(
     skybox->unbind();
 }
 
+void WorldRenderer::renderText(
+    const TextNote& note,
+    const DrawContext& context,
+    const Assets& assets,
+    const Camera& camera,
+    const EngineSettings& settings,
+    bool hudVisible
+) {
+    auto& font = assets.require<Font>("normal");
+
+    const auto& text = note.getText();
+    const auto& preset = note.getPreset();
+    const auto& pos = note.getPosition();
+
+    glm::vec3 xvec {1, 0, 0};
+    glm::vec3 yvec {0, 1, 0};
+
+    if (preset.displayMode == NoteDisplayMode::Y_FREE_BILLBOARD ||
+        preset.displayMode == NoteDisplayMode::XY_FREE_BILLBOARD) {
+        xvec = camera.position - pos;
+        xvec.y = 0;
+        std::swap(xvec.x, xvec.z);
+        xvec.z *= -1;
+        xvec = glm::normalize(xvec);
+        if (preset.displayMode == NoteDisplayMode::XY_FREE_BILLBOARD) {
+            yvec = camera.up;
+        }
+    }
+    
+    float ppbx = 100;
+    float ppby = 100;
+    font.draw(
+        *batch3d,
+        text,
+        pos - xvec * (font.calcWidth(text, text.length()) * 0.5f) / ppbx,
+        xvec / ppbx,
+        yvec / ppby
+    );
+}
+
 void WorldRenderer::renderTexts(
     const DrawContext& context,
     const Camera& camera,
     const EngineSettings& settings,
     bool hudVisible
 ) {
+    NotePreset preset;
+    preset.displayMode = NoteDisplayMode::Y_FREE_BILLBOARD;
+
+    TextNote note(
+        L"Segmentation fault (core dumped)",
+        std::move(preset),
+        glm::vec3(0, 100, 0)
+    );
+
     const auto& assets = *engine->getAssets();
     auto& shader = assets.require<Shader>("ui3d");
-    auto& font = assets.require<Font>("normal");
+    
     shader.use();
     shader.uniformMatrix("u_projview", camera.getProjView());
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
-    std::wstring string = L"Segmentation fault (core dumped)";
-    glm::vec3 pos(0, 100, 0);
-    auto zvec = camera.position - pos;
-    zvec.y = 0;
-    std::swap(zvec.x, zvec.z);
-    zvec.z *= -1;
-    zvec = glm::normalize(zvec);
+
+    renderText(note, context, assets, camera, settings, hudVisible);
     
-    float ppbx = 100;
-    float ppby = 100;
-    font.draw(
-        *batch3d,
-        string,
-        pos - zvec * (font.calcWidth(string, string.length()) * 0.5f) / ppbx,
-        zvec / ppbx,
-        camera.up / ppby
-    );
     batch3d->flush();
 }
 

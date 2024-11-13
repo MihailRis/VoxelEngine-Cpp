@@ -28,6 +28,7 @@ class DrawContext;
 class ModelBatch;
 class Assets;
 class Emitter;
+class TextNote;
 struct EngineSettings;
 
 namespace model {
@@ -90,6 +91,15 @@ class WorldRenderer {
         const Camera& camera,
         const EngineSettings& settings,
         float fogFactor
+    );
+
+    void renderText(
+        const TextNote& note,
+        const DrawContext& context,
+        const Assets& assets,
+        const Camera& camera,
+        const EngineSettings& settings,
+        bool hudVisible
     );
 
     void renderTexts(
