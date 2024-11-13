@@ -59,13 +59,27 @@ std::unique_ptr<ImageData> GLTexture::readData() {
     glBindTexture(GL_TEXTURE_2D, id);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.get());
     glBindTexture(GL_TEXTURE_2D, 0);
-    return std::make_unique<ImageData>(ImageFormat::rgba8888, width, height, data.release());
+    return std::make_unique<ImageData>(
+        ImageFormat::rgba8888, width, height, data.release()
+    );
 }
 
 void GLTexture::setNearestFilter() {
     bind();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void GLTexture::setMipMapping(bool flag) {
+    bind();
+    if (flag) {
+        glTexParameteri(
+            GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST
+        );
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
