@@ -427,15 +427,25 @@ void WorldRenderer::renderText(
     const EngineSettings& settings,
     bool hudVisible
 ) {
-    auto& font = assets.require<Font>("normal");
-
     const auto& text = note.getText();
     const auto& preset = note.getPreset();
     const auto& pos = note.getPosition();
 
+    if (util::distance2(pos, camera.position) >
+        util::sqr(preset.renderDistance / camera.zoom)) {
+        return;
+    }
+
+    // Projected notes are displayed on the front layer only
+    if (preset.displayMode == NoteDisplayMode::PROJECTED) {
+        return;
+    }
+    auto& font = assets.require<Font>("normal");
+
     glm::vec3 xvec {1, 0, 0};
     glm::vec3 yvec {0, 1, 0};
 
+    int width = font.calcWidth(text, text.length());
     if (preset.displayMode == NoteDisplayMode::Y_FREE_BILLBOARD ||
         preset.displayMode == NoteDisplayMode::XY_FREE_BILLBOARD) {
         xvec = camera.position - pos;
@@ -447,13 +457,22 @@ void WorldRenderer::renderText(
             yvec = camera.up;
         }
     }
+
+    if (preset.displayMode != NoteDisplayMode::PROJECTED) {
+        if (!frustumCulling->isBoxVisible(pos - xvec * (width * 0.5f), 
+                                          pos + xvec * (width * 0.5f))) {
+            return;
+        }
+    }
     
-    float ppbx = 100;
-    float ppby = 100;
+    float ppbx = 1.0f / preset.scale;
+    float ppby = 1.0f / preset.scale;
+
+    batch3d->setColor(preset.color);
     font.draw(
         *batch3d,
         text,
-        pos - xvec * (font.calcWidth(text, text.length()) * 0.5f) / ppbx,
+        pos - xvec * (width * 0.5f) / ppbx,
         xvec / ppbx,
         yvec / ppby
     );
@@ -463,15 +482,19 @@ void WorldRenderer::renderTexts(
     const DrawContext& context,
     const Camera& camera,
     const EngineSettings& settings,
-    bool hudVisible
+    bool hudVisible,
+    bool frontLayer
 ) {
+    std::vector<TextNote> notes;
     NotePreset preset;
-    preset.displayMode = NoteDisplayMode::Y_FREE_BILLBOARD;
+    preset.displayMode = NoteDisplayMode::STATIC_BILLBOARD;
+    preset.color = glm::vec4(0, 0, 0, 1);
+    preset.scale = 0.005f;
 
-    TextNote note(
-        L"Segmentation fault (core dumped)",
+    notes.emplace_back(
+        L"Segmentation fault",
         std::move(preset),
-        glm::vec3(0, 100, 0)
+        glm::vec3(0.5f, 99.5f, 0.0015f)
     );
 
     const auto& assets = *engine->getAssets();
@@ -482,8 +505,9 @@ void WorldRenderer::renderTexts(
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
 
-    renderText(note, context, assets, camera, settings, hudVisible);
-    
+    for (const auto& note : notes) {
+        renderText(note, context, assets, camera, settings, hudVisible);
+    }
     batch3d->flush();
 }
 
@@ -523,7 +547,7 @@ void WorldRenderer::draw(
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            renderTexts(ctx, camera, settings, hudVisible);
+            renderTexts(ctx, camera, settings, hudVisible, false);
             renderLevel(ctx, camera, settings, delta, pause);
             // Debug lines
             if (hudVisible) {

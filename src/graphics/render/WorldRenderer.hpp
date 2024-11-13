@@ -106,7 +106,8 @@ class WorldRenderer {
         const DrawContext& context,
         const Camera& camera,
         const EngineSettings& settings,
-        bool hudVisible
+        bool hudVisible,
+        bool frontLayer
     );
 public:
     std::unique_ptr<ParticlesRenderer> particles;

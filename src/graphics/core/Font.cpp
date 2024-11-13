@@ -81,7 +81,7 @@ static inline void draw_glyph(
         0.5f,
         16,
         c,
-        glm::vec4(1.0f)
+        batch.getColor()
     );
 }
 

@@ -125,7 +125,7 @@ void Batch3D::sprite(
     float h,
     int atlasRes,
     int index,
-    glm::vec4 tint
+    const glm::vec4& tint
 ) {
     float scale = 1.0f / static_cast<float>(atlasRes);
     float u = (index % atlasRes) * scale;
@@ -287,4 +287,12 @@ void Batch3D::flushPoints() {
     mesh->reload(buffer.get(), index / B3D_VERTEX_SIZE);
     mesh->draw(GL_POINTS);
     index = 0;
+}
+
+void Batch3D::setColor(const glm::vec4& color) {
+    tint = color;
+}
+
+const glm::vec4& Batch3D::getColor() const {
+    return tint;
 }
