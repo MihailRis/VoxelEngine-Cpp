@@ -195,7 +195,8 @@ PlayerController::PlayerController(
     : settings(settings), level(level),
       player(level->getObject<Player>(0)),
       camControl(player, settings.camera),
-      blocksController(blocksController) {
+      blocksController(blocksController),
+      itemTickClock(20, 1) {
 }
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
@@ -255,6 +256,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
 void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause) {
         updateFootsteps(delta);
+        updateHoldItem(delta);
     }
 
     if (!pause && input) {
@@ -480,6 +482,19 @@ void PlayerController::updateEntityInteraction(
     }
     if (rclick) {
         scripting::on_entity_used(entity, player.get());
+    }
+}
+
+void PlayerController::updateHoldItem(float delta) {
+    if (!itemTickClock.update(delta)) {
+        return;
+    }
+    auto indices = level->content->getIndices();
+    auto inventory = player->getInventory();
+    const ItemStack& stack = inventory->getSlot(player->getChosenSlot());
+    auto& item = indices->items.require(stack.getItemId());
+    if (item.rt.funcsset.on_hold) {
+        scripting::on_item_hold(player.get(), item);
     }
 }
 

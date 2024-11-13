@@ -74,6 +74,9 @@ namespace scripting {
     );
     bool on_block_interact(Player* player, const Block& block, const glm::ivec3& pos);
 
+    /// @brief Called if item is selected
+    void on_item_hold(Player* player, const ItemDef& item);
+
     /// @brief Called on RMB click with the item selected
     /// @return true if prevents default action
     bool on_item_use(Player* player, const ItemDef& item);

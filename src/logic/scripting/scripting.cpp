@@ -320,6 +320,15 @@ bool scripting::on_block_interact(
     }
 }
 
+void scripting::on_item_hold(Player* player, const ItemDef& item) {
+    std::string name = item.name + ".hold";
+    lua::emit_event(
+        lua::get_main_state(),
+        name,
+        [player](lua::State* L) { return lua::pushinteger(L, player->getId()); }
+    );
+}
+
 bool scripting::on_item_use(Player* player, const ItemDef& item) {
     std::string name = item.name + ".use";
     return lua::emit_event(
@@ -682,6 +691,7 @@ void scripting::load_item_script(
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "item", file));
     funcsset.init = register_event(env, "init", prefix + ".init");
+    funcsset.on_hold = register_event(env, "on_hold", prefix + ".hold");
     funcsset.on_use = register_event(env, "on_use", prefix + ".use");
     funcsset.on_use_on_block =
         register_event(env, "on_use_on_block", prefix + ".useon");
