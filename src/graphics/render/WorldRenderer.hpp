@@ -47,8 +47,8 @@ class WorldRenderer {
     
     float timer = 0.0f;
 
-    bool drawChunk(size_t index, const Camera& camera, Shader* shader, bool culling);
-    void drawChunks(Chunks* chunks, const  Camera& camera, Shader* shader);
+    bool drawChunk(size_t index, const Camera& camera, Shader& shader, bool culling);
+    void drawChunks(Chunks* chunks, const Camera& camera, Shader& shader);
 
     /// @brief Render block selection lines
     void renderBlockSelection();
@@ -59,7 +59,7 @@ class WorldRenderer {
     /// @param camera active camera
     /// @param linesShader shader used
     void renderLines(
-        const Camera& camera, Shader* linesShader, const DrawContext& pctx
+        const Camera& camera, Shader& linesShader, const DrawContext& pctx
     );
 
     /// @brief Render all debug lines (chunks borders, coord system guides)
@@ -69,13 +69,13 @@ class WorldRenderer {
     void renderDebugLines(
         const DrawContext& context, 
         const Camera& camera, 
-        Shader* linesShader
+        Shader& linesShader
     );
 
     void renderBlockOverlay(const DrawContext& context, const Assets& assets);
 
     void setupWorldShader(
-        Shader* shader,
+        Shader& shader,
         const Camera& camera,
         const EngineSettings& settings,
         float fogFactor

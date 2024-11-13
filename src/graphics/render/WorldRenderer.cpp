@@ -89,7 +89,7 @@ WorldRenderer::WorldRenderer(
 WorldRenderer::~WorldRenderer() = default;
 
 bool WorldRenderer::drawChunk(
-    size_t index, const Camera& camera, Shader* shader, bool culling
+    size_t index, const Camera& camera, Shader& shader, bool culling
 ) {
     auto chunk = level->chunks->getChunks()[index];
     if (!chunk->flags.lighted) {
@@ -119,13 +119,13 @@ bool WorldRenderer::drawChunk(
     }
     glm::vec3 coord(chunk->x * CHUNK_W + 0.5f, 0.5f, chunk->z * CHUNK_D + 0.5f);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
-    shader->uniformMatrix("u_model", model);
+    shader.uniformMatrix("u_model", model);
     mesh->draw();
     return true;
 }
 
 void WorldRenderer::drawChunks(
-    Chunks* chunks, const Camera& camera, Shader* shader
+    Chunks* chunks, const Camera& camera, Shader& shader
 ) {
     auto assets = engine->getAssets();
     auto atlas = assets->get<Atlas>("blocks");
@@ -163,23 +163,23 @@ void WorldRenderer::drawChunks(
 }
 
 void WorldRenderer::setupWorldShader(
-    Shader* shader,
+    Shader& shader,
     const Camera& camera,
     const EngineSettings& settings,
     float fogFactor
 ) {
-    shader->use();
-    shader->uniformMatrix("u_model", glm::mat4(1.0f));
-    shader->uniformMatrix("u_proj", camera.getProjection());
-    shader->uniformMatrix("u_view", camera.getView());
-    shader->uniform1f("u_timer", timer);
-    shader->uniform1f("u_gamma", settings.graphics.gamma.get());
-    shader->uniform1f("u_fogFactor", fogFactor);
-    shader->uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
-    shader->uniform1f("u_dayTime", level->getWorld()->getInfo().daytime);
-    shader->uniform2f("u_lightDir", skybox->getLightDir());
-    shader->uniform3f("u_cameraPos", camera.position);
-    shader->uniform1i("u_cubemap", 1);
+    shader.use();
+    shader.uniformMatrix("u_model", glm::mat4(1.0f));
+    shader.uniformMatrix("u_proj", camera.getProjection());
+    shader.uniformMatrix("u_view", camera.getView());
+    shader.uniform1f("u_timer", timer);
+    shader.uniform1f("u_gamma", settings.graphics.gamma.get());
+    shader.uniform1f("u_fogFactor", fogFactor);
+    shader.uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
+    shader.uniform1f("u_dayTime", level->getWorld()->getInfo().daytime);
+    shader.uniform2f("u_lightDir", skybox->getLightDir());
+    shader.uniform3f("u_cameraPos", camera.position);
+    shader.uniform1i("u_cubemap", 1);
 
     auto indices = level->content->getIndices();
     // Light emission when an emissive item is chosen
@@ -188,13 +188,13 @@ void WorldRenderer::setupWorldShader(
         ItemStack& stack = inventory->getSlot(player->getChosenSlot());
         auto& item = indices->items.require(stack.getItemId());
         float multiplier = 0.5f;
-        shader->uniform3f(
+        shader.uniform3f(
             "u_torchlightColor",
             item.emission[0] / 15.0f * multiplier,
             item.emission[1] / 15.0f * multiplier,
             item.emission[2] / 15.0f * multiplier
         );
-        shader->uniform1f("u_torchlightDistance", 6.0f);
+        shader.uniform1f("u_torchlightDistance", 6.0f);
     }
 }
 
@@ -211,7 +211,7 @@ void WorldRenderer::renderLevel(
     float fogFactor =
         15.0f / static_cast<float>(settings.chunks.loadDistance.get() - 2);
 
-    auto entityShader = assets->get<Shader>("entity");
+    auto& entityShader = assets->require<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
     skybox->bind();
 
@@ -225,7 +225,7 @@ void WorldRenderer::renderLevel(
     particles->render(camera, delta * !pause);
     modelBatch->render();
 
-    auto shader = assets->get<Shader>("main");
+    auto& shader = assets->require<Shader>("main");
     setupWorldShader(shader, camera, settings, fogFactor);
 
     drawChunks(level->chunks.get(), camera, shader);
@@ -255,7 +255,7 @@ void WorldRenderer::renderBlockSelection() {
         const glm::vec3 center = glm::vec3(pos) + hitbox.center();
         const glm::vec3 size = hitbox.size();
         lineBatch->box(
-            center, size + glm::vec3(0.02), glm::vec4(0.f, 0.f, 0.f, 0.5f)
+            center, size + glm::vec3(0.01), glm::vec4(0.f, 0.f, 0.f, 0.5f)
         );
         if (player->debug) {
             lineBatch->line(
@@ -267,10 +267,10 @@ void WorldRenderer::renderBlockSelection() {
 }
 
 void WorldRenderer::renderLines(
-    const Camera& camera, Shader* linesShader, const DrawContext& pctx
+    const Camera& camera, Shader& linesShader, const DrawContext& pctx
 ) {
-    linesShader->use();
-    linesShader->uniformMatrix("u_projview", camera.getProjView());
+    linesShader.use();
+    linesShader.uniformMatrix("u_projview", camera.getProjView());
     if (player->selection.vox.id != BLOCK_VOID) {
         renderBlockSelection();
     }
@@ -284,7 +284,7 @@ void WorldRenderer::renderLines(
 }
 
 void WorldRenderer::renderDebugLines(
-    const DrawContext& pctx, const Camera& camera, Shader* linesShader
+    const DrawContext& pctx, const Camera& camera, Shader& linesShader
 ) {
     DrawContext ctx = pctx.sub(lineBatch.get());
     const auto& viewport = ctx.getViewport();
@@ -293,10 +293,10 @@ void WorldRenderer::renderDebugLines(
 
     ctx.setDepthTest(true);
 
-    linesShader->use();
+    linesShader.use();
 
     if (showChunkBorders) {
-        linesShader->uniformMatrix("u_projview", camera.getProjView());
+        linesShader.uniformMatrix("u_projview", camera.getProjView());
         glm::vec3 coord = player->fpCamera->position;
         if (coord.x < 0) coord.x--;
         if (coord.z < 0) coord.z--;
@@ -316,7 +316,7 @@ void WorldRenderer::renderDebugLines(
     float length = 40.f;
     glm::vec3 tsl(displayWidth / 2, displayHeight / 2, 0.f);
     glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
-    linesShader->uniformMatrix(
+    linesShader.uniformMatrix(
         "u_projview",
         glm::ortho(
             0.f,
@@ -346,7 +346,7 @@ void WorldRenderer::renderDebugLines(
 void WorldRenderer::renderHands(
     const Camera& camera, const Assets& assets, float delta
 ) {
-    auto entityShader = assets.get<Shader>("entity");
+    auto& entityShader = assets.require<Shader>("entity");
     auto indices = level->content->getIndices();
 
     // get current chosen item
@@ -415,6 +415,7 @@ void WorldRenderer::renderTexts(
     const auto& assets = *engine->getAssets();
     auto& shader = assets.require<Shader>("ui3d");
     auto& font = assets.require<Font>("normal");
+    shader.use();
     shader.uniformMatrix("u_projview", camera.getProjView());
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
@@ -457,7 +458,7 @@ void WorldRenderer::draw(
     skybox->refresh(pctx, worldInfo.daytime, 1.0f + worldInfo.fog * 2.0f, 4);
 
     const auto& assets = *engine->getAssets();
-    auto linesShader = assets.get<Shader>("lines");
+    auto& linesShader = assets.require<Shader>("lines");
 
     // World render scope with diegetic HUD included
     {
@@ -477,10 +478,10 @@ void WorldRenderer::draw(
             renderTexts(ctx, camera, settings, hudVisible);
             renderLevel(ctx, camera, settings, delta, pause);
             // Debug lines
-            if (hudVisible && player->debug) {
-                renderDebugLines(ctx, camera, linesShader);
-            }
             if (hudVisible) {
+                if (player->debug) {
+                    renderDebugLines(ctx, camera, linesShader);
+                }
                 renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
                     renderHands(camera, assets, delta * !pause);
