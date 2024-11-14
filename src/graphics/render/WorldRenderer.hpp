@@ -17,6 +17,7 @@ class Batch3D;
 class LineBatch;
 class ChunksRenderer;
 class ParticlesRenderer;
+class GuidesRenderer;
 class TextsRenderer;
 class Shader;
 class Frustum;
@@ -52,6 +53,7 @@ class WorldRenderer {
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<ChunksRenderer> renderer;
     std::unique_ptr<TextsRenderer> texts;
+    std::unique_ptr<GuidesRenderer> guides;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
@@ -73,16 +75,6 @@ class WorldRenderer {
     /// @param linesShader shader used
     void renderLines(
         const Camera& camera, Shader& linesShader, const DrawContext& pctx
-    );
-
-    /// @brief Render all debug lines (chunks borders, coord system guides)
-    /// @param context graphics context
-    /// @param camera active camera
-    /// @param linesShader shader used
-    void renderDebugLines(
-        const DrawContext& context, 
-        const Camera& camera, 
-        Shader& linesShader
     );
 
     void renderBlockOverlay(const DrawContext& context, const Assets& assets);
@@ -110,7 +102,6 @@ public:
         float delta,
         PostProcessing* postProcessing
     );
-    void drawBorders(int sx, int sy, int sz, int ex, int ey, int ez);
 
     /// @brief Render level without diegetic interface
     /// @param context graphics context

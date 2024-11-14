@@ -45,6 +45,7 @@
 #include "ParticlesRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
+#include "GuidesRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
 #include "Emitter.hpp"
@@ -72,7 +73,8 @@ WorldRenderer::WorldRenderer(
           *frontend->getLevel(),
           &engine->getSettings().graphics
       )),
-      texts(std::make_unique<TextsRenderer>(frustumCulling.get())) {
+      texts(std::make_unique<TextsRenderer>(frustumCulling.get())),
+      guides(std::make_unique<GuidesRenderer>()) {
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
     );
@@ -96,10 +98,7 @@ bool WorldRenderer::drawChunk(
     size_t index, const Camera& camera, Shader& shader, bool culling
 ) {
     auto chunk = level->chunks->getChunks()[index];
-    if (chunk == nullptr) {
-        return false;
-    }
-    if (!chunk->flags.lighted) {
+    if (chunk == nullptr || !chunk->flags.lighted) {
         return false;
     }
     float distance = glm::distance(
@@ -297,66 +296,6 @@ void WorldRenderer::renderLines(
     }
 }
 
-void WorldRenderer::renderDebugLines(
-    const DrawContext& pctx, const Camera& camera, Shader& linesShader
-) {
-    DrawContext ctx = pctx.sub(lineBatch.get());
-    const auto& viewport = ctx.getViewport();
-    uint displayWidth = viewport.getWidth();
-    uint displayHeight = viewport.getHeight();
-
-    ctx.setDepthTest(true);
-
-    linesShader.use();
-
-    if (showChunkBorders) {
-        linesShader.uniformMatrix("u_projview", camera.getProjView());
-        glm::vec3 coord = player->fpCamera->position;
-        if (coord.x < 0) coord.x--;
-        if (coord.z < 0) coord.z--;
-        int cx = floordiv(static_cast<int>(coord.x), CHUNK_W);
-        int cz = floordiv(static_cast<int>(coord.z), CHUNK_D);
-
-        drawBorders(
-            cx * CHUNK_W,
-            0,
-            cz * CHUNK_D,
-            (cx + 1) * CHUNK_W,
-            CHUNK_H,
-            (cz + 1) * CHUNK_D
-        );
-    }
-
-    float length = 40.f;
-    glm::vec3 tsl(displayWidth / 2, displayHeight / 2, 0.f);
-    glm::mat4 model(glm::translate(glm::mat4(1.f), tsl));
-    linesShader.uniformMatrix(
-        "u_projview",
-        glm::ortho(
-            0.f,
-            static_cast<float>(displayWidth),
-            0.f,
-            static_cast<float>(displayHeight),
-            -length,
-            length
-        ) * model *
-            glm::inverse(camera.rotation)
-    );
-
-    ctx.setDepthTest(false);
-    lineBatch->lineWidth(4.0f);
-    lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 0.f, 1.f);
-    lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 0.f, 1.f);
-    lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 0.f, 1.f);
-    lineBatch->flush();
-
-    ctx.setDepthTest(true);
-    lineBatch->lineWidth(2.0f);
-    lineBatch->line(0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
-    lineBatch->line(0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 0.f, 1.f);
-    lineBatch->line(0.f, 0.f, 0.f, 0.f, 0.f, length, 0.f, 0.f, 1.f, 1.f);
-}
-
 void WorldRenderer::renderHands(
     const Camera& camera, const Assets& assets, float delta
 ) {
@@ -441,8 +380,7 @@ void WorldRenderer::draw(
     const auto& assets = *engine->getAssets();
     auto& linesShader = assets.require<Shader>("lines");
 
-    // World render scope with diegetic HUD included
-    {
+    /* World render scope with diegetic HUD included */ {
         DrawContext wctx = pctx.sub();
         postProcessing->use(wctx);
 
@@ -451,8 +389,8 @@ void WorldRenderer::draw(
         // Drawing background sky plane
         skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
 
-        // Actually world render with depth buffer on
-        {
+        
+        /* Actually world render with depth buffer on */ {
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
@@ -463,7 +401,9 @@ void WorldRenderer::draw(
             // Debug lines
             if (hudVisible) {
                 if (player->debug) {
-                    renderDebugLines(ctx, camera, linesShader);
+                    guides->renderDebugLines(
+                        ctx, camera, *lineBatch, linesShader, showChunkBorders
+                    );
                 }
                 renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
@@ -525,34 +465,6 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& as
         );
         batch3d->flush();
     }
-}
-
-void WorldRenderer::drawBorders(
-    int sx, int sy, int sz, int ex, int ey, int ez
-) {
-    int ww = ex - sx;
-    int dd = ez - sz;
-    /*corner*/ {
-        lineBatch->line(sx, sy, sz, sx, ey, sz, 0.8f, 0, 0.8f, 1);
-        lineBatch->line(sx, sy, ez, sx, ey, ez, 0.8f, 0, 0.8f, 1);
-        lineBatch->line(ex, sy, sz, ex, ey, sz, 0.8f, 0, 0.8f, 1);
-        lineBatch->line(ex, sy, ez, ex, ey, ez, 0.8f, 0, 0.8f, 1);
-    }
-    for (int i = 2; i < ww; i += 2) {
-        lineBatch->line(sx + i, sy, sz, sx + i, ey, sz, 0, 0, 0.8f, 1);
-        lineBatch->line(sx + i, sy, ez, sx + i, ey, ez, 0, 0, 0.8f, 1);
-    }
-    for (int i = 2; i < dd; i += 2) {
-        lineBatch->line(sx, sy, sz + i, sx, ey, sz + i, 0.8f, 0, 0, 1);
-        lineBatch->line(ex, sy, sz + i, ex, ey, sz + i, 0.8f, 0, 0, 1);
-    }
-    for (int i = sy; i < ey; i += 2) {
-        lineBatch->line(sx, i, sz, sx, i, ez, 0, 0.8f, 0, 1);
-        lineBatch->line(sx, i, ez, ex, i, ez, 0, 0.8f, 0, 1);
-        lineBatch->line(ex, i, ez, ex, i, sz, 0, 0.8f, 0, 1);
-        lineBatch->line(ex, i, sz, sx, i, sz, 0, 0.8f, 0, 1);
-    }
-    lineBatch->flush();
 }
 
 void WorldRenderer::clear() {
