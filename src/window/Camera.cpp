@@ -66,3 +66,7 @@ void Camera::setFov(float fov) {
 float Camera::getFov() const {
     return fov;
 }
+
+float Camera::getAspectRatio() const {
+    return aspect;
+}

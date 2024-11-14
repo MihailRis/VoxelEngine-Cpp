@@ -29,7 +29,9 @@ function on_hud_open()
 
     note = gfx.text3d.new({0.5, 99.5, 0.0015}, "Segmentation fault", {
         color={0, 0, 0, 1},
-        display="projected"
+        display="projected",
+        perspective=1.0,
+        scale=2.0
     })
 end
 

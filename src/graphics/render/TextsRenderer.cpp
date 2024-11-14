@@ -68,12 +68,24 @@ void TextsRenderer::renderNote(
             return;
         }
     } else {
+        float scale = 1.0f;
+        if (glm::abs(preset.perspective) > 0.0001f) {
+            float scale2 = scale /
+                (glm::distance(camera.position, pos) *
+                            util::sqr(camera.zoom) *
+                            glm::sqrt(glm::tan(camera.getFov() * 0.5f)));
+            scale = scale2 * preset.perspective +
+                    scale * (1.0f - preset.perspective);
+        }
         auto projpos = camera.getProjView() * glm::vec4(pos, 1.0f);
         pos = projpos;
+        if (pos.z < 0.0f) {
+            return;
+        }
         pos /= pos.z;
         pos.z = 0;
-        xvec = {2.0f/Window::width, 0, 0};
-        yvec = {0, 2.0f/Window::height, 0};
+        xvec = {2.0f/Window::width*scale, 0, 0};
+        yvec = {0, 2.0f/Window::height*scale, 0};
     }
     auto color = preset.color;
     batch.setColor(glm::vec4(color.r, color.g, color.b, color.a * opacity));

@@ -36,6 +36,7 @@ dv::value NotePreset::serialize() const {
         {"scale", scale},
         {"render_distance", renderDistance},
         {"xray_opacity", xrayOpacity},
+        {"perspective", perspective},
     });
 }
 
@@ -49,4 +50,5 @@ void NotePreset::deserialize(const dv::value& src) {
     src.at("scale").get(scale);
     src.at("render_distance").get(renderDistance);
     src.at("xray_opacity").get(xrayOpacity);
+    src.at("perspective").get(perspective);
 }
