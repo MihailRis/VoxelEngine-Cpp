@@ -25,6 +25,7 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
 
     lua::openlib(L, "hud", hudlib);
     lua::openlib(L, "gfx", "particles", particleslib);
+    lua::openlib(L, "gfx", "text3d", text3dlib);
 
     if (lua::getglobal(L, "__vc_create_hud_rules")) {
         lua::call_nothrow(L, 0, 0);

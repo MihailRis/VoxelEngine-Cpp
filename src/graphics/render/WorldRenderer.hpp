@@ -39,7 +39,6 @@ class WorldRenderer {
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ChunksRenderer> chunks;
-    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<GuidesRenderer> guides;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<ModelBatch> modelBatch;
@@ -67,6 +66,7 @@ class WorldRenderer {
         float fogFactor
     );
 public:
+    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<ParticlesRenderer> particles;
 
     static bool showChunkBorders;

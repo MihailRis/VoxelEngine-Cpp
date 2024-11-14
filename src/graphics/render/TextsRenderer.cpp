@@ -78,25 +78,20 @@ void TextsRenderer::renderTexts(
     bool hudVisible,
     bool frontLayer
 ) {
-    std::vector<TextNote> notes;
-    NotePreset preset;
-    preset.displayMode = NoteDisplayMode::STATIC_BILLBOARD;
-    preset.color = glm::vec4(0, 0, 0, 1);
-    preset.scale = 0.005f;
-
-    notes.emplace_back(
-        L"Segmentation fault",
-        std::move(preset),
-        glm::vec3(0.5f, 99.5f, 0.0015f)
-    );
     auto& shader = assets.require<Shader>("ui3d");
     
     shader.use();
     shader.uniformMatrix("u_projview", camera.getProjView());
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch.begin();
-    for (const auto& note : notes) {
-        renderText(note, context, camera, settings, hudVisible);
+    for (const auto& [id, note] : notes) {
+        renderText(*note, context, camera, settings, hudVisible);
     }
     batch.flush();
+}
+
+u64id_t TextsRenderer::add(std::unique_ptr<TextNote> note) {
+    u64id_t uid = nextNote++;
+    notes[uid] = std::move(note);
+    return uid;
 }

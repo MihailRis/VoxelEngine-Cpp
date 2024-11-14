@@ -24,4 +24,10 @@ function on_hud_open()
         local velocity = vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL))
         drop.rigidbody:set_vel(velocity)
     end)
+
+    gfx.text3d.spawn({0.5, 99.5, 0.0015}, "Segmentation fault", {
+        scale = 0.005,
+        color = {0, 0, 0, 1},
+        displayMode = "static_billboard"
+    })
 end

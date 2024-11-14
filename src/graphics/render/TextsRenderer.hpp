@@ -1,5 +1,10 @@
 #pragma once
 
+#include <unordered_map>
+#include <memory>
+
+#include "typedefs.hpp"
+
 class DrawContext;
 class Camera;
 class Assets;
@@ -12,6 +17,9 @@ class TextsRenderer {
     Batch3D& batch;
     const Assets& assets;
     const Frustum& frustum;
+
+    std::unordered_map<u64id_t, std::unique_ptr<TextNote>> notes;
+    u64id_t nextNote = 1;
 
     void renderText(
         const TextNote& note,
@@ -30,4 +38,6 @@ public:
         bool hudVisible,
         bool frontLayer
     );
+
+    u64id_t add(std::unique_ptr<TextNote> note);
 };
