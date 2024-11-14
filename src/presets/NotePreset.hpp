@@ -21,6 +21,7 @@ struct NotePreset : public Serializable {
     glm::vec4 color {1.0f};
     float scale = 1.0f;
     float renderDistance = 10.0f;
+    float xrayOpacity = 0.0f;
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;

@@ -139,7 +139,7 @@ void WorldRenderer::renderLevel(
     bool pause,
     bool hudVisible
 ) {
-    texts->renderTexts(ctx, camera, settings, hudVisible, false);
+    texts->render(ctx, camera, settings, hudVisible, false);
 
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     float fogFactor =
@@ -331,6 +331,10 @@ void WorldRenderer::draw(
                     renderHands(camera, delta * !pause);
                 }
             }
+        }
+        {
+            DrawContext ctx = wctx.sub();
+            texts->render(ctx, camera, settings, hudVisible, true);
         }
         renderBlockOverlay(wctx);
     }

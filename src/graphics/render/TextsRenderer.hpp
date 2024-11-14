@@ -21,17 +21,18 @@ class TextsRenderer {
     std::unordered_map<u64id_t, std::unique_ptr<TextNote>> notes;
     u64id_t nextNote = 1;
 
-    void renderText(
+    void renderNote(
         const TextNote& note,
         const DrawContext& context,
         const Camera& camera,
         const EngineSettings& settings,
-        bool hudVisible
+        bool hudVisible,
+        bool frontLayer
     );
 public:
     TextsRenderer(Batch3D& batch, const Assets& assets, const Frustum& frustum);
 
-    void renderTexts(
+    void render(
         const DrawContext& context,
         const Camera& camera,
         const EngineSettings& settings,
