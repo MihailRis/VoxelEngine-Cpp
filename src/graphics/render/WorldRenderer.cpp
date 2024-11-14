@@ -216,15 +216,20 @@ void WorldRenderer::renderLevel(
     const Camera& camera,
     const EngineSettings& settings,
     float delta,
-    bool pause
+    bool pause,
+    bool hudVisible
 ) {
-    auto assets = engine->getAssets();
+    const auto& assets = *engine->getAssets();
+
+    texts->renderTexts(
+        *batch3d, ctx, assets, camera, settings, hudVisible, false
+    );
 
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     float fogFactor =
         15.0f / static_cast<float>(settings.chunks.loadDistance.get() - 2);
 
-    auto& entityShader = assets->require<Shader>("entity");
+    auto& entityShader = assets.require<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
     skybox->bind();
 
@@ -238,7 +243,7 @@ void WorldRenderer::renderLevel(
     particles->render(camera, delta * !pause);
     modelBatch->render();
 
-    auto& shader = assets->require<Shader>("main");
+    auto& shader = assets.require<Shader>("main");
     setupWorldShader(shader, camera, settings, fogFactor);
 
     drawChunks(level->chunks.get(), camera, shader);
@@ -388,16 +393,12 @@ void WorldRenderer::draw(
 
         // Drawing background sky plane
         skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
-
         
         /* Actually world render with depth buffer on */ {
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            texts->renderTexts(
-                *batch3d, ctx, assets, camera, settings, hudVisible, false
-            );
-            renderLevel(ctx, camera, settings, delta, pause);
+            renderLevel(ctx, camera, settings, delta, pause, hudVisible);
             // Debug lines
             if (hudVisible) {
                 if (player->debug) {

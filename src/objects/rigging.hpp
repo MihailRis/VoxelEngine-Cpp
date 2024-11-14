@@ -32,7 +32,7 @@ namespace rigging {
         model::Model* model;
         bool updateFlag;
 
-        void refresh(const Assets* assets);
+        void refresh(const Assets& assets);
     };
 
     class Bone {
@@ -111,7 +111,7 @@ namespace rigging {
 
         void update(Skeleton& skeleton, glm::mat4 matrix) const;
         void render(
-            Assets* assets,
+            const Assets& assets,
             ModelBatch& batch,
             Skeleton& skeleton,
             const glm::mat4& matrix

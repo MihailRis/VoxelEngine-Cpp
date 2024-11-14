@@ -112,7 +112,8 @@ public:
         const Camera& camera, 
         const EngineSettings& settings,
         float delta,
-        bool pause
+        bool pause,
+        bool hudVisible
     );
 
     void clear();
