@@ -56,6 +56,13 @@ static int l_set_pos(lua::State* L) {
     return 0;
 }
 
+static int l_update_settings(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        note->updatePreset(lua::tovalue(L, 2));
+    }
+    return 0;
+}
+
 const luaL_Reg text3dlib[] = {
     {"show", lua::wrap<l_show>},
     {"hide", lua::wrap<l_hide>},
@@ -63,5 +70,6 @@ const luaL_Reg text3dlib[] = {
     {"set_text", lua::wrap<l_set_text>},
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
+    {"update_settings", lua::wrap<l_update_settings>},
     {NULL, NULL}
 };

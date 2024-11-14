@@ -16,6 +16,8 @@ public:
 
     const NotePreset& getPreset() const;
 
+    void updatePreset(const dv::value& data);
+
     void setPosition(const glm::vec3& position);
 
     const glm::vec3& getPosition() const;

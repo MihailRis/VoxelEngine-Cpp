@@ -35,6 +35,7 @@ function on_hud_open()
 end
 
 function on_hud_render()
-    local pos = gfx.text3d.get_pos(textid)
-    gfx.text3d.set_pos(textid, {pos[1], pos[2]+time.delta(), pos[3]})
+    gfx.text3d.update_settings(textid, {
+        color={math.sin(time.uptime() * 12) * 0.5 + 0.5, 0, 0, 1}
+    })
 end
