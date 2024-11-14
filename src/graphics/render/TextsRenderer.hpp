@@ -27,7 +27,8 @@ class TextsRenderer {
         const Camera& camera,
         const EngineSettings& settings,
         bool hudVisible,
-        bool frontLayer
+        bool frontLayer,
+        bool projected
     );
 public:
     TextsRenderer(Batch3D& batch, const Assets& assets, const Frustum& frustum);

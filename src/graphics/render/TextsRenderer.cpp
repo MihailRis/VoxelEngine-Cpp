@@ -4,6 +4,7 @@
 #include "maths/util.hpp"
 #include "assets/Assets.hpp"
 #include "window/Camera.hpp"
+#include "window/Window.hpp"
 #include "maths/FrustumCulling.hpp"
 #include "graphics/core/Font.hpp"
 #include "graphics/core/Batch3D.hpp"
@@ -22,22 +23,23 @@ void TextsRenderer::renderNote(
     const Camera& camera,
     const EngineSettings& settings,
     bool hudVisible,
-    bool frontLayer
+    bool frontLayer,
+    bool projected
 ) {
     const auto& text = note.getText();
     const auto& preset = note.getPreset();
-    const auto& pos = note.getPosition();
+    auto pos = note.getPosition();
 
     if (util::distance2(pos, camera.position) >
         util::sqr(preset.renderDistance / camera.zoom)) {
         return;
     }
     // Projected notes are displayed on the front layer only
-    if (preset.displayMode == NoteDisplayMode::PROJECTED) {
+    if ((preset.displayMode == NoteDisplayMode::PROJECTED) != projected) {
         return;
     }
     float opacity = 1.0f;
-    if (frontLayer) {
+    if (frontLayer && preset.displayMode != NoteDisplayMode::PROJECTED) {
         if (preset.xrayOpacity <= 0.0001f) {
             return;
         }
@@ -65,6 +67,13 @@ void TextsRenderer::renderNote(
                                   pos + xvec * (width * 0.5f))) {
             return;
         }
+    } else {
+        auto projpos = camera.getProjView() * glm::vec4(pos, 1.0f);
+        pos = projpos;
+        pos /= pos.z;
+        pos.z = 0;
+        xvec = {2.0f/Window::width, 0, 0};
+        yvec = {0, 2.0f/Window::height, 0};
     }
     auto color = preset.color;
     batch.setColor(glm::vec4(color.r, color.g, color.b, color.a * opacity));
@@ -90,10 +99,20 @@ void TextsRenderer::render(
     shader.uniformMatrix("u_projview", camera.getProjView());
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch.begin();
-    for (const auto& [id, note] : notes) {
-        renderNote(*note, context, camera, settings, hudVisible, frontLayer);
+    for (const auto& [_, note] : notes) {
+        renderNote(*note, context, camera, settings, hudVisible, frontLayer, false);
     }
     batch.flush();
+    if (frontLayer) {
+        shader.uniformMatrix(
+            "u_projview",
+            glm::mat4(1.0f)
+        );
+        for (const auto& [_, note] : notes) {
+            renderNote(*note, context, camera, settings, hudVisible, true, true);
+        }
+        batch.flush();
+    }
 }
 
 u64id_t TextsRenderer::add(std::unique_ptr<TextNote> note) {
