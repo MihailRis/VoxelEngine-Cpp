@@ -11,23 +11,23 @@ class Atlas;
 class Framebuffer;
 class Batch3D;
 class Block;
-class Content;
+class ContentIndices;
 class Shader;
 class ContentGfxCache;
 
 class BlocksPreview {
     static std::unique_ptr<ImageData> draw(
-        const ContentGfxCache* cache,
-        Shader* shader,
-        Framebuffer* framebuffer,
-        Batch3D* batch,
+        const ContentGfxCache& cache,
+        Shader& shader,
+        const Framebuffer& framebuffer,
+        Batch3D& batch,
         const Block& block, 
         int size
     );
 public:
     static std::unique_ptr<Atlas> build(
-        const ContentGfxCache* cache,
-        Assets* assets, 
-        const Content* content
+        const ContentGfxCache& cache,
+        const Assets& assets, 
+        const ContentIndices& indices
     );
 };

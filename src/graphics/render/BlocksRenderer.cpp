@@ -17,9 +17,9 @@ const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
 BlocksRenderer::BlocksRenderer(
     size_t capacity,
-    const Content* content,
-    const ContentGfxCache* cache,
-    const EngineSettings* settings
+    const Content& content,
+    const ContentGfxCache& cache,
+    const EngineSettings& settings
 ) : content(content),
     vertexBuffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
     indexBuffer(std::make_unique<int[]>(capacity)),
@@ -34,7 +34,7 @@ BlocksRenderer::BlocksRenderer(
         CHUNK_W + voxelBufferPadding*2, 
         CHUNK_H, 
         CHUNK_D + voxelBufferPadding*2);
-    blockDefsCache = content->getIndices()->blocks.getDefs();
+    blockDefsCache = content.getIndices()->blocks.getDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {
@@ -286,7 +286,7 @@ void BlocksRenderer::blockCustomModel(
         Z = orient.axisZ;
     }
 
-    const auto& model = cache->getModel(block->rt.id);
+    const auto& model = cache.getModel(block->rt.id);
     for (const auto& mesh : model.meshes) {
         if (vertexOffset + BlocksRenderer::VERTEX_SIZE * mesh.vertices.size() > capacity) {
             overflow = true;
@@ -448,7 +448,7 @@ void BlocksRenderer::render(const voxel* voxels) {
         }
         beginEnds[def.drawGroup][1] = i;
     }
-    for (const auto drawGroup : *content->drawGroups) {
+    for (const auto drawGroup : *content.drawGroups) {
         int begin = beginEnds[drawGroup][0];
         if (begin == 0) {
             continue;
@@ -463,12 +463,12 @@ void BlocksRenderer::render(const voxel* voxels) {
                 continue;
             }
             const UVRegion texfaces[6] {
-                cache->getRegion(id, 0), 
-                cache->getRegion(id, 1),
-                cache->getRegion(id, 2), 
-                cache->getRegion(id, 3),
-                cache->getRegion(id, 4), 
-                cache->getRegion(id, 5)
+                cache.getRegion(id, 0), 
+                cache.getRegion(id, 1),
+                cache.getRegion(id, 2), 
+                cache.getRegion(id, 3),
+                cache.getRegion(id, 4), 
+                cache.getRegion(id, 5)
             };
             int x = i % CHUNK_W;
             int y = i / (CHUNK_D * CHUNK_W);
@@ -508,7 +508,7 @@ void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
     voxelsBuffer->setPosition(
         chunk->x * CHUNK_W - voxelBufferPadding, 0,
         chunk->z * CHUNK_D - voxelBufferPadding);
-    chunks->getVoxels(voxelsBuffer.get(), settings->graphics.backlight.get());
+    chunks->getVoxels(voxelsBuffer.get(), settings.graphics.backlight.get());
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;

@@ -23,20 +23,20 @@ static debug::Logger logger("chunks-render");
 size_t ChunksRenderer::visibleChunks = 0;
 
 class RendererWorker : public util::Worker<std::shared_ptr<Chunk>, RendererResult> {
-    Level* level;
+    const Level& level;
     BlocksRenderer renderer;
 public:
     RendererWorker(
-        Level* level, 
-        const ContentGfxCache* cache,
-        const EngineSettings* settings
+        const Level& level, 
+        const ContentGfxCache& cache,
+        const EngineSettings& settings
     ) : level(level), 
-        renderer(settings->graphics.chunkMaxVertices.get(),
-                 level->content, cache, settings)
+        renderer(settings.graphics.chunkMaxVertices.get(),
+                 *level.content, cache, settings)
     {}
 
     RendererResult operator()(const std::shared_ptr<Chunk>& chunk) override {
-        renderer.build(chunk.get(), level->chunks.get());
+        renderer.build(chunk.get(), level.chunks.get());
         if (renderer.isCancelled()) {
             return RendererResult {
                 glm::ivec2(chunk->x, chunk->z), true, MeshData()};
@@ -48,29 +48,29 @@ public:
 };
 
 ChunksRenderer::ChunksRenderer(
-    Level* level, 
+    const Level* level, 
     const Assets& assets,
     const Frustum& frustum,
-    const ContentGfxCache* cache, 
-    const EngineSettings* settings
-) : level(level),
+    const ContentGfxCache& cache, 
+    const EngineSettings& settings
+) : level(*level),
     assets(assets),
     frustum(frustum),
     settings(settings),
     threadPool(
         "chunks-render-pool",
-        [=](){return std::make_shared<RendererWorker>(level, cache, settings);}, 
-        [=](RendererResult& result){
+        [&](){return std::make_shared<RendererWorker>(*level, cache, settings);}, 
+        [&](RendererResult& result){
             if (!result.cancelled) {
                 meshes[result.key] = std::make_shared<Mesh>(result.meshData);
             }
             inwork.erase(result.key);
-        }, settings->graphics.chunkMaxRenderers.get())
+        }, settings.graphics.chunkMaxRenderers.get())
 {
     threadPool.setStopOnFail(false);
     renderer = std::make_unique<BlocksRenderer>(
-        settings->graphics.chunkMaxVertices.get(), 
-        level->content, cache, settings
+        settings.graphics.chunkMaxVertices.get(), 
+        *level->content, cache, settings
     );
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
 }
@@ -81,7 +81,7 @@ ChunksRenderer::~ChunksRenderer() {
 std::shared_ptr<Mesh> ChunksRenderer::render(const std::shared_ptr<Chunk>& chunk, bool important) {
     chunk->flags.modified = false;
     if (important) {
-        auto mesh = renderer->render(chunk.get(), level->chunks.get());
+        auto mesh = renderer->render(chunk.get(), level.chunks.get());
         meshes[glm::ivec2(chunk->x, chunk->z)] = mesh;
         return mesh;
     }
@@ -125,7 +125,7 @@ void ChunksRenderer::update() {
 bool ChunksRenderer::drawChunk(
     size_t index, const Camera& camera, Shader& shader, bool culling
 ) {
-    auto chunk = level->chunks->getChunks()[index];
+    auto chunk = level.chunks->getChunks()[index];
     if (chunk == nullptr || !chunk->flags.lighted) {
         return false;
     }
@@ -161,7 +161,7 @@ bool ChunksRenderer::drawChunk(
 void ChunksRenderer::drawChunks(
     const Camera& camera, Shader& shader
 ) {
-    const auto& chunks = *level->chunks;
+    const auto& chunks = *level.chunks;
     const auto& atlas = assets.require<Atlas>("blocks");
 
     atlas.getTexture()->bind();
@@ -188,7 +188,7 @@ void ChunksRenderer::drawChunks(
     }
     util::insertion_sort(indices.begin(), indices.end());
 
-    bool culling = settings->graphics.frustumCulling.get();
+    bool culling = settings.graphics.frustumCulling.get();
 
     visibleChunks = 0;
     //if (GLEW_ARB_multi_draw_indirect && false) {

@@ -46,7 +46,7 @@ void scripting::on_frontend_render() {
         lua::emit_event(
             lua::get_main_state(),
             pack.id + ":.hudrender",
-            [&](lua::State* L) { return 0; }
+            [](lua::State* L) { return 0; }
         );
     }
 }

@@ -27,7 +27,7 @@ struct UVRegion;
 class BlocksRenderer {
     static const glm::vec3 SUN_VECTOR;
     static const uint VERTEX_SIZE;
-    const Content* const content;
+    const Content& content;
     std::unique_ptr<float[]> vertexBuffer;
     std::unique_ptr<int[]> indexBuffer;
     size_t vertexOffset;
@@ -40,8 +40,8 @@ class BlocksRenderer {
     std::unique_ptr<VoxelsVolume> voxelsBuffer;
 
     const Block* const* blockDefsCache;
-    const ContentGfxCache* const cache;
-    const EngineSettings* settings;
+    const ContentGfxCache& cache;
+    const EngineSettings& settings;
     
     util::PseudoRandom randomizer;
 
@@ -137,7 +137,12 @@ class BlocksRenderer {
     glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
     void render(const voxel* voxels);
 public:
-    BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings* settings);
+    BlocksRenderer(
+        size_t capacity,
+        const Content& content,
+        const ContentGfxCache& cache,
+        const EngineSettings& settings
+    );
     virtual ~BlocksRenderer();
 
     void build(const Chunk* chunk, const Chunks* chunks);

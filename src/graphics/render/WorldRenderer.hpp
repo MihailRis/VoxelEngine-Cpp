@@ -28,16 +28,11 @@ class PostProcessing;
 class DrawContext;
 class ModelBatch;
 class Assets;
-class Emitter;
 struct EngineSettings;
-
-namespace model {
-    struct Model;
-}
 
 class WorldRenderer {
     Engine* engine;
-    Level* level;
+    const Level& level;
     Player* player;
     const Assets& assets;
     std::unique_ptr<Frustum> frustumCulling;
@@ -77,7 +72,7 @@ public:
     static bool showChunkBorders;
     static bool showEntitiesDebug;
 
-    WorldRenderer(Engine* engine, LevelFrontend* frontend, Player* player);
+    WorldRenderer(Engine* engine, LevelFrontend& frontend, Player* player);
     ~WorldRenderer();
 
     void draw(

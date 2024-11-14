@@ -57,38 +57,39 @@ bool WorldRenderer::showChunkBorders = false;
 bool WorldRenderer::showEntitiesDebug = false;
 
 WorldRenderer::WorldRenderer(
-    Engine* engine, LevelFrontend* frontend, Player* player
+    Engine* engine, LevelFrontend& frontend, Player* player
 )
     : engine(engine),
-      level(frontend->getLevel()),
+      level(frontend.getLevel()),
       player(player),
       assets(*engine->getAssets()),
       frustumCulling(std::make_unique<Frustum>()),
       lineBatch(std::make_unique<LineBatch>()),
       batch3d(std::make_unique<Batch3D>(BATCH3D_CAPACITY)),
       modelBatch(std::make_unique<ModelBatch>(
-          MODEL_BATCH_CAPACITY, assets, *level->chunks, engine->getSettings()
+          MODEL_BATCH_CAPACITY, assets, *level.chunks, engine->getSettings()
       )),
       particles(std::make_unique<ParticlesRenderer>(
-          assets, *level, &engine->getSettings().graphics
+          assets, level, &engine->getSettings().graphics
       )),
-      texts(std::make_unique<TextsRenderer>(
-          *batch3d, assets, *frustumCulling
-      )),
+      texts(std::make_unique<TextsRenderer>(*batch3d, assets, *frustumCulling)),
       guides(std::make_unique<GuidesRenderer>()),
       chunks(std::make_unique<ChunksRenderer>(
-        level, assets, *frustumCulling, frontend->getContentGfxCache(), &engine->getSettings()
-      ))
-{
+          &level,
+          assets,
+          *frustumCulling,
+          frontend.getContentGfxCache(),
+          engine->getSettings()
+      )) {
     auto& settings = engine->getSettings();
-    level->events->listen(
+    level.events->listen(
         EVT_CHUNK_HIDDEN,
         [this](lvl_event_type, Chunk* chunk) { chunks->unload(chunk); }
     );
     auto assets = engine->getAssets();
     skybox = std::make_unique<Skybox>(
         settings.graphics.skyboxResolution.get(),
-        assets->get<Shader>("skybox_gen")
+        assets->require<Shader>("skybox_gen")
     );
 }
 
@@ -108,12 +109,12 @@ void WorldRenderer::setupWorldShader(
     shader.uniform1f("u_gamma", settings.graphics.gamma.get());
     shader.uniform1f("u_fogFactor", fogFactor);
     shader.uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
-    shader.uniform1f("u_dayTime", level->getWorld()->getInfo().daytime);
+    shader.uniform1f("u_dayTime", level.getWorld()->getInfo().daytime);
     shader.uniform2f("u_lightDir", skybox->getLightDir());
     shader.uniform3f("u_cameraPos", camera.position);
     shader.uniform1i("u_cubemap", 1);
 
-    auto indices = level->content->getIndices();
+    auto indices = level.content->getIndices();
     // Light emission when an emissive item is chosen
     {
         auto inventory = player->getInventory();
@@ -152,15 +153,15 @@ void WorldRenderer::renderLevel(
         frustumCulling->update(camera.getProjView());
     }
 
-    level->entities->render(
+    level.entities->render(
         assets,
         *modelBatch,
         culling ? frustumCulling.get() : nullptr,
         delta,
         pause
     );
-    particles->render(camera, delta * !pause);
     modelBatch->render();
+    particles->render(camera, delta * !pause);
 
     auto& shader = assets.require<Shader>("main");
     setupWorldShader(shader, camera, settings, fogFactor);
@@ -176,7 +177,7 @@ void WorldRenderer::renderLevel(
 
 void WorldRenderer::renderBlockSelection() {
     const auto& selection = player->selection;
-    auto indices = level->content->getIndices();
+    auto indices = level.content->getIndices();
     blockid_t id = selection.vox.id;
     auto& block = indices->blocks.require(id);
     const glm::ivec3 pos = player->selection.position;
@@ -214,7 +215,7 @@ void WorldRenderer::renderLines(
     if (player->debug && showEntitiesDebug) {
         auto ctx = pctx.sub(lineBatch.get());
         bool culling = engine->getSettings().graphics.frustumCulling.get();
-        level->entities->renderDebug(
+        level.entities->renderDebug(
             *lineBatch, culling ? frustumCulling.get() : nullptr, ctx
         );
     }
@@ -224,7 +225,7 @@ void WorldRenderer::renderHands(
     const Camera& camera, float delta
 ) {
     auto& entityShader = assets.require<Shader>("entity");
-    auto indices = level->content->getIndices();
+    auto indices = level.content->getIndices();
 
     // get current chosen item
     const auto& inventory = player->getInventory();
@@ -292,7 +293,7 @@ void WorldRenderer::draw(
     PostProcessing* postProcessing
 ) {
     timer += delta * !pause;
-    auto world = level->getWorld();
+    auto world = level.getWorld();
     const Viewport& vp = pctx.getViewport();
     camera.aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
@@ -346,10 +347,10 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
     int x = std::floor(player->currentCamera->position.x);
     int y = std::floor(player->currentCamera->position.y);
     int z = std::floor(player->currentCamera->position.z);
-    auto block = level->chunks->get(x, y, z);
+    auto block = level.chunks->get(x, y, z);
     if (block && block->id) {
         const auto& def =
-            level->content->getIndices()->blocks.require(block->id);
+            level.content->getIndices()->blocks.require(block->id);
         if (def.overlayTexture.empty()) {
             return;
         }
@@ -365,7 +366,7 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
         batch3d->begin();
         shader.uniformMatrix("u_projview", glm::mat4(1.0f));
         shader.uniformMatrix("u_apply", glm::mat4(1.0f));
-        auto light = level->chunks->getLight(x, y, z);
+        auto light = level.chunks->getLight(x, y, z);
         float s = Lightmap::extract(light, 3) / 15.0f;
         glm::vec4 tint(
             glm::min(1.0f, Lightmap::extract(light, 0) / 15.0f + s),

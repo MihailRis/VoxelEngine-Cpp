@@ -42,8 +42,8 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
 // TODO: move to xml finally
 std::shared_ptr<UINode> create_debug_panel(
     Engine* engine, 
-    Level* level, 
-    Player* player,
+    Level& level, 
+    Player& player,
     bool allowDebugCheats
 ) {
     auto panel = std::make_shared<Panel>(glm::vec2(300, 200), glm::vec4(5.0f), 2.0f);
@@ -94,57 +94,58 @@ std::shared_ptr<UINode> create_debug_panel(
                L" emitters: " +
                std::to_wstring(ParticlesRenderer::aliveEmitters);
     }));
-    panel->add(create_label([=]() {
-        return L"chunks: "+std::to_wstring(level->chunks->getChunksCount())+
+    panel->add(create_label([&]() {
+        return L"chunks: "+std::to_wstring(level.chunks->getChunksCount())+
                L" visible: "+std::to_wstring(ChunksRenderer::visibleChunks);
     }));
-    panel->add(create_label([=]() {
-        return L"entities: "+std::to_wstring(level->entities->size())+L" next: "+
-               std::to_wstring(level->entities->peekNextID());
+    panel->add(create_label([&]() {
+        return L"entities: "+std::to_wstring(level.entities->size())+L" next: "+
+               std::to_wstring(level.entities->peekNextID());
     }));
-    panel->add(create_label([=]() {
-        const auto& vox = player->selection.vox;
+    panel->add(create_label([&]() -> std::wstring {
+        const auto& vox = player.selection.vox;
         std::wstringstream stream;
         stream << "r:" << vox.state.rotation << " s:"
                 << std::bitset<3>(vox.state.segment) << " u:"
                 << std::bitset<8>(vox.state.userbits);
         if (vox.id == BLOCK_VOID) {
-            return std::wstring {L"block: -"};
+            return L"block: -";
         } else {
             return L"block: "+std::to_wstring(vox.id)+
                    L" "+stream.str();
         }
     }));
-    panel->add(create_label([=]() -> std::wstring {
-        const auto& vox = player->selection.vox;
+    panel->add(create_label([&]() -> std::wstring {
+        const auto& selection = player.selection;
+        const auto& vox = selection.vox;
         if (vox.id == BLOCK_VOID) {
             return L"x: - y: - z: -";
         }
-        return L"x: " + std::to_wstring(player->selection.actualPosition.x) +
-               L" y: " + std::to_wstring(player->selection.actualPosition.y) +
-               L" z: " + std::to_wstring(player->selection.actualPosition.z);
+        return L"x: " + std::to_wstring(selection.actualPosition.x) +
+               L" y: " + std::to_wstring(selection.actualPosition.y) +
+               L" z: " + std::to_wstring(selection.actualPosition.z);
     }));
-    panel->add(create_label([=]() {
-        auto eid = player->getSelectedEntity();
+    panel->add(create_label([&]() {
+        auto eid = player.getSelectedEntity();
         if (eid == ENTITY_NONE) {
             return std::wstring {L"entity: -"};
-        } else if (auto entity = level->entities->get(eid)) {
+        } else if (auto entity = level.entities->get(eid)) {
             return L"entity: "+util::str2wstr_utf8(entity->getDef().name)+
                    L" uid: "+std::to_wstring(entity->getUID());
         } else {
             return std::wstring {L"entity: error (invalid UID)"};
         }
     }));
-    panel->add(create_label([=](){
-        auto* indices = level->content->getIndices();
-        if (auto def = indices->blocks.get(player->selection.vox.id)) {
+    panel->add(create_label([&](){
+        auto* indices = level.content->getIndices();
+        if (auto def = indices->blocks.get(player.selection.vox.id)) {
             return L"name: " + util::str2wstr_utf8(def->name);
         } else {
             return std::wstring {L"name: void"};
         }
     }));
-    panel->add(create_label([=](){
-        return L"seed: "+std::to_wstring(level->getWorld()->getSeed());
+    panel->add(create_label([&](){
+        return L"seed: "+std::to_wstring(level.getWorld()->getSeed());
     }));
 
     for (int ax = 0; ax < 3; ax++) {
@@ -161,22 +162,22 @@ std::shared_ptr<UINode> create_debug_panel(
         // Coord input
         auto box = std::make_shared<TextBox>(L"");
         auto boxRef = box.get();
-        box->setTextSupplier([=]() {
-            return util::to_wstring(player->getPosition()[ax], 2);
+        box->setTextSupplier([&player, ax]() {
+            return util::to_wstring(player.getPosition()[ax], 2);
         });
         if (allowDebugCheats) {
-            box->setTextConsumer([=](const std::wstring& text) {
+            box->setTextConsumer([&player, ax](const std::wstring& text) {
                 try {
-                    glm::vec3 position = player->getPosition();
+                    glm::vec3 position = player.getPosition();
                     position[ax] = std::stoi(text);
-                    player->teleport(position);
+                    player.teleport(position);
                 } catch (std::exception& _){
                 }
             });
         }
-        box->setOnEditStart([=]() {
+        box->setOnEditStart([&player, boxRef, ax]() {
             boxRef->setText(
-                std::to_wstring(static_cast<int>(player->getPosition()[ax]))
+                std::to_wstring(static_cast<int>(player.getPosition()[ax]))
             );
         });
         box->setSize(glm::vec2(230, 27));
@@ -184,7 +185,7 @@ std::shared_ptr<UINode> create_debug_panel(
         sub->add(box, glm::vec2(20, 0));
         panel->add(sub);
     }
-    auto& worldInfo = level->getWorld()->getInfo();
+    auto& worldInfo = level.getWorld()->getInfo();
     panel->add(create_label([&](){
         int hour, minute, second;
         timeutil::from_value(worldInfo.daytime, hour, minute, second);

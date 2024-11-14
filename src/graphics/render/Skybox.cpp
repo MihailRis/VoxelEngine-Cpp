@@ -15,6 +15,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #ifndef M_PI
 #define M_PI 3.141592
@@ -23,7 +24,7 @@
 const int STARS_COUNT = 3000;
 const int STARS_SEED = 632;
 
-Skybox::Skybox(uint size, Shader* shader) 
+Skybox::Skybox(uint size, Shader& shader) 
   : size(size), 
     shader(shader), 
     batch3d(std::make_unique<Batch3D>(4096)) 
@@ -43,14 +44,14 @@ Skybox::Skybox(uint size, Shader* shader)
 
     sprites.push_back(skysprite {
         "misc/moon",
-        M_PI*0.5f,
+        glm::pi<float>()*0.5f,
         4.0f,
         false
     });
 
     sprites.push_back(skysprite {
         "misc/sun",
-        M_PI*1.5f,
+        glm::pi<float>()*1.5f,
         4.0f,
         true
     });
@@ -115,13 +116,13 @@ void Skybox::draw(
     p_shader->uniformMatrix("u_apply", glm::mat4(1.0f));
     batch3d->begin();
 
-    float angle = daytime * float(M_PI) * 2.0f;
+    float angle = daytime * glm::pi<float>() * 2.0f;
     float opacity = glm::pow(1.0f-fog, 7.0f);
     
     for (auto& sprite : sprites) {
         batch3d->texture(assets.get<Texture>(sprite.texture));
 
-        float sangle = daytime * float(M_PI)*2.0 + sprite.phase;
+        float sangle = daytime * glm::pi<float>()*2.0 + sprite.phase;
         float distance = sprite.distance;
 
         glm::vec3 pos(-std::cos(sangle)*distance, std::sin(sangle)*distance, 0);
@@ -152,15 +153,15 @@ void Skybox::refresh(const DrawContext& pctx, float t, float mie, uint quality) 
     ready = true;
     glActiveTexture(GL_TEXTURE1);
     cubemap->bind();
-    shader->use();
-    t *= M_PI*2.0f;
+    shader.use();
+    t *= glm::pi<float>()*2.0f;
     
     lightDir = glm::normalize(glm::vec3(sin(t), -cos(t), 0.0f));
-    shader->uniform1i("u_quality", quality);
-    shader->uniform1f("u_mie", mie);
-    shader->uniform1f("u_fog", mie - 1.0f);
-    shader->uniform3f("u_lightDir", lightDir);
-    shader->uniform1f("u_dayTime", dayTime);
+    shader.uniform1i("u_quality", quality);
+    shader.uniform1f("u_mie", mie);
+    shader.uniform1f("u_fog", mie - 1.0f);
+    shader.uniform3f("u_lightDir", lightDir);
+    shader.uniform1f("u_dayTime", dayTime);
 
     if (glm::abs(mie-prevMie) + glm::abs(t-prevT) >= 0.01) {
         for (uint face = 0; face < 6; face++) {
@@ -206,10 +207,16 @@ void Skybox::refreshFace(uint face, Cubemap* cubemap) {
         {0.0f, 0.0f, -1.0f},
         {0.0f, 0.0f, 1.0f},
     };
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, cubemap->getId(), 0);
-    shader->uniform3f("u_xaxis", xaxs[face]);
-    shader->uniform3f("u_yaxis", yaxs[face]);
-    shader->uniform3f("u_zaxis", zaxs[face]);
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER,
+        GL_COLOR_ATTACHMENT0,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+        cubemap->getId(),
+        0
+    );
+    shader.uniform3f("u_xaxis", xaxs[face]);
+    shader.uniform3f("u_yaxis", yaxs[face]);
+    shader.uniform3f("u_zaxis", zaxs[face]);
     mesh->draw();
 }
 

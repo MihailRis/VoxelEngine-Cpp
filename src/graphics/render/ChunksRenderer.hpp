@@ -39,15 +39,15 @@ struct RendererResult {
 };
 
 class ChunksRenderer {
-    Level* level;
+    const Level& level;
     const Assets& assets;
     const Frustum& frustum;
-    const EngineSettings* settings;
+    const EngineSettings& settings;
+
     std::unique_ptr<BlocksRenderer> renderer;
     std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
     std::unordered_map<glm::ivec2, bool> inwork;
     std::vector<ChunksSortEntry> indices;
-
     util::ThreadPool<std::shared_ptr<Chunk>, RendererResult> threadPool;
 
     bool drawChunk(
@@ -55,11 +55,11 @@ class ChunksRenderer {
     );
 public:
     ChunksRenderer(
-        Level* level,
+        const Level* level,
         const Assets& assets,
         const Frustum& frustum,
-        const ContentGfxCache* cache, 
-        const EngineSettings* settings
+        const ContentGfxCache& cache, 
+        const EngineSettings& settings
     );
     virtual ~ChunksRenderer();
 
