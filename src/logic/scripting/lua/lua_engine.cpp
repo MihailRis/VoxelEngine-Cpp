@@ -86,10 +86,10 @@ void lua::init_state(State* L, StateType stateType) {
     pop(L, luaopen_debug(L));
     pop(L, luaopen_jit(L));
     pop(L, luaopen_bit(L));
-    pop(L, luaopen_os(L));
-    const char* removed_os[] {
-        "execute", "exit", "remove", "rename", "setlocale", "tmpname", nullptr};
-    remove_lib_funcs(L, "os", removed_os);
+    //pop(L, luaopen_os(L));
+    //const char* removed_os[] {
+        //"execute", "exit", "remove", "rename", "setlocale", "tmpname", nullptr};
+    //remove_lib_funcs(L, "os", removed_os);
     create_libs(L, stateType);
 
     pushglobals(L);
