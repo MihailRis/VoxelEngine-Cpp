@@ -17,6 +17,14 @@ static debug::Logger logger("scripting-hud");
 Hud* scripting::hud = nullptr;
 WorldRenderer* scripting::renderer = nullptr;
 
+static void load_script(const std::string& name) {
+    auto file = engine->getPaths()->getResourcesFolder() / "scripts" / name;
+    std::string src = files::read_string(file);
+    logger.info() << "loading script " << file.u8string();
+
+    lua::execute(lua::get_main_state(), 0, src, file.u8string());
+}
+
 void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
     scripting::hud = hud;
     scripting::renderer = renderer;
@@ -26,6 +34,8 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
     lua::openlib(L, "hud", hudlib);
     lua::openlib(L, "gfx", "particles", particleslib);
     lua::openlib(L, "gfx", "text3d", text3dlib);
+
+    load_script("hud_classes.lua");
 
     if (lua::getglobal(L, "__vc_create_hud_rules")) {
         lua::call_nothrow(L, 0, 0);
