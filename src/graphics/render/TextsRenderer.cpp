@@ -95,3 +95,7 @@ u64id_t TextsRenderer::add(std::unique_ptr<TextNote> note) {
     notes[uid] = std::move(note);
     return uid;
 }
+
+void TextsRenderer::remove(u64id_t id) {
+    notes.erase(id);
+}

@@ -40,4 +40,6 @@ public:
     );
 
     u64id_t add(std::unique_ptr<TextNote> note);
+
+    void remove(u64id_t id);
 };

@@ -8,7 +8,7 @@
 
 using namespace scripting;
 
-static int l_spawn(lua::State* L) {
+static int l_show(lua::State* L) {
     auto position = lua::tovec3(L, 1);
     auto text = lua::require_wstring(L, 2);
     auto preset = lua::tovalue(L, 3);
@@ -23,7 +23,13 @@ static int l_spawn(lua::State* L) {
     return lua::pushinteger(L, renderer->texts->add(std::move(note)));
 }
 
+static int l_hide(lua::State* L) {
+    renderer->texts->remove(lua::touinteger(L, 1));
+    return 0;
+}
+
 const luaL_Reg text3dlib[] = {
-    {"spawn", lua::wrap<l_spawn>},
+    {"show", lua::wrap<l_show>},
+    {"hide", lua::wrap<l_hide>},
     {NULL, NULL}
 };

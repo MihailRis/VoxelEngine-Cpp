@@ -25,9 +25,9 @@ function on_hud_open()
         drop.rigidbody:set_vel(velocity)
     end)
 
-    gfx.text3d.spawn({0.5, 99.5, 0.0015}, "Segmentation fault", {
-        scale = 0.005,
-        color = {0, 0, 0, 1},
-        displayMode = "static_billboard"
+    gfx.text3d.show({0.5, 99.5, 0.0015}, "Segmentation fault", {
+        scale=0.005,
+        color={0, 0, 0, 1},
+        displayMode="static_billboard"
     })
 end
