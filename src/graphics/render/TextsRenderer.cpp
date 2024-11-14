@@ -96,6 +96,14 @@ u64id_t TextsRenderer::add(std::unique_ptr<TextNote> note) {
     return uid;
 }
 
+TextNote* TextsRenderer::get(u64id_t id) const {
+    const auto& found = notes.find(id);
+    if (found == notes.end()) {
+        return nullptr;
+    }
+    return found->second.get();
+}
+
 void TextsRenderer::remove(u64id_t id) {
     notes.erase(id);
 }

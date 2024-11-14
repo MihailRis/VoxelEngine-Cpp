@@ -41,5 +41,7 @@ public:
 
     u64id_t add(std::unique_ptr<TextNote> note);
 
+    TextNote* get(u64id_t id) const;
+
     void remove(u64id_t id);
 };

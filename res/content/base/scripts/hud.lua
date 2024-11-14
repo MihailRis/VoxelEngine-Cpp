@@ -1,6 +1,8 @@
 local DROP_FORCE = 8
 local DROP_INIT_VEL = {0, 3, 0}
 
+local textid
+
 function on_hud_open()
     input.add_callback("player.drop", function ()
         if hud.is_paused() or hud.is_inventory_open() then
@@ -25,9 +27,14 @@ function on_hud_open()
         drop.rigidbody:set_vel(velocity)
     end)
 
-    gfx.text3d.show({0.5, 99.5, 0.0015}, "Segmentation fault", {
+    textid = gfx.text3d.show({0.5, 99.5, 0.0015}, "Segmentation fault", {
         scale=0.005,
         color={0, 0, 0, 1},
         displayMode="static_billboard"
     })
+end
+
+function on_hud_render()
+    local pos = gfx.text3d.get_pos(textid)
+    gfx.text3d.set_pos(textid, {pos[1], pos[2]+time.delta(), pos[3]})
 end

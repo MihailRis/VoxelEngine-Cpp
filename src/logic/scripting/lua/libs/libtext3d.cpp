@@ -28,8 +28,40 @@ static int l_hide(lua::State* L) {
     return 0;
 }
 
+static int l_get_text(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        return lua::pushwstring(L, note->getText());
+    }
+    return 0;
+}
+
+static int l_set_text(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        note->setText(lua::require_wstring(L, 2));
+    }
+    return 0;
+}
+
+static int l_get_pos(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        return lua::pushvec(L, note->getPosition());
+    }
+    return 0;
+}
+
+static int l_set_pos(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        note->setPosition(lua::tovec3(L, 2));
+    }
+    return 0;
+}
+
 const luaL_Reg text3dlib[] = {
     {"show", lua::wrap<l_show>},
     {"hide", lua::wrap<l_hide>},
+    {"get_text", lua::wrap<l_get_text>},
+    {"set_text", lua::wrap<l_set_text>},
+    {"get_pos", lua::wrap<l_get_pos>},
+    {"set_pos", lua::wrap<l_set_pos>},
     {NULL, NULL}
 };
