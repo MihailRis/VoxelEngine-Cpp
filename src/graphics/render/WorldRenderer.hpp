@@ -17,6 +17,7 @@ class Batch3D;
 class LineBatch;
 class ChunksRenderer;
 class ParticlesRenderer;
+class TextsRenderer;
 class Shader;
 class Frustum;
 class Engine;
@@ -28,7 +29,6 @@ class DrawContext;
 class ModelBatch;
 class Assets;
 class Emitter;
-class TextNote;
 struct EngineSettings;
 
 namespace model {
@@ -51,6 +51,7 @@ class WorldRenderer {
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<ChunksRenderer> renderer;
+    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
@@ -91,23 +92,6 @@ class WorldRenderer {
         const Camera& camera,
         const EngineSettings& settings,
         float fogFactor
-    );
-
-    void renderText(
-        const TextNote& note,
-        const DrawContext& context,
-        const Assets& assets,
-        const Camera& camera,
-        const EngineSettings& settings,
-        bool hudVisible
-    );
-
-    void renderTexts(
-        const DrawContext& context,
-        const Camera& camera,
-        const EngineSettings& settings,
-        bool hudVisible,
-        bool frontLayer
     );
 public:
     std::unique_ptr<ParticlesRenderer> particles;

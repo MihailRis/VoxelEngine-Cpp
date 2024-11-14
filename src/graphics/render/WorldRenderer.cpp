@@ -32,7 +32,6 @@
 #include "world/Level.hpp"
 #include "world/LevelEvents.hpp"
 #include "world/World.hpp"
-#include "presets/NotePreset.hpp"
 #include "graphics/commons/Model.hpp"
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Batch3D.hpp"
@@ -44,6 +43,7 @@
 #include "graphics/core/Texture.hpp"
 #include "graphics/core/Font.hpp"
 #include "ParticlesRenderer.hpp"
+#include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
@@ -71,7 +71,8 @@ WorldRenderer::WorldRenderer(
           *engine->getAssets(),
           *frontend->getLevel(),
           &engine->getSettings().graphics
-      )) {
+      )),
+      texts(std::make_unique<TextsRenderer>(frustumCulling.get())) {
     renderer = std::make_unique<ChunksRenderer>(
         level, frontend->getContentGfxCache(), &engine->getSettings()
     );
@@ -419,98 +420,6 @@ void WorldRenderer::renderHands(
     skybox->unbind();
 }
 
-void WorldRenderer::renderText(
-    const TextNote& note,
-    const DrawContext& context,
-    const Assets& assets,
-    const Camera& camera,
-    const EngineSettings& settings,
-    bool hudVisible
-) {
-    const auto& text = note.getText();
-    const auto& preset = note.getPreset();
-    const auto& pos = note.getPosition();
-
-    if (util::distance2(pos, camera.position) >
-        util::sqr(preset.renderDistance / camera.zoom)) {
-        return;
-    }
-
-    // Projected notes are displayed on the front layer only
-    if (preset.displayMode == NoteDisplayMode::PROJECTED) {
-        return;
-    }
-    auto& font = assets.require<Font>("normal");
-
-    glm::vec3 xvec {1, 0, 0};
-    glm::vec3 yvec {0, 1, 0};
-
-    int width = font.calcWidth(text, text.length());
-    if (preset.displayMode == NoteDisplayMode::Y_FREE_BILLBOARD ||
-        preset.displayMode == NoteDisplayMode::XY_FREE_BILLBOARD) {
-        xvec = camera.position - pos;
-        xvec.y = 0;
-        std::swap(xvec.x, xvec.z);
-        xvec.z *= -1;
-        xvec = glm::normalize(xvec);
-        if (preset.displayMode == NoteDisplayMode::XY_FREE_BILLBOARD) {
-            yvec = camera.up;
-        }
-    }
-
-    if (preset.displayMode != NoteDisplayMode::PROJECTED) {
-        if (!frustumCulling->isBoxVisible(pos - xvec * (width * 0.5f), 
-                                          pos + xvec * (width * 0.5f))) {
-            return;
-        }
-    }
-    
-    float ppbx = 1.0f / preset.scale;
-    float ppby = 1.0f / preset.scale;
-
-    batch3d->setColor(preset.color);
-    font.draw(
-        *batch3d,
-        text,
-        pos - xvec * (width * 0.5f) / ppbx,
-        xvec / ppbx,
-        yvec / ppby
-    );
-}
-
-void WorldRenderer::renderTexts(
-    const DrawContext& context,
-    const Camera& camera,
-    const EngineSettings& settings,
-    bool hudVisible,
-    bool frontLayer
-) {
-    std::vector<TextNote> notes;
-    NotePreset preset;
-    preset.displayMode = NoteDisplayMode::STATIC_BILLBOARD;
-    preset.color = glm::vec4(0, 0, 0, 1);
-    preset.scale = 0.005f;
-
-    notes.emplace_back(
-        L"Segmentation fault",
-        std::move(preset),
-        glm::vec3(0.5f, 99.5f, 0.0015f)
-    );
-
-    const auto& assets = *engine->getAssets();
-    auto& shader = assets.require<Shader>("ui3d");
-    
-    shader.use();
-    shader.uniformMatrix("u_projview", camera.getProjView());
-    shader.uniformMatrix("u_apply", glm::mat4(1.0f));
-    batch3d->begin();
-
-    for (const auto& note : notes) {
-        renderText(note, context, assets, camera, settings, hudVisible);
-    }
-    batch3d->flush();
-}
-
 void WorldRenderer::draw(
     const DrawContext& pctx,
     Camera& camera,
@@ -547,7 +456,9 @@ void WorldRenderer::draw(
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            renderTexts(ctx, camera, settings, hudVisible, false);
+            texts->renderTexts(
+                *batch3d, ctx, assets, camera, settings, hudVisible, false
+            );
             renderLevel(ctx, camera, settings, delta, pause);
             // Debug lines
             if (hudVisible) {
