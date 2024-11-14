@@ -11,6 +11,7 @@
 #include "graphics/ui/elements/InputBindBox.hpp"
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/render/ParticlesRenderer.hpp"
+#include "graphics/render/ChunksRenderer.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "objects/Player.hpp"
 #include "objects/Entities.hpp"
@@ -95,7 +96,7 @@ std::shared_ptr<UINode> create_debug_panel(
     }));
     panel->add(create_label([=]() {
         return L"chunks: "+std::to_wstring(level->chunks->getChunksCount())+
-               L" visible: "+std::to_wstring(level->chunks->visible);
+               L" visible: "+std::to_wstring(ChunksRenderer::visibleChunks);
     }));
     panel->add(create_label([=]() {
         return L"entities: "+std::to_wstring(level->entities->size())+L" next: "+

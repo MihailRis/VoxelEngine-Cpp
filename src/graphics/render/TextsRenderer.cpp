@@ -10,14 +10,15 @@
 #include "graphics/core/Shader.hpp"
 #include "presets/NotePreset.hpp"
 
-TextsRenderer::TextsRenderer(const Frustum* frustum) : frustum(frustum) {
+TextsRenderer::TextsRenderer(
+    Batch3D& batch, const Assets& assets, const Frustum& frustum
+)
+    : batch(batch), assets(assets), frustum(frustum) {
 }
 
 void TextsRenderer::renderText(
-    Batch3D& batch,
     const TextNote& note,
     const DrawContext& context,
-    const Assets& assets,
     const Camera& camera,
     const EngineSettings& settings,
     bool hudVisible
@@ -54,8 +55,8 @@ void TextsRenderer::renderText(
     }
 
     if (preset.displayMode != NoteDisplayMode::PROJECTED) {
-        if (!frustum->isBoxVisible(pos - xvec * (width * 0.5f), 
-                                   pos + xvec * (width * 0.5f))) {
+        if (!frustum.isBoxVisible(pos - xvec * (width * 0.5f), 
+                                  pos + xvec * (width * 0.5f))) {
             return;
         }
     }
@@ -71,9 +72,7 @@ void TextsRenderer::renderText(
 }
 
 void TextsRenderer::renderTexts(
-    Batch3D& batch,
     const DrawContext& context,
-    const Assets& assets,
     const Camera& camera,
     const EngineSettings& settings,
     bool hudVisible,
@@ -96,9 +95,8 @@ void TextsRenderer::renderTexts(
     shader.uniformMatrix("u_projview", camera.getProjView());
     shader.uniformMatrix("u_apply", glm::mat4(1.0f));
     batch.begin();
-
     for (const auto& note : notes) {
-        renderText(batch, note, context, assets, camera, settings, hudVisible);
+        renderText(note, context, camera, settings, hudVisible);
     }
     batch.flush();
 }

@@ -9,24 +9,22 @@ class TextNote;
 struct EngineSettings;
 
 class TextsRenderer {
-    const Frustum* frustum;
+    Batch3D& batch;
+    const Assets& assets;
+    const Frustum& frustum;
 
     void renderText(
-        Batch3D& batch,
         const TextNote& note,
         const DrawContext& context,
-        const Assets& assets,
         const Camera& camera,
         const EngineSettings& settings,
         bool hudVisible
     );
 public:
-    TextsRenderer(const Frustum* frustum);
+    TextsRenderer(Batch3D& batch, const Assets& assets, const Frustum& frustum);
 
     void renderTexts(
-        Batch3D& batch,
         const DrawContext& context,
-        const Assets& assets,
         const Camera& camera,
         const EngineSettings& settings,
         bool hudVisible,

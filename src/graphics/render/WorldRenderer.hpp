@@ -22,7 +22,6 @@ class TextsRenderer;
 class Shader;
 class Frustum;
 class Engine;
-class Chunks;
 class LevelFrontend;
 class Skybox;
 class PostProcessing;
@@ -36,39 +35,26 @@ namespace model {
     struct Model;
 }
 
-struct ChunksSortEntry {
-    int index;
-    int d;
-
-    inline bool operator<(const ChunksSortEntry& o) const noexcept {
-        return d > o.d;
-    }
-};
-
 class WorldRenderer {
     Engine* engine;
     Level* level;
     Player* player;
+    const Assets& assets;
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
-    std::unique_ptr<ChunksRenderer> renderer;
+    std::unique_ptr<Batch3D> batch3d;
+    std::unique_ptr<ChunksRenderer> chunks;
     std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<GuidesRenderer> guides;
     std::unique_ptr<Skybox> skybox;
-    std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ModelBatch> modelBatch;
-
-    std::vector<ChunksSortEntry> indices;
     
     float timer = 0.0f;
-
-    bool drawChunk(size_t index, const Camera& camera, Shader& shader, bool culling);
-    void drawChunks(Chunks* chunks, const Camera& camera, Shader& shader);
 
     /// @brief Render block selection lines
     void renderBlockSelection();
 
-    void renderHands(const Camera& camera, const Assets& assets, float delta);
+    void renderHands(const Camera& camera, float delta);
     
     /// @brief Render lines (selection and debug)
     /// @param camera active camera
@@ -77,7 +63,7 @@ class WorldRenderer {
         const Camera& camera, Shader& linesShader, const DrawContext& pctx
     );
 
-    void renderBlockOverlay(const DrawContext& context, const Assets& assets);
+    void renderBlockOverlay(const DrawContext& context);
 
     void setupWorldShader(
         Shader& shader,

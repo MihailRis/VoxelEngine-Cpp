@@ -22,7 +22,6 @@
 #include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
-#include "util/listutil.hpp"
 #include "settings.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
@@ -51,6 +50,9 @@
 #include "Emitter.hpp"
 #include "TextNote.hpp"
 
+inline constexpr size_t BATCH3D_CAPACITY = 4096;
+inline constexpr size_t MODEL_BATCH_CAPACITY = 20'000;
+
 bool WorldRenderer::showChunkBorders = false;
 bool WorldRenderer::showEntitiesDebug = false;
 
@@ -60,30 +62,28 @@ WorldRenderer::WorldRenderer(
     : engine(engine),
       level(frontend->getLevel()),
       player(player),
+      assets(*engine->getAssets()),
       frustumCulling(std::make_unique<Frustum>()),
       lineBatch(std::make_unique<LineBatch>()),
+      batch3d(std::make_unique<Batch3D>(BATCH3D_CAPACITY)),
       modelBatch(std::make_unique<ModelBatch>(
-          20'000,
-          engine->getAssets(),
-          level->chunks.get(),
-          &engine->getSettings()
+          MODEL_BATCH_CAPACITY, assets, *level->chunks, engine->getSettings()
       )),
       particles(std::make_unique<ParticlesRenderer>(
-          *engine->getAssets(),
-          *frontend->getLevel(),
-          &engine->getSettings().graphics
+          assets, *level, &engine->getSettings().graphics
       )),
-      texts(std::make_unique<TextsRenderer>(frustumCulling.get())),
-      guides(std::make_unique<GuidesRenderer>()) {
-    renderer = std::make_unique<ChunksRenderer>(
-        level, frontend->getContentGfxCache(), &engine->getSettings()
-    );
-    batch3d = std::make_unique<Batch3D>(4096);
-
+      texts(std::make_unique<TextsRenderer>(
+          *batch3d, assets, *frustumCulling
+      )),
+      guides(std::make_unique<GuidesRenderer>()),
+      chunks(std::make_unique<ChunksRenderer>(
+        level, assets, *frustumCulling, frontend->getContentGfxCache(), &engine->getSettings()
+      ))
+{
     auto& settings = engine->getSettings();
     level->events->listen(
         EVT_CHUNK_HIDDEN,
-        [this](lvl_event_type, Chunk* chunk) { renderer->unload(chunk); }
+        [this](lvl_event_type, Chunk* chunk) { chunks->unload(chunk); }
     );
     auto assets = engine->getAssets();
     skybox = std::make_unique<Skybox>(
@@ -93,87 +93,6 @@ WorldRenderer::WorldRenderer(
 }
 
 WorldRenderer::~WorldRenderer() = default;
-
-bool WorldRenderer::drawChunk(
-    size_t index, const Camera& camera, Shader& shader, bool culling
-) {
-    auto chunk = level->chunks->getChunks()[index];
-    if (chunk == nullptr || !chunk->flags.lighted) {
-        return false;
-    }
-    float distance = glm::distance(
-        camera.position,
-        glm::vec3(
-            (chunk->x + 0.5f) * CHUNK_W,
-            camera.position.y,
-            (chunk->z + 0.5f) * CHUNK_D
-        )
-    );
-    auto mesh = renderer->getOrRender(chunk, distance < CHUNK_W * 1.5f);
-    if (mesh == nullptr) {
-        return false;
-    }
-    if (culling) {
-        glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
-        glm::vec3 max(
-            chunk->x * CHUNK_W + CHUNK_W,
-            chunk->top,
-            chunk->z * CHUNK_D + CHUNK_D
-        );
-
-        if (!frustumCulling->isBoxVisible(min, max)) return false;
-    }
-    glm::vec3 coord(chunk->x * CHUNK_W + 0.5f, 0.5f, chunk->z * CHUNK_D + 0.5f);
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
-    shader.uniformMatrix("u_model", model);
-    mesh->draw();
-    return true;
-}
-
-void WorldRenderer::drawChunks(
-    Chunks* chunks, const Camera& camera, Shader& shader
-) {
-    auto assets = engine->getAssets();
-    auto atlas = assets->get<Atlas>("blocks");
-
-    atlas->getTexture()->bind();
-    renderer->update();
-
-    // [warning] this whole method is not thread-safe for chunks
-
-    int chunksWidth = chunks->getWidth();
-    int chunksOffsetX = chunks->getOffsetX();
-    int chunksOffsetY = chunks->getOffsetY();
-
-    if (indices.size() != chunks->getVolume()) {
-        indices.clear();
-        for (int i = 0; i < chunks->getVolume(); i++) {
-            indices.push_back(ChunksSortEntry {i, 0});
-        }
-    }
-    float px = camera.position.x / static_cast<float>(CHUNK_W) - 0.5f;
-    float pz = camera.position.z / static_cast<float>(CHUNK_D) - 0.5f;
-    for (auto& index : indices) {
-        float x = index.index % chunksWidth + chunksOffsetX - px;
-        float z = index.index / chunksWidth + chunksOffsetY - pz;
-        index.d = (x * x + z * z) * 1024;
-    }
-    util::insertion_sort(indices.begin(), indices.end());
-
-    bool culling = engine->getSettings().graphics.frustumCulling.get();
-    if (culling) {
-        frustumCulling->update(camera.getProjView());
-    }
-
-    chunks->visible = 0;
-    if (GLEW_ARB_multi_draw_indirect && false) {
-        // TODO: implement Multi Draw Indirect chunks draw
-    } else {
-        for (size_t i = 0; i < indices.size(); i++) {
-            chunks->visible += drawChunk(indices[i].index, camera, shader, culling);
-        }
-    }
-}
 
 void WorldRenderer::setupWorldShader(
     Shader& shader,
@@ -219,11 +138,7 @@ void WorldRenderer::renderLevel(
     bool pause,
     bool hudVisible
 ) {
-    const auto& assets = *engine->getAssets();
-
-    texts->renderTexts(
-        *batch3d, ctx, assets, camera, settings, hudVisible, false
-    );
+    texts->renderTexts(ctx, camera, settings, hudVisible, false);
 
     bool culling = engine->getSettings().graphics.frustumCulling.get();
     float fogFactor =
@@ -232,6 +147,10 @@ void WorldRenderer::renderLevel(
     auto& entityShader = assets.require<Shader>("entity");
     setupWorldShader(entityShader, camera, settings, fogFactor);
     skybox->bind();
+
+    if (culling) {
+        frustumCulling->update(camera.getProjView());
+    }
 
     level->entities->render(
         assets,
@@ -246,7 +165,7 @@ void WorldRenderer::renderLevel(
     auto& shader = assets.require<Shader>("main");
     setupWorldShader(shader, camera, settings, fogFactor);
 
-    drawChunks(level->chunks.get(), camera, shader);
+    chunks->drawChunks(camera, shader);
 
     if (!pause) {
         scripting::on_frontend_render();
@@ -302,7 +221,7 @@ void WorldRenderer::renderLines(
 }
 
 void WorldRenderer::renderHands(
-    const Camera& camera, const Assets& assets, float delta
+    const Camera& camera, float delta
 ) {
     auto& entityShader = assets.require<Shader>("entity");
     auto indices = level->content->getIndices();
@@ -408,11 +327,11 @@ void WorldRenderer::draw(
                 }
                 renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
-                    renderHands(camera, assets, delta * !pause);
+                    renderHands(camera, delta * !pause);
                 }
             }
         }
-        renderBlockOverlay(wctx, assets);
+        renderBlockOverlay(wctx);
     }
 
     // Rendering fullscreen quad with
@@ -423,7 +342,7 @@ void WorldRenderer::draw(
     postProcessing->render(pctx, screenShader);
 }
 
-void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& assets) {
+void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
     int x = std::floor(player->currentCamera->position.x);
     int y = std::floor(player->currentCamera->position.y);
     int z = std::floor(player->currentCamera->position.z);
@@ -469,5 +388,5 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx, const Assets& as
 }
 
 void WorldRenderer::clear() {
-    renderer->clear();
+    chunks->clear();
 }

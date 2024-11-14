@@ -40,10 +40,8 @@ class Chunks {
     );
 
     util::AreaMap2D<std::shared_ptr<Chunk>, int32_t> areaMap;
-public:
-    size_t visible = 0;
     WorldFiles* worldFiles;
-
+public:
     Chunks(
         int32_t w,
         int32_t d,
