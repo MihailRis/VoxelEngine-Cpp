@@ -102,9 +102,9 @@ static inline int connectsocket(
 }
 
 static inline int recvsocket(
-    int descriptor, char* buf, size_t len, int flags
+    int descriptor, char* buf, size_t len
 ) noexcept {
-    return recv(descriptor, buf, len, flags);
+    return recv(descriptor, buf, len, 0);
 }
 
 static inline int sendsocket(
@@ -146,8 +146,8 @@ public:
         freeaddrinfo(addr);
     }
 
-    int recv(char* buffer, size_t length, bool blocking) override {
-        int len = recvsocket(descriptor, buffer, length, blocking ? MSG_WAITALL : MSG_DONTWAIT);
+    int recv(char* buffer, size_t length) override {
+        int len = recvsocket(descriptor, buffer, length);
         if (len == 0) {
             int err = errno;
             close();

@@ -24,7 +24,7 @@ TEST(curltest, curltest) {
         socket->send(string, strlen(string));
         char data[1024];
 
-        int len = socket->recv(data, 1024, true);
+        int len = socket->recv(data, 1024);
         std::cout << len << " " << std::string(data, len) << std::endl;
     }
 
