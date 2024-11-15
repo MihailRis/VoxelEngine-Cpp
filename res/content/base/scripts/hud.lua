@@ -39,4 +39,5 @@ function on_hud_render()
     note:update_settings({
         color={math.sin(time.uptime() * 12) * 0.5 + 0.5, 0, 0, 1}
     })
+    note:set_axis_x({math.sin(time.uptime()), 0, math.cos(time.uptime())})
 end
