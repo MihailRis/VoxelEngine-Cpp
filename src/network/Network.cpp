@@ -1,5 +1,7 @@
 #include "Network.hpp"
 
+#pragma comment(lib, "Ws2_32.lib")
+
 #include <curl/curl.h>
 #include <stdexcept>
 
