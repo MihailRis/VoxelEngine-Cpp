@@ -7,6 +7,9 @@ class TextNote {
     std::wstring text;
     NotePreset preset;
     glm::vec3 position;
+
+    glm::vec3 xAxis {1, 0, 0};
+    glm::vec3 yAxis {0, 1, 0};
 public:
     TextNote(std::wstring text, NotePreset preset, glm::vec3 position);
 
@@ -19,6 +22,11 @@ public:
     void updatePreset(const dv::value& data);
 
     void setPosition(const glm::vec3& position);
-
     const glm::vec3& getPosition() const;
+
+    const glm::vec3& getAxisX() const;
+    const glm::vec3& getAxisY() const;
+
+    void setAxisX(const glm::vec3& vec);
+    void setAxisY(const glm::vec3& vec);
 };

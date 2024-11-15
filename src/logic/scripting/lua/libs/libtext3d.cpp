@@ -48,10 +48,36 @@ static int l_get_pos(lua::State* L) {
     }
     return 0;
 }
-
 static int l_set_pos(lua::State* L) {
     if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
         note->setPosition(lua::tovec3(L, 2));
+    }
+    return 0;
+}
+
+static int l_get_axis_x(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        return lua::pushvec(L, note->getAxisX());
+    }
+    return 0;
+}
+static int l_set_axis_x(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        note->setAxisX(lua::tovec3(L, 2));
+    }
+    return 0;
+}
+
+
+static int l_get_axis_y(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        return lua::pushvec(L, note->getAxisY());
+    }
+    return 0;
+}
+static int l_set_axis_y(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        note->setAxisY(lua::tovec3(L, 2));
     }
     return 0;
 }
@@ -70,6 +96,10 @@ const luaL_Reg text3dlib[] = {
     {"set_text", lua::wrap<l_set_text>},
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
+    {"get_axis_x", lua::wrap<l_get_axis_x>},
+    {"set_axis_x", lua::wrap<l_set_axis_x>},
+    {"get_axis_y", lua::wrap<l_get_axis_y>},
+    {"set_axis_y", lua::wrap<l_set_axis_y>},
     {"update_settings", lua::wrap<l_update_settings>},
     {NULL, NULL}
 };

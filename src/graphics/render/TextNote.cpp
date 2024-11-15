@@ -29,3 +29,19 @@ void TextNote::setPosition(const glm::vec3& position) {
 const glm::vec3& TextNote::getPosition() const {
     return position;
 }
+
+const glm::vec3& TextNote::getAxisX() const {
+    return xAxis;
+}
+
+const glm::vec3& TextNote::getAxisY() const {
+    return yAxis;
+}
+
+void TextNote::setAxisX(const glm::vec3& vec) {
+    xAxis = vec;
+}
+
+void TextNote::setAxisY(const glm::vec3& vec) {
+    yAxis = vec;
+}

@@ -47,8 +47,8 @@ void TextsRenderer::renderNote(
     }
     const auto& font = assets.require<Font>("normal");
 
-    glm::vec3 xvec {1, 0, 0};
-    glm::vec3 yvec {0, 1, 0};
+    glm::vec3 xvec = note.getAxisX();
+    glm::vec3 yvec = note.getAxisY();
 
     int width = font.calcWidth(text, text.length());
     if (preset.displayMode == NoteDisplayMode::Y_FREE_BILLBOARD ||
