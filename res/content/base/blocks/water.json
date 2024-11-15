@@ -6,5 +6,6 @@
     "sky-light-passing": false,
     "obstacle": false,
     "selectable": false,
-    "replaceable": true
+    "replaceable": true,
+    "translucent": true
 }
