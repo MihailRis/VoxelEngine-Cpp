@@ -140,7 +140,6 @@ void Block::cloneTo(Block& dst) {
     dst.inventorySize = inventorySize;
     dst.tickInterval = tickInterval;
     dst.overlayTexture = overlayTexture;
-    dst.translucent = translucent;
     if (particles) {
         dst.particles = std::make_unique<ParticlesPreset>(*particles);
     }
