@@ -550,7 +550,7 @@ void Entities::renderDebug(
 }
 
 void Entities::render(
-    Assets* assets,
+    const Assets& assets,
     ModelBatch& batch,
     const Frustum* frustum,
     float delta,

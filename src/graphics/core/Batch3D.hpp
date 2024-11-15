@@ -17,6 +17,7 @@ class Batch3D : public Flushable {
     std::unique_ptr<Mesh> mesh;
     std::unique_ptr<Texture> blank;
     size_t index;
+    glm::vec4 tint {1.0f};
     
     const Texture* currentTexture;
 
@@ -57,6 +58,16 @@ public:
         const UVRegion& uv,
         const glm::vec4& tint
     );
+    void sprite(
+        const glm::vec3& pos,
+        const glm::vec3& up,
+        const glm::vec3& right,
+        float w,
+        float h,
+        int atlasRes,
+        int index,
+        const glm::vec4& tint
+    );
     void xSprite(
         float w,
         float h,
@@ -81,4 +92,7 @@ public:
     void point(const glm::vec3& pos, const glm::vec4& tint);
     void flush() override;
     void flushPoints();
+
+    void setColor(const glm::vec4& color);
+    const glm::vec4& getColor() const;
 };

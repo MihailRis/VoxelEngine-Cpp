@@ -127,7 +127,7 @@ static VoxelStructureMeta load_structure_meta(
 ) {
     VoxelStructureMeta meta;
     meta.name = name;
-
+    config.at("lowering").get(meta.lowering);
     return meta;
 }
 

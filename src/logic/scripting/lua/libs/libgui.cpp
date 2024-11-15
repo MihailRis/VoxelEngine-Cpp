@@ -242,6 +242,13 @@ static int p_get_placeholder(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_hint(UINode* node, lua::State* L) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return lua::pushwstring(L, box->getHint());
+    }
+    return 0;
+}
+
 static int p_get_text(UINode* node, lua::State* L) {
     if (auto button = dynamic_cast<Button*>(node)) {
         return lua::pushwstring(L, button->getText());
@@ -364,6 +371,7 @@ static int l_gui_getattr(lua::State* L) {
             {"clear", p_get_clear},
             {"setInterval", p_set_interval},
             {"placeholder", p_get_placeholder},
+            {"hint", p_get_hint},
             {"valid", p_is_valid},
             {"caret", p_get_caret},
             {"text", p_get_text},
@@ -428,6 +436,11 @@ static void p_set_enabled(UINode* node, lua::State* L, int idx) {
 static void p_set_placeholder(UINode* node, lua::State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setPlaceholder(lua::require_wstring(L, idx));
+    }
+}
+static void p_set_hint(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        box->setHint(lua::require_wstring(L, idx));
     }
 }
 static void p_set_text(UINode* node, lua::State* L, int idx) {
@@ -540,6 +553,7 @@ static int l_gui_setattr(lua::State* L) {
             {"visible", p_set_visible},
             {"enabled", p_set_enabled},
             {"placeholder", p_set_placeholder},
+            {"hint", p_set_hint},
             {"text", p_set_text},
             {"editable", p_set_editable},
             {"src", p_set_src},

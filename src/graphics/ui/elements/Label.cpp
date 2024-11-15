@@ -201,10 +201,10 @@ void Label::draw(const DrawContext* pctx, Assets* assets) {
             if (i < cache.lines.size()-1) {
                 view = std::wstring_view(text.c_str()+offset, cache.lines.at(i+1).offset-offset);
             }
-            font->draw(batch, view, pos.x, pos.y + i * totalLineHeight, FontStyle::none);
+            font->draw(*batch, view, pos.x, pos.y + i * totalLineHeight);
         }
     } else {
-        font->draw(batch, text, pos.x, pos.y, FontStyle::none);
+        font->draw(*batch, text, pos.x, pos.y);
     }
 }
 

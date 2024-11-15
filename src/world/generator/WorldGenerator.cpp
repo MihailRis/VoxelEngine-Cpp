@@ -270,10 +270,11 @@ void WorldGenerator::generateStructures(
             if (height < def.seaLevel) {
                 continue;
             }
-            auto& structure = *def.structures[structureId]->fragments[rotation];
-            glm::ivec3 position {x, height, z};
-            position.x -= structure.getSize().x / 2;
-            position.z -= structure.getSize().z / 2;
+            auto& structure = *def.structures[structureId];
+            auto& fragment = *structure.fragments[rotation];
+            glm::ivec3 position {x, height-structure.meta.lowering, z};
+            position.x -= fragment.getSize().x / 2;
+            position.z -= fragment.getSize().z / 2;
             placeStructure(
                 StructurePlacement {
                     structureId,
