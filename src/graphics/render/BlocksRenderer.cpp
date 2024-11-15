@@ -5,7 +5,7 @@
 #include "maths/UVRegion.hpp"
 #include "constants.hpp"
 #include "content/Content.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/Chunks.hpp"
 #include "lighting/Lightmap.hpp"
 #include "frontend/ContentGfxCache.hpp"
 #include "settings.hpp"
@@ -17,9 +17,9 @@ const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
 BlocksRenderer::BlocksRenderer(
     size_t capacity,
-    const Content* content,
-    const ContentGfxCache* cache,
-    const EngineSettings* settings
+    const Content& content,
+    const ContentGfxCache& cache,
+    const EngineSettings& settings
 ) : content(content),
     vertexBuffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
     indexBuffer(std::make_unique<int[]>(capacity)),
@@ -34,7 +34,7 @@ BlocksRenderer::BlocksRenderer(
         CHUNK_W + voxelBufferPadding*2, 
         CHUNK_H, 
         CHUNK_D + voxelBufferPadding*2);
-    blockDefsCache = content->getIndices()->blocks.getDefs();
+    blockDefsCache = content.getIndices()->blocks.getDefs();
 }
 
 BlocksRenderer::~BlocksRenderer() {
@@ -286,7 +286,7 @@ void BlocksRenderer::blockCustomModel(
         Z = orient.axisZ;
     }
 
-    const auto& model = cache->getModel(block->rt.id);
+    const auto& model = cache.getModel(block->rt.id);
     for (const auto& mesh : model.meshes) {
         if (vertexOffset + BlocksRenderer::VERTEX_SIZE * mesh.vertices.size() > capacity) {
             overflow = true;
@@ -434,10 +434,27 @@ glm::vec4 BlocksRenderer::pickSoftLight(
 }
 
 void BlocksRenderer::render(const voxel* voxels) {
-    int begin = chunk->bottom * (CHUNK_W * CHUNK_D);
-    int end = chunk->top * (CHUNK_W * CHUNK_D);
-    for (const auto drawGroup : *content->drawGroups) {
-        for (int i = begin; i < end; i++) {
+    int totalBegin = chunk->bottom * (CHUNK_W * CHUNK_D);
+    int totalEnd = chunk->top * (CHUNK_W * CHUNK_D);
+
+    int beginEnds[256][2] {};
+    for (int i = totalBegin; i < totalEnd; i++) {
+        const voxel& vox = voxels[i];
+        blockid_t id = vox.id;
+        const auto& def = *blockDefsCache[id];
+    
+        if (beginEnds[def.drawGroup][0] == 0) {
+            beginEnds[def.drawGroup][0] = i+1;
+        }
+        beginEnds[def.drawGroup][1] = i;
+    }
+    for (const auto drawGroup : *content.drawGroups) {
+        int begin = beginEnds[drawGroup][0];
+        if (begin == 0) {
+            continue;
+        }
+        int end = beginEnds[drawGroup][1];
+        for (int i = begin-1; i <= end; i++) {
             const voxel& vox = voxels[i];
             blockid_t id = vox.id;
             blockstate state = vox.state;
@@ -446,12 +463,12 @@ void BlocksRenderer::render(const voxel* voxels) {
                 continue;
             }
             const UVRegion texfaces[6] {
-                cache->getRegion(id, 0), 
-                cache->getRegion(id, 1),
-                cache->getRegion(id, 2), 
-                cache->getRegion(id, 3),
-                cache->getRegion(id, 4), 
-                cache->getRegion(id, 5)
+                cache.getRegion(id, 0), 
+                cache.getRegion(id, 1),
+                cache.getRegion(id, 2), 
+                cache.getRegion(id, 3),
+                cache.getRegion(id, 4), 
+                cache.getRegion(id, 5)
             };
             int x = i % CHUNK_W;
             int y = i / (CHUNK_D * CHUNK_W);
@@ -486,12 +503,12 @@ void BlocksRenderer::render(const voxel* voxels) {
     }
 }
 
-void BlocksRenderer::build(const Chunk* chunk, const ChunksStorage* chunks) {
+void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
     this->chunk = chunk;
     voxelsBuffer->setPosition(
         chunk->x * CHUNK_W - voxelBufferPadding, 0,
         chunk->z * CHUNK_D - voxelBufferPadding);
-    chunks->getVoxels(voxelsBuffer.get(), settings->graphics.backlight.get());
+    chunks->getVoxels(voxelsBuffer.get(), settings.graphics.backlight.get());
     overflow = false;
     vertexOffset = 0;
     indexOffset = indexSize = 0;
@@ -515,7 +532,7 @@ MeshData BlocksRenderer::createMesh() {
     );
 }
 
-std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const ChunksStorage* chunks) {
+std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const Chunks* chunks) {
     build(chunk, chunks);
 
     const vattr attrs[]{ {3}, {2}, {1}, {0} };

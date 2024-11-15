@@ -33,7 +33,8 @@ extern const luaL_Reg mat4lib[];
 extern const luaL_Reg packlib[];
 extern const luaL_Reg particleslib[];
 extern const luaL_Reg playerlib[];
-extern const luaL_Reg quatlib[];  // quat.cpp
+extern const luaL_Reg quatlib[];
+extern const luaL_Reg text3dlib[];
 extern const luaL_Reg timelib[];
 extern const luaL_Reg tomllib[];
 extern const luaL_Reg utf8lib[];

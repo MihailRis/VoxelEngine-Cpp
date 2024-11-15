@@ -70,6 +70,11 @@ namespace util {
         }
     };
 
+    template<typename T>
+    inline T sqr(T value) {
+        return value * value;
+    }
+
     /// @return integer square of distance between two points
     /// @note glm::distance2 does not support integer vectors
     inline int distance2(const glm::ivec3& a, const glm::ivec3& b) {

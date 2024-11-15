@@ -50,6 +50,8 @@ public:
 
     World* getWorld();
 
+    const World* getWorld() const;
+
     /// Spawns object of class T and returns pointer to it.
     /// @param T class that derives the Object class
     /// @param args pass arguments needed for T class constructor

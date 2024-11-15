@@ -14,7 +14,6 @@
 #include "world/World.hpp"
 #include "Block.hpp"
 #include "Chunk.hpp"
-#include "VoxelsVolume.hpp"
 
 static debug::Logger logger("chunks-storage");
 
@@ -83,94 +82,4 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
     }
     chunk->blocksMetadata = regions.getBlocksData(chunk->x, chunk->z);
     return chunk;
-}
-
-// reduce nesting on next modification
-// 25.06.2024: not now
-// TODO: move to Chunks for performance improvement
-void ChunksStorage::getVoxels(VoxelsVolume* volume, bool backlight) const {
-    const Content* content = level->content;
-    auto indices = content->getIndices();
-    voxel* voxels = volume->getVoxels();
-    light_t* lights = volume->getLights();
-    int x = volume->getX();
-    int y = volume->getY();
-    int z = volume->getZ();
-
-    int w = volume->getW();
-    int h = volume->getH();
-    int d = volume->getD();
-
-    int scx = floordiv(x, CHUNK_W);
-    int scz = floordiv(z, CHUNK_D);
-
-    int ecx = floordiv(x + w, CHUNK_W);
-    int ecz = floordiv(z + d, CHUNK_D);
-
-    int cw = ecx - scx + 1;
-    int cd = ecz - scz + 1;
-
-    // cw*cd chunks will be scanned
-    for (int cz = scz; cz < scz + cd; cz++) {
-        for (int cx = scx; cx < scx + cw; cx++) {
-            const auto& found = chunksMap.find(glm::ivec2(cx, cz));
-            if (found == chunksMap.end()) {
-                // no chunk loaded -> filling with BLOCK_VOID
-                for (int ly = y; ly < y + h; ly++) {
-                    for (int lz = std::max(z, cz * CHUNK_D);
-                             lz < std::min(z + d, (cz + 1) * CHUNK_D);
-                             lz++) {
-                        for (int lx = std::max(x, cx * CHUNK_W);
-                                 lx < std::min(x + w, (cx + 1) * CHUNK_W);
-                                 lx++) {
-                            uint idx = vox_index(lx - x, ly - y, lz - z, w, d);
-                            voxels[idx].id = BLOCK_VOID;
-                            lights[idx] = 0;
-                        }
-                    }
-                }
-            } else {
-                auto& chunk = found->second;
-                const voxel* cvoxels = chunk->voxels;
-                const light_t* clights = chunk->lightmap.getLights();
-                for (int ly = y; ly < y + h; ly++) {
-                    for (int lz = std::max(z, cz * CHUNK_D);
-                             lz < std::min(z + d, (cz + 1) * CHUNK_D);
-                             lz++) {
-                        for (int lx = std::max(x, cx * CHUNK_W);
-                                 lx < std::min(x + w, (cx + 1) * CHUNK_W);
-                                 lx++) {
-                            uint vidx = vox_index(lx - x, ly - y, lz - z, w, d);
-                            uint cidx = vox_index(
-                                lx - cx * CHUNK_W,
-                                ly,
-                                lz - cz * CHUNK_D,
-                                CHUNK_W,
-                                CHUNK_D
-                            );
-                            voxels[vidx] = cvoxels[cidx];
-                            light_t light = clights[cidx];
-                            if (backlight) {
-                                const auto block =
-                                    indices->blocks.get(voxels[vidx].id);
-                                if (block && block->lightPassing) {
-                                    light = Lightmap::combine(
-                                        std::min(15,
-                                            Lightmap::extract(light, 0) + 1),
-                                        std::min(15,
-                                            Lightmap::extract(light, 1) + 1),
-                                        std::min(15,
-                                            Lightmap::extract(light, 2) + 1),
-                                        std::min(15, 
-                                            static_cast<int>(Lightmap::extract(light, 3)))
-                                    );
-                                }
-                            }
-                            lights[vidx] = light;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }

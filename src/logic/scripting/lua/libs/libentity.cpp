@@ -53,7 +53,7 @@ static int l_get_def(lua::State* L) {
     return 0;
 }
 
-static int l_spawn(lua::State* L) {
+static int l_show(lua::State* L) {
     auto level = controller->getLevel();
     auto defname = lua::tostring(L, 1);
     auto& def = content->entities.require(defname);
@@ -213,7 +213,7 @@ const luaL_Reg entitylib[] = {
     {"def_hitbox", lua::wrap<l_def_hitbox>},
     {"get_def", lua::wrap<l_get_def>},
     {"defs_count", lua::wrap<l_defs_count>},
-    {"spawn", lua::wrap<l_spawn>},
+    {"spawn", lua::wrap<l_show>},
     {"despawn", lua::wrap<l_despawn>},
     {"get_skeleton", lua::wrap<l_get_skeleton>},
     {"set_skeleton", lua::wrap<l_set_skeleton>},

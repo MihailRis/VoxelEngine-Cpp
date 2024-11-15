@@ -118,6 +118,22 @@ void Batch3D::texture(const Texture* new_texture){
 }
 
 void Batch3D::sprite(
+    const glm::vec3& pos,
+    const glm::vec3& up,
+    const glm::vec3& right,
+    float w,
+    float h,
+    int atlasRes,
+    int index,
+    const glm::vec4& tint
+) {
+    float scale = 1.0f / static_cast<float>(atlasRes);
+    float u = (index % atlasRes) * scale;
+    float v = 1.0f - ((index / atlasRes) * scale) - scale;
+    sprite(pos, up, right, w, h, UVRegion(u, v, u+scale, v+scale), tint);
+}
+
+void Batch3D::sprite(
     const glm::vec3& pos, 
     const glm::vec3& up, 
     const glm::vec3& right, 
@@ -271,4 +287,12 @@ void Batch3D::flushPoints() {
     mesh->reload(buffer.get(), index / B3D_VERTEX_SIZE);
     mesh->draw(GL_POINTS);
     index = 0;
+}
+
+void Batch3D::setColor(const glm::vec4& color) {
+    tint = color;
+}
+
+const glm::vec4& Batch3D::getColor() const {
+    return tint;
 }
