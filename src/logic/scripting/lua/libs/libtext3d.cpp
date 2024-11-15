@@ -89,6 +89,15 @@ static int l_update_settings(lua::State* L) {
     return 0;
 }
 
+static int l_set_rotation(lua::State* L) {
+    if (auto note = renderer->texts->get(lua::tointeger(L, 1))) {
+        auto matrix = lua::tomat4(L, 2);
+        note->setAxisX(matrix * glm::vec4(1, 0, 0, 1));
+        note->setAxisY(matrix * glm::vec4(0, 1, 0, 1));
+    }
+    return 0;
+}
+
 const luaL_Reg text3dlib[] = {
     {"show", lua::wrap<l_show>},
     {"hide", lua::wrap<l_hide>},
@@ -100,6 +109,7 @@ const luaL_Reg text3dlib[] = {
     {"set_axis_x", lua::wrap<l_set_axis_x>},
     {"get_axis_y", lua::wrap<l_get_axis_y>},
     {"set_axis_y", lua::wrap<l_set_axis_y>},
+    {"set_rotation", lua::wrap<l_set_rotation>},
     {"update_settings", lua::wrap<l_update_settings>},
     {NULL, NULL}
 };
