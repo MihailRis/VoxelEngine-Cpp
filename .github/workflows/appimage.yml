@@ -2,7 +2,7 @@ name: C/C++ AppImage
 
 on:
   push:
-    branches: [ "main", "release-**", "curl"]
+    branches: [ "main", "release-**"]
   pull_request:
     branches: [ "main" ]
 
