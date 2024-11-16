@@ -257,31 +257,42 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
 
         if (chunkEntries.size() == 1) {
             auto& entry = chunkEntries.at(0);
-            if (found->second.planesMesh == nullptr) {
-                found->second.planesMesh = std::make_shared<Mesh>(
+            if (found->second.sortedMesh == nullptr) {
+                found->second.sortedMesh = std::make_shared<Mesh>(
                     entry.vertexData.data(), entry.vertexData.size() / 6, ATTRS
                 );
             }
-            found->second.planesMesh->draw();
+            found->second.sortedMesh->draw();
             continue;
         }
 
-        std::sort(chunkEntries.begin(), chunkEntries.end());
-        size_t size = 0;
-        for (const auto& entry : chunkEntries) {
-            size += entry.vertexData.size();
+        if (chunkEntries.empty()) {
+            continue;
         }
-        util::Buffer<float> buffer(size);
-        size_t offset = 0;
-        for (const auto& entry : chunkEntries) {
-            std::memcpy(
-                (buffer.data() + offset),
-                entry.vertexData.data(),
-                entry.vertexData.size() * sizeof(float)
+
+        if (found->second.sortedMesh == nullptr) {
+            std::sort(chunkEntries.begin(), chunkEntries.end());
+            size_t size = 0;
+            for (const auto& entry : chunkEntries) {
+                size += entry.vertexData.size();
+            }
+            static util::Buffer<float> buffer;
+            if (buffer.size() < size) {
+                buffer = util::Buffer<float>(size);
+            }
+            size_t offset = 0;
+            for (const auto& entry : chunkEntries) {
+                std::memcpy(
+                    (buffer.data() + offset),
+                    entry.vertexData.data(),
+                    entry.vertexData.size() * sizeof(float)
+                );
+                offset += entry.vertexData.size();
+            }
+            found->second.sortedMesh = std::make_shared<Mesh>(
+                buffer.data(), size / 6, ATTRS
             );
-            offset += entry.vertexData.size();
         }
-        sortedMesh->reload(buffer.data(), size / 6);
-        sortedMesh->draw();
+        found->second.sortedMesh->draw();
     }
 }

@@ -31,5 +31,5 @@ struct ChunkMeshData {
 struct ChunkMesh {
     std::shared_ptr<Mesh> mesh;
     SortingMeshData sortingMeshData;
-    std::shared_ptr<Mesh> planesMesh = nullptr;
+    std::shared_ptr<Mesh> sortedMesh = nullptr;
 };
