@@ -62,7 +62,11 @@ ChunksRenderer::ChunksRenderer(
         [&](){return std::make_shared<RendererWorker>(*level, cache, settings);}, 
         [&](RendererResult& result){
             if (!result.cancelled) {
-                meshes[result.key] = std::make_shared<Mesh>(result.meshData);
+                auto meshData = std::move(result.meshData);
+                meshes[result.key] = ChunkMesh {
+                    std::make_shared<Mesh>(meshData.mesh),
+                    std::move(meshData.sortingMesh)
+                };
             }
             inwork.erase(result.key);
         }, settings.graphics.chunkMaxRenderers.get())
@@ -82,8 +86,10 @@ std::shared_ptr<Mesh> ChunksRenderer::render(const std::shared_ptr<Chunk>& chunk
     chunk->flags.modified = false;
     if (important) {
         auto mesh = renderer->render(chunk.get(), level.chunks.get());
-        meshes[glm::ivec2(chunk->x, chunk->z)] = mesh;
-        return mesh;
+        meshes[glm::ivec2(chunk->x, chunk->z)] = ChunkMesh {
+            std::move(mesh.mesh), std::move(mesh.sortingMesh)
+        };
+        return meshes[glm::ivec2(chunk->x, chunk->z)].mesh;
     }
     glm::ivec2 key(chunk->x, chunk->z);
     if (inwork.find(key) != inwork.end()) {
@@ -115,7 +121,7 @@ std::shared_ptr<Mesh> ChunksRenderer::getOrRender(const std::shared_ptr<Chunk>& 
     if (chunk->flags.modified) {
         render(chunk, important);
     }
-    return found->second;
+    return found->second.mesh;
 }
 
 void ChunksRenderer::update() {

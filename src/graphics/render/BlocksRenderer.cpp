@@ -12,6 +12,8 @@
 
 #include <glm/glm.hpp>
 
+#include "util/timeutil.hpp"
+
 const uint BlocksRenderer::VERTEX_SIZE = 6;
 const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
@@ -433,21 +435,9 @@ glm::vec4 BlocksRenderer::pickSoftLight(
         right, up);
 }
 
-void BlocksRenderer::render(const voxel* voxels) {
-    int totalBegin = chunk->bottom * (CHUNK_W * CHUNK_D);
-    int totalEnd = chunk->top * (CHUNK_W * CHUNK_D);
-
-    int beginEnds[256][2] {};
-    for (int i = totalBegin; i < totalEnd; i++) {
-        const voxel& vox = voxels[i];
-        blockid_t id = vox.id;
-        const auto& def = *blockDefsCache[id];
-    
-        if (beginEnds[def.drawGroup][0] == 0) {
-            beginEnds[def.drawGroup][0] = i+1;
-        }
-        beginEnds[def.drawGroup][1] = i;
-    }
+void BlocksRenderer::render(
+    const voxel* voxels, int beginEnds[256][2]
+) {
     for (const auto drawGroup : *content.drawGroups) {
         int begin = beginEnds[drawGroup][0];
         if (begin == 0) {
@@ -462,13 +452,13 @@ void BlocksRenderer::render(const voxel* voxels) {
             if (id == 0 || def.drawGroup != drawGroup || state.segment) {
                 continue;
             }
+            //if (def.translucent) {
+            //    continue;
+            //}
             const UVRegion texfaces[6] {
-                cache.getRegion(id, 0), 
-                cache.getRegion(id, 1),
-                cache.getRegion(id, 2), 
-                cache.getRegion(id, 3),
-                cache.getRegion(id, 4), 
-                cache.getRegion(id, 5)
+                cache.getRegion(id, 0), cache.getRegion(id, 1),
+                cache.getRegion(id, 2), cache.getRegion(id, 3),
+                cache.getRegion(id, 4), cache.getRegion(id, 5)
             };
             int x = i % CHUNK_W;
             int y = i / (CHUNK_D * CHUNK_W);
@@ -503,43 +493,143 @@ void BlocksRenderer::render(const voxel* voxels) {
     }
 }
 
+SortingMeshData BlocksRenderer::renderTranslucent(
+    const voxel* voxels, int beginEnds[256][2]
+) {
+    timeutil::ScopeLogTimer log(555);
+    SortingMeshData sortingMesh {{}};
+
+    for (const auto drawGroup : *content.drawGroups) {
+        int begin = beginEnds[drawGroup][0];
+        if (begin == 0) {
+            continue;
+        }
+        int end = beginEnds[drawGroup][1];
+        for (int i = begin-1; i <= end; i++) {
+            const voxel& vox = voxels[i];
+            blockid_t id = vox.id;
+            blockstate state = vox.state;
+            const auto& def = *blockDefsCache[id];
+            if (id == 0 || def.drawGroup != drawGroup || state.segment) {
+                continue;
+            }
+            if (!def.translucent) {
+                continue;
+            }
+            const UVRegion texfaces[6] {
+                cache.getRegion(id, 0), cache.getRegion(id, 1),
+                cache.getRegion(id, 2), cache.getRegion(id, 3),
+                cache.getRegion(id, 4), cache.getRegion(id, 5)
+            };
+            int x = i % CHUNK_W;
+            int y = i / (CHUNK_D * CHUNK_W);
+            int z = (i / CHUNK_D) % CHUNK_W;
+            switch (def.model) {
+                case BlockModel::block:
+                    blockCube({x, y, z}, texfaces, def, vox.state, !def.shadeless,
+                              def.ambientOcclusion);
+                    break;
+                case BlockModel::xsprite: {
+                    blockXSprite(x, y, z, glm::vec3(1.0f), 
+                                texfaces[FACE_MX], texfaces[FACE_MZ], 1.0f);
+                    break;
+                }
+                case BlockModel::aabb: {
+                    blockAABB({x, y, z}, texfaces, &def, vox.state.rotation, 
+                              !def.shadeless, def.ambientOcclusion);
+                    break;
+                }
+                case BlockModel::custom: {
+                    blockCustomModel({x, y, z}, &def, vox.state.rotation, 
+                                     !def.shadeless, def.ambientOcclusion);
+                    break;
+                }
+                default:
+                    break;
+            }
+            if (vertexOffset == 0) {
+                continue;
+            }
+            SortingMeshEntry entry {glm::vec3(
+                    x + chunk->x * CHUNK_W, y, z + chunk->z * CHUNK_D
+            ), util::Buffer<float>(indexSize * VERTEX_SIZE)};
+            
+            for (int j = 0; j < indexSize; j++) {
+                std::memcpy(
+                    entry.vertexData.data(),
+                    vertexBuffer.get() + indexBuffer[j] * VERTEX_SIZE,
+                    sizeof(float) * VERTEX_SIZE
+                );
+            }
+            sortingMesh.entries.push_back(std::move(entry));
+            vertexOffset = 0;
+            indexOffset = indexSize = 0;
+        }
+    }
+    return sortingMesh;
+}
+
 void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
     this->chunk = chunk;
     voxelsBuffer->setPosition(
         chunk->x * CHUNK_W - voxelBufferPadding, 0,
         chunk->z * CHUNK_D - voxelBufferPadding);
     chunks->getVoxels(voxelsBuffer.get(), settings.graphics.backlight.get());
-    overflow = false;
-    vertexOffset = 0;
-    indexOffset = indexSize = 0;
+
     if (voxelsBuffer->pickBlockId(
         chunk->x * CHUNK_W, 0, chunk->z * CHUNK_D
     ) == BLOCK_VOID) {
         cancelled = true;
         return;
     }
-    cancelled = false;
     const voxel* voxels = chunk->voxels;
-    render(voxels);
+
+    int totalBegin = chunk->bottom * (CHUNK_W * CHUNK_D);
+    int totalEnd = chunk->top * (CHUNK_W * CHUNK_D);
+
+    int beginEnds[256][2] {};
+    for (int i = totalBegin; i < totalEnd; i++) {
+        const voxel& vox = voxels[i];
+        blockid_t id = vox.id;
+        const auto& def = *blockDefsCache[id];
+    
+        if (beginEnds[def.drawGroup][0] == 0) {
+            beginEnds[def.drawGroup][0] = i+1;
+        }
+        beginEnds[def.drawGroup][1] = i;
+    }
+    cancelled = false;
+
+    overflow = false;
+    vertexOffset = 0;
+    indexOffset = indexSize = 0;
+    
+    sortingMesh = std::move(renderTranslucent(voxels, beginEnds));
+    
+    overflow = false;
+    vertexOffset = 0;
+    indexOffset = indexSize = 0;
+    
+    render(voxels, beginEnds);
 }
 
-MeshData BlocksRenderer::createMesh() {
+ChunkMeshData BlocksRenderer::createMesh() {
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
-    return MeshData(
+    return ChunkMeshData{MeshData(
         util::Buffer<float>(vertexBuffer.get(), vertexOffset), 
         util::Buffer<int>(indexBuffer.get(), indexSize),
         util::Buffer<vattr>({{3}, {2}, {1}, {0}})
-    );
+    ), std::move(sortingMesh)};
 }
 
-std::shared_ptr<Mesh> BlocksRenderer::render(const Chunk* chunk, const Chunks* chunks) {
+ChunkMesh BlocksRenderer::render(const Chunk* chunk, const Chunks* chunks) {
     build(chunk, chunks);
 
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
     size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
-    return std::make_shared<Mesh>(
+    return ChunkMesh{std::make_shared<Mesh>(
         vertexBuffer.get(), vcount, indexBuffer.get(), indexSize, attrs
-    );
+    ), std::move(sortingMesh)};
 }
 
 VoxelsVolume* BlocksRenderer::getVoxelsBuffer() const {

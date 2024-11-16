@@ -10,6 +10,7 @@
 #include "voxels/ChunksStorage.hpp"
 #include "util/ThreadPool.hpp"
 #include "graphics/core/MeshData.hpp"
+#include "commons.hpp"
 
 class Mesh;
 class Chunk;
@@ -35,7 +36,7 @@ struct ChunksSortEntry {
 struct RendererResult {
     glm::ivec2 key;
     bool cancelled;
-    MeshData meshData;
+    ChunkMeshData meshData;
 };
 
 class ChunksRenderer {
@@ -45,7 +46,7 @@ class ChunksRenderer {
     const EngineSettings& settings;
 
     std::unique_ptr<BlocksRenderer> renderer;
-    std::unordered_map<glm::ivec2, std::shared_ptr<Mesh>> meshes;
+    std::unordered_map<glm::ivec2, ChunkMesh> meshes;
     std::unordered_map<glm::ivec2, bool> inwork;
     std::vector<ChunksSortEntry> indices;
     util::ThreadPool<std::shared_ptr<Chunk>, RendererResult> threadPool;
