@@ -270,7 +270,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             continue;
         }
 
-        if (found->second.sortedMesh == nullptr) {
+        if (found->second.sortedMesh == nullptr || true) {
             std::sort(chunkEntries.begin(), chunkEntries.end());
             size_t size = 0;
             for (const auto& entry : chunkEntries) {
