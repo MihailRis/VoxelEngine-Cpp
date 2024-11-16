@@ -28,10 +28,10 @@ public:
     
     /// @brief Draw mesh with specified primitives type
     /// @param primitive primitives type
-    void draw(unsigned int primitive);
+    void draw(unsigned int primitive) const;
 
     /// @brief Draw mesh as triangles
-    void draw();
+    void draw() const;
 
     /// @brief Total numbers of alive mesh objects
     static int meshesCount;

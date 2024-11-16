@@ -21,8 +21,8 @@ Mesh::Mesh(const MeshData& data)
 
 Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs) : 
     ibo(0),
-    vertices(vertices),
-    indices(indices)
+    vertices(0),
+    indices(0)
 {
     meshesCount++;
     vertexSize = 0;
@@ -74,7 +74,7 @@ void Mesh::reload(const float* vertexBuffer, size_t vertices, const int* indexBu
     this->indices = indices;
 }
 
-void Mesh::draw(unsigned int primitive){
+void Mesh::draw(unsigned int primitive) const {
     drawCalls++;
     glBindVertexArray(vao);
     if (ibo != 0) {
@@ -86,6 +86,6 @@ void Mesh::draw(unsigned int primitive){
     glBindVertexArray(0);
 }
 
-void Mesh::draw() {
+void Mesh::draw() const {
     draw(GL_TRIANGLES);
 }
