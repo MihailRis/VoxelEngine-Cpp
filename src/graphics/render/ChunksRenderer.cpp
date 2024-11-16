@@ -210,11 +210,14 @@ void ChunksRenderer::drawChunks(
             visibleChunks += drawChunk(indices[i].index, camera, shader, culling);
         }
     //}
-    drawSortedMeshes(camera, shader);
 }
 
 void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     timeutil::ScopeLogTimer log(444);
+    
+    const auto& atlas = assets.require<Atlas>("blocks");
+
+    atlas.getTexture()->bind();
 
     std::vector<const SortingMeshEntry*> entries;
 
