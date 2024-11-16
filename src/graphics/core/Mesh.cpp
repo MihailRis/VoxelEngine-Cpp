@@ -4,7 +4,7 @@
 int Mesh::meshesCount = 0;
 int Mesh::drawCalls = 0;
 
-inline size_t calc_vertex_size(const vattr* attrs) {
+inline size_t calc_vertex_size(const VertexAttribute* attrs) {
     size_t vertexSize = 0;
     for (int i = 0; attrs[i].size; i++) {
         vertexSize += attrs[i].size;
@@ -19,7 +19,7 @@ Mesh::Mesh(const MeshData& data)
         data.indices.size(),
         data.attrs.data()) {}
 
-Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs) : 
+Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const VertexAttribute* attrs) : 
     ibo(0),
     vertices(0),
     indices(0)

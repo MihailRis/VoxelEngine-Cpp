@@ -14,8 +14,8 @@ class Mesh {
     size_t vertexSize;
 public:
     Mesh(const MeshData& data);
-    Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs);
-    Mesh(const float* vertexBuffer, size_t vertices, const vattr* attrs) :
+    Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const VertexAttribute* attrs);
+    Mesh(const float* vertexBuffer, size_t vertices, const VertexAttribute* attrs) :
         Mesh(vertexBuffer, vertices, nullptr, 0, attrs) {};
     ~Mesh();
 

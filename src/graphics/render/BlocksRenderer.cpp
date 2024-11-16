@@ -656,8 +656,8 @@ ChunkMeshData BlocksRenderer::createMesh() {
         MeshData(
             util::Buffer<float>(vertexBuffer.get(), vertexOffset),
             util::Buffer<int>(indexBuffer.get(), indexSize),
-            util::Buffer<vattr>(
-                CHUNK_VATTRS, sizeof(CHUNK_VATTRS) / sizeof(vattr)
+            util::Buffer<VertexAttribute>(
+                CHUNK_VATTRS, sizeof(CHUNK_VATTRS) / sizeof(VertexAttribute)
             )
         ),
         std::move(sortingMesh)};

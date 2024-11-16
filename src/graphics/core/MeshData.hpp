@@ -6,7 +6,7 @@
 #include "util/Buffer.hpp"
 
 /// @brief Vertex attribute info
-struct vattr {
+struct VertexAttribute {
     ubyte size;
 };
 
@@ -14,7 +14,7 @@ struct vattr {
 struct MeshData {
     util::Buffer<float> vertices;
     util::Buffer<int> indices;
-    util::Buffer<vattr> attrs;
+    util::Buffer<VertexAttribute> attrs;
 
     MeshData() = default;
 
@@ -24,7 +24,7 @@ struct MeshData {
     MeshData(
         util::Buffer<float> vertices, 
         util::Buffer<int> indices,
-        util::Buffer<vattr> attrs
+        util::Buffer<VertexAttribute> attrs
     ) : vertices(std::move(vertices)),
         indices(std::move(indices)),
         attrs(std::move(attrs)) {}
