@@ -12,7 +12,7 @@ class Mesh;
 struct SortingMeshEntry {
     glm::vec3 position;
     util::Buffer<float> vertexData;
-    float distance;
+    long long distance;
 
     inline bool operator<(const SortingMeshEntry& o) const noexcept {
         return distance > o.distance;

@@ -58,10 +58,9 @@ void Mesh::reload(const float* vertexBuffer, size_t vertices, const int* indexBu
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     if (vertexBuffer != nullptr && vertices != 0) {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexSize * vertices, vertexBuffer, GL_STATIC_DRAW);
-    }
-    else {
-        glBufferData(GL_ARRAY_BUFFER, 0, {}, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexSize * vertices, vertexBuffer, GL_STREAM_DRAW);
+    } else {
+        glBufferData(GL_ARRAY_BUFFER, 0, {}, GL_STREAM_DRAW);
     }
     if (indexBuffer != nullptr && indices != 0) {
         if (ibo == 0) glGenBuffers(1, &ibo);

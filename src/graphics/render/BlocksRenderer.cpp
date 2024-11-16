@@ -498,6 +498,9 @@ SortingMeshData BlocksRenderer::renderTranslucent(
 ) {
     SortingMeshData sortingMesh {{}};
 
+    AABB aabb {};
+    bool aabbInit = false;
+    size_t totalSize = 0;
     for (const auto drawGroup : *content.drawGroups) {
         int begin = beginEnds[drawGroup][0];
         if (begin == 0) {
@@ -557,20 +560,50 @@ SortingMeshData BlocksRenderer::renderTranslucent(
                 ),
                 util::Buffer<float>(indexSize * VERTEX_SIZE)};
 
+            totalSize += entry.vertexData.size();
+
             for (int j = 0; j < indexSize; j++) {
                 std::memcpy(
                     entry.vertexData.data() + j * VERTEX_SIZE,
                     vertexBuffer.get() + indexBuffer[j] * VERTEX_SIZE,
                     sizeof(float) * VERTEX_SIZE
                 );
-                entry.vertexData[j * VERTEX_SIZE + 0] += chunk->x * CHUNK_W + 0.5f;
-                entry.vertexData[j * VERTEX_SIZE + 1] += 0.5f;
-                entry.vertexData[j * VERTEX_SIZE + 2] += chunk->z * CHUNK_D + 0.5f;
+                float& vx = entry.vertexData[j * VERTEX_SIZE + 0];
+                float& vy = entry.vertexData[j * VERTEX_SIZE + 1];
+                float& vz = entry.vertexData[j * VERTEX_SIZE + 2];
+
+                if (!aabbInit) {
+                    aabbInit = true;
+                    aabb.a = aabb.b = {vx, vy, vz};
+                } else {
+                    aabb.addPoint(glm::vec3(vx, vy, vz));
+                }
+                vx += chunk->x * CHUNK_W + 0.5f;
+                vy += 0.5f;
+                vz += chunk->z * CHUNK_D + 0.5f;
             }
             sortingMesh.entries.push_back(std::move(entry));
             vertexOffset = 0;
             indexOffset = indexSize = 0;
         }
+    }
+
+    // additional powerful optimization
+    auto size = aabb.size();
+    if (glm::abs(size.y) < 0.01f && sortingMesh.entries.size() > 1 && false) {
+        SortingMeshEntry newEntry {
+            sortingMesh.entries[0].position,
+            util::Buffer<float>(totalSize)
+        };
+        size_t offset = 0;
+        for (const auto& entry : sortingMesh.entries) {
+            std::memcpy(
+                newEntry.vertexData.data() + offset,
+                entry.vertexData.data(), entry.vertexData.size() * sizeof(float)
+            );
+            offset += entry.vertexData.size();
+        }
+        return SortingMeshData {{std::move(newEntry)}};
     }
     return sortingMesh;
 }

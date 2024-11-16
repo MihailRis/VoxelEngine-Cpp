@@ -79,6 +79,10 @@ ChunksRenderer::ChunksRenderer(
         *level->content, cache, settings
     );
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
+
+    const vattr attrs[]{ {3}, {2}, {1}, {0} };
+    float buf[]{};
+    sortedMesh = std::make_unique<Mesh>(buf, 0, attrs);
 }
 
 ChunksRenderer::~ChunksRenderer() {
@@ -210,16 +214,19 @@ void ChunksRenderer::drawChunks(
 }
 
 void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
-    const vattr attrs[]{ {3}, {2}, {1}, {0} };
+    timeutil::ScopeLogTimer log(444);
 
     std::vector<const SortingMeshEntry*> entries;
+
+    const auto& chunks = level.chunks->getChunks();
 
     auto pposition = camera.position;
     
     size_t size = 0;
     bool culling = settings.graphics.frustumCulling.get();
-    for (size_t i = 0; i < indices.size(); i++) {
-        auto chunk = level.chunks->getChunks()[indices[i].index];
+    
+    for (const auto& index : indices) {
+        const auto& chunk = chunks[index.index];
         if (chunk == nullptr || !chunk->flags.lighted) {
             continue;
         }
@@ -238,19 +245,22 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
         if (!frustum.isBoxVisible(min, max)) continue;
 
         auto& chunkEntries = found->second.sortingMesh.entries;
+        
         for (auto& entry : chunkEntries) {
-            entry.distance = glm::distance2(entry.position, pposition);
+            entry.distance = static_cast<long long>(glm::distance2(entry.position, pposition));
         }
+        std::sort(chunkEntries.begin(), chunkEntries.end());
         for (const auto& entry : chunkEntries) {
             size += entry.vertexData.size();
             entries.push_back(&entry);
         }
     }
-    std::sort(entries.begin(), entries.end(), [=](const auto& a, const auto& b) {
-        return *a < *b;
-    });
 
-    util::Buffer<float> buffer(size);
+    static util::Buffer<float> buffer;
+    
+    if (buffer.size() < size) {
+        buffer = util::Buffer<float>(size);
+    }
     size_t offset = 0;
     for (const auto& entry : entries) {
         std::memcpy(
@@ -260,8 +270,8 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
         );
         offset += entry->vertexData.size();
     }
-    Mesh mesh(buffer.data(), size / 6, attrs);
+    sortedMesh->reload(buffer.data(), size / 6);
 
     shader.uniformMatrix("u_model", glm::mat4(1.0f));
-    mesh.draw();
+    sortedMesh->draw();
 }

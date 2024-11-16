@@ -54,6 +54,7 @@ class ChunksRenderer {
     bool drawChunk(
         size_t index, const Camera& camera, Shader& shader, bool culling
     );
+    std::unique_ptr<Mesh> sortedMesh;
 public:
     ChunksRenderer(
         const Level* level,
