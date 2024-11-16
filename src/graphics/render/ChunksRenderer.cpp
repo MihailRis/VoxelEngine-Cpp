@@ -69,7 +69,7 @@ ChunksRenderer::ChunksRenderer(
             if (!result.cancelled) {
                 auto meshData = std::move(result.meshData);
                 meshes[result.key] = ChunkMesh {
-                    std::make_shared<Mesh>(meshData.mesh),
+                    std::make_unique<Mesh>(meshData.mesh),
                     std::move(meshData.sortingMesh)
                 };
             }
@@ -90,7 +90,7 @@ ChunksRenderer::ChunksRenderer(
 ChunksRenderer::~ChunksRenderer() {
 }
 
-std::shared_ptr<Mesh> ChunksRenderer::render(
+const Mesh* ChunksRenderer::render(
     const std::shared_ptr<Chunk>& chunk, bool important
 ) {
     chunk->flags.modified = false;
@@ -99,7 +99,7 @@ std::shared_ptr<Mesh> ChunksRenderer::render(
         meshes[glm::ivec2(chunk->x, chunk->z)] = ChunkMesh {
             std::move(mesh.mesh), std::move(mesh.sortingMeshData)
         };
-        return meshes[glm::ivec2(chunk->x, chunk->z)].mesh;
+        return meshes[glm::ivec2(chunk->x, chunk->z)].mesh.get();
     }
     glm::ivec2 key(chunk->x, chunk->z);
     if (inwork.find(key) != inwork.end()) {
@@ -123,7 +123,7 @@ void ChunksRenderer::clear() {
     threadPool.clearQueue();
 }
 
-std::shared_ptr<Mesh> ChunksRenderer::getOrRender(
+const Mesh* ChunksRenderer::getOrRender(
     const std::shared_ptr<Chunk>& chunk, bool important
 ) {
     auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
@@ -133,7 +133,7 @@ std::shared_ptr<Mesh> ChunksRenderer::getOrRender(
     if (chunk->flags.modified) {
         render(chunk, important);
     }
-    return found->second.mesh;
+    return found->second.mesh.get();
 }
 
 void ChunksRenderer::update() {
@@ -225,16 +225,12 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     static int frameid = 0;
     frameid++;
 
+    bool culling = settings.graphics.frustumCulling.get();
+    const auto& chunks = level.chunks->getChunks();
+    const auto& cameraPos = camera.position;
     const auto& atlas = assets.require<Atlas>("blocks");
 
     atlas.getTexture()->bind();
-
-    const auto& chunks = level.chunks->getChunks();
-
-    auto pposition = camera.position;
-    
-    size_t size = 0;
-    bool culling = settings.graphics.frustumCulling.get();
     shader.uniformMatrix("u_model", glm::mat4(1.0f));
     
     for (const auto& index : indices) {
@@ -259,16 +255,13 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
         if (!frustum.isBoxVisible(min, max)) continue;
 
         auto& chunkEntries = found->second.sortingMeshData.entries;
-        
-        for (auto& entry : chunkEntries) {
-            entry.distance =
-                static_cast<long long>(glm::distance2(entry.position, pposition));
-        }
 
-        if (chunkEntries.size() == 1) {
+        if (chunkEntries.empty()) {
+            continue;
+        } else if (chunkEntries.size() == 1) {
             auto& entry = chunkEntries.at(0);
             if (found->second.sortedMesh == nullptr) {
-                found->second.sortedMesh = std::make_shared<Mesh>(
+                found->second.sortedMesh = std::make_unique<Mesh>(
                     entry.vertexData.data(),
                     entry.vertexData.size() / VERTEX_SIZE,
                     ATTRS
@@ -277,11 +270,10 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             found->second.sortedMesh->draw();
             continue;
         }
-
-        if (chunkEntries.empty()) {
-            continue;
+        for (auto& entry : chunkEntries) {
+            entry.distance =
+                static_cast<long long>(glm::distance2(entry.position, cameraPos));
         }
-
         if (found->second.sortedMesh == nullptr ||
             (frameid + chunk->x) % sortInterval == 0) {
             std::sort(chunkEntries.begin(), chunkEntries.end());
@@ -302,7 +294,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
                 );
                 offset += entry.vertexData.size();
             }
-            found->second.sortedMesh = std::make_shared<Mesh>(
+            found->second.sortedMesh = std::make_unique<Mesh>(
                 buffer.data(), size / VERTEX_SIZE, ATTRS
             );
         }

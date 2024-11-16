@@ -666,7 +666,7 @@ ChunkMesh BlocksRenderer::render(const Chunk* chunk, const Chunks* chunks) {
 
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
     size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
-    return ChunkMesh{std::make_shared<Mesh>(
+    return ChunkMesh{std::make_unique<Mesh>(
         vertexBuffer.get(), vcount, indexBuffer.get(), indexSize, attrs
     ), std::move(sortingMesh)};
 }

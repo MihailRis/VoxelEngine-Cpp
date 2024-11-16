@@ -29,7 +29,7 @@ struct ChunkMeshData {
 };
 
 struct ChunkMesh {
-    std::shared_ptr<Mesh> mesh;
+    std::unique_ptr<Mesh> mesh;
     SortingMeshData sortingMeshData;
-    std::shared_ptr<Mesh> sortedMesh = nullptr;
+    std::unique_ptr<Mesh> sortedMesh = nullptr;
 };

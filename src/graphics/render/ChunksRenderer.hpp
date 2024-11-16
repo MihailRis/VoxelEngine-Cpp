@@ -65,13 +65,13 @@ public:
     );
     virtual ~ChunksRenderer();
 
-    std::shared_ptr<Mesh> render(
+    const Mesh* render(
         const std::shared_ptr<Chunk>& chunk, bool important
     );
     void unload(const Chunk* chunk);
     void clear();
 
-    std::shared_ptr<Mesh> getOrRender(
+    const Mesh* getOrRender(
         const std::shared_ptr<Chunk>& chunk, bool important
     );
     void drawChunks(const Camera& camera, Shader& shader);
