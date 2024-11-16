@@ -452,9 +452,9 @@ void BlocksRenderer::render(
             if (id == 0 || def.drawGroup != drawGroup || state.segment) {
                 continue;
             }
-            //if (def.translucent) {
-            //    continue;
-            //}
+            if (def.translucent) {
+                continue;
+            }
             const UVRegion texfaces[6] {
                 cache.getRegion(id, 0), cache.getRegion(id, 1),
                 cache.getRegion(id, 2), cache.getRegion(id, 3),
@@ -496,7 +496,6 @@ void BlocksRenderer::render(
 SortingMeshData BlocksRenderer::renderTranslucent(
     const voxel* voxels, int beginEnds[256][2]
 ) {
-    timeutil::ScopeLogTimer log(555);
     SortingMeshData sortingMesh {{}};
 
     for (const auto drawGroup : *content.drawGroups) {
@@ -550,16 +549,23 @@ SortingMeshData BlocksRenderer::renderTranslucent(
             if (vertexOffset == 0) {
                 continue;
             }
-            SortingMeshEntry entry {glm::vec3(
-                    x + chunk->x * CHUNK_W, y, z + chunk->z * CHUNK_D
-            ), util::Buffer<float>(indexSize * VERTEX_SIZE)};
-            
+            SortingMeshEntry entry {
+                glm::vec3(
+                    x + chunk->x * CHUNK_W + 0.5f,
+                    y + 0.5f,
+                    z + chunk->z * CHUNK_D + 0.5f
+                ),
+                util::Buffer<float>(indexSize * VERTEX_SIZE)};
+
             for (int j = 0; j < indexSize; j++) {
                 std::memcpy(
-                    entry.vertexData.data(),
+                    entry.vertexData.data() + j * VERTEX_SIZE,
                     vertexBuffer.get() + indexBuffer[j] * VERTEX_SIZE,
                     sizeof(float) * VERTEX_SIZE
                 );
+                entry.vertexData[j * VERTEX_SIZE + 0] += chunk->x * CHUNK_W + 0.5f;
+                entry.vertexData[j * VERTEX_SIZE + 1] += 0.5f;
+                entry.vertexData[j * VERTEX_SIZE + 2] += chunk->z * CHUNK_D + 0.5f;
             }
             sortingMesh.entries.push_back(std::move(entry));
             vertexOffset = 0;
@@ -569,7 +575,7 @@ SortingMeshData BlocksRenderer::renderTranslucent(
     return sortingMesh;
 }
 
-void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
+void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {;
     this->chunk = chunk;
     voxelsBuffer->setPosition(
         chunk->x * CHUNK_W - voxelBufferPadding, 0,

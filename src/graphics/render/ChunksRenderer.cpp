@@ -18,6 +18,8 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#include "util/timeutil.hpp"
+
 static debug::Logger logger("chunks-render");
 
 size_t ChunksRenderer::visibleChunks = 0;
@@ -204,4 +206,62 @@ void ChunksRenderer::drawChunks(
             visibleChunks += drawChunk(indices[i].index, camera, shader, culling);
         }
     //}
+    drawSortedMeshes(camera, shader);
+}
+
+void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
+    const vattr attrs[]{ {3}, {2}, {1}, {0} };
+
+    std::vector<const SortingMeshEntry*> entries;
+
+    auto pposition = camera.position;
+    
+    size_t size = 0;
+    bool culling = settings.graphics.frustumCulling.get();
+    for (size_t i = 0; i < indices.size(); i++) {
+        auto chunk = level.chunks->getChunks()[indices[i].index];
+        if (chunk == nullptr || !chunk->flags.lighted) {
+            continue;
+        }
+        const auto& found = meshes.find(glm::ivec2(chunk->x, chunk->z));
+        if (found == meshes.end()) {
+            continue;
+        }
+
+        glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+        glm::vec3 max(
+            chunk->x * CHUNK_W + CHUNK_W,
+            chunk->top,
+            chunk->z * CHUNK_D + CHUNK_D
+        );
+
+        if (!frustum.isBoxVisible(min, max)) continue;
+
+        auto& chunkEntries = found->second.sortingMesh.entries;
+        for (auto& entry : chunkEntries) {
+            entry.distance = glm::distance2(entry.position, pposition);
+        }
+        for (const auto& entry : chunkEntries) {
+            size += entry.vertexData.size();
+            entries.push_back(&entry);
+        }
+    }
+    std::sort(entries.begin(), entries.end(), [=](const auto& a, const auto& b) {
+        return *a < *b;
+    });
+
+    util::Buffer<float> buffer(size);
+    size_t offset = 0;
+    for (const auto& entry : entries) {
+        std::memcpy(
+            (buffer.data() + offset),
+            entry->vertexData.data(),
+            entry->vertexData.size() * sizeof(float)
+        );
+        offset += entry->vertexData.size();
+    }
+    Mesh mesh(buffer.data(), size / 6, attrs);
+
+    shader.uniformMatrix("u_model", glm::mat4(1.0f));
+    mesh.draw();
 }

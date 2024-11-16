@@ -75,6 +75,8 @@ public:
     );
     void drawChunks(const Camera& camera, Shader& shader);
 
+    void drawSortedMeshes(const Camera& camera, Shader& shader);
+
     void update();
 
     static size_t visibleChunks;
