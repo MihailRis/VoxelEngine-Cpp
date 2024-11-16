@@ -50,6 +50,7 @@ public:
 };
 
 const vattr ATTRS[]{ {3}, {2}, {1}, {0} };
+inline constexpr int VERTEX_SIZE = 6;
 
 ChunksRenderer::ChunksRenderer(
     const Level* level, 
@@ -89,7 +90,9 @@ ChunksRenderer::ChunksRenderer(
 ChunksRenderer::~ChunksRenderer() {
 }
 
-std::shared_ptr<Mesh> ChunksRenderer::render(const std::shared_ptr<Chunk>& chunk, bool important) {
+std::shared_ptr<Mesh> ChunksRenderer::render(
+    const std::shared_ptr<Chunk>& chunk, bool important
+) {
     chunk->flags.modified = false;
     if (important) {
         auto mesh = renderer->render(chunk.get(), level.chunks.get());
@@ -120,7 +123,9 @@ void ChunksRenderer::clear() {
     threadPool.clearQueue();
 }
 
-std::shared_ptr<Mesh> ChunksRenderer::getOrRender(const std::shared_ptr<Chunk>& chunk, bool important) {
+std::shared_ptr<Mesh> ChunksRenderer::getOrRender(
+    const std::shared_ptr<Chunk>& chunk, bool important
+) {
     auto found = meshes.find(glm::ivec2(chunk->x, chunk->z));
     if (found == meshes.end()) {
         return render(chunk, important);
@@ -216,6 +221,10 @@ void ChunksRenderer::drawChunks(
 void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     timeutil::ScopeLogTimer log(444);
 
+    const int sortInterval = 6;
+    static int frameid = 0;
+    frameid++;
+
     const auto& atlas = assets.require<Atlas>("blocks");
 
     atlas.getTexture()->bind();
@@ -252,14 +261,17 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
         auto& chunkEntries = found->second.sortingMeshData.entries;
         
         for (auto& entry : chunkEntries) {
-            entry.distance = static_cast<long long>(glm::distance2(entry.position, pposition));
+            entry.distance =
+                static_cast<long long>(glm::distance2(entry.position, pposition));
         }
 
         if (chunkEntries.size() == 1) {
             auto& entry = chunkEntries.at(0);
             if (found->second.sortedMesh == nullptr) {
                 found->second.sortedMesh = std::make_shared<Mesh>(
-                    entry.vertexData.data(), entry.vertexData.size() / 6, ATTRS
+                    entry.vertexData.data(),
+                    entry.vertexData.size() / VERTEX_SIZE,
+                    ATTRS
                 );
             }
             found->second.sortedMesh->draw();
@@ -270,7 +282,8 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             continue;
         }
 
-        if (found->second.sortedMesh == nullptr || true) {
+        if (found->second.sortedMesh == nullptr ||
+            (frameid + chunk->x) % sortInterval == 0) {
             std::sort(chunkEntries.begin(), chunkEntries.end());
             size_t size = 0;
             for (const auto& entry : chunkEntries) {
@@ -290,7 +303,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
                 offset += entry.vertexData.size();
             }
             found->second.sortedMesh = std::make_shared<Mesh>(
-                buffer.data(), size / 6, ATTRS
+                buffer.data(), size / VERTEX_SIZE, ATTRS
             );
         }
         found->second.sortedMesh->draw();
