@@ -49,6 +49,8 @@ public:
     }
 };
 
+const vattr ATTRS[]{ {3}, {2}, {1}, {0} };
+
 ChunksRenderer::ChunksRenderer(
     const Level* level, 
     const Assets& assets,
@@ -80,9 +82,8 @@ ChunksRenderer::ChunksRenderer(
     );
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
 
-    const vattr attrs[]{ {3}, {2}, {1}, {0} };
     float buf[1]{};
-    sortedMesh = std::make_unique<Mesh>(buf, 0, attrs);
+    sortedMesh = std::make_unique<Mesh>(buf, 0, ATTRS);
 }
 
 ChunksRenderer::~ChunksRenderer() {
@@ -93,7 +94,7 @@ std::shared_ptr<Mesh> ChunksRenderer::render(const std::shared_ptr<Chunk>& chunk
     if (important) {
         auto mesh = renderer->render(chunk.get(), level.chunks.get());
         meshes[glm::ivec2(chunk->x, chunk->z)] = ChunkMesh {
-            std::move(mesh.mesh), std::move(mesh.sortingMesh)
+            std::move(mesh.mesh), std::move(mesh.sortingMeshData)
         };
         return meshes[glm::ivec2(chunk->x, chunk->z)].mesh;
     }
@@ -214,12 +215,10 @@ void ChunksRenderer::drawChunks(
 
 void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     timeutil::ScopeLogTimer log(444);
-    
+
     const auto& atlas = assets.require<Atlas>("blocks");
 
     atlas.getTexture()->bind();
-
-    std::vector<const SortingMeshEntry*> entries;
 
     const auto& chunks = level.chunks->getChunks();
 
@@ -227,6 +226,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     
     size_t size = 0;
     bool culling = settings.graphics.frustumCulling.get();
+    shader.uniformMatrix("u_model", glm::mat4(1.0f));
     
     for (const auto& index : indices) {
         const auto& chunk = chunks[index.index];
@@ -238,43 +238,50 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             continue;
         }
 
-        glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+        glm::vec3 min(
+            chunk->x * CHUNK_W - CHUNK_W, 0, chunk->z * CHUNK_D - CHUNK_D
+        );
         glm::vec3 max(
-            chunk->x * CHUNK_W + CHUNK_W,
-            chunk->top,
-            chunk->z * CHUNK_D + CHUNK_D
+            chunk->x * CHUNK_W + CHUNK_W*2,
+            CHUNK_H,
+            chunk->z * CHUNK_D + CHUNK_D*2
         );
 
         if (!frustum.isBoxVisible(min, max)) continue;
 
-        auto& chunkEntries = found->second.sortingMesh.entries;
+        auto& chunkEntries = found->second.sortingMeshData.entries;
         
         for (auto& entry : chunkEntries) {
             entry.distance = static_cast<long long>(glm::distance2(entry.position, pposition));
         }
+
+        if (chunkEntries.size() == 1) {
+            auto& entry = chunkEntries.at(0);
+            if (found->second.planesMesh == nullptr) {
+                found->second.planesMesh = std::make_shared<Mesh>(
+                    entry.vertexData.data(), entry.vertexData.size() / 6, ATTRS
+                );
+            }
+            found->second.planesMesh->draw();
+            continue;
+        }
+
         std::sort(chunkEntries.begin(), chunkEntries.end());
+        size_t size = 0;
         for (const auto& entry : chunkEntries) {
             size += entry.vertexData.size();
-            entries.push_back(&entry);
         }
+        util::Buffer<float> buffer(size);
+        size_t offset = 0;
+        for (const auto& entry : chunkEntries) {
+            std::memcpy(
+                (buffer.data() + offset),
+                entry.vertexData.data(),
+                entry.vertexData.size() * sizeof(float)
+            );
+            offset += entry.vertexData.size();
+        }
+        sortedMesh->reload(buffer.data(), size / 6);
+        sortedMesh->draw();
     }
-
-    static util::Buffer<float> buffer;
-    
-    if (buffer.size() < size) {
-        buffer = util::Buffer<float>(size);
-    }
-    size_t offset = 0;
-    for (const auto& entry : entries) {
-        std::memcpy(
-            (buffer.data() + offset),
-            entry->vertexData.data(),
-            entry->vertexData.size() * sizeof(float)
-        );
-        offset += entry->vertexData.size();
-    }
-    sortedMesh->reload(buffer.data(), size / 6);
-
-    shader.uniformMatrix("u_model", glm::mat4(1.0f));
-    sortedMesh->draw();
 }
