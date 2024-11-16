@@ -209,6 +209,7 @@ void ChunksRenderer::drawChunks(
     bool culling = settings.graphics.frustumCulling.get();
 
     visibleChunks = 0;
+    shader.uniform1i("u_alphaClip", true);
     //if (GLEW_ARB_multi_draw_indirect && false) {
         // TODO: implement Multi Draw Indirect chunks draw
     //} else {
@@ -232,6 +233,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
 
     atlas.getTexture()->bind();
     shader.uniformMatrix("u_model", glm::mat4(1.0f));
+    shader.uniform1i("u_alphaClip", false);
     
     for (const auto& index : indices) {
         const auto& chunk = chunks[index.index];
