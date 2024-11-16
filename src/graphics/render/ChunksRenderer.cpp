@@ -81,7 +81,7 @@ ChunksRenderer::ChunksRenderer(
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
 
     const vattr attrs[]{ {3}, {2}, {1}, {0} };
-    float buf[]{};
+    float buf[1]{};
     sortedMesh = std::make_unique<Mesh>(buf, 0, attrs);
 }
 
