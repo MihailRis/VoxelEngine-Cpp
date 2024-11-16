@@ -7,6 +7,11 @@
 #include "graphics/core/MeshData.hpp"
 #include "util/Buffer.hpp"
 
+/// @brief Chunk mesh vertex attributes
+inline const vattr CHUNK_VATTRS[]{ {3}, {2}, {1}, {0} };
+/// @brief Chunk mesh vertex size divided by sizeof(float)
+inline constexpr int CHUNK_VERTEX_SIZE = 6;
+
 class Mesh;
 
 struct SortingMeshEntry {

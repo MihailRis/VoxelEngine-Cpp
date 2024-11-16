@@ -49,9 +49,6 @@ public:
     }
 };
 
-const vattr ATTRS[]{ {3}, {2}, {1}, {0} };
-inline constexpr int VERTEX_SIZE = 6;
-
 ChunksRenderer::ChunksRenderer(
     const Level* level, 
     const Assets& assets,
@@ -84,7 +81,7 @@ ChunksRenderer::ChunksRenderer(
     logger.info() << "created " << threadPool.getWorkersCount() << " workers";
 
     float buf[1]{};
-    sortedMesh = std::make_unique<Mesh>(buf, 0, ATTRS);
+    sortedMesh = std::make_unique<Mesh>(buf, 0, CHUNK_VATTRS);
 }
 
 ChunksRenderer::~ChunksRenderer() {
@@ -265,8 +262,8 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             if (found->second.sortedMesh == nullptr) {
                 found->second.sortedMesh = std::make_unique<Mesh>(
                     entry.vertexData.data(),
-                    entry.vertexData.size() / VERTEX_SIZE,
-                    ATTRS
+                    entry.vertexData.size() / CHUNK_VERTEX_SIZE,
+                    CHUNK_VATTRS
                 );
             }
             found->second.sortedMesh->draw();
@@ -297,7 +294,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
                 offset += entry.vertexData.size();
             }
             found->second.sortedMesh = std::make_unique<Mesh>(
-                buffer.data(), size / VERTEX_SIZE, ATTRS
+                buffer.data(), size / CHUNK_VERTEX_SIZE, CHUNK_VATTRS
             );
         }
         found->second.sortedMesh->draw();

@@ -27,7 +27,6 @@ struct UVRegion;
 
 class BlocksRenderer {
     static const glm::vec3 SUN_VECTOR;
-    static const uint VERTEX_SIZE;
     const Content& content;
     std::unique_ptr<float[]> vertexBuffer;
     std::unique_ptr<int[]> indexBuffer;

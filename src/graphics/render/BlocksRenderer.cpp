@@ -14,7 +14,6 @@
 
 #include "util/timeutil.hpp"
 
-const uint BlocksRenderer::VERTEX_SIZE = 6;
 const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
 BlocksRenderer::BlocksRenderer(
@@ -23,7 +22,7 @@ BlocksRenderer::BlocksRenderer(
     const ContentGfxCache& cache,
     const EngineSettings& settings
 ) : content(content),
-    vertexBuffer(std::make_unique<float[]>(capacity * VERTEX_SIZE)),
+    vertexBuffer(std::make_unique<float[]>(capacity * CHUNK_VERTEX_SIZE)),
     indexBuffer(std::make_unique<int[]>(capacity)),
     vertexOffset(0),
     indexOffset(0),
@@ -87,7 +86,7 @@ void BlocksRenderer::face(
     const glm::vec4(&lights)[4],
     const glm::vec4& tint
 ) {
-    if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
+    if (vertexOffset + CHUNK_VERTEX_SIZE * 4 > capacity) {
         overflow = true;
         return;
     }
@@ -127,7 +126,7 @@ void BlocksRenderer::faceAO(
     const UVRegion& region,
     bool lights
 ) {
-    if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
+    if (vertexOffset + CHUNK_VERTEX_SIZE * 4 > capacity) {
         overflow = true;
         return;
     }
@@ -165,7 +164,7 @@ void BlocksRenderer::face(
     glm::vec4 tint,
     bool lights
 ) {
-    if (vertexOffset + BlocksRenderer::VERTEX_SIZE * 4 > capacity) {
+    if (vertexOffset + CHUNK_VERTEX_SIZE * 4 > capacity) {
         overflow = true;
         return;
     }
@@ -290,7 +289,7 @@ void BlocksRenderer::blockCustomModel(
 
     const auto& model = cache.getModel(block->rt.id);
     for (const auto& mesh : model.meshes) {
-        if (vertexOffset + BlocksRenderer::VERTEX_SIZE * mesh.vertices.size() > capacity) {
+        if (vertexOffset + CHUNK_VERTEX_SIZE * mesh.vertices.size() > capacity) {
             overflow = true;
             return;
         }
@@ -558,19 +557,19 @@ SortingMeshData BlocksRenderer::renderTranslucent(
                     y + 0.5f,
                     z + chunk->z * CHUNK_D + 0.5f
                 ),
-                util::Buffer<float>(indexSize * VERTEX_SIZE)};
+                util::Buffer<float>(indexSize * CHUNK_VERTEX_SIZE)};
 
             totalSize += entry.vertexData.size();
 
             for (int j = 0; j < indexSize; j++) {
                 std::memcpy(
-                    entry.vertexData.data() + j * VERTEX_SIZE,
-                    vertexBuffer.get() + indexBuffer[j] * VERTEX_SIZE,
-                    sizeof(float) * VERTEX_SIZE
+                    entry.vertexData.data() + j * CHUNK_VERTEX_SIZE,
+                    vertexBuffer.get() + indexBuffer[j] * CHUNK_VERTEX_SIZE,
+                    sizeof(float) * CHUNK_VERTEX_SIZE
                 );
-                float& vx = entry.vertexData[j * VERTEX_SIZE + 0];
-                float& vy = entry.vertexData[j * VERTEX_SIZE + 1];
-                float& vz = entry.vertexData[j * VERTEX_SIZE + 2];
+                float& vx = entry.vertexData[j * CHUNK_VERTEX_SIZE + 0];
+                float& vy = entry.vertexData[j * CHUNK_VERTEX_SIZE + 1];
+                float& vz = entry.vertexData[j * CHUNK_VERTEX_SIZE + 2];
 
                 if (!aabbInit) {
                     aabbInit = true;
@@ -653,21 +652,23 @@ void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {;
 }
 
 ChunkMeshData BlocksRenderer::createMesh() {
-    const vattr attrs[]{ {3}, {2}, {1}, {0} };
-    return ChunkMeshData{MeshData(
-        util::Buffer<float>(vertexBuffer.get(), vertexOffset), 
-        util::Buffer<int>(indexBuffer.get(), indexSize),
-        util::Buffer<vattr>({{3}, {2}, {1}, {0}})
-    ), std::move(sortingMesh)};
+    return ChunkMeshData {
+        MeshData(
+            util::Buffer<float>(vertexBuffer.get(), vertexOffset),
+            util::Buffer<int>(indexBuffer.get(), indexSize),
+            util::Buffer<vattr>(
+                CHUNK_VATTRS, sizeof(CHUNK_VATTRS) / sizeof(vattr)
+            )
+        ),
+        std::move(sortingMesh)};
 }
 
 ChunkMesh BlocksRenderer::render(const Chunk* chunk, const Chunks* chunks) {
     build(chunk, chunks);
 
-    const vattr attrs[]{ {3}, {2}, {1}, {0} };
-    size_t vcount = vertexOffset / BlocksRenderer::VERTEX_SIZE;
+    size_t vcount = vertexOffset / CHUNK_VERTEX_SIZE;
     return ChunkMesh{std::make_unique<Mesh>(
-        vertexBuffer.get(), vcount, indexBuffer.get(), indexSize, attrs
+        vertexBuffer.get(), vcount, indexBuffer.get(), indexSize, CHUNK_VATTRS
     ), std::move(sortingMesh)};
 }
 
