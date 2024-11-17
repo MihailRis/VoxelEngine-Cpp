@@ -333,6 +333,7 @@ void ContentLoader::loadBlock(
     root.at("inventory-size").get(def.inventorySize);
     root.at("tick-interval").get(def.tickInterval);
     root.at("overlay-texture").get(def.overlayTexture);
+    root.at("translucent").get(def.translucent);
 
     if (root.has("fields")) {
         def.dataStruct = std::make_unique<StructLayout>();

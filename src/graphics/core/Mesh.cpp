@@ -4,7 +4,7 @@
 int Mesh::meshesCount = 0;
 int Mesh::drawCalls = 0;
 
-inline size_t calc_vertex_size(const vattr* attrs) {
+inline size_t calc_vertex_size(const VertexAttribute* attrs) {
     size_t vertexSize = 0;
     for (int i = 0; attrs[i].size; i++) {
         vertexSize += attrs[i].size;
@@ -19,10 +19,10 @@ Mesh::Mesh(const MeshData& data)
         data.indices.size(),
         data.attrs.data()) {}
 
-Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs) : 
+Mesh::Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const VertexAttribute* attrs) : 
     ibo(0),
-    vertices(vertices),
-    indices(indices)
+    vertices(0),
+    indices(0)
 {
     meshesCount++;
     vertexSize = 0;
@@ -58,10 +58,9 @@ void Mesh::reload(const float* vertexBuffer, size_t vertices, const int* indexBu
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     if (vertexBuffer != nullptr && vertices != 0) {
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexSize * vertices, vertexBuffer, GL_STATIC_DRAW);
-    }
-    else {
-        glBufferData(GL_ARRAY_BUFFER, 0, {}, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexSize * vertices, vertexBuffer, GL_STREAM_DRAW);
+    } else {
+        glBufferData(GL_ARRAY_BUFFER, 0, {}, GL_STREAM_DRAW);
     }
     if (indexBuffer != nullptr && indices != 0) {
         if (ibo == 0) glGenBuffers(1, &ibo);
@@ -75,7 +74,7 @@ void Mesh::reload(const float* vertexBuffer, size_t vertices, const int* indexBu
     this->indices = indices;
 }
 
-void Mesh::draw(unsigned int primitive){
+void Mesh::draw(unsigned int primitive) const {
     drawCalls++;
     glBindVertexArray(vao);
     if (ibo != 0) {
@@ -87,6 +86,6 @@ void Mesh::draw(unsigned int primitive){
     glBindVertexArray(0);
 }
 
-void Mesh::draw() {
+void Mesh::draw() const {
     draw(GL_TRIANGLES);
 }

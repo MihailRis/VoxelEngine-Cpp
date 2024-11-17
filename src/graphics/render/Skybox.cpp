@@ -39,7 +39,7 @@ Skybox::Skybox(uint size, Shader& shader)
         -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
         -1.0f, -1.0f,  1.0f, 1.0f, 1.0f, -1.0f
     };
-    vattr attrs[] {{2}, {0}};
+    VertexAttribute attrs[] {{2}, {0}};
     mesh = std::make_unique<Mesh>(vertices, 6, attrs);
 
     sprites.push_back(skysprite {

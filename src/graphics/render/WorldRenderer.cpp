@@ -164,9 +164,17 @@ void WorldRenderer::renderLevel(
     particles->render(camera, delta * !pause);
 
     auto& shader = assets.require<Shader>("main");
+    auto& linesShader = assets.require<Shader>("lines");
+
     setupWorldShader(shader, camera, settings, fogFactor);
 
     chunks->drawChunks(camera, shader);
+
+    if (hudVisible) {
+        renderLines(camera, linesShader, ctx);
+    }
+    shader.use();
+    chunks->drawSortedMeshes(camera, shader);
 
     if (!pause) {
         scripting::on_frontend_render();
@@ -326,7 +334,6 @@ void WorldRenderer::draw(
                         ctx, camera, *lineBatch, linesShader, showChunkBorders
                     );
                 }
-                renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
                     renderHands(camera, delta * !pause);
                 }
