@@ -14,9 +14,6 @@
 #include "util/listutil.hpp"
 #include "settings.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
-
 static debug::Logger logger("chunks-render");
 
 size_t ChunksRenderer::visibleChunks = 0;
@@ -204,7 +201,9 @@ void ChunksRenderer::drawChunks(
         auto mesh = retrieveChunk(indices[i].index, camera, shader, culling);
 
         if (mesh) {
-            glm::vec3 coord(chunk->x * CHUNK_W + 0.5f, 0.5f, chunk->z * CHUNK_D + 0.5f);
+            glm::vec3 coord(
+                chunk->x * CHUNK_W + 0.5f, 0.5f, chunk->z * CHUNK_D + 0.5f
+            );
             glm::mat4 model = glm::translate(glm::mat4(1.0f), coord);
             shader.uniformMatrix("u_model", model);
             mesh->draw();
@@ -228,7 +227,7 @@ static inline void write_sorting_mesh_entries(
 }
 
 void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
-    const int sortInterval = 8;
+    const int sortInterval = TRANSLUCENT_BLOCKS_SORT_INTERVAL;
     static int frameid = 0;
     frameid++;
 

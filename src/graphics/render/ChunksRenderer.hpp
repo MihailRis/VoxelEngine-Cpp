@@ -4,10 +4,12 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 #include "voxels/Block.hpp"
-#include "voxels/ChunksStorage.hpp"
 #include "util/ThreadPool.hpp"
 #include "graphics/core/MeshData.hpp"
 #include "commons.hpp"
@@ -17,7 +19,6 @@ class Chunk;
 class Level;
 class Camera;
 class Shader;
-class Chunks;
 class Assets;
 class Frustum;
 class BlocksRenderer;
