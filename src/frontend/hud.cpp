@@ -615,8 +615,11 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
             }
             if (secondUI->getPositionFunc() == nullptr) {
                 secondUI->setPos(glm::vec2(
-                    glm::min(width/2-invwidth/2, width-caWidth-(inventoryView ? 10 : 0)-invwidth),
-                    height/2-totalHeight/2
+                    glm::min(
+                        width / 2.f - invwidth / 2.f,
+                        width - caWidth - (inventoryView ? 10 : 0) - invwidth
+                    ),
+                    height / 2.f - totalHeight / 2.f
                 ));
             }
         }

@@ -14,7 +14,7 @@
     <panel id="problemsLog"
         color="#00000010" 
         position-func="gui.get_viewport()[1]-350,0" 
-        size-func="351,gui.get_viewport()[2]-40"
+        size-func="350,gui.get_viewport()[2]-40"
         padding="5,15,5,15">
         <label>@Problems</label>
     </panel>
