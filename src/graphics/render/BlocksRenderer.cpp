@@ -12,8 +12,6 @@
 
 #include <glm/glm.hpp>
 
-#include "util/timeutil.hpp"
-
 const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 
 BlocksRenderer::BlocksRenderer(
@@ -607,7 +605,7 @@ SortingMeshData BlocksRenderer::renderTranslucent(
     return sortingMesh;
 }
 
-void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {;
+void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
     this->chunk = chunk;
     voxelsBuffer->setPosition(
         chunk->x * CHUNK_W - voxelBufferPadding, 0,

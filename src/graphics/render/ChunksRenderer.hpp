@@ -50,11 +50,9 @@ class ChunksRenderer {
     std::unordered_map<glm::ivec2, bool> inwork;
     std::vector<ChunksSortEntry> indices;
     util::ThreadPool<std::shared_ptr<Chunk>, RendererResult> threadPool;
-
-    bool drawChunk(
+    const Mesh* retrieveChunk(
         size_t index, const Camera& camera, Shader& shader, bool culling
     );
-    std::unique_ptr<Mesh> sortedMesh;
 public:
     ChunksRenderer(
         const Level* level,
