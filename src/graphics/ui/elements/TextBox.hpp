@@ -12,6 +12,7 @@ namespace gui {
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
+        glm::vec4 textColor {1.0f, 1.0f, 1.0f, 1.0f};
         std::shared_ptr<Label> label;
         /// @brief Current user input
         std::wstring input;
@@ -105,6 +106,9 @@ namespace gui {
 
         virtual void setFocusedColor(glm::vec4 color);
         virtual glm::vec4 getFocusedColor() const;
+
+        virtual void setTextColor(glm::vec4 color);
+        virtual glm::vec4 getTextColor() const;
 
         /// @brief Set color of textbox marked by validator as invalid
         virtual void setErrorColor(glm::vec4 color);

@@ -126,7 +126,7 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
 }
 
 void TextBox::refreshLabel() {
-    label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
+    label->setColor(textColor * glm::vec4(input.empty() ? 0.5f : 1.0f));
     label->setText(input.empty() && !hint.empty() ? hint : getText());
 
     if (autoresize && font) {
@@ -617,6 +617,15 @@ void TextBox::setFocusedColor(glm::vec4 color) {
 
 glm::vec4 TextBox::getFocusedColor() const {
     return focusedColor;
+}
+
+
+void TextBox::setTextColor(glm::vec4 color) {
+    this->textColor = color;
+}
+
+glm::vec4 TextBox::getTextColor() const {
+    return textColor;
 }
 
 void TextBox::setErrorColor(glm::vec4 color) {
