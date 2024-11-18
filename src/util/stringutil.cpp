@@ -317,7 +317,7 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
         ending[i - fullsegments] = data[i];
     }
     size_t trailing = size - fullsegments;
-    {
+    if (trailing) {
         char output[] = "====";
         output[0] = B64ABC[(ending[0] & 0b11111100) >> 2];
         output[1] =
