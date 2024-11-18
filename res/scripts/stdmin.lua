@@ -228,7 +228,7 @@ function file.readlines(path)
     return lines
 end
 
-function debug.get_trackback()
+function debug.get_traceback()
     local frames = {}
     local n = 0
     while true do
@@ -253,7 +253,7 @@ function on_deprecated_call(name, alternatives)
         return
     end
     __warnings_hidden[name] = true
-    events.emit("core:warning", "deprecated call", name)
+    events.emit("core:warning", "deprecated call", name, debug.get_traceback())
     if alternatives then
         debug.warning("deprecated function called ("..name.."), use "..
             alternatives.." instead\n"..debug.traceback())
