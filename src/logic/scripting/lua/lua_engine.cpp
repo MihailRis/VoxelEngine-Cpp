@@ -144,7 +144,8 @@ State* lua::create_state(const EnginePaths& paths, StateType stateType) {
     init_state(L, stateType);
     
     auto resDir = paths.getResourcesFolder();
-    auto src = files::read_string(resDir / fs::u8path("scripts/stdmin.lua"));
-    lua::pop(L, lua::execute(L, 0, src, "<stdmin>"));
+    auto file = resDir / fs::u8path("scripts/stdmin.lua");
+    auto src = files::read_string(file);
+    lua::pop(L, lua::execute(L, 0, src, "core:scripts/stdmin.lua"));
     return L;
 }

@@ -172,7 +172,9 @@ assetload::postfunc assetload::layout(
     return [=](auto assets) {
         try {
             auto cfg = std::dynamic_pointer_cast<LayoutCfg>(config);
-            assets->store(UiDocument::read(cfg->env, name, file), name);
+            assets->store(
+                UiDocument::read(cfg->env, name, file, "abs:" + file), name
+            );
         } catch (const parsing_error& err) {
             throw std::runtime_error(
                 "failed to parse layout XML '" + file + "':\n" + err.errorLog()

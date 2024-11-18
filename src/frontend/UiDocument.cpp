@@ -53,7 +53,12 @@ scriptenv UiDocument::getEnvironment() const {
     return env;
 }
 
-std::unique_ptr<UiDocument> UiDocument::read(const scriptenv& penv, const std::string& name, const fs::path& file) {
+std::unique_ptr<UiDocument> UiDocument::read(
+    const scriptenv& penv,
+    const std::string& name,
+    const fs::path& file,
+    const std::string& fileName
+) {
     const std::string text = files::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
@@ -69,12 +74,16 @@ std::unique_ptr<UiDocument> UiDocument::read(const scriptenv& penv, const std::s
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_layout_script(env, name, scriptFile, script);
+        scripting::load_layout_script(
+            env, name, scriptFile, fileName + ".lua", script
+        );
     }
     return std::make_unique<UiDocument>(name, script, view, env);
 }
 
-std::shared_ptr<gui::UINode> UiDocument::readElement(const fs::path& file) {
-    auto document = read(nullptr, file.filename().u8string(), file);
+std::shared_ptr<gui::UINode> UiDocument::readElement(
+    const fs::path& file, const std::string& fileName
+) {
+    auto document = read(nullptr, file.filename().u8string(), file, fileName);
     return document->getRoot();
 }
