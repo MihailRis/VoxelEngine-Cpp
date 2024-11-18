@@ -540,7 +540,7 @@ void Hud::draw(const DrawContext& ctx){
 
     // Crosshair
     if (!pause && !inventoryOpen && !player->debug) {
-        DrawContext chctx = ctx.sub();
+        DrawContext chctx = ctx.sub(batch);
         chctx.setBlendMode(BlendMode::inversion);
         auto texture = assets->get<Texture>("gui/crosshair");
         batch->texture(texture);
