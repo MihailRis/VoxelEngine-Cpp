@@ -363,8 +363,8 @@ util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
     return bytes;
 }
 
-util::Buffer<ubyte> util::base64_decode(const std::string& str) {
-    return base64_decode(str.c_str(), str.size());
+util::Buffer<ubyte> util::base64_decode(std::string_view str) {
+    return base64_decode(str.data(), str.size());
 }
 
 int util::replaceAll(
