@@ -230,7 +230,7 @@ end
 
 function debug.get_traceback()
     local frames = {}
-    local n = 0
+    local n = 2
     while true do
         local info = debug.getinfo(n)
         if info then
