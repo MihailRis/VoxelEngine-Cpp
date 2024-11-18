@@ -35,6 +35,8 @@ public:
         size_t end = -1
     );
 
+    void resize(uint newSize);
+
     void deserialize(const dv::value& src) override;
 
     dv::value serialize() const override;
