@@ -8,7 +8,7 @@
 
 namespace util {
     /// @brief Function used for string serialization in text formats
-    std::string escape(const std::string& s);
+    std::string escape(std::string_view s);
 
     /// @brief Function used for error messages
     std::string quote(const std::string& s);

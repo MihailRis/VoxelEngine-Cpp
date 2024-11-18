@@ -162,6 +162,7 @@ end
 
 string.lower = utf8.lower
 string.upper = utf8.upper
+string.escape = utf8.escape
 
 local meta = getmetatable("")
 

@@ -94,6 +94,11 @@ static int l_encode(lua::State* L) {
     return lua::pushlstring(L, bytes, count);
 }
 
+static int l_escape(lua::State* L) {
+    auto string = lua::require_lstring(L, 1);
+    return lua::pushstring(L, util::escape(string));
+}
+
 const luaL_Reg utf8lib[] = {
     {"tobytes", lua::wrap<l_tobytes>},
     {"tostring", lua::wrap<l_tostring>},
@@ -103,5 +108,6 @@ const luaL_Reg utf8lib[] = {
     {"upper", lua::wrap<l_upper>},
     {"lower", lua::wrap<l_lower>},
     {"encode", lua::wrap<l_encode>},
+    {"escape", lua::wrap<l_escape>},
     {NULL, NULL}
 };
