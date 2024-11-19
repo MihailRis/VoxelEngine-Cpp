@@ -63,7 +63,7 @@ events.on("core:open_traceback", function(traceback_b64)
             if file.exists(frame.source) then
                 callback = string.format(
                     "local editor = document.editor "..
-                    "local source = file.read('%s') "..
+                    "local source = file.read('%s'):gsub('\t', '    ') "..
                     "editor.text = source "..
                     "editor.focused = true "..
                     "time.post_runnable(function()"..
