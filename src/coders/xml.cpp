@@ -250,7 +250,8 @@ std::string Parser::parseText() {
         }
         nextChar();
     }
-    return std::string(source.substr(start, pos - start));
+    return Parser("<string>", std::string(source.substr(start, pos - start)))
+        .parseString('\0', false);
 }
 
 inline bool is_xml_identifier_start(char c) {
