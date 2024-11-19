@@ -58,7 +58,7 @@ class World {
     const Content* const content;
     std::vector<ContentPack> packs;
 
-    int64_t nextInventoryId = 0;
+    int64_t nextInventoryId = 1;
 
     void writeResources(const Content* content);
 public:
