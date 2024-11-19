@@ -386,7 +386,7 @@ void Chunks::set(
     // block finalization
     voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
     const auto& prevdef = indices->blocks.require(vox.id);
-    if (prevdef.inventorySize == 0) {
+    if (prevdef.inventorySize != 0) {
         chunk->removeBlockInventory(lx, y, lz);
     }
     if (prevdef.rt.extended && !vox.state.segment) {
