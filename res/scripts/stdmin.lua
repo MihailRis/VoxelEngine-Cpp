@@ -314,3 +314,10 @@ function __vc__error(msg, frame)
     end
     return debug.traceback(msg, frame)
 end
+
+function __vc_warning(msg, detail, n)
+    if events then
+        events.emit(
+            "core:warning", msg, detail, debug.get_traceback(1 + (n or 0)))
+    end
+end
