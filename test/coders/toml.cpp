@@ -31,7 +31,7 @@ TEST(TOML, EncodeDecode) {
         std::cout << text << std::endl;
     }
     try {
-        auto object = toml::parse("<string>", text);
+        auto object = toml::parse("[string]", text);
         EXPECT_EQ(object["name"].asString(), name);
         EXPECT_EQ(object["year"].asInteger(), year);
         EXPECT_FLOAT_EQ(object["score"].asNumber(), score);
@@ -86,7 +86,7 @@ inline std::string SRC_EXAMPLE =
 TEST(TOML, ExampleCode) {
     try {
         std::cout << SRC_EXAMPLE << std::endl;
-        auto object = toml::parse("<string>", SRC_EXAMPLE);
+        auto object = toml::parse("[string]", SRC_EXAMPLE);
         std::cout << object << std::endl;
     } catch (const parsing_error& err) {
         std::cerr << err.errorLog() << std::endl;

@@ -250,7 +250,7 @@ std::string Parser::parseText() {
         }
         nextChar();
     }
-    return Parser("<string>", std::string(source.substr(start, pos - start)))
+    return Parser("[string]", std::string(source.substr(start, pos - start)))
         .parseString('\0', false);
 }
 

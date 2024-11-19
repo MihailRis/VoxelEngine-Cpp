@@ -265,5 +265,5 @@ dv::value json::parse(
 }
 
 dv::value json::parse(std::string_view source) {
-    return parse("<string>", source);
+    return parse("[string]", source);
 }

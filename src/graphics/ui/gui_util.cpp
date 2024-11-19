@@ -20,7 +20,7 @@ std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, scripten
         env = scripting::get_root_environment();
     }
     UiXmlReader reader(env);
-    return reader.readXML("<string>", source);
+    return reader.readXML("[string]", source);
 }
 
 void guiutil::alert(GUI* gui, const std::wstring& text, const runnable& on_hidden) {
