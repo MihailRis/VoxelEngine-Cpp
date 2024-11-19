@@ -81,7 +81,7 @@ namespace gui {
         /// @brief element color when clicked
         glm::vec4 pressedColor {1.0f};
         /// @brief element margin (only supported for Panel sub-nodes)
-        glm::vec4 margin {1.0f};
+        glm::vec4 margin {0.0f};
         /// @brief is element visible
         bool visible = true;
         /// @brief is mouse over the element

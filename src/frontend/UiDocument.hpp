@@ -45,6 +45,13 @@ public:
     const uidocscript& getScript() const;
     scriptenv getEnvironment() const;
 
-    static std::unique_ptr<UiDocument> read(const scriptenv& parent_env, const std::string& name, const fs::path& file);
-    static std::shared_ptr<gui::UINode> readElement(const fs::path& file);
+    static std::unique_ptr<UiDocument> read(
+        const scriptenv& parent_env,
+        const std::string& name,
+        const fs::path& file,
+        const std::string& fileName
+    );
+    static std::shared_ptr<gui::UINode> readElement(
+        const fs::path& file, const std::string& fileName
+    );
 };

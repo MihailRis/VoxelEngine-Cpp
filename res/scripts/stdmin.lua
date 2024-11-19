@@ -162,6 +162,7 @@ end
 
 string.lower = utf8.lower
 string.upper = utf8.upper
+string.escape = utf8.escape
 
 local meta = getmetatable("")
 
@@ -227,8 +228,22 @@ function file.readlines(path)
     return lines
 end
 
+function debug.get_traceback(start)
+    local frames = {}
+    local n = 2 + (start or 0)
+    while true do
+        local info = debug.getinfo(n)
+        if info then
+            table.insert(frames, info)
+        else
+            return frames
+        end
+        n = n + 1
+    end
+end
+
 package = {
-    loaded={}
+    loaded = {}
 }
 local __cached_scripts = {}
 local __warnings_hidden = {}
@@ -238,7 +253,7 @@ function on_deprecated_call(name, alternatives)
         return
     end
     __warnings_hidden[name] = true
-    events.emit("core:warning", "deprecated call", name)
+    events.emit("core:warning", "deprecated call", name, debug.get_traceback(2))
     if alternatives then
         debug.warning("deprecated function called ("..name.."), use "..
             alternatives.." instead\n"..debug.traceback())
@@ -291,4 +306,11 @@ function __scripts_cleanup()
             package.loaded[k] = nil
         end
     end
+end
+
+function __vc__error(msg, frame)
+    if events then
+        events.emit("core:error", msg, debug.get_traceback(1))
+    end
+    return debug.traceback(msg, frame)
 end

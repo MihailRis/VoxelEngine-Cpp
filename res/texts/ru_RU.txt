@@ -12,7 +12,15 @@ Dependencies=Зависимости
 Description=Описание
 Converting world...=Выполняется конвертация мира...
 Unlimited=Неограниченно
+Chat=Чат
+Console=Консоль
+Log=Лог
+Problems=Проблемы
+Monitor=Мониторинг
+Debug=Отладка
+File=Файл
 
+devtools.traceback=Стек вызовов (от последнего)
 error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
 pack.remove-confirm=Удалить весь поставляемый паком/паками контент из мира (безвозвратно)?

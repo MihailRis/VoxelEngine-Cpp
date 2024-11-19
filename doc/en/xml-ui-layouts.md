@@ -56,7 +56,8 @@ Buttons and panels are also containers.
 
 - `padding` - element padding. Type: 4D vector.
   *left, top, right, bottom*
-  `scrollable` - element scrollability. Works on panels only. Type: boolean
+- `scrollable` - element scrollability. Type: boolean.
+- `scroll-step` - scrolling step. Type: integer.
 
 # Common *panel* attributes
 
@@ -104,7 +105,9 @@ Inner text - initially entered text
 - `multiline` - allows display of multiline text.
 - `text-wrap` - allows automatic text wrapping (works only with multiline: "true")
 - `editable` - determines whether the text can be edited.
+- `line-numbers` - enables line numbers display.
 - `error-color` - color when entering incorrect data (the text does not pass the validator check). Type: RGBA color.
+- `text-color` - text color. Type: RGBA color.
 - `validator` - lua function that checks text for correctness. Takes a string as input, returns true if the text is correct.
 - `onup` - lua function called when the up arrow is pressed.
 - `ondown` - lua function called when the down arrow is pressed.

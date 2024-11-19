@@ -8,11 +8,14 @@ class Font;
 namespace gui {
     class Label;
     
-    class TextBox : public Panel {
+    class TextBox : public Container {
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
+        glm::vec4 textColor {1.0f, 1.0f, 1.0f, 1.0f};
+        glm::vec4 padding {2};
         std::shared_ptr<Label> label;
+        std::shared_ptr<Label> lineNumbersLabel;
         /// @brief Current user input
         std::wstring input;
         /// @brief Text will be used if nothing entered
@@ -52,6 +55,7 @@ namespace gui {
         bool multiline = false;
         bool editable = true;
         bool autoresize = false;
+        bool showLineNumbers = false;
 
         void stepLeft(bool shiftPressed, bool breakSelection);
         void stepRight(bool shiftPressed, bool breakSelection);
@@ -106,6 +110,9 @@ namespace gui {
         virtual void setFocusedColor(glm::vec4 color);
         virtual glm::vec4 getFocusedColor() const;
 
+        virtual void setTextColor(glm::vec4 color);
+        virtual glm::vec4 getTextColor() const;
+
         /// @brief Set color of textbox marked by validator as invalid
         virtual void setErrorColor(glm::vec4 color);
 
@@ -152,6 +159,16 @@ namespace gui {
         /// @param end index of the last selected character + 1
         virtual void select(int start, int end);
 
+        /// @brief Get number of line at specific position in text
+        /// @param position target position
+        /// @return line number
+        virtual uint getLineAt(size_t position) const;
+
+        /// @brief Get specific line text position
+        /// @param line target line
+        /// @return line position in text
+        virtual size_t getLinePos(uint line) const;
+
         /// @brief Check text with validator set with setTextValidator
         /// @return true if text is valid
         virtual bool validate();
@@ -177,11 +194,17 @@ namespace gui {
         /// @brief Check if text editing feature is enabled 
         virtual bool isEditable() const;
 
+        virtual void setPadding(glm::vec4 padding);
+        glm::vec4 getPadding() const;
+
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
 
         virtual void setAutoResize(bool flag);
         virtual bool isAutoResize() const;
+
+        virtual void setShowLineNumbers(bool flag);
+        virtual bool isShowLineNumbers() const;
 
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;

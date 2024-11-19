@@ -62,7 +62,10 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
         auto fullname = "core:pages/"+name;
 
         auto document_ptr = UiDocument::read(
-            scripting::get_root_environment(), fullname, file
+            scripting::get_root_environment(),
+            fullname,
+            file,
+            "core:layout/pages/" + name
         );
         auto document = document_ptr.get();
         engine->getAssets()->store(std::move(document_ptr), fullname);
@@ -110,7 +113,7 @@ UiDocument* menus::show(Engine* engine, const std::string& name, std::vector<dv:
     auto fullname = "core:layouts/"+name;
 
     auto document_ptr = UiDocument::read(
-        scripting::get_root_environment(), fullname, file
+        scripting::get_root_environment(), fullname, file, "core:layouts/"+name
     );
     auto document = document_ptr.get();
     engine->getAssets()->store(std::move(document_ptr), fullname);

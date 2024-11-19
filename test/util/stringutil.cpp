@@ -15,3 +15,19 @@ TEST(stringutil, utf8) {
     std::string str2 = util::u32str2str_utf8(u32str);
     EXPECT_EQ(str, str2);
 }
+
+TEST(stringutil, base64) {
+    srand(2019);
+    for (size_t size = 0; size < 30; size++) {
+        auto bytes = std::make_unique<ubyte[]>(size);
+        for (int i = 0; i < size; i++) {
+            bytes[i] = rand();
+        }
+        auto base64 = util::base64_encode(bytes.get(), size);
+        auto decoded = util::base64_decode(base64);
+        ASSERT_EQ(size, decoded.size());
+        for (size_t i = 0; i < size; i++) {
+            ASSERT_EQ(bytes[i], decoded[i]);
+        }
+    }
+}

@@ -256,6 +256,14 @@ console.add_command(
     end
 )
 
+console.add_command(
+    "chat text:str",
+    "Send chat message",
+    function (args, kwargs)
+        console.log("[you] "..args[1])
+    end
+)
+
 console.cheats = {
     "blocks.fill",
     "tp",

@@ -8,7 +8,7 @@
 
 namespace util {
     /// @brief Function used for string serialization in text formats
-    std::string escape(const std::string& s);
+    std::string escape(std::string_view s);
 
     /// @brief Function used for error messages
     std::string quote(const std::string& s);
@@ -63,7 +63,7 @@ namespace util {
 
     std::string base64_encode(const ubyte* data, size_t size);
     util::Buffer<ubyte> base64_decode(const char* str, size_t size);
-    util::Buffer<ubyte> base64_decode(const std::string& str);
+    util::Buffer<ubyte> base64_decode(std::string_view str);
 
     std::string tohex(uint64_t value);
 

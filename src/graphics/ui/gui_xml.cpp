@@ -172,6 +172,9 @@ static void _readContainer(UiXmlReader& reader, const xml::xmlelement& element, 
     if (element->has("scrollable")) {
         container.setScrollable(element->attr("scrollable").asBool());
     }
+    if (element->has("scroll-step")) {
+        container.setScrollStep(element->attr("scroll-step").asInt());
+    }
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;
@@ -342,7 +345,16 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
     textbox->setHint(hint);
     
-    _readPanel(reader, element, *textbox);
+    _readContainer(reader, element, *textbox);
+    if (element->has("padding")) {
+        glm::vec4 padding = element->attr("padding").asVec4();
+        textbox->setPadding(padding);
+        glm::vec2 size = textbox->getSize();
+        textbox->setSize(glm::vec2(
+            size.x + padding.x + padding.z,
+            size.y + padding.y + padding.w
+        ));
+    }
     textbox->setText(text);
 
     if (element->has("multiline")) {
@@ -356,6 +368,9 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     }
     if (element->has("autoresize")) {
         textbox->setAutoResize(element->attr("autoresize").asBool());
+    }
+    if (element->has("line-numbers")) {
+        textbox->setShowLineNumbers(element->attr("line-numbers").asBool());
     }
     if (element->has("consumer")) {
         textbox->setTextConsumer(scripting::create_wstring_consumer(
@@ -383,6 +398,9 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     }
     if (element->has("error-color")) {
         textbox->setErrorColor(element->attr("error-color").asColor());
+    }
+    if (element->has("text-color")) {
+        textbox->setTextColor(element->attr("text-color").asColor());
     }
     if (element->has("validator")) {
         textbox->setTextValidator(scripting::create_wstring_validator(
