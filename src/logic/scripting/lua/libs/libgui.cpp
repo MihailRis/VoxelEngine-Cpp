@@ -274,6 +274,13 @@ static int p_get_editable(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_line_numbers(UINode* node, lua::State* L) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return lua::pushboolean(L, box->isShowLineNumbers());
+    }
+    return 0;
+}
+
 static int p_get_src(UINode* node, lua::State* L) {
     if (auto image = dynamic_cast<Image*>(node)) {
         return lua::pushstring(L, image->getTexture());
@@ -383,6 +390,7 @@ static int l_gui_getattr(lua::State* L) {
             {"caret", p_get_caret},
             {"text", p_get_text},
             {"editable", p_get_editable},
+            {"lineNumbers", p_get_line_numbers},
             {"src", p_get_src},
             {"value", p_get_value},
             {"min", p_get_min},
@@ -468,6 +476,11 @@ static void p_set_caret(UINode* node, lua::State* L, int idx) {
 static void p_set_editable(UINode* node, lua::State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setEditable(lua::toboolean(L, idx));
+    }
+}
+static void p_set_line_numbers(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        box->setShowLineNumbers(lua::toboolean(L, idx));
     }
 }
 static void p_set_src(UINode* node, lua::State* L, int idx) {
@@ -569,6 +582,7 @@ static int l_gui_setattr(lua::State* L) {
             {"hint", p_set_hint},
             {"text", p_set_text},
             {"editable", p_set_editable},
+            {"lineNumbers", p_set_line_numbers},
             {"src", p_set_src},
             {"caret", p_set_caret},
             {"value", p_set_value},

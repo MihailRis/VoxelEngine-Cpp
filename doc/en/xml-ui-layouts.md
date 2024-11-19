@@ -104,6 +104,7 @@ Inner text - initially entered text
 - `multiline` - allows display of multiline text.
 - `text-wrap` - allows automatic text wrapping (works only with multiline: "true")
 - `editable` - determines whether the text can be edited.
+- `line-numbers` - enables line numbers display.
 - `error-color` - color when entering incorrect data (the text does not pass the validator check). Type: RGBA color.
 - `text-color` - text color. Type: RGBA color.
 - `validator` - lua function that checks text for correctness. Takes a string as input, returns true if the text is correct.

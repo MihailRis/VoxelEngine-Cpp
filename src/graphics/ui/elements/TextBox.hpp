@@ -8,12 +8,14 @@ class Font;
 namespace gui {
     class Label;
     
-    class TextBox : public Panel {
+    class TextBox : public Container {
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
         glm::vec4 textColor {1.0f, 1.0f, 1.0f, 1.0f};
+        glm::vec4 padding {2};
         std::shared_ptr<Label> label;
+        std::shared_ptr<Label> lineNumbersLabel;
         /// @brief Current user input
         std::wstring input;
         /// @brief Text will be used if nothing entered
@@ -53,6 +55,7 @@ namespace gui {
         bool multiline = false;
         bool editable = true;
         bool autoresize = false;
+        bool showLineNumbers = false;
 
         void stepLeft(bool shiftPressed, bool breakSelection);
         void stepRight(bool shiftPressed, bool breakSelection);
@@ -181,11 +184,17 @@ namespace gui {
         /// @brief Check if text editing feature is enabled 
         virtual bool isEditable() const;
 
+        virtual void setPadding(glm::vec4 padding);
+        glm::vec4 getPadding() const;
+
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
 
         virtual void setAutoResize(bool flag);
         virtual bool isAutoResize() const;
+
+        virtual void setShowLineNumbers(bool flag);
+        virtual bool isShowLineNumbers() const;
 
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;
