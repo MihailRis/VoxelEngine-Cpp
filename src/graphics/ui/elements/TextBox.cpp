@@ -43,6 +43,7 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
 
     textInitX = label->getPos().x;
     scrollable = true;
+    scrollStep = 0;
 }
 
 void TextBox::draw(const DrawContext* pctx, Assets* assets) {
@@ -746,7 +747,9 @@ void TextBox::setCaret(size_t position) {
     uint line = label->getLineByTextIndex(caret);
     int offset = label->getLineYOffset(line) + getContentOffset().y;
     uint lineHeight = font->getLineHeight()*label->getLineInterval();
-    scrollStep = lineHeight;
+    if (scrollStep == 0) {
+        scrollStep = lineHeight;
+    }
     if (offset < 0) {
         scrolled(-glm::floor(offset/static_cast<double>(scrollStep)+0.5f));
     } else if (offset >= getSize().y) {

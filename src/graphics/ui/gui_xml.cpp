@@ -172,6 +172,9 @@ static void _readContainer(UiXmlReader& reader, const xml::xmlelement& element, 
     if (element->has("scrollable")) {
         container.setScrollable(element->attr("scrollable").asBool());
     }
+    if (element->has("scroll-step")) {
+        container.setScrollStep(element->attr("scroll-step").asInt());
+    }
     for (auto& sub : element->getElements()) {
         if (sub->isText())
             continue;

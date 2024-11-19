@@ -165,6 +165,14 @@ void Container::setSize(glm::vec2 size) {
     }
 }
 
+int Container::getScrollStep() const {
+    return scrollStep;
+}
+
+void Container::setScrollStep(int step) {
+    scrollStep = step;
+}
+
 void Container::refresh() {
     std::stable_sort(nodes.begin(), nodes.end(), [](const auto& a, const auto& b) {
         return a->getZIndex() < b->getZIndex();

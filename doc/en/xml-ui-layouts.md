@@ -56,7 +56,8 @@ Buttons and panels are also containers.
 
 - `padding` - element padding. Type: 4D vector.
   *left, top, right, bottom*
-  `scrollable` - element scrollability. Works on panels only. Type: boolean
+- `scrollable` - element scrollability. Type: boolean.
+- `scroll-step` - scrolling step. Type: integer.
 
 # Common *panel* attributes
 
