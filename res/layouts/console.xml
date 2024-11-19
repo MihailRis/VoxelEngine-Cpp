@@ -12,7 +12,7 @@
     </container>
     
     <container id="logContainer" pos="0,60"
-               size-func="unpack(vec2.add(gui.get_viewport(), {0,-70}))">
+               size-func="unpack(vec2.add(gui.get_viewport(), {0,-100}))">
         <textbox 
             id='log' 
             color='0'
