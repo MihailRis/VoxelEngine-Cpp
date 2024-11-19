@@ -1,7 +1,9 @@
 <container id="%{id}" size="32" tooltip="%{text}" 
            onclick="events.emit('core:open_traceback', '%{traceback}')">
     <image src="gui/%{type}" size="32"/>
-    <label pos="36,2">%{text}</label>
+    <container pos="36,2" size="280,32" interactive="false">
+        <label>%{text}</label>
+    </container>
     <image src="gui/cross" interactive="true" size="16" gravity="top-right" 
            onclick="document['%{id}']:destruct()"></image>
 </container>
