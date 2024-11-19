@@ -97,38 +97,38 @@ void MainBatch::cube(
     const glm::vec3 Z(0.0f, 0.0f, 1.0f);
 
     quad(
-        coord + glm::vec3(0.0f, 0.0f, 0.0f),
+        coord + Z * size.z * 0.5f,
         X, Y, glm::vec2(size.x, size.y),
         (shading ? do_tint(0.8) * tint : tint),
         glm::vec3(1.0f), texfaces[5]
     );
     quad(
-        coord + glm::vec3(size.x, 0.0f, -size.z),
+        coord - Z * size.z * 0.5f,
         -X, Y, glm::vec2(size.x, size.y),
-        (shading ? do_tint(0.8) * tint : tint),
+        (shading ? do_tint(0.9f) * tint : tint),
         glm::vec3(1.0f), texfaces[4]
     );
     quad(
-        coord + glm::vec3(0.0f, size.y, 0.0f),
-        X, -Z, glm::vec2(size.x, size.z),
+        coord + Y * size.y * 0.5f,
+        -X, Z, glm::vec2(size.x, size.z),
         (shading ? do_tint(1.0f) * tint : tint),
         glm::vec3(1.0f), texfaces[3]
     );
     quad(
-        coord + glm::vec3(0.0f, 0.0f, -size.z),
+        coord - Y * size.y * 0.5f,
         X, Z, glm::vec2(size.x, size.z),
         (shading ? do_tint(0.7f) * tint : tint),
         glm::vec3(1.0f), texfaces[2]
     );
     quad(
-        coord + glm::vec3(0.0f, 0.0f, -size.z),
-        Z, Y, glm::vec2(size.z, size.y),
-        (shading ? do_tint(0.9f) * tint : tint),
-        glm::vec3(1.0f), texfaces[0]
+        coord + X * size.x * 0.5f,
+        -Z, Y, glm::vec2(size.z, size.y),
+        (shading ? do_tint(0.8f) * tint : tint),
+        glm::vec3(1.0f), texfaces[1]
     );
     quad(
-        coord + glm::vec3(size.x, 0.0f, 0.0f),
-        -Z, Y, glm::vec2(size.z, size.y),
+        coord - X * size.x * 0.5f,
+        Z, Y, glm::vec2(size.z, size.y),
         (shading ? do_tint(0.9f) * tint : tint),
         glm::vec3(1.0f), texfaces[1]
     );
