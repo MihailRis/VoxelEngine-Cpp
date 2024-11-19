@@ -814,7 +814,7 @@ void ContentLoader::load() {
         scripting::load_entity_component(
             name,
             file,
-            pack->id + ":scripts/components/" + file.stem().u8string()
+            pack->id + ":scripts/components/" + file.filename().u8string()
         );
     });
 
