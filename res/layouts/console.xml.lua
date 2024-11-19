@@ -61,16 +61,24 @@ events.on("core:open_traceback", function(traceback_b64)
         else
             framestr = frame.source..":"..tostring(frame.currentline).." "
             if file.exists(frame.source) then
-                callback = "local source = file.read('"..frame.source.."') "..
-                           "document.editor.text = source "..
-                           "document.editor.focused = true "..
-                           "time.post_runnable(function() document.editor.caret = document.editor:linePos("..
-                           tostring(frame.currentline-1)..") end)"
+                callback = string.format(
+                    "local editor = document.editor "..
+                    "local source = file.read('%s') "..
+                    "editor.text = source "..
+                    "editor.focused = true "..
+                    "time.post_runnable(function()"..
+                      "editor.caret = editor:linePos(%s) "..
+                    "end)",
+                    frame.source, frame.currentline-1
+                )
             else
                 callback = "document.editor.text = 'Could not open source file'"
             end
-            callback = callback.." document.title.text = gui.str('File')..' - "
-                       ..frame.source.."'"
+            callback = string.format(
+                "%s document.title.text = gui.str('File')..' - %s'",
+                callback,
+                frame.source
+            )
         end
         if frame.name then
             framestr = framestr.."("..tostring(frame.name)..")"
