@@ -1,19 +1,91 @@
+console_mode = "console"
+
 history = session.get_entry("commands_history")
 history_pointer = #history
 
 local warnings_all = {}
+local errors_all = {}
 
 local warning_id = 0
-events.on("core:warning", function (wtype, text)
+local error_id = 0
+
+events.on("core:warning", function (wtype, text, traceback)
     local full = wtype..": "..text
     if table.has(warnings_all, full) then
         return
     end
+    local encoded = base64.encode(bjson.tobytes({frames=traceback}))
     document.problemsLog:add(gui.template("problem", {
-        type="warning", text=full, id=tostring(warning_id)
+        type="warning", 
+        text=full, 
+        traceback=encoded, 
+        id=tostring(warning_id)
     }))
     warning_id = warning_id + 1
     table.insert(warnings_all, full)
+end)
+
+events.on("core:error", function (msg, traceback)
+    local _, endindex = string.find(msg, ": ")
+    local full = ""
+    for i,frame in ipairs(traceback) do
+        full = full..frame.source..tostring(frame.currentline)
+    end
+    if table.has(errors_all, full) then
+        return
+    end
+    local encoded = base64.encode(bjson.tobytes({frames=traceback}))
+    document.problemsLog:add(gui.template("problem", {
+        type="error", 
+        text=msg:sub(endindex), 
+        traceback=encoded,
+        id=tostring(error_id)
+    }))
+    error_id = error_id + 1
+    table.insert(errors_all, full)
+end)
+
+events.on("core:open_traceback", function(traceback_b64)
+    local traceback = bjson.frombytes(base64.decode(traceback_b64))
+    modes:set('debug')
+
+    local tb_list = document.traceback
+    local srcsize = tb_list.size
+    tb_list:clear()
+    tb_list:add("<label enabled='false' margin='2'>@devtools.traceback</label>")
+    for _, frame in ipairs(traceback.frames) do
+        local callback = ""
+        local framestr = ""
+        if frame.what == "C" then
+            framestr = "C/C++ "
+        else
+            framestr = frame.source..":"..tostring(frame.currentline).." "
+            if file.exists(frame.source) then
+                callback = "local source = file.read('"..frame.source.."') "..
+                           "document.editor.text = source "..
+                           "document.editor.focused = true "..
+                           "time.post_runnable(function() document.editor.caret = document.editor:linePos("..
+                           tostring(frame.currentline-1)..") end)"
+            else
+                callback = "document.editor.text = 'Could not open source file'"
+            end
+            callback = callback.." document.title.text = gui.str('File')..' - "
+                       ..frame.source.."'"
+        end
+        if frame.name then
+            framestr = framestr.."("..tostring(frame.name)..")"
+        end
+        local color = "#FFFFFF"
+        if frame.source:starts_with("core:") then
+            color = "#C0D0C5"
+        end
+        tb_list:add(gui.template("stack_frame", {
+            location=framestr, 
+            color=color,
+            callback=callback
+        }))
+    end
+    tb_list.size = srcsize
 end)
 
 function setup_variables()
@@ -56,10 +128,19 @@ function add_to_history(text)
 end
 
 function submit(text)
+    text = text:trim()
     add_to_history(text)
+
+    if console_mode == "chat" then
+        if not text:starts_with("/") then
+            text = "chat "..string.escape(text)
+        else
+            text = text:sub(2)
+        end
+    end
+
     setup_variables()
     
-    text = text:trim()
     local name
     for s in text:gmatch("%S+") do
         name = s
@@ -84,6 +165,35 @@ function submit(text)
     document.prompt.focused = true
 end
 
+function set_mode(mode)
+    local show_prompt = mode == 'chat' or mode == 'console'
+
+    document.title.text = ""
+    document.editorContainer.visible = mode == 'debug'
+    document.logContainer.visible = mode ~= 'debug'
+
+    if mode == 'debug' then
+        document.root.color = {16, 18, 20, 220}
+    else
+        document.root.color = {0, 0, 0, 128}
+    end
+
+    document.traceback.visible = mode == 'debug'
+    document.prompt.visible = show_prompt
+    if show_prompt then
+        document.prompt.focused = true
+    end
+    console_mode = mode
+end
+
 function on_open()
-    document.prompt.focused = true
+    if modes == nil then
+        modes = RadioGroup({
+            chat=document.s_chat,
+            console=document.s_console,
+            debug=document.s_debug
+        }, function (mode)
+            set_mode(mode)
+        end, "console")
+    end
 end
