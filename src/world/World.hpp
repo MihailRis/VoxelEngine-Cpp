@@ -27,7 +27,7 @@ struct WorldInfo : public Serializable {
     std::string name;
     std::string generator;
     uint64_t seed;
-    int64_t nextInventoryId = 0;
+    int64_t nextInventoryId = 1;
 
     /// @brief Day/night loop timer in range 0..1 where
     /// 0.0 - is midnight and
@@ -57,8 +57,6 @@ class World {
 
     const Content* const content;
     std::vector<ContentPack> packs;
-
-    int64_t nextInventoryId = 1;
 
     void writeResources(const Content* content);
 public:
@@ -155,7 +153,7 @@ public:
     /// @brief Get next inventory id and increment it's counter
     /// @return integer >= 1
     int64_t getNextInventoryId() {
-        return nextInventoryId++;
+        return info.nextInventoryId++;
     }
 
     /// @brief Get current world Content instance
