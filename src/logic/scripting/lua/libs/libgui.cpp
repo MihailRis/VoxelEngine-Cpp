@@ -134,6 +134,24 @@ static int l_move_into(lua::State* L) {
     return 0;
 }
 
+static int l_get_line_at(lua::State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto position = lua::tointeger(L, 2);
+    if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
+        return lua::pushinteger(L, box->getLineAt(position));
+    }
+    return 0;
+}
+
+static int l_get_line_pos(lua::State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto line = lua::tointeger(L, 2);
+    if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
+        return lua::pushinteger(L, box->getLinePos(line));
+    }
+    return 0;
+}
+
 static int p_get_inventory(UINode* node, lua::State* L) {
     if (auto inventory = dynamic_cast<InventoryView*>(node)) {
         auto inv = inventory->getInventory();
@@ -356,6 +374,12 @@ static int p_move_into(UINode*, lua::State* L) {
 static int p_get_focused(UINode* node, lua::State* L) {
     return lua::pushboolean(L, node->isFocused());
 }
+static int p_get_line_at(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, l_get_line_at);
+}
+static int p_get_line_pos(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, l_get_line_pos);
+}
 
 static int l_gui_getattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
@@ -391,6 +415,8 @@ static int l_gui_getattr(lua::State* L) {
             {"text", p_get_text},
             {"editable", p_get_editable},
             {"lineNumbers", p_get_line_numbers},
+            {"lineAt", p_get_line_at},
+            {"linePos", p_get_line_pos},
             {"src", p_get_src},
             {"value", p_get_value},
             {"min", p_get_min},

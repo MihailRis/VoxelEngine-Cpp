@@ -623,6 +623,14 @@ void TextBox::select(int start, int end) {
     setCaret(selectionEnd);
 }
 
+uint TextBox::getLineAt(size_t position) const {
+    return label->getLineByTextIndex(position);
+}
+
+size_t TextBox::getLinePos(uint line) const {
+    return label->getTextLineOffset(line);
+}
+
 std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
@@ -740,7 +748,7 @@ void TextBox::setCaret(size_t position) {
     uint lineHeight = font->getLineHeight()*label->getLineInterval();
     scrollStep = lineHeight;
     if (offset < 0) {
-        scrolled(1);
+        scrolled(-glm::floor(offset/static_cast<double>(scrollStep)+0.5f));
     } else if (offset >= getSize().y) {
         offset -= getSize().y;
         scrolled(-glm::ceil(offset/static_cast<double>(scrollStep)+0.5f));

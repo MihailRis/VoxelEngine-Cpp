@@ -159,6 +159,16 @@ namespace gui {
         /// @param end index of the last selected character + 1
         virtual void select(int start, int end);
 
+        /// @brief Get number of line at specific position in text
+        /// @param position target position
+        /// @return line number
+        virtual uint getLineAt(size_t position) const;
+
+        /// @brief Get specific line text position
+        /// @param line target line
+        /// @return line position in text
+        virtual size_t getLinePos(uint line) const;
+
         /// @brief Check text with validator set with setTextValidator
         /// @return true if text is valid
         virtual bool validate();
