@@ -307,3 +307,10 @@ function __scripts_cleanup()
         end
     end
 end
+
+function __vc__error(msg, frame)
+    if events then
+        events.emit("core:error", msg, debug.get_traceback(1))
+    end
+    return debug.traceback(msg, frame)
+end

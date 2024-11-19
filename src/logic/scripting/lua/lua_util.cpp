@@ -145,10 +145,14 @@ static int l_error_handler(lua_State* L) {
     if (!isstring(L, 1)) {  // 'message' not a string?
         return 1;           // keep it intact
     }
-    if (get_from(L, "debug", "traceback")) {
+    if (getglobal(L, "__vc__error")) {
         lua_pushvalue(L, 1);    // pass error message
         lua_pushinteger(L, 2);  // skip this function and traceback
         lua_call(L, 2, 1);      // call debug.traceback
+    } if (get_from(L, "debug", "traceback")) {
+        lua_pushvalue(L, 1);
+        lua_pushinteger(L, 2);
+        lua_call(L, 2, 1);
     }
     return 1;
 }
@@ -172,8 +176,13 @@ int lua::call_nothrow(State* L, int argc, int nresults) {
     pushcfunction(L, l_error_handler);
     insert(L, handler_pos);
     if (lua_pcall(L, argc, LUA_MULTRET, handler_pos)) {
-        log_error(tostring(L, -1));
-        pop(L);
+        auto errorstr = tostring(L, -1);
+        if (errorstr) {
+            log_error(errorstr);
+            pop(L);
+        } else {
+            log_error("");
+        }
         remove(L, handler_pos);
         return 0;
     }

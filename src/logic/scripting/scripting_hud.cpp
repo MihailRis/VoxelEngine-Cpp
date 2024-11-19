@@ -76,13 +76,16 @@ void scripting::on_frontend_close() {
 }
 
 void scripting::load_hud_script(
-    const scriptenv& senv, const std::string& packid, const fs::path& file
+    const scriptenv& senv,
+    const std::string& packid,
+    const fs::path& file,
+    const std::string& fileName
 ) {
     int env = *senv;
     std::string src = files::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
-    lua::execute(lua::get_main_state(), env, src, file.u8string());
+    lua::execute(lua::get_main_state(), env, src, fileName);
 
     register_event(env, "init", packid + ":.init");
     register_event(env, "on_hud_open", packid + ":.hudopen");

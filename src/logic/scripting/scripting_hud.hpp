@@ -22,7 +22,11 @@ namespace scripting {
     /// @param env environment id
     /// @param packid content-pack id
     /// @param file script file path
+    /// @param fileName script file path using the engine format
     void load_hud_script(
-        const scriptenv &env, const std::string &packid, const fs::path &file
+        const scriptenv& env,
+        const std::string& packid,
+        const fs::path& file,
+        const std::string& fileName
     );
 }
