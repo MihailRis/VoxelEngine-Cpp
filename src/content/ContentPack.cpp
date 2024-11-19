@@ -76,8 +76,19 @@ ContentPack ContentPack::read(const fs::path& folder) {
     root.at("id").get(pack.id);
     root.at("title").get(pack.title);
     root.at("version").get(pack.version);
-    root.at("creator").get(pack.creator);
+    if (root.has("creators")) {
+        const auto& creators = root["creators"];
+        for (int i = 0; i < creators.size(); i++) {
+            if (i > 0) {
+                pack.creator += ", ";
+            }
+            pack.creator += creators[i].asString();
+        }
+    } else {
+        root.at("creator").get(pack.creator);
+    }
     root.at("description").get(pack.description);
+    root.at("source").get(pack.source);
     pack.folder = folder;
 
     if (auto found = root.at("dependencies")) {

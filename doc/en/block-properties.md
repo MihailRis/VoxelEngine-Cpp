@@ -39,6 +39,12 @@ Block model type from list:
 
 Integer specifying number of block draw group (render order). Used for semi-transparent blocks.
 
+### *translucent*
+
+Enables translucency support in block textures (examples: water, ice).
+Should only be used when needed, as it impacts performance.
+Not required for full transparency (grass, flowers).
+
 ### *rotation*
 
 Rotation profile (set of available block rotations and behaviour of placing block rotation) from list:

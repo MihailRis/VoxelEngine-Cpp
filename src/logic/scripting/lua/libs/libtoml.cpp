@@ -16,7 +16,7 @@ static int l_toml_stringify(lua::State* L) {
 
 static int l_toml_parse(lua::State* L) {
     auto string = lua::require_string(L, 1);
-    auto element = toml::parse("<string>", string);
+    auto element = toml::parse("[string]", string);
     return lua::pushvalue(L, element);
 }
 

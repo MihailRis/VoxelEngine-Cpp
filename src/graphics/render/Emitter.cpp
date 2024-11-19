@@ -64,6 +64,7 @@ void Emitter::update(
             return;
         }
     }
+    timer += delta;
     const float maxDistance = preset.maxDistance;
     if (glm::distance2(position, cameraPosition) > maxDistance * maxDistance) {
         if (count > 0) {
@@ -77,7 +78,6 @@ void Emitter::update(
         }
         return;
     }
-    timer += delta;
     while (count && timer > spawnInterval) {
         // spawn particle
         Particle particle = prototype;

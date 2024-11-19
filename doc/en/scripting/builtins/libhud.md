@@ -7,7 +7,11 @@ hud.open_inventory()
 -- Close inventory.
 hud.close_inventory()
 
--- Open block UI and inventory. 
+-- Open UI and inventory.
+-- Throws an exception if has no UI layout.
+hud.open(invid: int, layoutid: str)
+
+-- Open block UI and inventory.
 -- Throws an exception if block has no UI layout.
 -- Returns block inventory ID (if *"inventory-size"=0* a virtual 
 -- inventory will be created), and UI layout ID.

@@ -194,7 +194,7 @@ public:
         LineBatch& batch, const Frustum* frustum, const DrawContext& ctx
     );
     void render(
-        Assets* assets,
+        const Assets& assets,
         ModelBatch& batch,
         const Frustum* frustum,
         float delta,

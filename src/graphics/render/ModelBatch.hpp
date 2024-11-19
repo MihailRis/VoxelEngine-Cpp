@@ -23,10 +23,10 @@ namespace model {
 using texture_names_map = std::unordered_map<std::string, std::string>;
 
 class ModelBatch {
-    Assets* assets;
-    Chunks* chunks;
+    const Assets& assets;
+    const Chunks& chunks;
 
-    const EngineSettings* settings;
+    const EngineSettings& settings;
     glm::vec3 lightsOffset {};
 
     static inline glm::vec3 SUN_VECTOR {0.411934f, 0.863868f, -0.279161f};
@@ -39,6 +39,7 @@ class ModelBatch {
               glm::vec3 tint,
               const texture_names_map* varTextures,
               bool backlight);
+
     void setTexture(const std::string& name,
                     const texture_names_map* varTextures);
 
@@ -53,9 +54,9 @@ class ModelBatch {
 public:
     ModelBatch(
         size_t capacity,
-        Assets* assets,
-        Chunks* chunks,
-        const EngineSettings* settings
+        const Assets& assets,
+        const Chunks& chunks,
+        const EngineSettings& settings
     );
     ~ModelBatch();
 

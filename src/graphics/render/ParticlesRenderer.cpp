@@ -18,7 +18,7 @@ size_t ParticlesRenderer::aliveEmitters = 0;
 ParticlesRenderer::ParticlesRenderer(
     const Assets& assets, const Level& level, const GraphicsSettings* settings
 )
-    : batch(std::make_unique<MainBatch>(1024)),
+    : batch(std::make_unique<MainBatch>(4096)),
       level(level),
       assets(assets),
       settings(settings) {}

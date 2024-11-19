@@ -90,7 +90,7 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
     if (!nodes.empty()) {
         batch->flush();
         DrawContext ctx = pctx->sub();
-        ctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
+        ctx.setScissors(glm::vec4(pos.x, pos.y, glm::ceil(size.x), glm::ceil(size.y)));
         for (const auto& node : nodes) {
             if (node->isVisible())
                 node->draw(pctx, assets);
@@ -108,7 +108,7 @@ void Container::drawBackground(const DrawContext* pctx, Assets*) {
     auto batch = pctx->getBatch2D();
     batch->texture(nullptr);
     batch->setColor(color);
-    batch->rect(pos.x, pos.y, size.x, size.y);
+    batch->rect(pos.x, pos.y, glm::ceil(size.x), glm::ceil(size.y));
 }
 
 void Container::add(const std::shared_ptr<UINode> &node) {
@@ -163,6 +163,14 @@ void Container::setSize(glm::vec2 size) {
     for (auto& node : nodes) {
         node->reposition();
     }
+}
+
+int Container::getScrollStep() const {
+    return scrollStep;
+}
+
+void Container::setScrollStep(int step) {
+    scrollStep = step;
 }
 
 void Container::refresh() {

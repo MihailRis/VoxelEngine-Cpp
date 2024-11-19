@@ -140,6 +140,6 @@ namespace xml {
     /// @param source xml source code string
     /// @return xml document
     extern xmldocument parse(
-        const std::string& filename, const std::string& source
+        std::string_view filename, std::string_view source
     );
 }

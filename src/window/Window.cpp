@@ -72,11 +72,9 @@ bool Window::isFocused() {
 
 void window_size_callback(GLFWwindow*, int width, int height) {
     if (width && height) {
-        if (Window::isFocused()) {
-            glViewport(0, 0, width, height);
-            Window::width = width;
-            Window::height = height;
-        }
+        glViewport(0, 0, width, height);
+        Window::width = width;
+        Window::height = height;
 
         if (!Window::isFullscreen() && !Window::isMaximized()) {
             Window::getSettings()->width.set(width);
@@ -213,9 +211,12 @@ int Window::initialize(DisplaySettings* settings) {
     setFramerate(settings->framerate.get());
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
-    logger.info() << "GL Vendor: " << (char*)vendor;
-    logger.info() << "GL Renderer: " << (char*)renderer;
+    logger.info() << "GL Vendor: " << reinterpret_cast<const char*>(vendor);
+    logger.info() << "GL Renderer: " << reinterpret_cast<const char*>(renderer);
     logger.info() << "GLFW: " << glfwGetVersionString();
+    glm::vec2 scale;
+    glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &scale.x, &scale.y);
+    logger.info() << "monitor content scale: " << scale.x << "x" << scale.y;
 
     input_util::initialize();
     return 0;
@@ -257,14 +258,14 @@ void Window::pushScissor(glm::vec4 area) {
     }
     scissorStack.push(scissorArea);
 
-    area.z += area.x;
-    area.w += area.y;
+    area.z += glm::ceil(area.x);
+    area.w += glm::ceil(area.y);
 
-    area.x = fmax(area.x, scissorArea.x);
-    area.y = fmax(area.y, scissorArea.y);
+    area.x = glm::max(area.x, scissorArea.x);
+    area.y = glm::max(area.y, scissorArea.y);
 
-    area.z = fmin(area.z, scissorArea.z);
-    area.w = fmin(area.w, scissorArea.w);
+    area.z = glm::min(area.z, scissorArea.z);
+    area.w = glm::min(area.w, scissorArea.w);
 
     if (area.z < 0.0f || area.w < 0.0f) {
         glScissor(0, 0, 0, 0);
@@ -272,8 +273,8 @@ void Window::pushScissor(glm::vec4 area) {
         glScissor(
             area.x,
             Window::height - area.w,
-            std::max(0, int(area.z - area.x)),
-            std::max(0, int(area.w - area.y))
+            std::max(0, static_cast<int>(glm::ceil(area.z - area.x))),
+            std::max(0, static_cast<int>(glm::ceil(area.w - area.y)))
         );
     }
     scissorArea = area;

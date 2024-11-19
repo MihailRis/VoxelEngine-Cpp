@@ -373,7 +373,7 @@ std::string BasicParser::parseString(char quote, bool closeRequired) {
                 case 'b': ss << '\b'; break;
                 case 't': ss << '\t'; break;
                 case 'f': ss << '\f'; break;
-                case '\'': ss << '\\'; break;
+                case '\'': ss << '\''; break;
                 case '"': ss << '"'; break;
                 case '\\': ss << '\\'; break;
                 case '/': ss << '/'; break;

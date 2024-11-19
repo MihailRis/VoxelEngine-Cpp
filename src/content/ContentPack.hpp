@@ -44,6 +44,7 @@ struct ContentPack {
     std::string description = "no description";
     fs::path folder;
     std::vector<DependencyPack> dependencies;
+    std::string source = "";
 
     fs::path getContentFile() const;
 

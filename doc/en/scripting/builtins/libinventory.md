@@ -40,12 +40,18 @@ inventory.bind_block(invid: int, x: int, y: int, z: int)
 
 -- Unbind inventory from the specified block.
 inventory.unbind_block(x: int, y: int, z: int)
+
+-- Remove inventory.
+inventory.remove(invid: int)
 ```
 
 > [!WARNING]
 > Unbound inventories will be deleted on world close.
 
 ```lua
+-- Create inventory. Returns the created ID.
+inventory.create(size: int) -> int
+
 -- Create inventory copy. Returns the created copy ID.
 inventory.clone(invid: int) -> int
 

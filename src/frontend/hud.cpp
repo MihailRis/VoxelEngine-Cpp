@@ -61,8 +61,8 @@ bool Hud::showGeneratorMinimap = false;
 // implemented in debug_panel.cpp
 extern std::shared_ptr<UINode> create_debug_panel(
     Engine* engine,
-    Level* level,
-    Player* player,
+    Level& level,
+    Player& player,
     bool allowDebugCheats
 );
 
@@ -104,8 +104,7 @@ std::shared_ptr<UINode> HudElement::getNode() const {
 }
 
 std::shared_ptr<InventoryView> Hud::createContentAccess() {
-    auto level = frontend->getLevel();
-    auto content = level->content;
+    auto content = frontend.getLevel().content;
     auto indices = content->getIndices();
     auto inventory = player->getInventory();
     
@@ -134,7 +133,7 @@ std::shared_ptr<InventoryView> Hud::createContentAccess() {
 
 std::shared_ptr<InventoryView> Hud::createHotbar() {
     auto inventory = player->getInventory();
-    auto content = frontend->getLevel()->content;
+    auto content = frontend.getLevel().content;
 
     SlotLayout slotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr);
     InventoryBuilder builder;
@@ -149,7 +148,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
 
 static constexpr uint WORLDGEN_IMG_SIZE = 128U;
 
-Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
+Hud::Hud(Engine* engine, LevelFrontend& frontend, Player* player)
     : engine(engine),
       assets(engine->getAssets()),
       gui(engine->getGUI()),
@@ -178,7 +177,7 @@ Hud::Hud(Engine* engine, LevelFrontend* frontend, Player* player)
     uicamera->flipped = true;
 
     debugPanel = create_debug_panel(
-        engine, frontend->getLevel(), player, allowDebugCheats
+        engine, frontend.getLevel(), *player, allowDebugCheats
     );
     debugPanel->setZIndex(2);
     gui->add(debugPanel);
@@ -231,7 +230,11 @@ void Hud::processInput(bool visible) {
         }
     }
     if (!pause && Events::jactive(BIND_DEVTOOLS_CONSOLE)) {
-        showOverlay(assets->get<UiDocument>("core:console"), false);
+        showOverlay(
+            assets->get<UiDocument>("core:console"),
+            false,
+            std::string("console")
+        );
     }
     if (!Window::isFocused() && !pause && !isInventoryOpen()) {
         setPause(true);
@@ -273,9 +276,9 @@ void Hud::updateHotbarControl() {
 }
 
 void Hud::updateWorldGenDebugVisualization() {
-    auto level = frontend->getLevel();
+    auto& level = frontend.getLevel();
     auto generator =
-        frontend->getController()->getChunksController()->getGenerator();
+        frontend.getController()->getChunksController()->getGenerator();
     auto debugInfo = generator->createDebugInfo();
     
     int width = debugImgWorldGen->getWidth();
@@ -298,9 +301,9 @@ void Hud::updateWorldGenDebugVisualization() {
             int az = z - (height - areaHeight) / 2;
 
             data[(flippedZ * width + x) * 4 + 1] = 
-                level->chunks->getChunk(ax + ox, az + oz) ? 255 : 0;
+                level.chunks->getChunk(ax + ox, az + oz) ? 255 : 0;
             data[(flippedZ * width + x) * 4 + 0] = 
-                level->chunksStorage->get(ax + ox, az + oz) ? 255 : 0;
+                level.chunksStorage->get(ax + ox, az + oz) ? 255 : 0;
 
             if (ax < 0 || az < 0 || 
                 ax >= areaWidth || az >= areaHeight) {
@@ -321,7 +324,7 @@ void Hud::updateWorldGenDebugVisualization() {
 }
 
 void Hud::update(bool visible) {
-    auto level = frontend->getLevel();
+    const auto& level = frontend.getLevel();
     auto menu = gui->getMenu();
 
     debugPanel->setVisible(player->debug && visible);
@@ -341,7 +344,7 @@ void Hud::update(bool visible) {
     }
 
     if (blockUI) {
-        voxel* vox = level->chunks->get(blockPos.x, blockPos.y, blockPos.z);
+        voxel* vox = level.chunks->get(blockPos.x, blockPos.y, blockPos.z);
         if (vox == nullptr || vox->id != currentblockid) {
             closeInventory();
         }
@@ -375,8 +378,7 @@ void Hud::update(bool visible) {
 
 /// @brief Show inventory on the screen and turn on inventory mode blocking movement
 void Hud::openInventory() {
-    auto level = frontend->getLevel();
-    auto content = level->content;
+    auto content = frontend.getLevel().content;
     showExchangeSlot();
 
     inventoryOpen = true;
@@ -389,6 +391,39 @@ void Hud::openInventory() {
 }
 
 void Hud::openInventory(
+    UiDocument* doc,
+    std::shared_ptr<Inventory> inv,
+    bool playerInventory
+) {
+    if (inv == nullptr) {
+        // why try to open nox-existent inventory??
+        return;
+    }
+
+    if (isInventoryOpen()) {
+        closeInventory();
+    }
+    const auto& level = frontend.getLevel();
+    auto content = level.content;
+    secondInvView = std::dynamic_pointer_cast<InventoryView>(doc->getRoot());
+    if (secondInvView == nullptr) {
+        throw std::runtime_error("secondary UI root element must be 'inventory'");
+    }
+    secondUI = secondInvView;
+
+    if (playerInventory) {
+        openInventory();
+    } else {
+        inventoryOpen = true;
+    }
+    if (inv == nullptr) {
+        inv = level.inventories->createVirtual(secondInvView->getSlotsCount());
+    }
+    secondInvView->bind(inv, content);
+    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+}
+
+void Hud::openInventory(
     glm::ivec3 block, 
     UiDocument* doc, 
     std::shared_ptr<Inventory> blockinv, 
@@ -397,8 +432,8 @@ void Hud::openInventory(
     if (isInventoryOpen()) {
         closeInventory();
     }
-    auto level = frontend->getLevel();
-    auto content = level->content;
+    auto& level = frontend.getLevel();
+    auto content = level.content;
     blockUI = std::dynamic_pointer_cast<InventoryView>(doc->getRoot());
     if (blockUI == nullptr) {
         throw std::runtime_error("block UI root element must be 'inventory'");
@@ -410,19 +445,19 @@ void Hud::openInventory(
         inventoryOpen = true;
     }
     if (blockinv == nullptr) {
-        blockinv = level->inventories->createVirtual(blockUI->getSlotsCount());
+        blockinv = level.inventories->createVirtual(blockUI->getSlotsCount());
     }
-    level->chunks->getChunkByVoxel(block.x, block.y, block.z)->flags.unsaved = true;
+    level.chunks->getChunkByVoxel(block.x, block.y, block.z)->flags.unsaved = true;
     blockUI->bind(blockinv, content);
     blockPos = block;
-    currentblockid = level->chunks->get(block.x, block.y, block.z)->id;
+    currentblockid = level.chunks->get(block.x, block.y, block.z)->id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
 }
 
 void Hud::showExchangeSlot() {
-    auto level = frontend->getLevel();
-    auto content = level->content;
-    exchangeSlotInv = level->inventories->createVirtual(1);
+    auto& level = frontend.getLevel();
+    auto content = level.content;
+    exchangeSlotInv = level.inventories->createVirtual(1);
     exchangeSlot = std::make_shared<SlotView>(
         SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
     );
@@ -434,7 +469,9 @@ void Hud::showExchangeSlot() {
 
 }
 
-void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
+void Hud::showOverlay(
+    UiDocument* doc, bool playerInventory, const dv::value& arg
+) {
     if (isInventoryOpen()) {
         closeInventory();
     }
@@ -445,7 +482,8 @@ void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
         showExchangeSlot();
         inventoryOpen = true;
     }
-    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false),
+        arg);
 }
 
 void Hud::openPermanent(UiDocument* doc) {
@@ -454,7 +492,7 @@ void Hud::openPermanent(UiDocument* doc) {
 
     auto invview = std::dynamic_pointer_cast<InventoryView>(root);
     if (invview) {
-        invview->bind(player->getInventory(), frontend->getLevel()->content);
+        invview->bind(player->getInventory(), frontend.getLevel().content);
     }
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
@@ -477,13 +515,13 @@ void Hud::closeInventory() {
     cleanup();
 }
 
-void Hud::add(const HudElement& element) {
+void Hud::add(const HudElement& element, const dv::value& arg) {
     gui->add(element.getNode());
     auto document = element.getDocument();
     if (document) {
         auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
         auto inventory = invview ? invview->getInventory() : nullptr;
-        std::vector<dv::value> args;
+        std::vector<dv::value> args {arg};
         args.emplace_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
             args.emplace_back(static_cast<integer_t>(blockPos[i]));
@@ -540,7 +578,7 @@ void Hud::draw(const DrawContext& ctx){
 
     // Crosshair
     if (!pause && !inventoryOpen && !player->debug) {
-        DrawContext chctx = ctx.sub();
+        DrawContext chctx = ctx.sub(batch);
         chctx.setBlendMode(BlendMode::inversion);
         auto texture = assets->get<Texture>("gui/crosshair");
         batch->texture(texture);
@@ -584,8 +622,11 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
             }
             if (secondUI->getPositionFunc() == nullptr) {
                 secondUI->setPos(glm::vec2(
-                    glm::min(width/2-invwidth/2, width-caWidth-(inventoryView ? 10 : 0)-invwidth),
-                    height/2-totalHeight/2
+                    glm::min(
+                        width / 2.f - invwidth / 2.f,
+                        width - caWidth - (inventoryView ? 10 : 0) - invwidth
+                    ),
+                    height / 2.f - totalHeight / 2.f
                 ));
             }
         }
@@ -649,7 +690,7 @@ void Hud::setDebugCheats(bool flag) {
     
     gui->remove(debugPanel);
     debugPanel = create_debug_panel(
-        engine, frontend->getLevel(), player, allowDebugCheats
+        engine, frontend.getLevel(), *player, allowDebugCheats
     );
     debugPanel->setZIndex(2);
     gui->add(debugPanel);

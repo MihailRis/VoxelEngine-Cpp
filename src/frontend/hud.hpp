@@ -2,6 +2,7 @@
 
 #include "typedefs.hpp"
 #include "util/ObjectsKeeper.hpp"
+#include "data/dv.hpp"
 
 #include <string>
 #include <memory>
@@ -73,7 +74,7 @@ class Hud : public util::ObjectsKeeper {
     Assets* assets;
     std::unique_ptr<Camera> uicamera;
     gui::GUI* gui;
-    LevelFrontend* frontend;
+    LevelFrontend& frontend;
     Player* player;
 
     /// @brief Is any overlay/inventory open
@@ -102,6 +103,8 @@ class Hud : public util::ObjectsKeeper {
     std::shared_ptr<gui::InventoryView> inventoryView = nullptr;
     /// @brief Block inventory view
     std::shared_ptr<gui::InventoryView> blockUI = nullptr;
+    /// @brief Secondary inventory view
+    std::shared_ptr<gui::InventoryView> secondInvView = nullptr;
     /// @brief Position of the block open
     glm::ivec3 blockPos {};
     /// @brief Id of the block open (used to detect block destruction or replacement)
@@ -128,7 +131,7 @@ class Hud : public util::ObjectsKeeper {
     void showExchangeSlot();
     void updateWorldGenDebugVisualization();
 public:
-    Hud(Engine* engine, LevelFrontend* frontend, Player* player);
+    Hud(Engine* engine, LevelFrontend& frontend, Player* player);
     ~Hud();
 
     void update(bool hudVisible);
@@ -145,6 +148,16 @@ public:
 
     /// @brief Show player inventory in inventory-mode
     void openInventory();
+
+    /// @brief Show inventory in inventory-mode
+    /// @param doc ui layout
+    /// @param inv inventory
+    /// @param playerInventory show player inventory too
+    void openInventory(
+        UiDocument* doc,
+        std::shared_ptr<Inventory> inv,
+        bool playerInventory
+    );
     
     /// @brief Show block inventory in inventory-mode
     /// @param block block position
@@ -161,7 +174,10 @@ public:
     /// @brief Show element in inventory-mode
     /// @param doc element layout
     /// @param playerInventory show player inventory too
-    void showOverlay(UiDocument* doc, bool playerInventory);
+    /// @param arg first argument passing to on_open
+    void showOverlay(
+        UiDocument* doc, bool playerInventory, const dv::value& arg = nullptr
+    );
 
     /// @brief Close all open inventories and overlay
     void closeInventory();
@@ -170,7 +186,7 @@ public:
     /// @param doc element layout
     void openPermanent(UiDocument* doc);
 
-    void add(const HudElement& element);
+    void add(const HudElement& element, const dv::value& arg=nullptr);
     void onRemove(const HudElement& element);
     void remove(const std::shared_ptr<gui::UINode>& node);
 

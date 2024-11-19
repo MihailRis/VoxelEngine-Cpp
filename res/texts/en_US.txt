@@ -11,6 +11,8 @@ world.delete-confirm=Do you want to delete world forever?
 world.generators.default=Default
 world.generators.flat=Flat
 
+devtools.traceback=Traceback (most recent call first)
+
 # Tooltips
 graphics.gamma.tooltip=Lighting brightness curve
 graphics.backlight.tooltip=Backlight to prevent total darkness

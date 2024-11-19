@@ -23,7 +23,7 @@ inventory.set(
     count: int
 )
 
--- Возращает размер инвентаря (число слотов). 
+-- Возвращает размер инвентаря (число слотов).
 -- Если указанного инвентаря не существует, бросает исключение.
 inventory.size(invid: int) -> int
 
@@ -47,13 +47,19 @@ inventory.bind_block(invid: int, x: int, y: int, z: int)
 
 -- Отвязывает инвентарь от блока.
 inventory.unbind_block(x: int, y: int, z: int)
+
+-- Удаляет инвентарь.
+inventory.remove(invid: int)
 ```
 
 > [!WARNING]
 > Инвентари, не привязанные ни к одному из блоков, удаляются при выходе из мира.
 
 ```lua
--- Создает копию инвентаря и возвращает id копии. 
+-- Создаёт инвентарь и возвращает id.
+inventory.create(size: int) -> int
+
+-- Создает копию инвентаря и возвращает id копии.
 -- Если копируемого инвентаря не существует, возвращает 0.
 inventory.clone(invid: int) -> int
 
@@ -62,5 +68,3 @@ inventory.clone(invid: int) -> int
 -- slotB будет выбран автоматически, если не указывать явно.
 inventory.move(invA: int, slotA: int, invB: int, slotB: int)
 ```
-
-

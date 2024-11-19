@@ -47,6 +47,6 @@ void Plotter::draw(const DrawContext* pctx, Assets* assets) {
             batch->setColor({1,1,1,0.2f});
             string = util::to_wstring(y / multiplier, 3);
         }
-        font->draw(batch, string, pos.x+dmwidth+2, pos.y+dmheight-y-labelsInterval);
+        font->draw(*batch, string, pos.x+dmwidth+2, pos.y+dmheight-y-labelsInterval);
     }
 }

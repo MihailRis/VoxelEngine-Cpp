@@ -27,7 +27,7 @@ struct skysprite {
 class Skybox {
     std::unique_ptr<Framebuffer> fbo;
     uint size;
-    Shader* shader;
+    Shader& shader;
     bool ready = false;
     FastRandom random;
     glm::vec3 lightDir;
@@ -46,7 +46,7 @@ class Skybox {
     );
     void refreshFace(uint face, Cubemap* cubemap);
 public:
-    Skybox(uint size, Shader* shader);
+    Skybox(uint size, Shader& shader);
     ~Skybox();
 
     void draw(

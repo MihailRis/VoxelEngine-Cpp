@@ -8,28 +8,43 @@ class Font;
 namespace gui {
     class Label;
     
-    class TextBox : public Panel {
+    class TextBox : public Container {
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
+        glm::vec4 textColor {1.0f, 1.0f, 1.0f, 1.0f};
+        glm::vec4 padding {2};
         std::shared_ptr<Label> label;
+        std::shared_ptr<Label> lineNumbersLabel;
+        /// @brief Current user input
         std::wstring input;
+        /// @brief Text will be used if nothing entered
         std::wstring placeholder;
+        /// @brief Text will be shown when nothing entered
+        std::wstring hint;
+        /// @brief Text supplier called every frame when not focused
         wstringsupplier supplier = nullptr;
+        /// @brief Text supplier called on Enter pressed
         wstringconsumer consumer = nullptr;
+        /// @brief Text supplier called while input
         wstringconsumer subconsumer = nullptr;
+        /// @brief Text validator returning boolean value
         wstringchecker validator = nullptr;
+        /// @brief Function called on focus
         runnable onEditStart = nullptr;
+        /// @brief Function called on up arrow pressed
         runnable onUpPressed;
+        /// @brief Function called on down arrow pressed
         runnable onDownPressed;
+        /// @brief Is current input valid
         bool valid = true;
-        /// @brief text input pointer, value may be greather than text length
+        /// @brief Text input pointer, value may be greather than text length
         size_t caret = 0;
-        /// @brief actual local (line) position of the caret on vertical move
+        /// @brief Actual local (line) position of the caret on vertical move
         size_t maxLocalCaret = 0;
         size_t textOffset = 0;
         int textInitX;
-        /// @brief last time of the caret was moved (used for blink animation)
+        /// @brief Last time of the caret was moved (used for blink animation)
         double caretLastMove = 0.0;
         Font* font = nullptr;
 
@@ -40,6 +55,7 @@ namespace gui {
         bool multiline = false;
         bool editable = true;
         bool autoresize = false;
+        bool showLineNumbers = false;
 
         void stepLeft(bool shiftPressed, bool breakSelection);
         void stepRight(bool shiftPressed, bool breakSelection);
@@ -94,6 +110,9 @@ namespace gui {
         virtual void setFocusedColor(glm::vec4 color);
         virtual glm::vec4 getFocusedColor() const;
 
+        virtual void setTextColor(glm::vec4 color);
+        virtual glm::vec4 getTextColor() const;
+
         /// @brief Set color of textbox marked by validator as invalid
         virtual void setErrorColor(glm::vec4 color);
 
@@ -101,17 +120,24 @@ namespace gui {
         virtual glm::vec4 getErrorColor() const;
         
         /// @brief Get TextBox content text or placeholder if empty
-        virtual std::wstring getText() const;
+        virtual const std::wstring& getText() const;
 
         /// @brief Set TextBox content text
         virtual void setText(const std::wstring &value);
 
         /// @brief Get text placeholder
-        virtual std::wstring getPlaceholder() const;
+        virtual const std::wstring& getPlaceholder() const;
 
         /// @brief Set text placeholder
         /// @param text will be used instead of empty
         virtual void setPlaceholder(const std::wstring& text);
+
+        /// @brief Get textbox hint
+        virtual const std::wstring& getHint() const;
+
+        /// @brief Set textbox hint
+        /// @param text will be shown instead of empty
+        virtual void setHint(const std::wstring& text);
         
         /// @brief Get selected text
         virtual std::wstring getSelection() const;
@@ -132,6 +158,16 @@ namespace gui {
         /// @param start index of the first selected character
         /// @param end index of the last selected character + 1
         virtual void select(int start, int end);
+
+        /// @brief Get number of line at specific position in text
+        /// @param position target position
+        /// @return line number
+        virtual uint getLineAt(size_t position) const;
+
+        /// @brief Get specific line text position
+        /// @param line target line
+        /// @return line position in text
+        virtual size_t getLinePos(uint line) const;
 
         /// @brief Check text with validator set with setTextValidator
         /// @return true if text is valid
@@ -158,11 +194,17 @@ namespace gui {
         /// @brief Check if text editing feature is enabled 
         virtual bool isEditable() const;
 
+        virtual void setPadding(glm::vec4 padding);
+        glm::vec4 getPadding() const;
+
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
 
         virtual void setAutoResize(bool flag);
         virtual bool isAutoResize() const;
+
+        virtual void setShowLineNumbers(bool flag);
+        virtual bool isShowLineNumbers() const;
 
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;

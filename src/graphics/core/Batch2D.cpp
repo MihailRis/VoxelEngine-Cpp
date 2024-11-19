@@ -11,7 +11,7 @@
 inline constexpr uint B2D_VERTEX_SIZE = 8;
 
 Batch2D::Batch2D(size_t capacity) : capacity(capacity), color(1.0f){
-    const vattr attrs[] = {
+    const VertexAttribute attrs[] = {
         {2}, {2}, {4}, {0}
     };
 

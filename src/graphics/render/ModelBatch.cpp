@@ -47,9 +47,9 @@ static glm::mat4 extract_rotation(glm::mat4 matrix) {
 
 ModelBatch::ModelBatch(
     size_t capacity,
-    Assets* assets,
-    Chunks* chunks,
-    const EngineSettings* settings
+    const Assets& assets,
+    const Chunks& chunks,
+    const EngineSettings& settings
 )
     : batch(std::make_unique<MainBatch>(capacity)),
       assets(assets),
@@ -73,7 +73,7 @@ void ModelBatch::draw(const model::Mesh& mesh, const glm::mat4& matrix,
     if (mesh.lighting) {
         glm::vec3 gpos = matrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         gpos += lightsOffset;
-        lights = MainBatch::sampleLight(gpos, *chunks, backlight);
+        lights = MainBatch::sampleLight(gpos, chunks, backlight);
     }
     for (size_t i = 0; i < vcount / 3; i++) {
         batch->prepare(3);
@@ -107,7 +107,7 @@ void ModelBatch::render() {
             return a.mesh->texture < b.mesh->texture;
         }
     );
-    bool backlight = settings->graphics.backlight.get();
+    bool backlight = settings.graphics.backlight.get();
     for (auto& entry : entries) {
         draw(
             *entry.mesh,
@@ -136,6 +136,6 @@ void ModelBatch::setTexture(const std::string& name,
             return setTexture(found->second, varTextures);
         }
     }
-    auto region = util::get_texture_region(*assets, name, "blocks:notfound");
+    auto region = util::get_texture_region(assets, name, "blocks:notfound");
     batch->setTexture(region.texture, region.region);
 }

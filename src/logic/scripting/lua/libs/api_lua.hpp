@@ -15,6 +15,7 @@
 
 // Libraries
 extern const luaL_Reg audiolib[];
+extern const luaL_Reg base64lib[];
 extern const luaL_Reg bjsonlib[];
 extern const luaL_Reg blocklib[];
 extern const luaL_Reg cameralib[];
@@ -33,7 +34,8 @@ extern const luaL_Reg mat4lib[];
 extern const luaL_Reg packlib[];
 extern const luaL_Reg particleslib[];
 extern const luaL_Reg playerlib[];
-extern const luaL_Reg quatlib[];  // quat.cpp
+extern const luaL_Reg quatlib[];
+extern const luaL_Reg text3dlib[];
 extern const luaL_Reg timelib[];
 extern const luaL_Reg tomllib[];
 extern const luaL_Reg utf8lib[];

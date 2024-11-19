@@ -27,4 +27,7 @@ utf8.upper(text: str) -> str
 
 -- Converts a string to lowercase
 utf8.lower(text: str) -> str
+
+-- Escapes a string
+utf8.escape(text: str) -> str
 ```

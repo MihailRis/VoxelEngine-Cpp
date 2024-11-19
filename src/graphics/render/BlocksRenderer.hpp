@@ -12,6 +12,7 @@
 #include "voxels/VoxelsVolume.hpp"
 #include "graphics/core/MeshData.hpp"
 #include "maths/util.hpp"
+#include "commons.hpp"
 
 class Content;
 class Mesh;
@@ -19,15 +20,14 @@ class Block;
 class Chunk;
 class Chunks;
 class VoxelsVolume;
-class ChunksStorage;
+class Chunks;
 class ContentGfxCache;
 struct EngineSettings;
 struct UVRegion;
 
 class BlocksRenderer {
     static const glm::vec3 SUN_VECTOR;
-    static const uint VERTEX_SIZE;
-    const Content* const content;
+    const Content& content;
     std::unique_ptr<float[]> vertexBuffer;
     std::unique_ptr<int[]> indexBuffer;
     size_t vertexOffset;
@@ -40,10 +40,12 @@ class BlocksRenderer {
     std::unique_ptr<VoxelsVolume> voxelsBuffer;
 
     const Block* const* blockDefsCache;
-    const ContentGfxCache* const cache;
-    const EngineSettings* settings;
+    const ContentGfxCache& cache;
+    const EngineSettings& settings;
     
     util::PseudoRandom randomizer;
+
+    SortingMeshData sortingMesh;
 
     void vertex(const glm::vec3& coord, float u, float v, const glm::vec4& light);
     void index(int a, int b, int c, int d, int e, int f);
@@ -115,7 +117,6 @@ class BlocksRenderer {
 
     bool isOpenForLight(int x, int y, int z) const;
 
-
     // Does block allow to see other blocks sides (is it transparent)
     inline bool isOpen(const glm::ivec3& pos, ubyte group) const {
         auto id = voxelsBuffer->pickBlockId(
@@ -135,14 +136,21 @@ class BlocksRenderer {
     glm::vec4 pickLight(const glm::ivec3& coord) const;
     glm::vec4 pickSoftLight(const glm::ivec3& coord, const glm::ivec3& right, const glm::ivec3& up) const;
     glm::vec4 pickSoftLight(float x, float y, float z, const glm::ivec3& right, const glm::ivec3& up) const;
-    void render(const voxel* voxels);
+    
+    void render(const voxel* voxels, int beginEnds[256][2]);
+    SortingMeshData renderTranslucent(const voxel* voxels, int beginEnds[256][2]);
 public:
-    BlocksRenderer(size_t capacity, const Content* content, const ContentGfxCache* cache, const EngineSettings* settings);
+    BlocksRenderer(
+        size_t capacity,
+        const Content& content,
+        const ContentGfxCache& cache,
+        const EngineSettings& settings
+    );
     virtual ~BlocksRenderer();
 
-    void build(const Chunk* chunk, const ChunksStorage* chunks);
-    std::shared_ptr<Mesh> render(const Chunk* chunk, const ChunksStorage* chunks);
-    MeshData createMesh();
+    void build(const Chunk* chunk, const Chunks* chunks);
+    ChunkMesh render(const Chunk* chunk, const Chunks* chunks);
+    ChunkMeshData createMesh();
     VoxelsVolume* getVoxelsBuffer() const;
 
     bool isCancelled() const {

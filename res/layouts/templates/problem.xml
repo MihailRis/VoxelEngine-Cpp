@@ -1,4 +1,5 @@
-<container id="%{id}" size="32" tooltip="%{text}">
+<container id="%{id}" size="32" tooltip="%{text}" 
+           onclick="events.emit('core:open_traceback', '%{traceback}')">
     <image src="gui/%{type}" size="32"/>
     <label pos="36,2">%{text}</label>
     <image src="gui/cross" interactive="true" size="16" gravity="top-right" 

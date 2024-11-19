@@ -67,7 +67,11 @@ static runnable create_runnable(
     return nullptr;
 }
 
-static onaction create_action(UiXmlReader& reader, const xml::xmlelement& element, const std::string& name) {
+static onaction create_action(
+    const UiXmlReader& reader,
+    const xml::xmlelement& element,
+    const std::string& name
+) {
     auto callback = create_runnable(reader, element, name);
     if (callback == nullptr) {
         return nullptr;
@@ -76,7 +80,9 @@ static onaction create_action(UiXmlReader& reader, const xml::xmlelement& elemen
 }
 
 /* Read basic UINode properties */
-static void _readUINode(UiXmlReader& reader, const xml::xmlelement& element, UINode& node) {
+static void _readUINode(
+    const UiXmlReader& reader, const xml::xmlelement& element, UINode& node
+) {
     if (element->has("id")) {
         node.setId(element->attr("id").getText());
     }
@@ -165,6 +171,9 @@ static void _readContainer(UiXmlReader& reader, const xml::xmlelement& element, 
 
     if (element->has("scrollable")) {
         container.setScrollable(element->attr("scrollable").asBool());
+    }
+    if (element->has("scroll-step")) {
+        container.setScrollStep(element->attr("scroll-step").asInt());
     }
     for (auto& sub : element->getElements()) {
         if (sub->isText())
@@ -331,9 +340,21 @@ static std::shared_ptr<UINode> readCheckBox(UiXmlReader& reader, const xml::xmle
 
 static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlelement& element) {
     auto placeholder = util::str2wstr_utf8(element->attr("placeholder", "").getText());
+    auto hint = util::str2wstr_utf8(element->attr("hint", "").getText());
     auto text = readAndProcessInnerText(element, reader.getContext());
     auto textbox = std::make_shared<TextBox>(placeholder, glm::vec4(0.0f));
-    _readPanel(reader, element, *textbox);
+    textbox->setHint(hint);
+    
+    _readContainer(reader, element, *textbox);
+    if (element->has("padding")) {
+        glm::vec4 padding = element->attr("padding").asVec4();
+        textbox->setPadding(padding);
+        glm::vec2 size = textbox->getSize();
+        textbox->setSize(glm::vec2(
+            size.x + padding.x + padding.z,
+            size.y + padding.y + padding.w
+        ));
+    }
     textbox->setText(text);
 
     if (element->has("multiline")) {
@@ -347,6 +368,9 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     }
     if (element->has("autoresize")) {
         textbox->setAutoResize(element->attr("autoresize").asBool());
+    }
+    if (element->has("line-numbers")) {
+        textbox->setShowLineNumbers(element->attr("line-numbers").asBool());
     }
     if (element->has("consumer")) {
         textbox->setTextConsumer(scripting::create_wstring_consumer(
@@ -374,6 +398,9 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     }
     if (element->has("error-color")) {
         textbox->setErrorColor(element->attr("error-color").asColor());
+    }
+    if (element->has("text-color")) {
+        textbox->setTextColor(element->attr("text-color").asColor());
     }
     if (element->has("validator")) {
         textbox->setTextValidator(scripting::create_wstring_validator(

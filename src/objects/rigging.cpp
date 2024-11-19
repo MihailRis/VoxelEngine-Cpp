@@ -12,9 +12,9 @@
 
 using namespace rigging;
 
-void ModelReference::refresh(const Assets* assets) {
+void ModelReference::refresh(const Assets& assets) {
     if (updateFlag) {
-        model = assets->get<model::Model>(name);
+        model = assets.get<model::Model>(name);
         updateFlag = false;
     }
 }
@@ -95,7 +95,7 @@ void SkeletonConfig::update(Skeleton& skeleton, glm::mat4 matrix) const {
 }
 
 void SkeletonConfig::render(
-    Assets* assets,
+    const Assets& assets,
     ModelBatch& batch,
     Skeleton& skeleton,
     const glm::mat4& matrix
