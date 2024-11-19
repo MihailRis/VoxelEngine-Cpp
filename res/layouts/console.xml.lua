@@ -194,7 +194,7 @@ function set_mode(mode)
     console_mode = mode
 end
 
-function on_open()
+function on_open(mode)
     if modes == nil then
         modes = RadioGroup({
             chat=document.s_chat,
@@ -203,5 +203,8 @@ function on_open()
         }, function (mode)
             set_mode(mode)
         end, "console")
+    end
+    if mode then
+        modes:set(mode)
     end
 end

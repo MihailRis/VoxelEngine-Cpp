@@ -86,6 +86,9 @@ end
 
 local _RadioGroup = {}
 function _RadioGroup.set(self, key)
+    if type(self) ~= 'table' then
+        error("called as non-OOP via '.', use radiogroup:set")
+    end
     if self.current then
         self.elements[self.current].enabled = true
     end
