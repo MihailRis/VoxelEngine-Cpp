@@ -65,7 +65,7 @@ gui::page_loader_func menus::create_page_loader(Engine* engine) {
             scripting::get_root_environment(),
             fullname,
             file,
-            "core:layout/pages/" + name
+            "core:layouts/pages/" + name
         );
         auto document = document_ptr.get();
         engine->getAssets()->store(std::move(document_ptr), fullname);
