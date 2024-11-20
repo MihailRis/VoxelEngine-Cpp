@@ -24,7 +24,9 @@ hud.open_block(x: int, y: int, z: int) -> int, str
 ```lua
 -- Show overlay with layout specified.
 -- Shows player inventory also if playerinv is true.
-hud.show_overlay(layoutid: str, playerinv: bool)
+-- Using `args` you can specify an array of parameter values ​​that will be passed
+-- to on_open of the overlay being shown.
+hud.show_overlay(layoutid: str, playerinv: bool, [optional] args: table)
 
 -- Add element to the screen. 
 -- The element will be removed on world close only.
