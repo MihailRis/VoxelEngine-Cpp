@@ -1,4 +1,7 @@
 {
+    "atlases": [
+        {"name": "cracks", "type": "separate"}
+    ],
     "sounds": [
         "blocks/door_open",
         "blocks/door_close",
