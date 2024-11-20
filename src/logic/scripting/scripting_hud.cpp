@@ -37,7 +37,7 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
 
     load_script("hud_classes.lua");
 
-    if (lua::getglobal(L, "__vc_create_hud_rules")) {
+    if (lua::getglobal(L, "__vc_on_hud_open")) {
         lua::call_nothrow(L, 0, 0);
     }
 
