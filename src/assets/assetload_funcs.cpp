@@ -103,12 +103,25 @@ static bool append_atlas(AtlasBuilder& atlas, const fs::path& file) {
 }
 
 assetload::postfunc assetload::atlas(
-    AssetsLoader*,
+    AssetsLoader* loader,
     const ResPaths* paths,
     const std::string& directory,
     const std::string& name,
-    const std::shared_ptr<AssetCfg>&
+    const std::shared_ptr<AssetCfg>& config
 ) {
+    auto atlasConfig = std::dynamic_pointer_cast<AtlasCfg>(config);
+    if (atlasConfig && atlasConfig->type == AtlasType::SEPARATE) {
+        for (const auto& file : paths->listdir(directory)) {
+            if (!imageio::is_read_supported(file.extension().u8string()))
+                continue;
+            loader->add(
+                AssetType::TEXTURE,
+                directory + "/" + file.stem().u8string(),
+                name + "/" + file.stem().u8string()
+            );
+        }
+        return [](auto){};
+    }
     AtlasBuilder builder;
     for (const auto& file : paths->listdir(directory)) {
         if (!imageio::is_read_supported(file.extension().u8string())) continue;
