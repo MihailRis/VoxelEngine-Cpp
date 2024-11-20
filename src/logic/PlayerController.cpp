@@ -461,6 +461,10 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
         }
     }
     if (chosenBlock != vox->id && chosenBlock) {
+        if (!player->isInfiniteItems()) {
+            auto& slot = player->getInventory()->getSlot(player->getChosenSlot());
+            slot.setCount(slot.getCount()-1);
+        }
         blocksController->placeBlock(
             player.get(), def, state, coord.x, coord.y, coord.z
         );
@@ -522,8 +526,8 @@ void PlayerController::updateInteraction(float delta) {
     auto iend = selection.position;
     if (lclick && !input.shift && item.rt.funcsset.on_block_break_by) {
         if (scripting::on_item_break_block(
-                player.get(), item, iend.x, iend.y, iend.z
-            )) {
+            player.get(), item, iend.x, iend.y, iend.z
+        )) {
             return;
         }
     }

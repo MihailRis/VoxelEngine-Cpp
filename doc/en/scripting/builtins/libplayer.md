@@ -56,12 +56,19 @@ player.set_noclip(bool)
 
 Getter and setter for player noclip mode (collisions disabled)
 
+```lua
+player.is_infinite_items() -> bool
+player.set_infinite_items(bool)
+```
+
+Getter and setter for infinite items (not removed from inventory after use)
+
 ``` lua
 player.set_spawnpoint(playerid: int, x: number, y: number, z: number)
 player.get_spawnpoint(playerid: int) -> number, number, number
 ```
 
-Point setter and getter added by player
+Spawn point setter and getter
 
 ```lua
 player.get_selected_block(playerid: int) -> x,y,z

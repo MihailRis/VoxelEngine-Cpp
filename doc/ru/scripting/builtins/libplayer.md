@@ -57,6 +57,13 @@ player.set_noclip(bool)
 Геттер и сеттер noclip режима (выключенная коллизия игрока)
 
 ```lua
+player.is_infinite_items() -> bool
+player.set_infinite_items(bool)
+```
+
+Геттер и сеттер бесконечных предметов (не удаляются из инвентаря при использовании)
+
+```lua
 player.set_spawnpoint(playerid: int, x: number, y: number, z: number) 
 player.get_spawnpoint(playerid: int) -> number, number, number
 ```
