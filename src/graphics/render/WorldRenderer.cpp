@@ -41,6 +41,7 @@
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/core/Font.hpp"
+#include "BlockWrapsRenderer.hpp"
 #include "ParticlesRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
@@ -80,7 +81,8 @@ WorldRenderer::WorldRenderer(
           *frustumCulling,
           frontend.getContentGfxCache(),
           engine->getSettings()
-      )) {
+      )),
+      blockWraps(std::make_unique<BlockWrapsRenderer>(assets, level)) {
     auto& settings = engine->getSettings();
     level.events->listen(
         EVT_CHUNK_HIDDEN,
@@ -170,6 +172,7 @@ void WorldRenderer::renderLevel(
     setupWorldShader(shader, camera, settings, fogFactor);
 
     chunks->drawChunks(camera, shader);
+    blockWraps->draw(ctx, *player);
 
     if (hudVisible) {
         renderLines(camera, linesShader, ctx);

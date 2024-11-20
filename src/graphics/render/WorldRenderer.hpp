@@ -17,6 +17,7 @@ class Batch3D;
 class LineBatch;
 class ChunksRenderer;
 class ParticlesRenderer;
+class BlockWrapsRenderer;
 class GuidesRenderer;
 class TextsRenderer;
 class Shader;
@@ -39,6 +40,7 @@ class WorldRenderer {
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ChunksRenderer> chunks;
+    std::unique_ptr<BlockWrapsRenderer> blockWraps;
     std::unique_ptr<GuidesRenderer> guides;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<ModelBatch> modelBatch;
