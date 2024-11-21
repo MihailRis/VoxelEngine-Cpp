@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "objects/Player.hpp"
+#include "util/Clock.hpp"
 
 class Engine;
 class Camera;
@@ -53,6 +54,7 @@ class PlayerController {
     PlayerInput input {};
     CameraControl camControl;
     BlocksController* blocksController;
+    util::Clock playerTickClock;
 
     float interactionTimer = 0.0f;
     void updateKeyboard();

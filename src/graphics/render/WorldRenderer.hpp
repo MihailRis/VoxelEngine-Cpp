@@ -40,7 +40,6 @@ class WorldRenderer {
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<Batch3D> batch3d;
     std::unique_ptr<ChunksRenderer> chunks;
-    std::unique_ptr<BlockWrapsRenderer> blockWraps;
     std::unique_ptr<GuidesRenderer> guides;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<ModelBatch> modelBatch;
@@ -70,6 +69,7 @@ class WorldRenderer {
 public:
     std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<ParticlesRenderer> particles;
+    std::unique_ptr<BlockWrapsRenderer> blockWraps;
 
     static bool showChunkBorders;
     static bool showEntitiesDebug;

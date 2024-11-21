@@ -195,7 +195,8 @@ PlayerController::PlayerController(
     : settings(settings), level(level),
       player(level->getObject<Player>(0)),
       camControl(player, settings.camera),
-      blocksController(blocksController) {
+      blocksController(blocksController),
+      playerTickClock(20, 3) {
 }
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
@@ -249,6 +250,13 @@ void PlayerController::update(float delta, bool input, bool pause) {
             resetKeyboard();
         }
         updatePlayer(delta);
+
+        if (playerTickClock.update(delta)) {
+            if (player->getId() % playerTickClock.getParts() ==
+                playerTickClock.getPart()) {
+                scripting::on_player_tick(player.get(), playerTickClock.getTickRate());
+            }
+        }
     }
 }
 
@@ -302,7 +310,7 @@ void PlayerController::updatePlayer(float delta) {
 }
 
 static int determine_rotation(
-    const Block* def, const glm::ivec3& norm, glm::vec3& camDir
+    const Block* def, const glm::ivec3& norm, const glm::vec3& camDir
 ) {
     if (def && def->rotatable) {
         const std::string& name = def->rotations.name;
@@ -532,10 +540,12 @@ void PlayerController::updateInteraction(float delta) {
         }
     }
     auto& target = indices->blocks.require(vox->id);
-    if (lclick && target.breakable) {
-        blocksController->breakBlock(
-            player.get(), target, iend.x, iend.y, iend.z
-        );
+    if (lclick) {
+        if (player->isInstantDestruction() && target.breakable) {
+            blocksController->breakBlock(
+                player.get(), target, iend.x, iend.y, iend.z
+            );
+        }
     }
     if (rclick && !input.shift) {
         bool preventDefault = false;

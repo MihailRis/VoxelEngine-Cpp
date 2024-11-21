@@ -438,7 +438,7 @@ voxel* Chunks::rayCast(
     glm::ivec3& norm,
     glm::ivec3& iend,
     std::set<blockid_t> filter
-) {
+) const {
     float px = start.x;
     float py = start.y;
     float pz = start.z;
@@ -571,7 +571,7 @@ voxel* Chunks::rayCast(
 
 glm::vec3 Chunks::rayCastToObstacle(
     const glm::vec3& start, const glm::vec3& dir, float maxDist
-) {
+) const {
     const float px = start.x;
     const float py = start.y;
     const float pz = start.z;

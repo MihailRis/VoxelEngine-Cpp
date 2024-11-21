@@ -35,4 +35,6 @@ public:
     u64id_t add(const glm::ivec3& position, const std::string& texture);
 
     BlockWrapper* get(u64id_t id) const;
+
+    void remove(u64id_t id);
 };

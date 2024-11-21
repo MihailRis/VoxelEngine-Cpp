@@ -323,6 +323,21 @@ bool scripting::on_block_interact(
     }
 }
 
+void scripting::on_player_tick(Player* player, int tps) {
+    auto args = [=](lua::State* L) {
+        lua::pushinteger(L, player ? player->getId() : -1);
+        lua::pushinteger(L, tps);
+        return 2;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onplayertick) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.playertick", args
+            );
+        }
+    }
+}
+
 bool scripting::on_item_use(Player* player, const ItemDef& item) {
     std::string name = item.name + ".use";
     return lua::emit_event(
@@ -724,6 +739,8 @@ void scripting::load_world_script(
         register_event(env, "on_block_broken", prefix + ":.blockbroken");
     funcsset.onblockinteract =
         register_event(env, "on_block_interact", prefix + ":.blockinteract");
+    funcsset.onplayertick =
+        register_event(env, "on_player_tick", prefix + ":.playertick");
 }
 
 void scripting::load_layout_script(

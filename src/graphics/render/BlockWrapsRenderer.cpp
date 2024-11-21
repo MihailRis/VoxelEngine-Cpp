@@ -79,8 +79,9 @@ void BlockWrapsRenderer::draw(const BlockWrapper& wrapper) {
 
 void BlockWrapsRenderer::draw(const DrawContext& pctx, const Player& player) {
     auto ctx = pctx.sub();
-    
-    
+    for (const auto& [_, wrapper] : wrappers) {
+        draw(*wrapper);
+    }
     batch->flush();
 }
 
@@ -100,4 +101,8 @@ BlockWrapper* BlockWrapsRenderer::get(u64id_t id) const {
         return nullptr;
     }
     return found->second.get();
+}
+
+void BlockWrapsRenderer::remove(u64id_t id) {
+    wrappers.erase(id);
 }

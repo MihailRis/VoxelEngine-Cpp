@@ -102,11 +102,11 @@ public:
         glm::ivec3& norm,
         glm::ivec3& iend,
         std::set<blockid_t> filter = {}
-    );
+    ) const;
 
     glm::vec3 rayCastToObstacle(
         const glm::vec3& start, const glm::vec3& dir, float maxDist
-    );
+    ) const;
 
     const AABB* isObstacleAt(float x, float y, float z) const;
 
