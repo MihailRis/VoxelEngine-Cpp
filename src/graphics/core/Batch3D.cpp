@@ -12,7 +12,7 @@ inline constexpr uint B3D_VERTEX_SIZE = 9;
 
 Batch3D::Batch3D(size_t capacity) 
     : capacity(capacity) {
-    const vattr attrs[] = {
+    const VertexAttribute attrs[] = {
         {3}, {2}, {4}, {0}
     };
 

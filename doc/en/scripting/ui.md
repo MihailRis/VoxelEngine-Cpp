@@ -78,14 +78,18 @@ Properties:
 | caret       | int    | yes  | yes   | carriage position. `textbox.caret = -1` will set the position to the end of the text |
 | editable    | bool   | yes  | yes   | text mutability                                                                      |
 | multiline   | bool   | yes  | yes   | multiline support                                                                    |
+| lineNumbers | bool   | yes  | yes   | display line numbers                                                                 |
 | textWrap    | bool   | yes  | yes   | automatic text wrapping (only with multiline: "true")                                |
 | valid       | bool   | yes  | no    | is the entered text correct                                                          |
+| textColor   | vec4   | yes  | yes   | text color                                                                           |
 
 Methods:
 
-| Method      | Description                                      |
-| ----------- | ------------------------------------------------ |
-| paste(text) | inserts the specified text at the caret position |
+| Method                    | Description                                                      |
+| ------------------------- | ---------------------------------------------------------------- |
+| paste(text: str)          | inserts the specified text at the caret position                 |
+| lineAt(pos: int) -> int   | determines the line number by position in the text               |
+| linePos(line: int) -> int | determines the position of the beginning of the line in the text |
 
 ## Slider (trackbar)
 

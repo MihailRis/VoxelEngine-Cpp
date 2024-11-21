@@ -73,6 +73,7 @@ namespace scripting {
         Player* player, const Block& block, const glm::ivec3& pos
     );
     bool on_block_interact(Player* player, const Block& block, const glm::ivec3& pos);
+    void on_player_tick(Player* player, int tps);
 
     /// @brief Called on RMB click with the item selected
     /// @return true if prevents default action
@@ -125,11 +126,13 @@ namespace scripting {
     /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
+    /// @param fileName script file path using the engine format
     /// @param funcsset block callbacks set
     void load_block_script(
         const scriptenv& env,
         const std::string& prefix,
         const fs::path& file,
+        const std::string& fileName,
         block_funcs_set& funcsset
     );
 
@@ -137,15 +140,25 @@ namespace scripting {
     /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
+    /// @param fileName script file path using the engine format
     /// @param funcsset item callbacks set
     void load_item_script(
         const scriptenv& env,
         const std::string& prefix,
         const fs::path& file,
+        const std::string& fileName,
         item_funcs_set& funcsset
     );
 
-    void load_entity_component(const std::string& name, const fs::path& file);
+    /// @brief Load component script
+    /// @param name component full name (packid:name)
+    /// @param file component script file path
+    /// @param fileName script file path using the engine format
+    void load_entity_component(
+        const std::string& name,
+        const fs::path& file,
+        const std::string& fileName
+    );
 
     std::unique_ptr<GeneratorScript> load_generator(
         const GeneratorDef& def,
@@ -157,10 +170,12 @@ namespace scripting {
     /// @param env environment
     /// @param packid content-pack id
     /// @param file script file path
+    /// @param fileName script file path using the engine format
     void load_world_script(
         const scriptenv& env,
         const std::string& packid,
         const fs::path& file,
+        const std::string& fileName,
         world_funcs_set& funcsset
     );
 
@@ -168,11 +183,13 @@ namespace scripting {
     /// @param env environment
     /// @param prefix pack id
     /// @param file item script file
+    /// @param fileName script file path using the engine format
     /// @param script document script info
     void load_layout_script(
         const scriptenv& env,
         const std::string& prefix,
         const fs::path& file,
+        const std::string& fileName,
         uidocscript& script
     );
 

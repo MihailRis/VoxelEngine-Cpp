@@ -35,9 +35,6 @@ inline constexpr int CHUNK_D = 16;
 inline constexpr uint VOXEL_USER_BITS = 8;
 inline constexpr uint VOXEL_USER_BITS_OFFSET = sizeof(blockstate_t)*8-VOXEL_USER_BITS;
 
-/// @brief pixel size of an item inventory icon
-inline constexpr int ITEM_ICON_SIZE = 48;
-
 /// @brief chunk volume (count of voxels per Chunk)
 inline constexpr int CHUNK_VOL = (CHUNK_W * CHUNK_H * CHUNK_D);
 
@@ -52,6 +49,11 @@ inline constexpr blockid_t MAX_BLOCKS = BLOCK_VOID;
 inline constexpr uint vox_index(uint x, uint y, uint z, uint w=CHUNK_W, uint d=CHUNK_D) {
     return (y * d + z) * w + x;
 }
+
+/// @brief pixel size of an item inventory icon
+inline constexpr int ITEM_ICON_SIZE = 48;
+
+inline constexpr int TRANSLUCENT_BLOCKS_SORT_INTERVAL = 8;
 
 inline const std::string SHADERS_FOLDER = "shaders";
 inline const std::string TEXTURES_FOLDER = "textures";

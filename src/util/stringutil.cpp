@@ -7,8 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 
-// TODO: finish
-std::string util::escape(const std::string& s) {
+std::string util::escape(std::string_view s) {
     std::stringstream ss;
     ss << '"';
     size_t pos = 0;
@@ -318,7 +317,7 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
         ending[i - fullsegments] = data[i];
     }
     size_t trailing = size - fullsegments;
-    {
+    if (trailing) {
         char output[] = "====";
         output[0] = B64ABC[(ending[0] & 0b11111100) >> 2];
         output[1] =
@@ -364,8 +363,8 @@ util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
     return bytes;
 }
 
-util::Buffer<ubyte> util::base64_decode(const std::string& str) {
-    return base64_decode(str.c_str(), str.size());
+util::Buffer<ubyte> util::base64_decode(std::string_view str) {
+    return base64_decode(str.data(), str.size());
 }
 
 int util::replaceAll(

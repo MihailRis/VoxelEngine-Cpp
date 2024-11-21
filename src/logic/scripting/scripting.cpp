@@ -44,7 +44,7 @@ void scripting::load_script(const fs::path& name, bool throwable) {
     fs::path file = paths->getResourcesFolder() / fs::path("scripts") / name;
     std::string src = files::read_string(file);
     auto L = lua::get_main_state();
-    lua::loadbuffer(L, 0, src, file.u8string());
+    lua::loadbuffer(L, 0, src, "core:scripts/"+name.u8string());
     if (throwable) {
         lua::call(L, 0, 0);
     } else {
@@ -53,11 +53,14 @@ void scripting::load_script(const fs::path& name, bool throwable) {
 }
 
 int scripting::load_script(
-    int env, const std::string& type, const fs::path& file
+    int env,
+    const std::string& type,
+    const fs::path& file,
+    const std::string& fileName
 ) {
     std::string src = files::read_string(file);
     logger.info() << "script (" << type << ") " << file.u8string();
-    return lua::execute(lua::get_main_state(), env, src, file.u8string());
+    return lua::execute(lua::get_main_state(), env, src, fileName);
 }
 
 void scripting::initialize(Engine* engine) {
@@ -315,6 +318,21 @@ bool scripting::on_block_interact(
         if (pack->worldfuncsset.onblockinteract) {
             lua::emit_event(
                 lua::get_main_state(), packid + ":.blockinteract", args
+            );
+        }
+    }
+}
+
+void scripting::on_player_tick(Player* player, int tps) {
+    auto args = [=](lua::State* L) {
+        lua::pushinteger(L, player ? player->getId() : -1);
+        lua::pushinteger(L, tps);
+        return 2;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onplayertick) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.playertick", args
             );
         }
     }
@@ -657,10 +675,11 @@ void scripting::load_block_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
+    const std::string& fileName,
     block_funcs_set& funcsset
 ) {
     int env = *senv;
-    lua::pop(lua::get_main_state(), load_script(env, "block", file));
+    lua::pop(lua::get_main_state(), load_script(env, "block", file, fileName));
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.update = register_event(env, "on_update", prefix + ".update");
     funcsset.randupdate =
@@ -677,10 +696,11 @@ void scripting::load_item_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
+    const std::string& fileName,
     item_funcs_set& funcsset
 ) {
     int env = *senv;
-    lua::pop(lua::get_main_state(), load_script(env, "item", file));
+    lua::pop(lua::get_main_state(), load_script(env, "item", file, fileName));
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.on_use = register_event(env, "on_use", prefix + ".use");
     funcsset.on_use_on_block =
@@ -690,12 +710,12 @@ void scripting::load_item_script(
 }
 
 void scripting::load_entity_component(
-    const std::string& name, const fs::path& file
+    const std::string& name, const fs::path& file, const std::string& fileName
 ) {
     auto L = lua::get_main_state();
     std::string src = files::read_string(file);
     logger.info() << "script (component) " << file.u8string();
-    lua::loadbuffer(L, 0, src, "C!" + name);
+    lua::loadbuffer(L, 0, src, fileName);
     lua::store_in(L, lua::CHUNKS_TABLE, name);
 }
 
@@ -703,10 +723,11 @@ void scripting::load_world_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
+    const std::string& fileName,
     world_funcs_set& funcsset
 ) {
     int env = *senv;
-    lua::pop(lua::get_main_state(), load_script(env, "world", file));
+    lua::pop(lua::get_main_state(), load_script(env, "world", file, fileName));
     register_event(env, "init", prefix + ".init");
     register_event(env, "on_world_open", prefix + ":.worldopen");
     register_event(env, "on_world_tick", prefix + ":.worldtick");
@@ -718,17 +739,20 @@ void scripting::load_world_script(
         register_event(env, "on_block_broken", prefix + ":.blockbroken");
     funcsset.onblockinteract =
         register_event(env, "on_block_interact", prefix + ":.blockinteract");
+    funcsset.onplayertick =
+        register_event(env, "on_player_tick", prefix + ":.playertick");
 }
 
 void scripting::load_layout_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
+    const std::string& fileName,
     uidocscript& script
 ) {
     int env = *senv;
 
-    lua::pop(lua::get_main_state(), load_script(env, "layout", file));
+    lua::pop(lua::get_main_state(), load_script(env, "layout", file, fileName));
     script.onopen = register_event(env, "on_open", prefix + ".open");
     script.onprogress =
         register_event(env, "on_progress", prefix + ".progress");

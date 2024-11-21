@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <functional>
 #include <map>
+#include <set>
 #include <memory>
 #include <queue>
 #include <string>
@@ -37,6 +38,17 @@ struct SoundCfg : AssetCfg {
     }
 };
 
+enum class AtlasType {
+    ATLAS, SEPARATE
+};
+
+struct AtlasCfg : AssetCfg {
+    AtlasType type;
+
+    AtlasCfg(AtlasType type) : type(type) {
+    }
+};
+
 using aloader_func = std::function<
     assetload::
         postfunc(AssetsLoader*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
@@ -52,6 +64,7 @@ class AssetsLoader {
     Assets* assets;
     std::map<AssetType, aloader_func> loaders;
     std::queue<aloader_entry> entries;
+    std::set<std::pair<AssetType, std::string>> enqueued;
     const ResPaths* paths;
 
     void tryAddSound(const std::string& name);

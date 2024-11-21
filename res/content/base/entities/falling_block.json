@@ -3,5 +3,5 @@
         "base:falling_block"
     ],
     "skeleton-name": "base:block",
-    "hitbox": [0.8, 0.8, 0.8]
+    "hitbox": [0.98, 0.98, 0.98]
 }

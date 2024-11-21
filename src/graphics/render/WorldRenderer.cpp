@@ -41,6 +41,7 @@
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/core/Font.hpp"
+#include "BlockWrapsRenderer.hpp"
 #include "ParticlesRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
@@ -80,7 +81,8 @@ WorldRenderer::WorldRenderer(
           *frustumCulling,
           frontend.getContentGfxCache(),
           engine->getSettings()
-      )) {
+      )),
+      blockWraps(std::make_unique<BlockWrapsRenderer>(assets, level)) {
     auto& settings = engine->getSettings();
     level.events->listen(
         EVT_CHUNK_HIDDEN,
@@ -153,6 +155,7 @@ void WorldRenderer::renderLevel(
         frustumCulling->update(camera.getProjView());
     }
 
+    entityShader.uniform1i("u_alphaClip", true);
     level.entities->render(
         assets,
         *modelBatch,
@@ -164,9 +167,18 @@ void WorldRenderer::renderLevel(
     particles->render(camera, delta * !pause);
 
     auto& shader = assets.require<Shader>("main");
+    auto& linesShader = assets.require<Shader>("lines");
+
     setupWorldShader(shader, camera, settings, fogFactor);
 
     chunks->drawChunks(camera, shader);
+    blockWraps->draw(ctx, *player);
+
+    if (hudVisible) {
+        renderLines(camera, linesShader, ctx);
+    }
+    shader.use();
+    chunks->drawSortedMeshes(camera, shader);
 
     if (!pause) {
         scripting::on_frontend_render();
@@ -326,7 +338,6 @@ void WorldRenderer::draw(
                         ctx, camera, *lineBatch, linesShader, showChunkBorders
                     );
                 }
-                renderLines(camera, linesShader, ctx);
                 if (player->currentCamera == player->fpCamera) {
                     renderHands(camera, delta * !pause);
                 }

@@ -89,11 +89,13 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
                 );
                 light *= 0.9f + (particle.random % 100) * 0.001f;
             }
+            float scale = 1.0f + ((particle.random ^ 2628172) % 1000) *
+                                     0.001f * preset.sizeSpread;
             batch->quad(
                 particle.position,
                 right,
                 preset.globalUpVector ? glm::vec3(0, 1, 0) : up,
-                preset.size,
+                preset.size * scale,
                 light,
                 glm::vec3(1.0f),
                 particle.region

@@ -84,6 +84,32 @@ function Document.new(docname)
     })
 end
 
+local _RadioGroup = {}
+function _RadioGroup.set(self, key)
+    if type(self) ~= 'table' then
+        error("called as non-OOP via '.', use radiogroup:set")
+    end
+    if self.current then
+        self.elements[self.current].enabled = true
+    end
+    self.elements[key].enabled = false
+    self.current = key
+    if self.callback then
+        self.callback(key)
+    end
+end
+function _RadioGroup.__call(self, elements, onset, default)
+    local group = setmetatable({
+        elements=elements, 
+        callback=onset, 
+        current=nil
+    }, {__index=_RadioGroup})
+    group:set(default)
+    return group
+end
+setmetatable(_RadioGroup, _RadioGroup)
+RadioGroup = _RadioGroup
+
 _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu
 menu = _MENU
@@ -243,7 +269,7 @@ function _rules.clear()
     _rules.create("allow-cheats", true)
 end
 
-function __vc_create_hud_rules()
+function __vc_on_hud_open()
     _rules.create("allow-content-access", hud._is_content_access(), function(value)
         hud._set_content_access(value)
         input.set_enabled("player.pick", value)
@@ -268,6 +294,14 @@ function __vc_create_hud_rules()
     end)
     _rules.create("allow-debug-cheats", true, function(value)
         hud._set_debug_cheats(value)
+    end)
+    input.add_callback("devtools.console", function()
+        if hud.is_paused() then
+            return
+        end
+        time.post_runnable(function()
+            hud.show_overlay("core:console", false, {"console"})
+        end)
     end)
 end
 

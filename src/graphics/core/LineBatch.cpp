@@ -6,7 +6,7 @@
 inline constexpr uint LB_VERTEX_SIZE = (3+4);
 
 LineBatch::LineBatch(size_t capacity) : capacity(capacity) {
-    const vattr attrs[] = { {3},{4}, {0} };
+    const VertexAttribute attrs[] = { {3},{4}, {0} };
     buffer = std::make_unique<float[]>(capacity * LB_VERTEX_SIZE * 2);
     mesh = std::make_unique<Mesh>(buffer.get(), 0, attrs);
     index = 0;

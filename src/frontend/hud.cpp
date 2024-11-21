@@ -229,13 +229,9 @@ void Hud::processInput(bool visible) {
             setPause(true);
         }
     }
-    if (!pause && Events::jactive(BIND_DEVTOOLS_CONSOLE)) {
-        showOverlay(assets->get<UiDocument>("core:console"), false);
-    }
     if (!Window::isFocused() && !pause && !isInventoryOpen()) {
         setPause(true);
     }
-
     if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
         if (inventoryOpen) {
             closeInventory();
@@ -465,7 +461,9 @@ void Hud::showExchangeSlot() {
 
 }
 
-void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
+void Hud::showOverlay(
+    UiDocument* doc, bool playerInventory, const dv::value& args
+) {
     if (isInventoryOpen()) {
         closeInventory();
     }
@@ -476,7 +474,8 @@ void Hud::showOverlay(UiDocument* doc, bool playerInventory) {
         showExchangeSlot();
         inventoryOpen = true;
     }
-    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+    add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false),
+        args);
 }
 
 void Hud::openPermanent(UiDocument* doc) {
@@ -508,13 +507,18 @@ void Hud::closeInventory() {
     cleanup();
 }
 
-void Hud::add(const HudElement& element) {
+void Hud::add(const HudElement& element, const dv::value& argsArray) {
     gui->add(element.getNode());
     auto document = element.getDocument();
     if (document) {
         auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
         auto inventory = invview ? invview->getInventory() : nullptr;
         std::vector<dv::value> args;
+        if (argsArray != nullptr) {
+            for (const auto& arg : argsArray) {
+                args.push_back(arg);
+            }
+        }
         args.emplace_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
             args.emplace_back(static_cast<integer_t>(blockPos[i]));
@@ -571,7 +575,7 @@ void Hud::draw(const DrawContext& ctx){
 
     // Crosshair
     if (!pause && !inventoryOpen && !player->debug) {
-        DrawContext chctx = ctx.sub();
+        DrawContext chctx = ctx.sub(batch);
         chctx.setBlendMode(BlendMode::inversion);
         auto texture = assets->get<Texture>("gui/crosshair");
         batch->texture(texture);
@@ -615,8 +619,11 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
             }
             if (secondUI->getPositionFunc() == nullptr) {
                 secondUI->setPos(glm::vec2(
-                    glm::min(width/2-invwidth/2, width-caWidth-(inventoryView ? 10 : 0)-invwidth),
-                    height/2-totalHeight/2
+                    glm::min(
+                        width / 2.f - invwidth / 2.f,
+                        width - caWidth - (inventoryView ? 10 : 0) - invwidth
+                    ),
+                    height / 2.f - totalHeight / 2.f
                 ));
             }
         }

@@ -45,6 +45,10 @@ void Inventory::move(
     }
 }
 
+void Inventory::resize(uint newSize) {
+    slots.resize(newSize);
+}
+
 void Inventory::deserialize(const dv::value& src) {
     id = src["id"].asInteger(1);
     auto& slotsarr = src["slots"];

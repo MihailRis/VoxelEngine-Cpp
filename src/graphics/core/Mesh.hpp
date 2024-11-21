@@ -14,8 +14,8 @@ class Mesh {
     size_t vertexSize;
 public:
     Mesh(const MeshData& data);
-    Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const vattr* attrs);
-    Mesh(const float* vertexBuffer, size_t vertices, const vattr* attrs) :
+    Mesh(const float* vertexBuffer, size_t vertices, const int* indexBuffer, size_t indices, const VertexAttribute* attrs);
+    Mesh(const float* vertexBuffer, size_t vertices, const VertexAttribute* attrs) :
         Mesh(vertexBuffer, vertices, nullptr, 0, attrs) {};
     ~Mesh();
 
@@ -28,10 +28,10 @@ public:
     
     /// @brief Draw mesh with specified primitives type
     /// @param primitive primitives type
-    void draw(unsigned int primitive);
+    void draw(unsigned int primitive) const;
 
     /// @brief Draw mesh as triangles
-    void draw();
+    void draw() const;
 
     /// @brief Total numbers of alive mesh objects
     static int meshesCount;

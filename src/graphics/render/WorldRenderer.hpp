@@ -17,6 +17,7 @@ class Batch3D;
 class LineBatch;
 class ChunksRenderer;
 class ParticlesRenderer;
+class BlockWrapsRenderer;
 class GuidesRenderer;
 class TextsRenderer;
 class Shader;
@@ -68,6 +69,7 @@ class WorldRenderer {
 public:
     std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<ParticlesRenderer> particles;
+    std::unique_ptr<BlockWrapsRenderer> blockWraps;
 
     static bool showChunkBorders;
     static bool showEntitiesDebug;

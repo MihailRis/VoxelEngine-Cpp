@@ -172,6 +172,9 @@ public:
     /// @brief Turns off block item generation
     bool hidden = false;
 
+    /// @brief Block has semi-transparent texture
+    bool translucent = false;
+
     /// @brief Set of block physical hitboxes
     std::vector<AABB> hitboxes;
 

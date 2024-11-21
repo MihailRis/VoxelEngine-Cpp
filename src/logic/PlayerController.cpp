@@ -195,7 +195,8 @@ PlayerController::PlayerController(
     : settings(settings), level(level),
       player(level->getObject<Player>(0)),
       camControl(player, settings.camera),
-      blocksController(blocksController) {
+      blocksController(blocksController),
+      playerTickClock(20, 3) {
 }
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
@@ -249,6 +250,13 @@ void PlayerController::update(float delta, bool input, bool pause) {
             resetKeyboard();
         }
         updatePlayer(delta);
+
+        if (playerTickClock.update(delta)) {
+            if (player->getId() % playerTickClock.getParts() ==
+                playerTickClock.getPart()) {
+                scripting::on_player_tick(player.get(), playerTickClock.getTickRate());
+            }
+        }
     }
 }
 
@@ -302,7 +310,7 @@ void PlayerController::updatePlayer(float delta) {
 }
 
 static int determine_rotation(
-    const Block* def, const glm::ivec3& norm, glm::vec3& camDir
+    const Block* def, const glm::ivec3& norm, const glm::vec3& camDir
 ) {
     if (def && def->rotatable) {
         const std::string& name = def->rotations.name;
@@ -461,6 +469,10 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
         }
     }
     if (chosenBlock != vox->id && chosenBlock) {
+        if (!player->isInfiniteItems()) {
+            auto& slot = player->getInventory()->getSlot(player->getChosenSlot());
+            slot.setCount(slot.getCount()-1);
+        }
         blocksController->placeBlock(
             player.get(), def, state, coord.x, coord.y, coord.z
         );
@@ -522,16 +534,18 @@ void PlayerController::updateInteraction(float delta) {
     auto iend = selection.position;
     if (lclick && !input.shift && item.rt.funcsset.on_block_break_by) {
         if (scripting::on_item_break_block(
-                player.get(), item, iend.x, iend.y, iend.z
-            )) {
+            player.get(), item, iend.x, iend.y, iend.z
+        )) {
             return;
         }
     }
     auto& target = indices->blocks.require(vox->id);
-    if (lclick && target.breakable) {
-        blocksController->breakBlock(
-            player.get(), target, iend.x, iend.y, iend.z
-        );
+    if (lclick) {
+        if (player->isInstantDestruction() && target.breakable) {
+            blocksController->breakBlock(
+                player.get(), target, iend.x, iend.y, iend.z
+            );
+        }
     }
     if (rclick && !input.shift) {
         bool preventDefault = false;

@@ -240,6 +240,11 @@ namespace lua {
     inline const char* tostring(lua::State* L, int idx) {
         return lua_tostring(L, idx);
     }
+    inline std::string_view tolstring(lua::State* L, int idx) {
+        size_t len = 0;
+        auto string = lua_tolstring(L, idx, &len);
+        return std::string_view(string, len);
+    }
     inline const void* topointer(lua::State* L, int idx) {
         return lua_topointer(L, idx);
     }

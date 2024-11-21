@@ -1,5 +1,6 @@
 #include "TextBox.hpp"
 
+#include <sstream>
 #include <utility>
 #include <algorithm>
 
@@ -14,24 +15,39 @@
 
 using namespace gui;
 
+inline constexpr int LINE_NUMBERS_PANE_WIDTH = 40;
+
 TextBox::TextBox(std::wstring placeholder, glm::vec4 padding) 
-  : Panel(glm::vec2(200,32), padding, 0), 
+  : Container(glm::vec2(200,32)), 
+    padding(padding),
     input(L""),
     placeholder(std::move(placeholder))
 {
     setOnUpPressed(nullptr);
     setOnDownPressed(nullptr);
+    setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
     label = std::make_shared<Label>(L"");
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
+    label->setPos(glm::vec2(
+        padding.x + LINE_NUMBERS_PANE_WIDTH * showLineNumbers, padding.y
+    ));
     add(label);
+
+    lineNumbersLabel = std::make_shared<Label>(L"");
+    lineNumbersLabel->setMultiline(true);
+    lineNumbersLabel->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
+    lineNumbersLabel->setVerticalAlign(Align::top);
+    add(lineNumbersLabel);
+    
     setHoverColor(glm::vec4(0.05f, 0.1f, 0.2f, 0.75f));
 
     textInitX = label->getPos().x;
     scrollable = true;
+    scrollStep = 0;
 }
 
 void TextBox::draw(const DrawContext* pctx, Assets* assets) {
-    Panel::draw(pctx, assets);
+    Container::draw(pctx, assets);
 
     font = assets->get<Font>(label->getFontName());
 
@@ -76,6 +92,44 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
             batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(endLine), end, lineHeight);
         }
     }
+
+    if (isFocused() && multiline) {
+        auto selectionCtx = subctx.sub(batch);
+        selectionCtx.setBlendMode(BlendMode::addition);
+
+        batch->setColor(glm::vec4(1, 1, 1, 0.1f));
+
+        uint line = label->getLineByTextIndex(caret);
+        while (label->isFakeLine(line)) {
+            line--;
+        }
+        do {
+            int lineY = label->getLineYOffset(line);
+            int lineHeight = font->getLineHeight() * label->getLineInterval();
+
+            batch->setColor(glm::vec4(1, 1, 1, 0.05f));
+            if (showLineNumbers) {
+                batch->rect(
+                    lcoord.x - 8,
+                    lcoord.y + lineY,
+                    label->getSize().x,
+                    lineHeight
+                );
+                batch->setColor(glm::vec4(1, 1, 1, 0.10f));
+                batch->rect(
+                    lcoord.x - LINE_NUMBERS_PANE_WIDTH,
+                    lcoord.y + lineY,
+                    LINE_NUMBERS_PANE_WIDTH - 8,
+                    lineHeight
+                );
+            } else {
+                batch->rect(
+                    lcoord.x, lcoord.y + lineY, label->getSize().x, lineHeight
+                );
+            }
+            line++;
+        } while (line < label->getLinesNumber() && label->isFakeLine(line));
+    }
 }
 
 void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
@@ -103,31 +157,31 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
     if (!isFocused() && supplier) {
         input = supplier();
     }
-
-    if (isFocused() && multiline) {
-        batch->setColor(glm::vec4(1, 1, 1, 0.1f));
-        glm::vec2 lcoord = label->calcPos();
-        lcoord.y -= 2;
-
-        uint line = label->getLineByTextIndex(caret);
-        while (label->isFakeLine(line)) {
-            line--;
-        }
-        batch->setColor(glm::vec4(1, 1, 1, 0.05f));
-        do {
-            int lineY = label->getLineYOffset(line);
-            int lineHeight = font->getLineHeight() * label->getLineInterval();
-
-            batch->rect(lcoord.x, lcoord.y+lineY, label->getSize().x, lineHeight);
-            line++;
-        } while (line < label->getLinesNumber() && label->isFakeLine(line));
-    }
     refreshLabel();
 }
 
 void TextBox::refreshLabel() {
-    label->setColor(glm::vec4(input.empty() ? 0.5f : 1.0f));
+    label->setColor(textColor * glm::vec4(input.empty() ? 0.5f : 1.0f));
     label->setText(input.empty() && !hint.empty() ? hint : getText());
+    
+    if (showLineNumbers) {
+        if (lineNumbersLabel->getLinesNumber() != label->getLinesNumber()) {
+            std::wstringstream ss;
+            int n = 1;
+            for (int i = 1; i <= label->getLinesNumber(); i++) {
+                if (!label->isFakeLine(i-1)) {
+                    ss << n;
+                    n++;
+                }
+                if (i + 1 <= label->getLinesNumber()) {
+                    ss << "\n";
+                }
+            }
+            lineNumbersLabel->setText(ss.str());
+        }
+        lineNumbersLabel->setPos(padding);
+        lineNumbersLabel->setColor(glm::vec4(1, 1, 1, 0.25f));
+    }
 
     if (autoresize && font) {
         auto size = getSize();
@@ -293,7 +347,7 @@ bool TextBox::isAutoResize() const {
 }
 
 void TextBox::onFocus(GUI* gui) {
-    Panel::onFocus(gui);
+    Container::onFocus(gui);
     if (onEditStart){
         setCaret(input.size());
         onEditStart();
@@ -302,8 +356,11 @@ void TextBox::onFocus(GUI* gui) {
 }
 
 void TextBox::refresh() {
-    Panel::refresh();
+    Container::refresh();
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
+    label->setPos(glm::vec2(
+        padding.x + LINE_NUMBERS_PANE_WIDTH * showLineNumbers, padding.y
+    ));
 }
 
 /// @brief Clamp index to range [0, input.length()]
@@ -567,6 +624,14 @@ void TextBox::select(int start, int end) {
     setCaret(selectionEnd);
 }
 
+uint TextBox::getLineAt(size_t position) const {
+    return label->getLineByTextIndex(position);
+}
+
+size_t TextBox::getLinePos(uint line) const {
+    return label->getTextLineOffset(line);
+}
+
 std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
     return UINode::getAt(pos, self);
 }
@@ -617,6 +682,15 @@ void TextBox::setFocusedColor(glm::vec4 color) {
 
 glm::vec4 TextBox::getFocusedColor() const {
     return focusedColor;
+}
+
+
+void TextBox::setTextColor(glm::vec4 color) {
+    this->textColor = color;
+}
+
+glm::vec4 TextBox::getTextColor() const {
+    return textColor;
 }
 
 void TextBox::setErrorColor(glm::vec4 color) {
@@ -673,9 +747,11 @@ void TextBox::setCaret(size_t position) {
     uint line = label->getLineByTextIndex(caret);
     int offset = label->getLineYOffset(line) + getContentOffset().y;
     uint lineHeight = font->getLineHeight()*label->getLineInterval();
-    scrollStep = lineHeight;
+    if (scrollStep == 0) {
+        scrollStep = lineHeight;
+    }
     if (offset < 0) {
-        scrolled(1);
+        scrolled(-glm::floor(offset/static_cast<double>(scrollStep)+0.5f));
     } else if (offset >= getSize().y) {
         offset -= getSize().y;
         scrolled(-glm::ceil(offset/static_cast<double>(scrollStep)+0.5f));
@@ -695,4 +771,21 @@ void TextBox::setCaret(ptrdiff_t position) {
     } else {
         setCaret(static_cast<size_t>(position));
     }
+}
+
+void TextBox::setPadding(glm::vec4 padding) {
+    this->padding = padding;
+    refresh();
+}
+
+glm::vec4 TextBox::getPadding() const {
+    return padding;
+}
+
+void TextBox::setShowLineNumbers(bool flag) {
+    showLineNumbers = flag;
+}
+
+bool TextBox::isShowLineNumbers() const {
+    return showLineNumbers;
 }

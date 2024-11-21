@@ -134,6 +134,24 @@ static int l_move_into(lua::State* L) {
     return 0;
 }
 
+static int l_get_line_at(lua::State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto position = lua::tointeger(L, 2);
+    if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
+        return lua::pushinteger(L, box->getLineAt(position));
+    }
+    return 0;
+}
+
+static int l_get_line_pos(lua::State* L) {
+    auto node = getDocumentNode(L, 1);
+    auto line = lua::tointeger(L, 2);
+    if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
+        return lua::pushinteger(L, box->getLinePos(line));
+    }
+    return 0;
+}
+
 static int p_get_inventory(UINode* node, lua::State* L) {
     if (auto inventory = dynamic_cast<InventoryView*>(node)) {
         auto inv = inventory->getInventory();
@@ -221,6 +239,13 @@ static int p_get_track_color(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_text_color(UINode* node, lua::State* L) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return lua::pushcolor(L, box->getTextColor());
+    }
+    return 0;
+}
+
 static int p_is_valid(UINode* node, lua::State* L) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         return lua::pushboolean(L, box->validate());
@@ -263,6 +288,13 @@ static int p_get_text(UINode* node, lua::State* L) {
 static int p_get_editable(UINode* node, lua::State* L) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         return lua::pushboolean(L, box->isEditable());
+    }
+    return 0;
+}
+
+static int p_get_line_numbers(UINode* node, lua::State* L) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return lua::pushboolean(L, box->isShowLineNumbers());
     }
     return 0;
 }
@@ -342,6 +374,12 @@ static int p_move_into(UINode*, lua::State* L) {
 static int p_get_focused(UINode* node, lua::State* L) {
     return lua::pushboolean(L, node->isFocused());
 }
+static int p_get_line_at(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, l_get_line_at);
+}
+static int p_get_line_pos(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, l_get_line_pos);
+}
 
 static int l_gui_getattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
@@ -376,6 +414,9 @@ static int l_gui_getattr(lua::State* L) {
             {"caret", p_get_caret},
             {"text", p_get_text},
             {"editable", p_get_editable},
+            {"lineNumbers", p_get_line_numbers},
+            {"lineAt", p_get_line_at},
+            {"linePos", p_get_line_pos},
             {"src", p_get_src},
             {"value", p_get_value},
             {"min", p_get_min},
@@ -383,6 +424,7 @@ static int l_gui_getattr(lua::State* L) {
             {"step", p_get_step},
             {"trackWidth", p_get_track_width},
             {"trackColor", p_get_track_color},
+            {"textColor", p_get_text_color},
             {"checked", p_is_checked},
             {"page", p_get_page},
             {"back", p_get_back},
@@ -462,6 +504,11 @@ static void p_set_editable(UINode* node, lua::State* L, int idx) {
         box->setEditable(lua::toboolean(L, idx));
     }
 }
+static void p_set_line_numbers(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        box->setShowLineNumbers(lua::toboolean(L, idx));
+    }
+}
 static void p_set_src(UINode* node, lua::State* L, int idx) {
     if (auto image = dynamic_cast<Image*>(node)) {
         image->setTexture(lua::require_string(L, idx));
@@ -495,6 +542,11 @@ static void p_set_track_width(UINode* node, lua::State* L, int idx) {
 static void p_set_track_color(UINode* node, lua::State* L, int idx) {
     if (auto bar = dynamic_cast<TrackBar*>(node)) {
         bar->setTrackColor(lua::tocolor(L, idx));
+    }
+}
+static void p_set_text_color(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        box->setTextColor(lua::tocolor(L, idx));
     }
 }
 static void p_set_checked(UINode* node, lua::State* L, int idx) {
@@ -556,6 +608,7 @@ static int l_gui_setattr(lua::State* L) {
             {"hint", p_set_hint},
             {"text", p_set_text},
             {"editable", p_set_editable},
+            {"lineNumbers", p_set_line_numbers},
             {"src", p_set_src},
             {"caret", p_set_caret},
             {"value", p_set_value},
@@ -564,6 +617,7 @@ static int l_gui_setattr(lua::State* L) {
             {"step", p_set_step},
             {"trackWidth", p_set_track_width},
             {"trackColor", p_set_track_color},
+            {"textColor", p_set_text_color},
             {"checked", p_set_checked},
             {"page", p_set_page},
             {"inventory", p_set_inventory},

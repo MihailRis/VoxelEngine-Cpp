@@ -40,4 +40,15 @@ struct UVRegion {
         float h = getHeight();
         return glm::vec2(u1 + uv.x * w, v1 + uv.y * h);
     }
+
+    void scale(float x, float y) {
+        float w = getWidth();
+        float h = getHeight();
+        float cx = (u1 + u2) * 0.5f;
+        float cy = (v1 + v2) * 0.5f;
+        u1 = cx - w * 0.5f * x;
+        v1 = cy - h * 0.5f * y;
+        u2 = cx + w * 0.5f * x;
+        v2 = cy + h * 0.5f * y;
+    }
 };

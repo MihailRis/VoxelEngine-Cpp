@@ -148,6 +148,11 @@ std::unique_ptr<Level> World::load(
                         0
                     );
                     player->deserialize(playerMap);
+                    auto& inventory = player->getInventory();
+                    // invalid inventory id pre 0.25
+                    if (inventory->getId() == 0) {
+                        inventory->setId(level->getWorld()->getNextInventoryId());
+                    }
                     level->inventories->store(player->getInventory());
                 }
             } else {

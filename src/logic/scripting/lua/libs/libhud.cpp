@@ -98,7 +98,8 @@ static int l_show_overlay(lua::State* L) {
     if (layout == nullptr) {
         throw std::runtime_error("there is no ui layout " + util::quote(name));
     }
-    hud->showOverlay(layout, playerInventory);
+    auto args = lua::tovalue(L, 3);
+    hud->showOverlay(layout, playerInventory, std::move(args));
     return 0;
 }
 
@@ -188,4 +189,5 @@ const luaL_Reg hudlib[] = {
     {"_is_content_access", lua::wrap<l_is_content_access>},
     {"_set_content_access", lua::wrap<l_set_content_access>},
     {"_set_debug_cheats", lua::wrap<l_set_debug_cheats>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};

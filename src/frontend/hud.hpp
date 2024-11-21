@@ -2,6 +2,7 @@
 
 #include "typedefs.hpp"
 #include "util/ObjectsKeeper.hpp"
+#include "data/dv.hpp"
 
 #include <string>
 #include <memory>
@@ -173,7 +174,10 @@ public:
     /// @brief Show element in inventory-mode
     /// @param doc element layout
     /// @param playerInventory show player inventory too
-    void showOverlay(UiDocument* doc, bool playerInventory);
+    /// @param arg first argument passing to on_open
+    void showOverlay(
+        UiDocument* doc, bool playerInventory, const dv::value& arg = nullptr
+    );
 
     /// @brief Close all open inventories and overlay
     void closeInventory();
@@ -182,7 +186,7 @@ public:
     /// @param doc element layout
     void openPermanent(UiDocument* doc);
 
-    void add(const HudElement& element);
+    void add(const HudElement& element, const dv::value& arg=nullptr);
     void onRemove(const HudElement& element);
     void remove(const std::shared_ptr<gui::UINode>& node);
 

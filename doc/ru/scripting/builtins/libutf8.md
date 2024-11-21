@@ -27,4 +27,7 @@ utf8.upper(text: str) -> str
 
 -- Переводит строку в нижний регистр
 utf8.lower(text: str) -> str
+
+-- Экранирует строку
+utf8.escape(text: str) -> str
 ```

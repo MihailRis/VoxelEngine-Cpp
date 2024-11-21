@@ -83,7 +83,12 @@ void LevelScreen::initializePack(ContentPackRuntime* pack) {
     const ContentPack& info = pack->getInfo();
     fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
     if (fs::is_regular_file(scriptFile)) {
-        scripting::load_hud_script(pack->getEnvironment(), info.id, scriptFile);
+        scripting::load_hud_script(
+            pack->getEnvironment(),
+            info.id,
+            scriptFile,
+            pack->getId() + ":scripts/hud.lua"
+        );
     }
 }
 
