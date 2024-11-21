@@ -50,6 +50,7 @@ class Player : public Object, public Serializable {
     bool flight = false;
     bool noclip = false;
     bool infiniteItems = true;
+    bool instantDestruction = true;
     entityid_t eid;
     entityid_t selectedEid;
 public:
@@ -89,6 +90,9 @@ public:
 
     bool isInfiniteItems() const;
     void setInfiniteItems(bool flag);
+
+    bool isInstantDestruction() const;
+    void setInstantDestruction(bool flag);
 
     entityid_t getEntity() const;
     void setEntity(entityid_t eid);

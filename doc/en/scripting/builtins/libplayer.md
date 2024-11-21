@@ -63,6 +63,13 @@ player.set_infinite_items(bool)
 
 Getter and setter for infinite items (not removed from inventory after use)
 
+```lua
+player.is_instant_destruction() -> bool
+player.set_instant_destruction(bool)
+```
+
+Getter and setter for instant destruction of blocks when the `player.destroy` binding is activated.
+
 ``` lua
 player.set_spawnpoint(playerid: int, x: number, y: number, z: number)
 player.get_spawnpoint(playerid: int) -> number, number, number
