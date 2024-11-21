@@ -38,7 +38,13 @@ function on_random_update(x, y, z)
 function on_blocks_tick(tps: int)
 ```
 
-Вызывается tps (20) раз в секунду
+Вызывается tps (20) раз в секунду. Используйте 1/tps вместо `time.delta()`.
+
+```lua
+function on_player_tick(playerid: int, tps: int)
+```
+
+Вызывается tps (20) раз в секунду. Используйте 1/tps вместо `time.delta()`.
 
 ## События предметов
 
