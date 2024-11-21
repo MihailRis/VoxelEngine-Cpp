@@ -49,6 +49,8 @@ class Player : public Object, public Serializable {
     std::shared_ptr<Inventory> inventory;
     bool flight = false;
     bool noclip = false;
+    bool infiniteItems = true;
+    bool instantDestruction = true;
     entityid_t eid;
     entityid_t selectedEid;
 public:
@@ -85,6 +87,12 @@ public:
 
     bool isNoclip() const;
     void setNoclip(bool flag);
+
+    bool isInfiniteItems() const;
+    void setInfiniteItems(bool flag);
+
+    bool isInstantDestruction() const;
+    void setInstantDestruction(bool flag);
 
     entityid_t getEntity() const;
     void setEntity(entityid_t eid);

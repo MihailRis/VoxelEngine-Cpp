@@ -72,7 +72,7 @@ public:
     }
 
     template <class T>
-    std::shared_ptr<T> getObject(uint64_t id) {
+    std::shared_ptr<T> getObject(uint64_t id) const {
         static_assert(
             std::is_base_of<Object, T>::value,
             "T must be a derived of Object class"

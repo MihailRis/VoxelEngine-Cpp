@@ -292,6 +292,10 @@ function __load_script(path, nocache)
 end
 
 function require(path)
+    if not string.find(path, ':') then
+        local prefix, _ = parse_path(debug.getinfo(2).source)
+        return require(prefix..':'..path)
+    end
     local prefix, file = parse_path(path)
     return __load_script(prefix..":modules/"..file..".lua")
 end

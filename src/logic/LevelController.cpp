@@ -16,14 +16,14 @@
 
 static debug::Logger logger("level-control");
 
-LevelController::LevelController(Engine* engine, std::unique_ptr<Level> level)
+LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr)
     : settings(engine->getSettings()),
-      level(std::move(level)),
+      level(std::move(levelPtr)),
       blocks(std::make_unique<BlocksController>(
-          this->level.get(), settings.chunks.padding.get()
+          *level, settings.chunks.padding.get()
       )),
       chunks(std::make_unique<ChunksController>(
-          this->level.get(), settings.chunks.padding.get()
+          *level, settings.chunks.padding.get()
       )),
       player(std::make_unique<PlayerController>(
         settings, this->level.get(), blocks.get()

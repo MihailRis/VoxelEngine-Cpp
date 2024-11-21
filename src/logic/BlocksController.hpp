@@ -24,9 +24,9 @@ using on_block_interaction = std::function<
 
 /// BlocksController manages block updates and data (inventories, metadata)
 class BlocksController {
-    Level* level;
-    Chunks* chunks;
-    Lighting* lighting;
+    const Level& level;
+    Chunks& chunks;
+    Lighting& lighting;
     util::Clock randTickClock;
     util::Clock blocksTickClock;
     util::Clock worldTickClock;
@@ -34,7 +34,7 @@ class BlocksController {
     FastRandom random {};
     std::vector<on_block_interaction> blockInteractionCallbacks;
 public:
-    BlocksController(Level* level, uint padding);
+    BlocksController(const Level& level, uint padding);
 
     void updateSides(int x, int y, int z);
     void updateSides(int x, int y, int z, int w, int h, int d);

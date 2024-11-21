@@ -32,12 +32,13 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
     auto L = lua::get_main_state();
 
     lua::openlib(L, "hud", hudlib);
+    lua::openlib(L, "gfx", "blockwraps", blockwrapslib);
     lua::openlib(L, "gfx", "particles", particleslib);
     lua::openlib(L, "gfx", "text3d", text3dlib);
 
     load_script("hud_classes.lua");
 
-    if (lua::getglobal(L, "__vc_create_hud_rules")) {
+    if (lua::getglobal(L, "__vc_on_hud_open")) {
         lua::call_nothrow(L, 0, 0);
     }
 

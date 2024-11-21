@@ -38,7 +38,13 @@ Called on random block update (grass growth)
 function on_blocks_tick(tps: int)
 ```
 
-Called tps (20) times per second.
+Called tps (20) times per second. Use 1/tps instead of `time.delta()`.
+
+```lua
+function on_player_tick(playerid: int, tps: int)
+```
+
+Called tps (20) times per second. Use 1/tps instead of `time.delta()`.
 
 ## Item events
 

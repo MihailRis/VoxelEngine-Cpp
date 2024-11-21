@@ -202,9 +202,8 @@ function on_open(mode)
             debug=document.s_debug
         }, function (mode)
             set_mode(mode)
-        end, "console")
-    end
-    if mode then
+        end, mode or "console")
+    elseif mode then
         modes:set(mode)
     end
 end

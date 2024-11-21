@@ -99,6 +99,7 @@ struct world_funcs_set {
     bool onblockplaced : 1;
     bool onblockbroken : 1;
     bool onblockinteract : 1;
+    bool onplayertick : 1;
 };
 
 class ContentPackRuntime {

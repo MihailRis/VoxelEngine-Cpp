@@ -229,17 +229,9 @@ void Hud::processInput(bool visible) {
             setPause(true);
         }
     }
-    if (!pause && Events::jactive(BIND_DEVTOOLS_CONSOLE)) {
-        showOverlay(
-            assets->get<UiDocument>("core:console"),
-            false,
-            std::string("console")
-        );
-    }
     if (!Window::isFocused() && !pause && !isInventoryOpen()) {
         setPause(true);
     }
-
     if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
         if (inventoryOpen) {
             closeInventory();
@@ -470,7 +462,7 @@ void Hud::showExchangeSlot() {
 }
 
 void Hud::showOverlay(
-    UiDocument* doc, bool playerInventory, const dv::value& arg
+    UiDocument* doc, bool playerInventory, const dv::value& args
 ) {
     if (isInventoryOpen()) {
         closeInventory();
@@ -483,7 +475,7 @@ void Hud::showOverlay(
         inventoryOpen = true;
     }
     add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false),
-        arg);
+        args);
 }
 
 void Hud::openPermanent(UiDocument* doc) {
@@ -515,13 +507,18 @@ void Hud::closeInventory() {
     cleanup();
 }
 
-void Hud::add(const HudElement& element, const dv::value& arg) {
+void Hud::add(const HudElement& element, const dv::value& argsArray) {
     gui->add(element.getNode());
     auto document = element.getDocument();
     if (document) {
         auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
         auto inventory = invview ? invview->getInventory() : nullptr;
-        std::vector<dv::value> args {arg};
+        std::vector<dv::value> args;
+        if (argsArray != nullptr) {
+            for (const auto& arg : argsArray) {
+                args.push_back(arg);
+            }
+        }
         args.emplace_back(inventory ? inventory.get()->getId() : 0);
         for (int i = 0; i < 3; i++) {
             args.emplace_back(static_cast<integer_t>(blockPos[i]));
