@@ -30,6 +30,7 @@
 #include "logic/EngineController.hpp"
 #include "logic/CommandsInterpreter.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "network/Network.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
 #include "window/Camera.hpp"
@@ -72,7 +73,8 @@ static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
 
 Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
     : settings(settings), settingsHandler(settingsHandler), paths(paths),
-      interpreter(std::make_unique<cmd::CommandsInterpreter>())
+      interpreter(std::make_unique<cmd::CommandsInterpreter>()),
+      network(network::Network::create(settings.network))
 {
     paths->prepare();
     loadSettings();
@@ -191,6 +193,7 @@ void Engine::mainloop() {
                 : settings.display.framerate.get()
         );
 
+        network->update();
         processPostRunnables();
 
         Window::swapBuffers();
@@ -235,6 +238,7 @@ Engine::~Engine() {
     gui.reset();
     logger.info() << "gui finished";
     audio::close();
+    network.reset();
     scripting::close();
     logger.info() << "scripting finished";
     Window::terminate();
@@ -481,4 +485,8 @@ void Engine::postRunnable(const runnable& callback) {
 
 SettingsHandler& Engine::getSettingsHandler() {
     return settingsHandler;
+}
+
+network::Network& Engine::getNetwork() {
+    return *network;
 }

@@ -16,7 +16,7 @@ TEST(curltest, curltest) {
             auto view = std::string_view(data.data(), data.size());
             auto value = json::parse(view);
             std::cout << value << std::endl;
-        }
+        }, [](auto){}
     );
     if (false) {
         auto socket = network->connect("localhost", 8000);
