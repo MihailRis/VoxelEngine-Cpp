@@ -119,6 +119,8 @@ public:
     /// @brief Textures set applied to block sides
     std::array<std::string, 6> textureFaces;  // -x,x, -y,y, -z,z
 
+    dv::value properties = nullptr;
+
     /// @brief id of used BlockMaterial, may specify non-existing material
     std::string material = DEFAULT_MATERIAL;
 

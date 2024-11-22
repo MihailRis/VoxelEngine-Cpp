@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
+#include "data/dv.hpp"
 #include "typedefs.hpp"
 
 struct item_funcs_set {
@@ -24,6 +25,8 @@ struct ItemDef {
 
     /// @brief Item name will shown in inventory
     std::string caption;
+
+    dv::value properties = nullptr;
 
     itemcount_t stackSize = 64;
     bool generated = false;

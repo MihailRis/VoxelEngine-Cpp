@@ -157,9 +157,25 @@ void scripting::process_post_runnables() {
     }
 }
 
+template <class T>
+static int push_properties_tables(
+    lua::State* L, const ContentUnitIndices<T>& indices
+) {
+    const auto units = indices.getDefs();
+    size_t size = indices.count();
+    lua::createtable(L, size, 0);
+    for (size_t i = 0; i < size; i++) {
+        lua::pushvalue(L, units[i]->properties);
+        lua::rawseti(L, i);
+    }
+    return 1;
+}
+
 void scripting::on_content_load(Content* content) {
     scripting::content = content;
     scripting::indices = content->getIndices();
+
+    const auto& indices = *content->getIndices();
 
     auto L = lua::get_main_state();
     if (lua::getglobal(L, "block")) {
@@ -170,6 +186,14 @@ void scripting::on_content_load(Content* content) {
             lua::setfield(L, name);
         }
         lua::setfield(L, "materials");
+        
+        push_properties_tables(L, indices.blocks);
+        lua::setfield(L, "properties");
+        lua::pop(L);
+    }
+    if (lua::getglobal(L, "item")) {
+        push_properties_tables(L, indices.blocks);
+        lua::setfield(L, "properties");
         lua::pop(L);
     }
 }
