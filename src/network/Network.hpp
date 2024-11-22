@@ -18,10 +18,13 @@ namespace network {
         virtual void get(
             const std::string& url,
             OnResponse onResponse,
-            OnReject onReject=nullptr
+            OnReject onReject=nullptr,
+            long maxSize=0
         ) = 0;
         virtual size_t getTotalUpload() const = 0;
         virtual size_t getTotalDownload() const = 0;
+
+        virtual void update() = 0;
     };
 
     class Socket {
@@ -55,13 +58,16 @@ namespace network {
         void httpGet(
             const std::string& url,
             OnResponse onResponse,
-            OnReject onReject = nullptr
+            OnReject onReject = nullptr,
+            long maxSize=0
         );
 
         std::shared_ptr<Socket> connect(const std::string& address, int port);
 
         size_t getTotalUpload() const;
         size_t getTotalDownload() const;
+
+        void update();
 
         static std::unique_ptr<Network> create(const NetworkSettings& settings);
     };
