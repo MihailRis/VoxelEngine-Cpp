@@ -157,10 +157,25 @@ void scripting::process_post_runnables() {
     }
 }
 
+void scripting::on_content_load(Content* content) {
+    scripting::content = content;
+    scripting::indices = content->getIndices();
+
+    auto L = lua::get_main_state();
+    if (lua::getglobal(L, "block")) {
+        const auto& materials = content->getBlockMaterials();
+        lua::createtable(L, 0, materials.size());
+        for (const auto& [name, material] : materials) {
+            lua::pushvalue(L, material->serialize());
+            lua::setfield(L, name);
+        }
+        lua::setfield(L, "materials");
+        lua::pop(L);
+    }
+}
+
 void scripting::on_world_load(LevelController* controller) {
     scripting::level = controller->getLevel();
-    scripting::content = level->content;
-    scripting::indices = level->content->getIndices();
     scripting::blocks = controller->getBlocksController();
     scripting::controller = controller;
 
@@ -671,7 +686,7 @@ int scripting::get_values_on_stack() {
     return lua::gettop(lua::get_main_state());
 }
 
-void scripting::load_block_script(
+void scripting::load_content_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
@@ -692,7 +707,7 @@ void scripting::load_block_script(
         register_event(env, "on_blocks_tick", prefix + ".blockstick");
 }
 
-void scripting::load_item_script(
+void scripting::load_content_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
