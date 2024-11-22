@@ -14,4 +14,5 @@
             onclick='core.delete_world("%{name}")'>
         <image src='gui/delete_icon' size='32,32' color='#FFFFFF50'/>
     </button>
+    <label color='%{versionColor}' pos='317,44'>%{versionString}</label>
 </container>

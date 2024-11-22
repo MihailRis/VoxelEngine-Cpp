@@ -4,7 +4,9 @@
 
 #include "assets/Assets.hpp"
 #include "assets/AssetsLoader.hpp"
+#include "coders/json.hpp"
 #include "engine.hpp"
+#include "files/files.hpp"
 #include "files/engine_paths.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
@@ -32,22 +34,34 @@ static int l_get_list(lua::State* L) {
     for (size_t i = 0; i < worlds.size(); i++) {
         lua::createtable(L, 0, 1);
 
-        auto name = worlds[i].filename().u8string();
+        const auto& folder = worlds[i];
+
+        auto root = json::parse(files::read_string(folder/fs::u8path("world.json")));
+        const auto& versionMap = root["version"];
+        int versionMajor = versionMap["major"].asInteger();
+        int versionMinor = versionMap["minor"].asInteger();
+
+
+        auto name = folder.filename().u8string();
         lua::pushstring(L, name);
         lua::setfield(L, "name");
 
         auto assets = engine->getAssets();
         std::string icon = "world#" + name + ".icon";
         if (!AssetsLoader::loadExternalTexture(
-                assets,
-                icon,
-                {worlds[i] / fs::path("icon.png"),
-                 worlds[i] / fs::path("preview.png")}
-            )) {
+            assets,
+            icon,
+            {worlds[i] / fs::path("icon.png"),
+                worlds[i] / fs::path("preview.png")}
+        )) {
             icon = "gui/no_world_icon";
         }
         lua::pushstring(L, icon);
         lua::setfield(L, "icon");
+
+        lua::pushvec2(L, {versionMajor, versionMinor});
+        lua::setfield(L, "version");
+
         lua::rawseti(L, i + 1);
     }
     return 1;
