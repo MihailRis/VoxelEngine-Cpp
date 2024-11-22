@@ -707,18 +707,6 @@ void ContentLoader::load() {
 
     auto folder = pack->folder;
 
-    // Load main world script
-    fs::path scriptFile = folder / fs::path("scripts/world.lua");
-    if (fs::is_regular_file(scriptFile)) {
-        scripting::load_world_script(
-            env,
-            pack->id,
-            scriptFile,
-            pack->id + ":scripts/world.lua",
-            runtime->worldfuncsset
-        );
-    }
-
     // Load world generators
     fs::path generatorsDir = folder / fs::u8path("generators");
     foreach_file(generatorsDir, [this](const fs::path& file) {
@@ -830,6 +818,21 @@ static void load_scripts(Content& content, ContentUnitDefs<T>& units) {
 void ContentLoader::loadScripts(Content& content) {
     load_scripts(content, content.blocks);
     load_scripts(content, content.items);
+
+    for (const auto& [packid, runtime] : content.getPacks()) {
+        const auto& pack = runtime->getInfo();
+        // Load main world script
+        fs::path scriptFile = pack.folder / fs::path("scripts/world.lua");
+        if (fs::is_regular_file(scriptFile)) {
+            scripting::load_world_script(
+                runtime->getEnvironment(),
+                pack.id,
+                scriptFile,
+                pack.id + ":scripts/world.lua",
+                runtime->worldfuncsset
+            );
+        }
+    }
 }
 
 void ContentLoader::loadResources(ResourceType type, const dv::value& list) {
