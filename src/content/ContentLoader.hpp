@@ -17,6 +17,7 @@ struct ContentPack;
 struct GeneratorDef;
 
 class ResPaths;
+class Content;
 class ContentBuilder;
 class ContentPackRuntime;
 struct ContentPackStats;
@@ -76,4 +77,6 @@ public:
 
     void fixPackIndices();
     void load();
+
+    static void loadScripts(Content& content);
 };
