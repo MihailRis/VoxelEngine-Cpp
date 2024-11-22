@@ -104,6 +104,8 @@ struct BlockMaterial {
     std::string stepsSound {""};
     std::string placeSound {""};
     std::string breakSound {""};
+
+    dv::value serialize() const;
 };
 
 /// @brief Block properties definition

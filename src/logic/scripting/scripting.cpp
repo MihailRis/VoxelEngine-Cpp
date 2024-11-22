@@ -160,6 +160,18 @@ void scripting::process_post_runnables() {
 void scripting::on_content_load(Content* content) {
     scripting::content = content;
     scripting::indices = content->getIndices();
+
+    auto L = lua::get_main_state();
+    if (lua::getglobal(L, "block")) {
+        const auto& materials = content->getBlockMaterials();
+        lua::createtable(L, 0, materials.size());
+        for (const auto& [name, material] : materials) {
+            lua::pushvalue(L, material->serialize());
+            lua::setfield(L, name);
+        }
+        lua::setfield(L, "materials");
+        lua::pop(L);
+    }
 }
 
 void scripting::on_world_load(LevelController* controller) {
