@@ -10,6 +10,9 @@ block.index(name: str) -> int
 -- Returns the id of the block material.
 block.material(blockid: int) -> str
 
+-- Table of materials by their full names (example: base:carpet)
+block.materials: table<string, table>
+
 -- Returns the block display name.
 block.caption(blockid: int) -> str
 

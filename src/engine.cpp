@@ -365,8 +365,10 @@ void Engine::loadContent() {
         ContentLoader(&pack, contentBuilder, *resPaths).load();
         load_configs(pack.folder);
     }
-
     content = contentBuilder.build();
+    scripting::on_content_load(content.get());
+
+    ContentLoader::loadScripts(*content);
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
     loadAssets();
