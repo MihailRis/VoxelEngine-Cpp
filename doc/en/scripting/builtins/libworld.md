@@ -10,6 +10,8 @@ world.get_list() -> tables array {
     name: str,
     -- world icon/preview (loading automatically)
     icon: str
+    -- engine version the world was saved on
+    version: {int, int}
 }
 
 -- Returns current day time in range \[0.0-1.0\] 

@@ -157,10 +157,25 @@ void scripting::process_post_runnables() {
     }
 }
 
+void scripting::on_content_load(Content* content) {
+    scripting::content = content;
+    scripting::indices = content->getIndices();
+
+    auto L = lua::get_main_state();
+    if (lua::getglobal(L, "block")) {
+        const auto& materials = content->getBlockMaterials();
+        lua::createtable(L, 0, materials.size());
+        for (const auto& [name, material] : materials) {
+            lua::pushvalue(L, material->serialize());
+            lua::setfield(L, name);
+        }
+        lua::setfield(L, "materials");
+        lua::pop(L);
+    }
+}
+
 void scripting::on_world_load(LevelController* controller) {
     scripting::level = controller->getLevel();
-    scripting::content = level->content;
-    scripting::indices = level->content->getIndices();
     scripting::blocks = controller->getBlocksController();
     scripting::controller = controller;
 
@@ -264,6 +279,32 @@ void scripting::on_block_placed(
         if (pack->worldfuncsset.onblockplaced) {
             lua::emit_event(
                 lua::get_main_state(), packid + ":.blockplaced", args
+            );
+        }
+    }
+}
+
+void scripting::on_block_replaced(
+    Player* player, const Block& block, const glm::ivec3& pos
+) {
+    if (block.rt.funcsset.onreplaced) {
+        std::string name = block.name + ".replaced";
+        lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
+            lua::pushivec_stack(L, pos);
+            lua::pushinteger(L, player ? player->getId() : -1);
+            return 4;
+        });
+    }
+    auto args = [&](lua::State* L) {
+        lua::pushinteger(L, block.rt.id);
+        lua::pushivec_stack(L, pos);
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 5;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onblockreplaced) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.blockreplaced", args
             );
         }
     }
@@ -671,7 +712,7 @@ int scripting::get_values_on_stack() {
     return lua::gettop(lua::get_main_state());
 }
 
-void scripting::load_block_script(
+void scripting::load_content_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
@@ -686,13 +727,15 @@ void scripting::load_block_script(
         register_event(env, "on_random_update", prefix + ".randupdate");
     funcsset.onbroken = register_event(env, "on_broken", prefix + ".broken");
     funcsset.onplaced = register_event(env, "on_placed", prefix + ".placed");
+    funcsset.onreplaced =
+        register_event(env, "on_replaced", prefix + ".replaced");
     funcsset.oninteract =
         register_event(env, "on_interact", prefix + ".interact");
     funcsset.onblockstick =
         register_event(env, "on_blocks_tick", prefix + ".blockstick");
 }
 
-void scripting::load_item_script(
+void scripting::load_content_script(
     const scriptenv& senv,
     const std::string& prefix,
     const fs::path& file,
@@ -737,6 +780,8 @@ void scripting::load_world_script(
         register_event(env, "on_block_placed", prefix + ":.blockplaced");
     funcsset.onblockbroken =
         register_event(env, "on_block_broken", prefix + ":.blockbroken");
+    funcsset.onblockreplaced =
+        register_event(env, "on_block_replaced", prefix + ":.blockreplaced");
     funcsset.onblockinteract =
         register_event(env, "on_block_interact", prefix + ":.blockinteract");
     funcsset.onplayertick =

@@ -483,16 +483,6 @@ void ContentLoader::loadBlock(
     auto configFile = folder / fs::path("blocks/" + name + ".json");
     if (fs::exists(configFile)) loadBlock(def, full, configFile);
 
-    auto scriptfile = folder / fs::path("scripts/" + def.scriptName + ".lua");
-    if (fs::is_regular_file(scriptfile)) {
-        scripting::load_block_script(
-            env,
-            full,
-            scriptfile,
-            pack->id + ":scripts/" + def.scriptName + ".lua",
-            def.rt.funcsset
-        );
-    }
     if (!def.hidden) {
         auto& item = builder.items.create(full + BLOCK_ITEM_SUFFIX);
         item.generated = true;
@@ -514,17 +504,6 @@ void ContentLoader::loadItem(
     auto folder = pack->folder;
     auto configFile = folder / fs::path("items/" + name + ".json");
     if (fs::exists(configFile)) loadItem(def, full, configFile);
-
-    auto scriptfile = folder / fs::path("scripts/" + def.scriptName + ".lua");
-    if (fs::is_regular_file(scriptfile)) {
-        scripting::load_item_script(
-            env,
-            full,
-            scriptfile,
-            pack->id + ":scripts/" + def.scriptName + ".lua",
-            def.rt.funcsset
-        );
-    }
 }
 
 static std::tuple<std::string, std::string, std::string> create_unit_id(
@@ -728,18 +707,6 @@ void ContentLoader::load() {
 
     auto folder = pack->folder;
 
-    // Load main world script
-    fs::path scriptFile = folder / fs::path("scripts/world.lua");
-    if (fs::is_regular_file(scriptFile)) {
-        scripting::load_world_script(
-            env,
-            pack->id,
-            scriptFile,
-            pack->id + ":scripts/world.lua",
-            runtime->worldfuncsset
-        );
-    }
-
     // Load world generators
     fs::path generatorsDir = folder / fs::u8path("generators");
     foreach_file(generatorsDir, [this](const fs::path& file) {
@@ -807,21 +774,65 @@ void ContentLoader::load() {
         );
     });
 
-    // Load entity components
-    fs::path componentsDir = folder / fs::u8path("scripts/components");
-    foreach_file(componentsDir, [this](const fs::path& file) {
-        auto name = pack->id + ":" + file.stem().u8string();
-        scripting::load_entity_component(
-            name,
-            file,
-            pack->id + ":scripts/components/" + file.filename().u8string()
-        );
-    });
-
     // Process content.json and load defined content units
     auto contentFile = pack->getContentFile();
     if (fs::exists(contentFile)) {
         loadContent(files::read_json(contentFile));
+    }
+}
+
+template <class T>
+static void load_scripts(Content& content, ContentUnitDefs<T>& units) {
+    for (const auto& [name, def] : units.getDefs()) {
+        size_t pos = name.find(':');
+        if (pos == std::string::npos) {
+            throw std::runtime_error("invalid content unit name");
+        }
+        const auto runtime = content.getPackRuntime(name.substr(0, pos));
+        const auto& pack = runtime->getInfo();
+        const auto& folder = pack.folder;
+        auto scriptfile = folder / fs::path("scripts/" + def->scriptName + ".lua");
+        if (fs::is_regular_file(scriptfile)) {
+            scripting::load_content_script(
+                runtime->getEnvironment(),
+                name,
+                scriptfile,
+                pack.id + ":scripts/" + def->scriptName + ".lua",
+                def->rt.funcsset
+            );
+        }
+    }
+}
+
+void ContentLoader::loadScripts(Content& content) {
+    load_scripts(content, content.blocks);
+    load_scripts(content, content.items);
+
+    for (const auto& [packid, runtime] : content.getPacks()) {
+        const auto& pack = runtime->getInfo();
+        const auto& folder = pack.folder;
+        
+        // Load main world script
+        fs::path scriptFile = folder / fs::path("scripts/world.lua");
+        if (fs::is_regular_file(scriptFile)) {
+            scripting::load_world_script(
+                runtime->getEnvironment(),
+                pack.id,
+                scriptFile,
+                pack.id + ":scripts/world.lua",
+                runtime->worldfuncsset
+            );
+        }
+        // Load entity components
+        fs::path componentsDir = folder / fs::u8path("scripts/components");
+        foreach_file(componentsDir, [&pack](const fs::path& file) {
+            auto name = pack.id + ":" + file.stem().u8string();
+            scripting::load_entity_component(
+                name,
+                file,
+                pack.id + ":scripts/components/" + file.filename().u8string()
+            );
+        });
     }
 }
 

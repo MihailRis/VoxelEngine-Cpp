@@ -39,6 +39,7 @@ struct block_funcs_set {
     bool update : 1;
     bool onplaced : 1;
     bool onbroken : 1;
+    bool onreplaced : 1;
     bool oninteract : 1;
     bool randupdate : 1;
     bool onblockstick : 1;
@@ -104,6 +105,8 @@ struct BlockMaterial {
     std::string stepsSound {""};
     std::string placeSound {""};
     std::string breakSound {""};
+
+    dv::value serialize() const;
 };
 
 /// @brief Block properties definition

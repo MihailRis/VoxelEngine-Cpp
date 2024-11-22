@@ -8,6 +8,15 @@
 #include "presets/ParticlesPreset.hpp"
 #include "util/stringutil.hpp"
 
+dv::value BlockMaterial::serialize() const {
+    return dv::object({
+        {"name", name},
+        {"stepsSound", stepsSound},
+        {"placeSound", placeSound},
+        {"breakSound", breakSound}
+    });
+}
+
 std::string to_string(BlockModel model) {
     switch (model) {
         case BlockModel::none:

@@ -45,6 +45,8 @@ namespace scripting {
 
     void initialize(Engine* engine);
 
+    void on_content_load(Content* content);
+
     bool register_event(
         int env, const std::string& name, const std::string& id
     );
@@ -67,6 +69,9 @@ namespace scripting {
     void update_block(const Block& block, const glm::ivec3& pos);
     void random_update_block(const Block& block, const glm::ivec3& pos);
     void on_block_placed(
+        Player* player, const Block& block, const glm::ivec3& pos
+    );
+    void on_block_replaced(
         Player* player, const Block& block, const glm::ivec3& pos
     );
     void on_block_broken(
@@ -128,7 +133,7 @@ namespace scripting {
     /// @param file item script file
     /// @param fileName script file path using the engine format
     /// @param funcsset block callbacks set
-    void load_block_script(
+    void load_content_script(
         const scriptenv& env,
         const std::string& prefix,
         const fs::path& file,
@@ -142,7 +147,7 @@ namespace scripting {
     /// @param file item script file
     /// @param fileName script file path using the engine format
     /// @param funcsset item callbacks set
-    void load_item_script(
+    void load_content_script(
         const scriptenv& env,
         const std::string& prefix,
         const fs::path& file,

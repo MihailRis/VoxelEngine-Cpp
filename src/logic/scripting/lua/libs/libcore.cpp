@@ -20,6 +20,12 @@
 
 using namespace scripting;
 
+static int l_get_version(lua::State* L) {
+    return lua::pushvec_stack(
+        L, glm::vec2(ENGINE_VERSION_MAJOR, ENGINE_VERSION_MINOR)
+    );
+}
+
 /// @brief Creating new world
 /// @param name Name world
 /// @param seed Seed world
@@ -239,6 +245,7 @@ static int l_quit(lua::State*) {
 }
 
 const luaL_Reg corelib[] = {
+    {"get_version", lua::wrap<l_get_version>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
