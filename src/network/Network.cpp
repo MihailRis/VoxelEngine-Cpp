@@ -2,6 +2,7 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+#define NOMINMAX
 #include <curl/curl.h>
 #include <stdexcept>
 #include <limits>
