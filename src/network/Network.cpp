@@ -4,6 +4,7 @@
 
 #include <curl/curl.h>
 #include <stdexcept>
+#include <limits>
 #include <queue>
 
 #include "debug/Logger.hpp"
