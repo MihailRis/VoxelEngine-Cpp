@@ -17,6 +17,12 @@ function on_broken(x, y, z, playerid)
 Called on block broken by player
 
 ```lua
+function on_replaced(x, y, z, playerid)
+```
+
+Called on block replaced with other by player
+
+```lua
 function on_interact(x, y, z, playerid) -> bool
 ```
 

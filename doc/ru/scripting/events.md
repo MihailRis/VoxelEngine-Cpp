@@ -17,6 +17,12 @@ function on_broken(x, y, z, playerid)
 Вызывается после разрушения блока игроком
 
 ```lua
+function on_replaced(x, y, z, playerid)
+```
+
+Вызывается после замены блока игроком
+
+```lua
 function on_interact(x, y, z, playerid) -> bool
 ```
 
