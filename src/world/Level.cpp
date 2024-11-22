@@ -29,7 +29,7 @@ Level::Level(
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),
       settings(settings) {
-    auto& worldInfo = world->getInfo();
+    const auto& worldInfo = world->getInfo();
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto camera = std::make_shared<Camera>();
@@ -54,9 +54,11 @@ Level::Level(
     auto inv = std::make_shared<Inventory>(
         world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
     );
-    auto player = spawnObject<Player>(
-        this, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, 0
+    auto playerPtr = std::make_unique<Player>(
+        this, 0, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, 0
     );
+    auto player = playerPtr.get();
+    addPlayer(std::move(playerPtr));
 
     uint matrixSize =
         (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
@@ -75,9 +77,18 @@ Level::Level(
 }
 
 Level::~Level() {
-    for (auto obj : objects) {
-        obj.reset();
+}
+
+void Level::addPlayer(std::unique_ptr<Player> player) {
+    players[player->getId()] = std::move(player);
+}
+
+Player* Level::getPlayer(int64_t id) const {
+    const auto& found = players.find(id);
+    if (found == players.end()) {
+        return nullptr;
     }
+    return found->second.get();
 }
 
 void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {

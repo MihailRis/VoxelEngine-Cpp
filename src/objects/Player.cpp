@@ -29,12 +29,14 @@ constexpr int SPAWN_ATTEMPTS_PER_UPDATE = 64;
 
 Player::Player(
     Level* level,
+    int64_t id,
     glm::vec3 position,
     float speed,
     std::shared_ptr<Inventory> inv,
     entityid_t eid
 )
     : level(level),
+      id(id),
       speed(speed),
       chosenSlot(0),
       position(position),
@@ -49,8 +51,7 @@ Player::Player(
     tpCamera->setFov(glm::radians(90.0f));
 }
 
-Player::~Player() {
-}
+Player::~Player() = default;
 
 void Player::updateEntity() {
     if (eid == 0) {
@@ -283,6 +284,8 @@ glm::vec3 Player::getSpawnPoint() const {
 dv::value Player::serialize() const {
     auto root = dv::object();
 
+    root["id"] = id;
+
     root["position"] = dv::to_value(position);
     root["rotation"] = dv::to_value(cam);
     root["spawnpoint"] = dv::to_value(spawnpoint);
@@ -304,6 +307,8 @@ dv::value Player::serialize() const {
 }
 
 void Player::deserialize(const dv::value& src) {
+    src.at("id").get(id);
+
     const auto& posarr = src["position"];
 
     dv::get_vec(posarr, position);

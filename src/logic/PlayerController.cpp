@@ -40,7 +40,7 @@ const float C_ZOOM = 0.1f;
 const float CROUCH_SHIFT_Y = -0.2f;
 
 CameraControl::CameraControl(
-    const std::shared_ptr<Player>& player, const CameraSettings& settings
+    Player* player, const CameraSettings& settings
 )
     : player(player),
       camera(player->fpCamera),
@@ -193,7 +193,7 @@ PlayerController::PlayerController(
     BlocksController* blocksController
 )
     : settings(settings), level(level),
-      player(level->getObject<Player>(0)),
+      player(level->getPlayer(0)),
       camControl(player, settings.camera),
       blocksController(blocksController),
       playerTickClock(20, 3) {
@@ -215,7 +215,7 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
                     continue;
                 }
                 blocksController->onBlockInteraction(
-                    player.get(),
+                    player,
                     glm::ivec3(x, y, z),
                     def,
                     BlockInteraction::step
@@ -254,7 +254,7 @@ void PlayerController::update(float delta, bool input, bool pause) {
         if (playerTickClock.update(delta)) {
             if (player->getId() % playerTickClock.getParts() ==
                 playerTickClock.getPart()) {
-                scripting::on_player_tick(player.get(), playerTickClock.getTickRate());
+                scripting::on_player_tick(player, playerTickClock.getTickRate());
             }
         }
     }
@@ -390,12 +390,12 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     if (selection.entity != prevEntity) {
         if (prevEntity != ENTITY_NONE) {
             if (auto pentity = level->entities->get(prevEntity)) {
-                scripting::on_aim_off(*pentity, player.get());
+                scripting::on_aim_off(*pentity, player);
             }
         }
         if (selection.entity != ENTITY_NONE) {
             if (auto pentity = level->entities->get(selection.entity)) {
-                scripting::on_aim_on(*pentity, player.get());
+                scripting::on_aim_on(*pentity, player);
             }
         }
     }
@@ -432,8 +432,8 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
 
     if (!input.shift && target.rt.funcsset.oninteract) {
         if (scripting::on_block_interact(
-                player.get(), target, selection.actualPosition
-            )) {
+            player, target, selection.actualPosition
+        )) {
             return;
         }
     }
@@ -474,7 +474,7 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
             slot.setCount(slot.getCount()-1);
         }
         blocksController->placeBlock(
-            player.get(), def, state, coord.x, coord.y, coord.z
+            player, def, state, coord.x, coord.y, coord.z
         );
     }
 }
@@ -488,10 +488,10 @@ void PlayerController::updateEntityInteraction(
     }
     auto entity = *entityOpt;
     if (lclick) {
-        scripting::on_attacked(entity, player.get(), player->getEntity());
+        scripting::on_attacked(entity, player, player->getEntity());
     }
     if (rclick) {
-        scripting::on_entity_used(entity, player.get());
+        scripting::on_entity_used(entity, player);
     }
 }
 
@@ -523,7 +523,7 @@ void PlayerController::updateInteraction(float delta) {
     auto vox = updateSelection(maxDistance);
     if (vox == nullptr) {
         if (rclick && item.rt.funcsset.on_use) {
-            scripting::on_item_use(player.get(), item);
+            scripting::on_item_use(player, item);
         }
         if (selection.entity) {
             updateEntityInteraction(selection.entity, lattack, rclick);
@@ -534,7 +534,7 @@ void PlayerController::updateInteraction(float delta) {
     auto iend = selection.position;
     if (lclick && !input.shift && item.rt.funcsset.on_block_break_by) {
         if (scripting::on_item_break_block(
-            player.get(), item, iend.x, iend.y, iend.z
+            player, item, iend.x, iend.y, iend.z
         )) {
             return;
         }
@@ -543,7 +543,7 @@ void PlayerController::updateInteraction(float delta) {
     if (lclick) {
         if (player->isInstantDestruction() && target.breakable) {
             blocksController->breakBlock(
-                player.get(), target, iend.x, iend.y, iend.z
+                player, target, iend.x, iend.y, iend.z
             );
         }
     }
@@ -551,10 +551,10 @@ void PlayerController::updateInteraction(float delta) {
         bool preventDefault = false;
         if (item.rt.funcsset.on_use_on_block) {
             preventDefault = scripting::on_item_use_on_block(
-                player.get(), item, iend, selection.normal
+                player, item, iend, selection.normal
             );
         } else if (item.rt.funcsset.on_use) {
-            preventDefault = scripting::on_item_use(player.get(), item);
+            preventDefault = scripting::on_item_use(player, item);
         }
         if (preventDefault) {
             return;
@@ -566,10 +566,10 @@ void PlayerController::updateInteraction(float delta) {
     }
     if (Events::jactive(BIND_PLAYER_PICK)) {
         auto coord = selection.actualPosition;
-        pick_block(indices, chunks, player.get(), coord.x, coord.y, coord.z);
+        pick_block(indices, chunks, player, coord.x, coord.y, coord.z);
     }
 }
 
 Player* PlayerController::getPlayer() {
-    return player.get();
+    return player;
 }
