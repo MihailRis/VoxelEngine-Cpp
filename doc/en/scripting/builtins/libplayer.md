@@ -78,6 +78,13 @@ player.get_spawnpoint(playerid: int) -> number, number, number
 Spawn point setter and getter
 
 ```lua
+player.set_name(playerid: int, name: str)
+player.get_name(playerid: int) -> str
+```
+
+Player name setter and getter
+
+```lua
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 
