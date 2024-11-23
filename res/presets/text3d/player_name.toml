@@ -1,0 +1,3 @@
+display = "projected"
+xray_opacity = 0.3
+render_distance = 128

@@ -50,7 +50,7 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> levelPtr)
     hud = std::make_unique<Hud>(engine, *frontend, controller->getPlayer());
 
     decorator = std::make_unique<Decorator>(
-        *controller, *worldRenderer, assets
+        *engine, *controller, *worldRenderer, assets
     );
 
     keepAlive(settings.graphics.backlight.observe([=](bool) {

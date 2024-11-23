@@ -13,7 +13,10 @@
 #include "objects/Players.hpp"
 #include "logic/LevelController.hpp"
 #include "util/stringutil.hpp"
-#include "presets/NotePreset.hpp"
+#include "engine.hpp"
+#include "files/files.hpp"
+
+namespace fs = std::filesystem;
 
 /// @brief Not greather than 64 for this BIG_PRIME value
 inline constexpr int UPDATE_AREA_DIAMETER = 32;
@@ -25,22 +28,11 @@ inline constexpr int ITERATIONS = 512;
 /// @brief Big prime number used for pseudo-random 3d array iteration
 inline constexpr int BIG_PRIME = 666667;
 
-static u64id_t create_player_name_note(
-    const WorldRenderer& renderer, const Player& player
-) {
-    NotePreset preset {};
-    preset.displayMode = NoteDisplayMode::PROJECTED;
-    preset.xrayOpacity = 0.3f;
-    preset.renderDistance = 128.0f;
-    return renderer.texts->add(std::make_unique<TextNote>(
-        util::str2wstr_utf8(player.getName()), preset, player.getPosition()
-    ));
-}
-
 Decorator::Decorator(
-    LevelController& controller, WorldRenderer& renderer, const Assets& assets
+    Engine& engine, LevelController& controller, WorldRenderer& renderer, const Assets& assets
 )
-    : level(*controller.getLevel()),
+    : engine(engine),
+      level(*controller.getLevel()),
       renderer(renderer),
       assets(assets),
       player(*controller.getPlayer()) {
@@ -54,8 +46,15 @@ Decorator::Decorator(
         if (id == controller.getPlayer()->getId()) {
             continue;
         }
-        playerTexts[id] = create_player_name_note(renderer, *player);
+        playerTexts[id] = renderer.texts->add(std::make_unique<TextNote>(
+            util::str2wstr_utf8(player->getName()),
+            playerNamePreset,
+            player->getPosition()
+        ));
     }
+    playerNamePreset.deserialize(engine.getResPaths()->readCombinedObject(
+        fs::u8path("presets/text3d/player_name.toml")
+    ));
 }
 
 void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
@@ -141,7 +140,11 @@ void Decorator::update(float delta, const Camera& camera) {
             playerTexts.find(id) != playerTexts.end()) {
             continue;
         }
-        playerTexts[id] = create_player_name_note(renderer, *player);
+        playerTexts[id] = renderer.texts->add(std::make_unique<TextNote>(
+            util::str2wstr_utf8(player->getName()),
+            playerNamePreset,
+            player->getPosition()
+        ));
     }
 
     auto textsIter = playerTexts.begin();
