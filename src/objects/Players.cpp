@@ -42,7 +42,7 @@ dv::value Players::serialize() const {
     for (const auto& [id, player] : players) {
         list.add(player->serialize());
     }
-    return list;
+    return root;
 }
 
 void Players::deserialize(const dv::value& src) {

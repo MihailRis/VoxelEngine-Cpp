@@ -18,7 +18,6 @@
 #include <vector>
 #include <mutex>
 
-class Level;
 class Screen;
 class EnginePaths;
 class ResPaths;
