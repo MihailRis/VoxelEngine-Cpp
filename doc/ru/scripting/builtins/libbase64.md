@@ -7,5 +7,5 @@
 base64.encode(bytes: table|ByteArray) -> str
 
 -- Декодирует base64 строку в ByteArray или таблицу чисел, если второй аргумент установлен на true
-base64.decode(base64string: str, [optional]usetable: bool=false) -> table|ByteArray
+base64.decode(base64string: str, [опционально]usetable: bool=false) -> table|ByteArray
 ```
