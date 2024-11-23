@@ -6,7 +6,7 @@
 TEST(curltest, curltest) {
     NetworkSettings settings {};
     auto network = network::Network::create(settings);
-    network->httpGet(
+    network->get(
         "https://raw.githubusercontent.com/MihailRis/VoxelEngine-Cpp/refs/"
         "heads/curl/res/content/base/blocks/lamp.json",
         [](std::vector<char> data) {

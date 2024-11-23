@@ -11,9 +11,9 @@ namespace network {
     using OnResponse = std::function<void(std::vector<char>)>;
     using OnReject = std::function<void(const char*)>;
 
-    class Http {
+    class Requests {
     public:
-        virtual ~Http() {}
+        virtual ~Requests() {}
 
         virtual void get(
             const std::string& url,
@@ -38,24 +38,14 @@ namespace network {
         virtual size_t getTotalDownload() const = 0;
     };
 
-    class Tcp {
-    public:
-        virtual ~Tcp() {}
-
-        virtual std::shared_ptr<Socket> connect(
-            const std::string& address, int port
-        ) = 0;
-    };
-
     class Network {
-        std::unique_ptr<Http> http;
-        std::unique_ptr<Tcp> tcp;
+        std::unique_ptr<Requests> requests;
         std::vector<std::shared_ptr<Socket>> connections;
     public:
-        Network(std::unique_ptr<Http> http, std::unique_ptr<Tcp> tcp);
+        Network(std::unique_ptr<Requests> requests);
         ~Network();
 
-        void httpGet(
+        void get(
             const std::string& url,
             OnResponse onResponse,
             OnReject onReject = nullptr,

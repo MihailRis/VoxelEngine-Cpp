@@ -11,7 +11,7 @@ static int l_http_get(lua::State* L) {
     lua::pushvalue(L, 2);
     auto onResponse = lua::create_lambda(L);
 
-    engine->getNetwork().httpGet(url, [onResponse](std::vector<char> bytes) {
+    engine->getNetwork().get(url, [onResponse](std::vector<char> bytes) {
         engine->postRunnable([=]() {
             onResponse({std::string(bytes.data(), bytes.size())});
         });
@@ -25,7 +25,7 @@ static int l_http_get_binary(lua::State* L) {
     lua::pushvalue(L, 2);
     auto onResponse = lua::create_lambda(L);
 
-    engine->getNetwork().httpGet(url, [onResponse](std::vector<char> bytes) {
+    engine->getNetwork().get(url, [onResponse](std::vector<char> bytes) {
         auto buffer = std::make_shared<util::Buffer<ubyte>>(
             reinterpret_cast<const ubyte*>(bytes.data()), bytes.size()
         );

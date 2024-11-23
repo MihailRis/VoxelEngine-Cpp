@@ -31,7 +31,7 @@ struct Request {
     long maxSize;
 };
 
-class CurlHttp : public Http {
+class CurlRequests : public Requests {
     CURLM* multiHandle;
     CURL* curl;
 
@@ -45,11 +45,11 @@ class CurlHttp : public Http {
 
     std::queue<Request> requests;
 public:
-    CurlHttp(CURLM* multiHandle, CURL* curl)
+    CurlRequests(CURLM* multiHandle, CURL* curl)
         : multiHandle(multiHandle), curl(curl) {
     }
 
-    virtual ~CurlHttp() {
+    virtual ~CurlRequests() {
         curl_easy_cleanup(curl);
         curl_multi_remove_handle(multiHandle, curl);
         curl_multi_cleanup(multiHandle);
@@ -156,7 +156,7 @@ public:
         return totalDownload;
     }
 
-    static std::unique_ptr<CurlHttp> create() {
+    static std::unique_ptr<CurlRequests> create() {
         auto curl = curl_easy_init();
         if (curl == nullptr) {
             throw std::runtime_error("could not initialzie cURL");
@@ -166,7 +166,7 @@ public:
             curl_easy_cleanup(curl);
             throw std::runtime_error("could not initialzie cURL-multi");
         }
-        return std::make_unique<CurlHttp>(multiHandle, curl);
+        return std::make_unique<CurlRequests>(multiHandle, curl);
     }
 };
 
@@ -325,32 +325,23 @@ public:
     }
 };
 
-class SocketTcp : public Tcp {
-public:
-    SocketTcp() {};
-
-    std::shared_ptr<Socket> connect(const std::string& address, int port) override {
-        return SocketImpl::connect(address, port);
-    }
-};
-
-Network::Network(std::unique_ptr<Http> http, std::unique_ptr<Tcp> tcp)
-    : http(std::move(http)), tcp(std::move(tcp)) {
+Network::Network(std::unique_ptr<Requests> requests)
+    : requests(std::move(requests)) {
 }
 
 Network::~Network() = default;
 
-void Network::httpGet(
+void Network::get(
     const std::string& url,
     OnResponse onResponse,
     OnReject onReject,
     long maxSize
 ) {
-    http->get(url, onResponse, onReject, maxSize);
+    requests->get(url, onResponse, onReject, maxSize);
 }
 
 std::shared_ptr<Socket> Network::connect(const std::string& address, int port) {
-    auto socket = tcp->connect(address, port);
+    auto socket = SocketImpl::connect(address, port);
     connections.push_back(socket);
     return socket;
 }
@@ -360,7 +351,7 @@ size_t Network::getTotalUpload() const {
     for (const auto& socket : connections) {
         totalUpload += socket->getTotalUpload();
     }
-    return http->getTotalUpload() + totalUpload;
+    return requests->getTotalUpload() + totalUpload;
 }
 
 size_t Network::getTotalDownload() const {
@@ -368,15 +359,14 @@ size_t Network::getTotalDownload() const {
     for (const auto& socket : connections) {
         totalDownload += socket->getTotalDownload();
     }
-    return http->getTotalDownload() + totalDownload;
+    return requests->getTotalDownload() + totalDownload;
 }
 
 void Network::update() {
-    http->update();
+    requests->update();
 }
 
 std::unique_ptr<Network> Network::create(const NetworkSettings& settings) {
-    auto http = CurlHttp::create();
-    auto tcp = std::make_unique<SocketTcp>();
-    return std::make_unique<Network>(std::move(http), std::move(tcp));
+    auto requests = CurlRequests::create();
+    return std::make_unique<Network>(std::move(requests));
 }
