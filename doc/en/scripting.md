@@ -17,6 +17,7 @@ Subsections:
     - [hud](scripting/builtins/libhud.md)
     - [inventory](scripting/builtins/libinventory.md)
     - [item](scripting/builtins/libitem.md)
+    - [json, toml](scripting/filesystem.md)
     - [mat4](scripting/builtins/libmat4.md)
     - [pack](scripting/builtins/libpack.md)
     - [player](scripting/builtins/libplayer.md)
