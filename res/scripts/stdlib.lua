@@ -248,7 +248,7 @@ function _rules.create(name, value, handler)
     end
     if _rules.get(name) == nil then
         _rules.set(name, value)
-    else 
+    elseif handler then
         handler(_rules.get(name))
     end
     return handlerid
@@ -265,11 +265,11 @@ end
 function _rules.clear()
     _rules.rules = {}
     _rules.nextid = 1
-
-    _rules.create("allow-cheats", true)
 end
 
 function __vc_on_hud_open()
+    _rules.create("allow-cheats", true)
+
     _rules.create("allow-content-access", hud._is_content_access(), function(value)
         hud._set_content_access(value)
         input.set_enabled("player.pick", value)
