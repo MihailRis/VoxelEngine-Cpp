@@ -15,6 +15,7 @@
     - [cameras](scripting/builtins/libcameras.md)
     - [entities](scripting/builtins/libentities.md)
     - [file](scripting/builtins/libfile.md)
+    - [gfx.particles](particles.md)
     - [gui](scripting/builtins/libgui.md)
     - [hud](scripting/builtins/libhud.md)
     - [inventory](scripting/builtins/libinventory.md)
