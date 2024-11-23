@@ -16,6 +16,7 @@ Subsections:
     - [entities](scripting/builtins/libentities.md)
     - [file](scripting/builtins/libfile.md)
     - [gfx.particles](particles.md#gfxparticles-library)
+    - [gfx.text3d](3d-text.md#gfxtext3d-library)
     - [gui](scripting/builtins/libgui.md)
     - [hud](scripting/builtins/libhud.md)
     - [inventory](scripting/builtins/libinventory.md)
