@@ -23,6 +23,7 @@ Player* Players::create() {
     auto playerPtr = std::make_unique<Player>(
         level,
         level->getWorld()->getInfo().nextPlayerId++,
+        "",
         glm::vec3(0, DEF_PLAYER_Y, 0),
         DEF_PLAYER_SPEED,
         level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
@@ -53,6 +54,7 @@ void Players::deserialize(const dv::value& src) {
         auto playerPtr = std::make_unique<Player>(
             level,
             0,
+            "",
             glm::vec3(0, DEF_PLAYER_Y, 0),
             DEF_PLAYER_SPEED,
             level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),

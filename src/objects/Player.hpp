@@ -42,6 +42,7 @@ struct CursorSelection {
 class Player : public Serializable {
     Level* level;
     int64_t id;
+    std::string name;
     float speed;
     int chosenSlot;
     glm::vec3 position;
@@ -63,6 +64,7 @@ public:
     Player(
         Level* level,
         int64_t id,
+        const std::string& name,
         glm::vec3 position,
         float speed,
         std::shared_ptr<Inventory> inv,
@@ -100,9 +102,12 @@ public:
 
     entityid_t getSelectedEntity() const;
 
+    void setName(const std::string& name);
+    const std::string& getName() const;
+
     const std::shared_ptr<Inventory>& getInventory() const;
 
-    glm::vec3 getPosition() const {
+    const glm::vec3& getPosition() const {
         return position;
     }
 

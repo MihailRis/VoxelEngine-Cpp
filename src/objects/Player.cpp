@@ -30,6 +30,7 @@ constexpr int SPAWN_ATTEMPTS_PER_UPDATE = 64;
 Player::Player(
     Level* level,
     int64_t id,
+    const std::string& name,
     glm::vec3 position,
     float speed,
     std::shared_ptr<Inventory> inv,
@@ -37,6 +38,7 @@ Player::Player(
 )
     : level(level),
       id(id),
+      name(name),
       speed(speed),
       chosenSlot(0),
       position(position),
@@ -269,6 +271,14 @@ entityid_t Player::getSelectedEntity() const {
     return selectedEid;
 }
 
+void Player::setName(const std::string& name) {
+    this->name = name;
+}
+
+const std::string& Player::getName() const {
+    return name;
+}
+
 const std::shared_ptr<Inventory>& Player::getInventory() const {
     return inventory;
 }
@@ -285,6 +295,7 @@ dv::value Player::serialize() const {
     auto root = dv::object();
 
     root["id"] = id;
+    root["name"] = name;
 
     root["position"] = dv::to_value(position);
     root["rotation"] = dv::to_value(cam);
@@ -308,6 +319,7 @@ dv::value Player::serialize() const {
 
 void Player::deserialize(const dv::value& src) {
     src.at("id").get(id);
+    src.at("name").get(name);
 
     const auto& posarr = src["position"];
 
