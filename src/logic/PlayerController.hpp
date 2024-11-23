@@ -18,7 +18,7 @@ struct CameraSettings;
 struct EngineSettings;
 
 class CameraControl {
-    std::shared_ptr<Player> player;
+    Player* player;
     std::shared_ptr<Camera> camera;
     const CameraSettings& settings;
     glm::vec3 offset;
@@ -40,7 +40,7 @@ class CameraControl {
     void switchCamera();
 public:
     CameraControl(
-        const std::shared_ptr<Player>& player, const CameraSettings& settings
+        Player* player, const CameraSettings& settings
     );
     void updateMouse(PlayerInput& input);
     void update(PlayerInput input, float delta, Chunks* chunks);
@@ -50,7 +50,7 @@ public:
 class PlayerController {
     const EngineSettings& settings;
     Level* level;
-    std::shared_ptr<Player> player;
+    Player* player;
     PlayerInput input {};
     CameraControl camControl;
     BlocksController* blocksController;

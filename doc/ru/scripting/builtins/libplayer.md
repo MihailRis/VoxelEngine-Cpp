@@ -78,6 +78,13 @@ player.get_spawnpoint(playerid: int) -> number, number, number
 Сеттер и геттер точки спавна игрока
 
 ```lua
+player.set_name(playerid: int, name: str) 
+player.get_name(playerid: int) -> str
+```
+
+Сеттер и геттер имени игрока
+
+```lua
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 

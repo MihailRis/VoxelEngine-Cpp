@@ -4,6 +4,7 @@
 #include "items/Inventory.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "physics/Hitbox.hpp"
 #include "window/Camera.hpp"
 #include "world/Level.hpp"
@@ -11,8 +12,8 @@
 
 using namespace scripting;
 
-inline std::shared_ptr<Player> get_player(lua::State* L, int idx) {
-    return level->getObject<Player>(lua::tointeger(L, idx));
+inline Player* get_player(lua::State* L, int idx) {
+    return level->players->get(lua::tointeger(L, idx));
 }
 
 static int l_get_pos(lua::State* L) {
@@ -235,6 +236,20 @@ static int l_set_camera(lua::State* L) {
     return 0;
 }
 
+static int l_get_name(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        return lua::pushstring(L, player->getName());
+    }
+    return 0;
+}
+
+static int l_set_name(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        player->setName(lua::require_string(L, 2));
+    }
+    return 0;
+}
+
 const luaL_Reg playerlib[] = {
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
@@ -260,5 +275,7 @@ const luaL_Reg playerlib[] = {
     {"set_entity", lua::wrap<l_set_entity>},
     {"get_camera", lua::wrap<l_get_camera>},
     {"set_camera", lua::wrap<l_set_camera>},
+    {"get_name", lua::wrap<l_get_name>},
+    {"set_name", lua::wrap<l_set_name>},
     {NULL, NULL}
 };

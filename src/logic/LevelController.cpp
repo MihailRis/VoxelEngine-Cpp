@@ -5,7 +5,6 @@
 #include "debug/Logger.hpp"
 #include "engine.hpp"
 #include "files/WorldFiles.hpp"
-#include "interfaces/Object.hpp"
 #include "objects/Entities.hpp"
 #include "physics/Hitbox.hpp"
 #include "settings.hpp"
@@ -26,7 +25,7 @@ LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr
           *level, settings.chunks.padding.get()
       )),
       player(std::make_unique<PlayerController>(
-        settings, this->level.get(), blocks.get()
+        settings, level.get(), blocks.get()
       )) {
     scripting::on_world_load(this);
 }
@@ -45,11 +44,6 @@ void LevelController::update(float delta, bool input, bool pause) {
 
     if (!pause) {
         // update all objects that needed
-        for (const auto& obj : level->objects) {
-            if (obj && obj->shouldUpdate) {
-                obj->update(delta);
-            }
-        }
         blocks->update(delta);
         player->update(delta, input, pause);
         level->entities->updatePhysics(delta);
@@ -57,17 +51,6 @@ void LevelController::update(float delta, bool input, bool pause) {
     }
     level->entities->clean();
     player->postUpdate(delta, input, pause);
-
-    // erease null pointers
-    auto& objects = level->objects;
-    objects.erase(
-        std::remove_if(
-            objects.begin(),
-            objects.end(),
-            [](auto obj) { return obj == nullptr; }
-        ),
-        objects.end()
-    );
 }
 
 void LevelController::saveWorld() {
