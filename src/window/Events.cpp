@@ -62,9 +62,9 @@ bool Events::jclicked(int button) {
 void Events::toggleCursor() {
     cursor_drag = false;
     _cursor_locked = !_cursor_locked;
-    /*Window::setCursorMode(
+    Window::setCursorMode(
         _cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL
-    );*/
+    );
 }
 
 void Events::pollEvents() {

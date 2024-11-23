@@ -13,7 +13,7 @@
 using namespace scripting;
 
 inline Player* get_player(lua::State* L, int idx) {
-    return level->players->getPlayer(lua::tointeger(L, idx));
+    return level->players->get(lua::tointeger(L, idx));
 }
 
 static int l_get_pos(lua::State* L) {

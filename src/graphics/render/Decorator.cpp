@@ -1,13 +1,19 @@
 #include "Decorator.hpp"
 
 #include "ParticlesRenderer.hpp"
+#include "WorldRenderer.hpp"
+#include "TextsRenderer.hpp"
+#include "TextNote.hpp"
 #include "assets/assets_util.hpp"
 #include "content/Content.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/Block.hpp"
 #include "world/Level.hpp"
 #include "window/Camera.hpp"
+#include "objects/Players.hpp"
 #include "logic/LevelController.hpp"
+#include "util/stringutil.hpp"
+#include "presets/NotePreset.hpp"
 
 /// @brief Not greather than 64 for this BIG_PRIME value
 inline constexpr int UPDATE_AREA_DIAMETER = 32;
@@ -19,16 +25,37 @@ inline constexpr int ITERATIONS = 512;
 /// @brief Big prime number used for pseudo-random 3d array iteration
 inline constexpr int BIG_PRIME = 666667;
 
+static u64id_t create_player_name_note(
+    const WorldRenderer& renderer, const Player& player
+) {
+    NotePreset preset {};
+    preset.displayMode = NoteDisplayMode::PROJECTED;
+    preset.xrayOpacity = 0.3f;
+    preset.renderDistance = 128.0f;
+    return renderer.texts->add(std::make_unique<TextNote>(
+        util::str2wstr_utf8(player.getName()), preset, player.getPosition()
+    ));
+}
+
 Decorator::Decorator(
-    LevelController& controller, ParticlesRenderer& particles, const Assets& assets
+    LevelController& controller, WorldRenderer& renderer, const Assets& assets
 )
-    : level(*controller.getLevel()), particles(particles), assets(assets) {
+    : level(*controller.getLevel()),
+      renderer(renderer),
+      assets(assets),
+      player(*controller.getPlayer()) {
     controller.getBlocksController()->listenBlockInteraction(
     [this](auto player, const auto& pos, const auto& def, BlockInteraction type) {
         if (type == BlockInteraction::placing && def.particles) {
             addParticles(def, pos);
         }
     });
+    for (const auto& [id, player] : *level.players) {
+        if (id == controller.getPlayer()->getId()) {
+            continue;
+        }
+        playerTexts[id] = create_player_name_note(renderer, *player);
+    }
 }
 
 void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
@@ -37,7 +64,7 @@ void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
         auto treg = util::get_texture_region(
             assets, def.particles->texture, ""
         );
-        blockEmitters[pos] = particles.add(std::make_unique<Emitter>(
+        blockEmitters[pos] = renderer.particles->add(std::make_unique<Emitter>(
             level,
             glm::vec3{pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
             *def.particles,
@@ -81,7 +108,7 @@ void Decorator::update(float delta, const Camera& camera) {
     const auto& indices = *level.content->getIndices();
     auto iter = blockEmitters.begin();
     while (iter != blockEmitters.end()) {
-        auto emitter = particles.getEmitter(iter->second);
+        auto emitter = renderer.particles->getEmitter(iter->second);
         if (emitter == nullptr) {
             iter = blockEmitters.erase(iter);
             continue;
@@ -107,5 +134,25 @@ void Decorator::update(float delta, const Camera& camera) {
             continue;
         }
         iter++;
+    }
+
+    for (const auto& [id, player] : *level.players) {
+        if (id == this->player.getId() ||
+            playerTexts.find(id) != playerTexts.end()) {
+            continue;
+        }
+        playerTexts[id] = create_player_name_note(renderer, *player);
+    }
+
+    auto textsIter = playerTexts.begin();
+    while (textsIter != playerTexts.end()) {
+        auto note = renderer.texts->get(textsIter->second);
+        auto player = level.players->get(textsIter->first);
+        if (player == nullptr) {
+            textsIter = playerTexts.erase(textsIter);
+        } else {
+            note->setPosition(player->getPosition() + glm::vec3(0, 1, 0));
+            ++textsIter;
+        }
     }
 }

@@ -194,7 +194,7 @@ PlayerController::PlayerController(
     BlocksController* blocksController
 )
     : settings(settings), level(level),
-      player(level->players->getPlayer(0)),
+      player(level->players->get(0)),
       camControl(player, settings.camera),
       blocksController(blocksController),
       playerTickClock(20, 3) {

@@ -6,19 +6,24 @@
 
 #include <unordered_map>
 
+#include "typedefs.hpp"
+
 class Level;
 class Chunks;
 class Camera;
 class Assets;
+class Player;
 struct Block;
 class LevelController;
-class ParticlesRenderer;
+class WorldRenderer;
 
 class Decorator {
     const Level& level;
     const Assets& assets;
-    ParticlesRenderer& particles;
+    Player& player;
+    WorldRenderer& renderer;
     std::unordered_map<glm::ivec3, uint64_t> blockEmitters;
+    std::unordered_map<int64_t, u64id_t> playerTexts;
     int currentIndex = 0;
 
     void update(
@@ -27,7 +32,7 @@ class Decorator {
     void addParticles(const Block& def, const glm::ivec3& pos);
 public:
     Decorator(
-        LevelController& level, ParticlesRenderer& particles, const Assets& assets
+        LevelController& level, WorldRenderer& renderer, const Assets& assets
     );
 
     void update(float delta, const Camera& camera);

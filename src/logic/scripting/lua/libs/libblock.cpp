@@ -351,7 +351,7 @@ static int l_place(lua::State* L) {
             "there is no block with index " + std::to_string(id)
         );
     }
-    auto player = level->players->getPlayer(playerid);
+    auto player = level->players->get(playerid);
     controller->getBlocksController()->placeBlock(
         player, *def, int2blockstate(state), x, y, z
     );
@@ -368,7 +368,7 @@ static int l_destruct(lua::State* L) {
         return 0;
     }
     auto& def = level->content->getIndices()->blocks.require(voxel->id);
-    auto player = level->players->getPlayer(playerid);
+    auto player = level->players->get(playerid);
     controller->getBlocksController()->breakBlock(player, def, x, y, z);
     return 0;
 }

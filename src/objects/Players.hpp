@@ -21,11 +21,19 @@ class Players : public Serializable {
 public:
     Players(Level* level);
 
-    Player* getPlayer(int64_t id) const;
+    Player* get(int64_t id) const;
 
     Player* create();
 
     dv::value serialize() const override;
 
     void deserialize(const dv::value& src) override;
+
+    auto begin() const {
+        return players.begin();
+    }
+
+    auto end() const {
+        return players.end();
+    }
 };

@@ -11,7 +11,7 @@ void Players::addPlayer(std::unique_ptr<Player> player) {
     players[player->getId()] = std::move(player);
 }
 
-Player* Players::getPlayer(int64_t id) const {
+Player* Players::get(int64_t id) const {
     const auto& found = players.find(id);
     if (found == players.end()) {
         return nullptr;
