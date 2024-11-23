@@ -53,7 +53,7 @@ Decorator::Decorator(
         ));
     }
     playerNamePreset.deserialize(engine.getResPaths()->readCombinedObject(
-        fs::u8path("presets/text3d/player_name.toml")
+        "presets/text3d/player_name.toml"
     ));
 }
 
