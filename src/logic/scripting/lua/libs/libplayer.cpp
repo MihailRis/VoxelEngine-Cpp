@@ -4,6 +4,7 @@
 #include "items/Inventory.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "physics/Hitbox.hpp"
 #include "window/Camera.hpp"
 #include "world/Level.hpp"
@@ -12,7 +13,7 @@
 using namespace scripting;
 
 inline Player* get_player(lua::State* L, int idx) {
-    return level->getPlayer(lua::tointeger(L, idx));
+    return level->players->getPlayer(lua::tointeger(L, idx));
 }
 
 static int l_get_pos(lua::State* L) {

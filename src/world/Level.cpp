@@ -7,6 +7,7 @@
 #include "lighting/Lighting.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "physics/Hitbox.hpp"
 #include "physics/PhysicsSolver.hpp"
 #include "settings.hpp"
@@ -28,6 +29,7 @@ Level::Level(
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),
+      players(std::make_unique<Players>(this)),
       settings(settings) {
     const auto& worldInfo = world->getInfo();
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
@@ -51,14 +53,6 @@ Level::Level(
     if (worldInfo.nextEntityId) {
         entities->setNextID(worldInfo.nextEntityId);
     }
-    auto inv = std::make_shared<Inventory>(
-        world->getNextInventoryId(), DEF_PLAYER_INVENTORY_SIZE
-    );
-    auto playerPtr = std::make_unique<Player>(
-        this, 0, glm::vec3(0, DEF_PLAYER_Y, 0), DEF_PLAYER_SPEED, inv, 0
-    );
-    auto player = playerPtr.get();
-    addPlayer(std::move(playerPtr));
 
     uint matrixSize =
         (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
@@ -73,23 +67,9 @@ Level::Level(
     });
 
     inventories = std::make_unique<Inventories>(*this);
-    inventories->store(player->getInventory());
 }
 
-Level::~Level() {
-}
-
-void Level::addPlayer(std::unique_ptr<Player> player) {
-    players[player->getId()] = std::move(player);
-}
-
-Player* Level::getPlayer(int64_t id) const {
-    const auto& found = players.find(id);
-    if (found == players.end()) {
-        return nullptr;
-    }
-    return found->second.get();
-}
+Level::~Level() = default;
 
 void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
     chunks->setCenter(x, z);

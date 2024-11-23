@@ -2,6 +2,7 @@
 #include "lighting/Lighting.hpp"
 #include "logic/BlocksController.hpp"
 #include "logic/LevelController.hpp"
+#include "objects/Players.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
@@ -350,7 +351,7 @@ static int l_place(lua::State* L) {
             "there is no block with index " + std::to_string(id)
         );
     }
-    auto player = level->getPlayer(playerid);
+    auto player = level->players->getPlayer(playerid);
     controller->getBlocksController()->placeBlock(
         player, *def, int2blockstate(state), x, y, z
     );
@@ -367,7 +368,7 @@ static int l_destruct(lua::State* L) {
         return 0;
     }
     auto& def = level->content->getIndices()->blocks.require(voxel->id);
-    auto player = level->getPlayer(playerid);
+    auto player = level->players->getPlayer(playerid);
     controller->getBlocksController()->breakBlock(player, def, x, y, z);
     return 0;
 }

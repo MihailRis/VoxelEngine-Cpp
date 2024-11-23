@@ -7,10 +7,6 @@
 
 #include "typedefs.hpp"
 
-inline constexpr float DEF_PLAYER_Y = 100.0f;
-inline constexpr float DEF_PLAYER_SPEED = 4.0f;
-inline constexpr int DEF_PLAYER_INVENTORY_SIZE = 40;
-
 class Content;
 class World;
 class Chunks;
@@ -21,7 +17,7 @@ class Lighting;
 class PhysicsSolver;
 class ChunksStorage;
 class Camera;
-class Player;
+class Players;
 struct EngineSettings;
 
 /// @brief A level, contains chunks and objects
@@ -29,7 +25,7 @@ class Level {
     std::unique_ptr<World> world;
 public:
     const Content* const content;
-    std::unordered_map<int64_t, std::unique_ptr<Player>> players;
+    
     std::unique_ptr<Chunks> chunks;
     std::unique_ptr<ChunksStorage> chunksStorage;
     std::unique_ptr<Inventories> inventories;
@@ -38,6 +34,7 @@ public:
     std::unique_ptr<Lighting> lighting;
     std::unique_ptr<LevelEvents> events;
     std::unique_ptr<Entities> entities;
+    std::unique_ptr<Players> players;
     std::vector<std::shared_ptr<Camera>> cameras;  // move somewhere?
 
     const EngineSettings& settings;
@@ -54,10 +51,6 @@ public:
     World* getWorld();
 
     const World* getWorld() const;
-
-    void addPlayer(std::unique_ptr<Player> player);
-
-    Player* getPlayer(int64_t id) const;
 
     void onSave();
 

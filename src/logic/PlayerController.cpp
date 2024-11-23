@@ -13,6 +13,7 @@
 #include "lighting/Lighting.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "physics/Hitbox.hpp"
 #include "physics/PhysicsSolver.hpp"
 #include "settings.hpp"
@@ -193,7 +194,7 @@ PlayerController::PlayerController(
     BlocksController* blocksController
 )
     : settings(settings), level(level),
-      player(level->getPlayer(0)),
+      player(level->players->getPlayer(0)),
       camControl(player, settings.camera),
       blocksController(blocksController),
       playerTickClock(20, 3) {
