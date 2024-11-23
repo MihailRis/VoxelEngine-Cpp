@@ -20,9 +20,9 @@ struct NotePreset : public Serializable {
     NoteDisplayMode displayMode = NoteDisplayMode::STATIC_BILLBOARD;
     glm::vec4 color {1.0f};
     float scale = 1.0f;
-    float renderDistance = 10.0f;
+    float renderDistance = 32.0f;
     float xrayOpacity = 0.0f;
-    float perspective = 0.0f;
+    float perspective = 1.0f;
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
