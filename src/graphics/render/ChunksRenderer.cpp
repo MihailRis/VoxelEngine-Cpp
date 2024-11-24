@@ -251,14 +251,16 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
             continue;
         }
 
-        glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
-        glm::vec3 max(
-            chunk->x * CHUNK_W + CHUNK_W,
-            chunk->top,
-            chunk->z * CHUNK_D + CHUNK_D
-        );
+        if (culling) {
+            glm::vec3 min(chunk->x * CHUNK_W, chunk->bottom, chunk->z * CHUNK_D);
+            glm::vec3 max(
+                chunk->x * CHUNK_W + CHUNK_W,
+                chunk->top,
+                chunk->z * CHUNK_D + CHUNK_D
+            );
 
-        if (!frustum.isBoxVisible(min, max)) continue;
+            if (!frustum.isBoxVisible(min, max)) continue;
+        }
 
         auto& chunkEntries = found->second.sortingMeshData.entries;
 

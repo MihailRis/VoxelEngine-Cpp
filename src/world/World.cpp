@@ -11,6 +11,7 @@
 #include "items/Inventories.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
@@ -69,13 +70,7 @@ void World::write(Level* level) {
     info.nextEntityId = level->entities->peekNextID();
     wfile->write(this, content);
 
-    auto playerFile = dv::object();
-    auto& players = playerFile.list("players");
-    for (const auto& object : level->objects) {
-        if (auto player = std::dynamic_pointer_cast<Player>(object)) {
-            players.add(player->serialize());
-        }
-    }
+    auto playerFile = level->players->serialize();
     files::write_json(wfile->getPlayerFile(), playerFile);
 
     writeResources(content);
@@ -100,7 +95,9 @@ std::unique_ptr<Level> World::create(
         content,
         packs
     );
-    return std::make_unique<Level>(std::move(world), content, settings);
+    auto level = std::make_unique<Level>(std::move(world), content, settings);
+    level->players->create();
+    return level;
 }
 
 std::unique_ptr<Level> World::load(
@@ -121,45 +118,23 @@ std::unique_ptr<Level> World::load(
                   << " generator: " << info->generator;
 
     auto world = std::make_unique<World>(
-        info.value(),
-        std::move(worldFilesPtr),
-        content,
-        packs
+        info.value(), std::move(worldFilesPtr), content, packs
     );
     auto& wfile = world->wfile;
     wfile->readResourcesData(content);
 
     auto level = std::make_unique<Level>(std::move(world), content, settings);
-    {
-        fs::path file = wfile->getPlayerFile();
-        if (!fs::is_regular_file(file)) {
-            logger.warning() << "player.json does not exists";
-        } else {
-            auto playerRoot = files::read_json(file);
-            if (playerRoot.has("players")) {
-                level->objects.clear();
-                const auto& players = playerRoot["players"];
-                for (auto& playerMap : players) {
-                    auto player = level->spawnObject<Player>(
-                        level.get(),
-                        glm::vec3(0, DEF_PLAYER_Y, 0),
-                        DEF_PLAYER_SPEED,
-                        level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
-                        0
-                    );
-                    player->deserialize(playerMap);
-                    auto& inventory = player->getInventory();
-                    // invalid inventory id pre 0.25
-                    if (inventory->getId() == 0) {
-                        inventory->setId(level->getWorld()->getNextInventoryId());
-                    }
-                    level->inventories->store(player->getInventory());
-                }
-            } else {
-                auto player = level->getObject<Player>(0);
-                player->deserialize(playerRoot);
-                level->inventories->store(player->getInventory());
-            }
+
+    fs::path file = wfile->getPlayerFile();
+    if (!fs::is_regular_file(file)) {
+        logger.warning() << "player.json does not exists";
+        level->players->create();
+    } else {
+        auto playerRoot = files::read_json(file);
+        level->players->deserialize(playerRoot);
+
+        if (!playerRoot["players"][0].has("id")) {
+            level->getWorld()->getInfo().nextPlayerId++;
         }
     }
     return level;
@@ -231,6 +206,7 @@ void WorldInfo::deserialize(const dv::value& root) {
     }
     nextInventoryId = root["next-inventory-id"].asInteger(2);
     nextEntityId = root["next-entity-id"].asInteger(1);
+    root.at("next-player-id").get(nextPlayerId);
 }
 
 dv::value WorldInfo::serialize() const {
@@ -254,5 +230,6 @@ dv::value WorldInfo::serialize() const {
 
     root["next-inventory-id"] = nextInventoryId;
     root["next-entity-id"] = nextEntityId;
+    root["next-player-id"] = nextPlayerId;
     return root;
 }

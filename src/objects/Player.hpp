@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 
-#include "interfaces/Object.hpp"
 #include "interfaces/Serializable.hpp"
 #include "settings.hpp"
 #include "voxels/voxel.hpp"
@@ -40,8 +39,10 @@ struct CursorSelection {
     entityid_t entity = ENTITY_NONE;
 };
 
-class Player : public Object, public Serializable {
+class Player : public Serializable {
     Level* level;
+    int64_t id;
+    std::string name;
     float speed;
     int chosenSlot;
     glm::vec3 position;
@@ -52,7 +53,7 @@ class Player : public Object, public Serializable {
     bool infiniteItems = true;
     bool instantDestruction = true;
     entityid_t eid;
-    entityid_t selectedEid;
+    entityid_t selectedEid = 0;
 public:
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
@@ -62,6 +63,8 @@ public:
 
     Player(
         Level* level,
+        int64_t id,
+        const std::string& name,
         glm::vec3 position,
         float speed,
         std::shared_ptr<Inventory> inv,
@@ -99,9 +102,12 @@ public:
 
     entityid_t getSelectedEntity() const;
 
+    void setName(const std::string& name);
+    const std::string& getName() const;
+
     const std::shared_ptr<Inventory>& getInventory() const;
 
-    glm::vec3 getPosition() const {
+    const glm::vec3& getPosition() const {
         return position;
     }
 
@@ -115,7 +121,7 @@ public:
 
     static void convert(dv::value& data, const ContentReport* report);
 
-    inline int getId() const {
-        return objectUID;
+    inline u64id_t getId() const {
+        return id;
     }
 };

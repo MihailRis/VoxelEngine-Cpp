@@ -28,6 +28,7 @@ struct WorldInfo : public Serializable {
     std::string generator;
     uint64_t seed;
     int64_t nextInventoryId = 1;
+    int64_t nextPlayerId = 0;
 
     /// @brief Day/night loop timer in range 0..1 where
     /// 0.0 - is midnight and

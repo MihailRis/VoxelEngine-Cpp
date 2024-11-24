@@ -125,6 +125,10 @@ namespace cmd {
         const std::unordered_map<std::string, Command>& getCommands() const {
             return commands;
         }
+
+        void clear() {
+            commands.clear();
+        }
     };
 
     class CommandsInterpreter {
@@ -157,6 +161,11 @@ namespace cmd {
 
         CommandsRepository* getRepository() const {
             return repository.get();
+        }
+
+        void reset() {
+            repository->clear();
+            variables.clear();
         }
     };
 }

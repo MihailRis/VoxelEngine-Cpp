@@ -185,8 +185,16 @@ assetload::postfunc assetload::layout(
     return [=](auto assets) {
         try {
             auto cfg = std::dynamic_pointer_cast<LayoutCfg>(config);
+            size_t pos = name.find(':');
+            auto prefix = name.substr(0, pos);
             assets->store(
-                UiDocument::read(cfg->env, name, file, "abs:" + file), name
+                UiDocument::read(
+                    cfg->env,
+                    name,
+                    file,
+                    prefix + ":layouts/" + name.substr(pos + 1) + ".xml"
+                ),
+                name
             );
         } catch (const parsing_error& err) {
             throw std::runtime_error(
