@@ -29,6 +29,7 @@ struct Request {
     OnResponse onResponse;
     OnReject onReject;
     long maxSize;
+    bool followLocation = false;
 };
 
 class CurlRequests : public Requests {
@@ -79,7 +80,7 @@ public:
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, request.followLocation);
         if (request.maxSize == 0) {
             curl_easy_setopt(
                 curl, CURLOPT_MAXFILESIZE, std::numeric_limits<long>::max()

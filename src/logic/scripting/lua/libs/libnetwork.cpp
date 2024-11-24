@@ -5,7 +5,7 @@
 
 using namespace scripting;
 
-static int l_http_get(lua::State* L) {
+static int l_get(lua::State* L) {
     std::string url(lua::require_lstring(L, 1));
 
     lua::pushvalue(L, 2);
@@ -19,7 +19,7 @@ static int l_http_get(lua::State* L) {
     return 0;
 }
 
-static int l_http_get_binary(lua::State* L) {
+static int l_get_binary(lua::State* L) {
     std::string url(lua::require_lstring(L, 1));
 
     lua::pushvalue(L, 2);
@@ -37,7 +37,7 @@ static int l_http_get_binary(lua::State* L) {
 }
 
 const luaL_Reg networklib[] = {
-    {"http_get", lua::wrap<l_http_get>},
-    {"http_get_binary", lua::wrap<l_http_get_binary>},
+    {"get", lua::wrap<l_get>},
+    {"get_binary", lua::wrap<l_get_binary>},
     {NULL, NULL}
 };
