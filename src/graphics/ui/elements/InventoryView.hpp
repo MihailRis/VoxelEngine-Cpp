@@ -55,6 +55,9 @@ namespace gui {
 
         std::wstring tooltip;
         itemid_t prevItem = 0;
+
+        void performLeftClick(ItemStack& stack, ItemStack& grabbed);
+        void performRightClick(ItemStack& stack, ItemStack& grabbed);
     public:
         SlotView(SlotLayout layout);
 
