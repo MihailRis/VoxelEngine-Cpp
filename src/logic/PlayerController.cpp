@@ -509,8 +509,7 @@ void PlayerController::updateInteraction(float delta) {
     bool longInteraction = interactionTimer <= 0 || xkey;
     bool lclick = Events::jactive(BIND_PLAYER_DESTROY) ||
         (longInteraction && Events::active(BIND_PLAYER_DESTROY));
-    bool lattack = Events::jactive(BIND_PLAYER_ATTACK) ||
-        (longInteraction && Events::active(BIND_PLAYER_ATTACK));
+    bool lattack = Events::jactive(BIND_PLAYER_ATTACK);
     bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
         (longInteraction && Events::active(BIND_PLAYER_BUILD));
     if (lclick || rclick) {
