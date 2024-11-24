@@ -3,10 +3,13 @@ local body = entity.rigidbody
 local rig = entity.skeleton
 
 inair = true
-ready = false
 target = -1
+ready = false
 
 local dropitem = ARGS
+if dropitem then 
+    ready = dropitem.ready
+end
 if SAVED_DATA.item then
     dropitem.id = item.index(SAVED_DATA.item)
     dropitem.count = SAVED_DATA.count
