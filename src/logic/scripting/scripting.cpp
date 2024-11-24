@@ -68,7 +68,6 @@ void scripting::initialize(Engine* engine) {
     lua::initialize(*engine->getPaths());
 
     load_script(fs::path("stdlib.lua"), true);
-    load_script(fs::path("stdcmd.lua"), true);
     load_script(fs::path("classes.lua"), true);
 }
 
@@ -172,6 +171,7 @@ void scripting::on_content_load(Content* content) {
         lua::setfield(L, "materials");
         lua::pop(L);
     }
+    load_script(fs::path("stdcmd.lua"), true);
 }
 
 void scripting::on_world_load(LevelController* controller) {
