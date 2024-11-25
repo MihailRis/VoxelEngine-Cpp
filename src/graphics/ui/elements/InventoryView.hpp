@@ -34,6 +34,9 @@ namespace gui {
         slotcallback rightClick;
         int padding = 0;
 
+        bool taking = true;
+        bool placing = true;
+
         SlotLayout(
             int index,
             glm::vec2 position, 

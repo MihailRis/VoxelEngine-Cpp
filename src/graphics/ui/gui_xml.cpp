@@ -483,6 +483,8 @@ static slotcallback readSlotFunc(InventoryView* view, UiXmlReader& reader, xml::
 static void readSlot(InventoryView* view, UiXmlReader& reader, xml::xmlelement element) {
     int index = element->attr("index", "0").asInt();
     bool itemSource = element->attr("item-source", "false").asBool();
+    bool taking = element->attr("taking", "true").asBool();
+    bool placing = element->attr("placing", "true").asBool();
     SlotLayout layout(index, glm::vec2(), true, itemSource, nullptr, nullptr, nullptr);
     if (element->has("pos")) {
         layout.position = element->attr("pos").asVec2();
@@ -496,6 +498,8 @@ static void readSlot(InventoryView* view, UiXmlReader& reader, xml::xmlelement e
     if (element->has("onrightclick")) {
         layout.rightClick = readSlotFunc(view, reader, element, "onrightclick");
     }
+    layout.taking = taking;
+    layout.placing = placing;
     auto slot = view->addSlot(layout);
     reader.readUINode(reader, element, *slot);
     view->add(slot);
@@ -507,6 +511,8 @@ static void readSlotsGrid(InventoryView* view, UiXmlReader& reader, xml::xmlelem
     int cols = element->attr("cols", "0").asInt();
     int count = element->attr("count", "0").asInt();
     const int slotSize = InventoryView::SLOT_SIZE;
+    bool taking = element->attr("taking", "true").asBool();
+    bool placing = element->attr("placing", "true").asBool();
     int interval = element->attr("interval", "-1").asInt();
     if (interval < 0) {
         interval = InventoryView::SLOT_INTERVAL;
@@ -537,6 +543,8 @@ static void readSlotsGrid(InventoryView* view, UiXmlReader& reader, xml::xmlelem
         layout.rightClick = readSlotFunc(view, reader, element, "onrightclick");
     }
     layout.padding = padding;
+    layout.taking = taking;
+    layout.placing = placing;
 
     int idx = 0;
     for (int row = 0; row < rows; row++) {

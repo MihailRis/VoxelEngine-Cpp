@@ -209,7 +209,7 @@ bool SlotView::isHighlighted() const {
 }
 
 void SlotView::performLeftClick(ItemStack& stack, ItemStack& grabbed) {
-    if (Events::pressed(keycode::LEFT_SHIFT)) {
+    if (layout.taking && Events::pressed(keycode::LEFT_SHIFT)) {
         if (layout.shareFunc) {
             layout.shareFunc(layout.index, stack);
         }
@@ -218,7 +218,7 @@ void SlotView::performLeftClick(ItemStack& stack, ItemStack& grabbed) {
         }
         return;
     }
-    if (!layout.itemSource && stack.accepts(grabbed)) {
+    if (!layout.itemSource && stack.accepts(grabbed) && layout.placing) {
         stack.move(grabbed, content->getIndices());
     } else {
         if (layout.itemSource) {
@@ -227,7 +227,11 @@ void SlotView::performLeftClick(ItemStack& stack, ItemStack& grabbed) {
             } else {
                 grabbed.clear();
             }
-        } else {
+        } else if (grabbed.isEmpty()) {
+            if (layout.taking) {
+                std::swap(grabbed, stack);
+            }
+        } else if (layout.taking && layout.placing) {
             std::swap(grabbed, stack);
         }
     }
@@ -244,7 +248,7 @@ void SlotView::performRightClick(ItemStack& stack, ItemStack& grabbed) {
     if (layout.itemSource)
         return;
     if (grabbed.isEmpty()) {
-        if (!stack.isEmpty()) {
+        if (!stack.isEmpty() && layout.taking) {
             grabbed.set(stack);
             int halfremain = stack.getCount() / 2;
             grabbed.setCount(stack.getCount() - halfremain);
@@ -253,6 +257,9 @@ void SlotView::performRightClick(ItemStack& stack, ItemStack& grabbed) {
         return;
     }
     auto& stackDef = content->getIndices()->items.require(stack.getItemId());
+    if (!layout.placing) {
+        return;
+    }
     if (stack.isEmpty()) {
         stack.set(grabbed);
         stack.setCount(1);
