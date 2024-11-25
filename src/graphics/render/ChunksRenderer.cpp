@@ -197,7 +197,7 @@ void ChunksRenderer::drawChunks(
 
     // TODO: minimize draw calls number
     for (int i = indices.size()-1; i >= 0; i--) {
-        auto chunk = chunks.getChunks()[indices[i].index];
+        auto& chunk = chunks.getChunks()[indices[i].index];
         auto mesh = retrieveChunk(indices[i].index, camera, shader, culling);
 
         if (mesh) {

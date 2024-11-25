@@ -242,18 +242,34 @@ void ImageData::extrude(int x, int y, int w, int h) {
     }
 }
 
+// Fixing black transparent pixels for Mip-Mapping
 void ImageData::fixAlphaColor() {
-    // Fixing black transparent pixels for Mip-Mapping
-    for (uint ly = 0; ly < height-1; ly++) {
-        for (uint lx = 0; lx < width-1; lx++) {
-            if (data[((ly) * width + lx) * 4 + 3]) {
-                for (int c = 0; c < 3; c++) {
-                    int val = data[((ly) + + lx) * 4 + c];
-                    if (data[((ly) * width + lx + 1) * 4 + 3] == 0)
-                        data[((ly) * width + lx + 1) * 4 + c] = val;
-                    if (data[((ly + 1) * width + lx) * 4 + 3] == 0)
-                        data[((ly + 1) * width + lx) * 4 + c] = val;
-                }
+    int samples = 0;
+    int sums[3] {};
+    for (uint ly = 0; ly < height; ly++) {
+        for (uint lx = 0; lx < width; lx++) {
+            if (data[(ly * width + lx) * 4 + 3] == 0) {
+                continue;
+            }
+            samples++;
+            for (int c = 0; c < 3; c++) {
+                sums[c] += data[(ly * width + lx) * 4 + c];
+            }
+        }
+    }
+    if (samples == 0) {
+        return;
+    }
+    for (int i = 0; i < 3; i++) {
+        sums[i] /= samples;
+    }
+    for (uint ly = 0; ly < height; ly++) {
+        for (uint lx = 0; lx < width; lx++) {
+            if (data[(ly * width + lx) * 4 + 3] != 0) {
+                continue;
+            }
+            for (int i = 0; i < 3; i++) {
+                data[(ly * width + lx) * 4 + i] = sums[i];
             }
         }
     }
