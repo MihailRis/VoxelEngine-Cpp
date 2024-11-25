@@ -196,7 +196,7 @@ void ChunksRenderer::drawChunks(
     shader.uniform1i("u_alphaClip", true);
 
     // TODO: minimize draw calls number
-    for (size_t i = 0; i < indices.size(); i++) {
+    for (int i = indices.size()-1; i >= 0; i--) {
         auto chunk = chunks.getChunks()[indices[i].index];
         auto mesh = retrieveChunk(indices[i].index, camera, shader, culling);
 
