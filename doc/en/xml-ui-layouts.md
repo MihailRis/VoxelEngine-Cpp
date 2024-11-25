@@ -142,6 +142,8 @@ Element must be in direct sub-element of *inventory*.
 - `sharefunc` - Lua event called on <btn>LMB</btn> + <btn>Shift</btn>. Inventory id and slot index passed as arguments.
 - `updatefunc` - Lua event called on slot content update.Inventory id and slot index passed as arguments.
 - `onrightclick` - Lua event called on <btn>RMB</btn> click. Inventory id and slot index passed as arguments.
+- `taking` - the ability to take an item from a slot.
+- `placing` - the ability to put an item in a slot.
 
 ## *slots-grid*
 
@@ -154,4 +156,5 @@ Element must be in direct sub-element of *inventory*.
 - `sharefunc` - Lua event called on <btn>LMB</btn> + <btn>Shift</btn>. Inventory id and slot index passed as arguments.
 - `updatefunc` - Lua event called on slot content update.Inventory id and slot index passed as arguments.
 - `onrightclick` - Lua event called on <btn>RMB</btn> click. Inventory id and slot index passed as arguments.
-
+- `taking` - the ability to take an item from a slot.
+- `placing` - the ability to put an item in a slot.
