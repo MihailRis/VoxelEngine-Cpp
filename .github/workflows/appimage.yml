@@ -1,6 +1,11 @@
 name: C/C++ AppImage
 
-on: []
+on:
+  push:
+    branches: [ "main", "release-**"]
+  pull_request:
+    branches: [ "main" ]
+
 jobs:
   build-appimage:
 
