@@ -18,7 +18,7 @@ TEST(curltest, curltest) {
             std::cout << value << std::endl;
         }, [](auto){}
     );
-    if (false) {
+    if (true) {
         auto socket = network->getConnection(network->connect("localhost", 8000));
         const char* string = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
         socket->send(string, strlen(string));
