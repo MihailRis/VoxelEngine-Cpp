@@ -19,9 +19,13 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 using SOCKET = int;
 #endif // _WIN32
+
+#include <chrono>
+#include <thread>
 
 #include "debug/Logger.hpp"
 #include "util/stringutil.hpp"
@@ -361,11 +365,24 @@ public:
 
         int res = connectsocket(descriptor, addrinfo->ai_addr, addrinfo->ai_addrlen);
         if (res == -1) {
-            auto error = handle_socket_error("Connect failed");
-            closesocket(descriptor);
-            freeaddrinfo(addrinfo);
-            throw error;
+#           ifdef _WIN32
+                if (WSAGetLastError() != WSAEWOULDBLOCK) {
+                    auto error = handle_socket_error("Connect failed");
+                    closesocket(descriptor);
+                    freeaddrinfo(addrinfo);
+                    throw error;
+                }
+#           else
+                if (errno != EINPROGRESS) {
+                    auto error = handle_socket_error("Connect failed");
+                    closesocket(descriptor);
+                    freeaddrinfo(addrinfo);
+                    throw error;
+                }
+#           endif
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
         logger.info() << "connected to " << address << " ["
                       << to_string(addrinfo) << ":" << port << "]";
         return std::make_shared<SocketImpl>(descriptor, addrinfo);
