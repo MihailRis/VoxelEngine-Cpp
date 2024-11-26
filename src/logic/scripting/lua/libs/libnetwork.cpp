@@ -36,8 +36,16 @@ static int l_get_binary(lua::State* L) {
     return 0;
 }
 
+static int l_connect(lua::State* L) {
+    std::string address = lua::require_string(L, 1);
+    int port = lua::tointeger(L, 2);
+    u64id_t id = engine->getNetwork().connect(address, port);
+    return lua::pushinteger(L, id);
+}
+
 const luaL_Reg networklib[] = {
     {"get", lua::wrap<l_get>},
     {"get_binary", lua::wrap<l_get_binary>},
+    {"__connect", lua::wrap<l_connect>},
     {NULL, NULL}
 };
