@@ -8,6 +8,22 @@
 #include <limits>
 #include <queue>
 
+#ifdef _WIN32
+/// included in curl.h
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+using SOCKET = int;
+
+#endif
+
 #include "debug/Logger.hpp"
 
 using namespace network;
@@ -171,20 +187,6 @@ public:
     }
 };
 
-
-#ifdef _WIN32
-/// ...
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#endif
-
 #ifndef _WIN32
 static inline int closesocket(int descriptor) noexcept {
     return close(descriptor);
@@ -227,13 +229,13 @@ static std::string to_string(const addrinfo* addr) {
 }
 
 class SocketImpl : public Socket {
-    int descriptor;
+    SOCKET descriptor;
     bool open = true;
     addrinfo* addr;
     size_t totalUpload = 0;
     size_t totalDownload = 0;
 public:
-    SocketImpl(int descriptor, addrinfo* addr)
+    SocketImpl(SOCKET descriptor, addrinfo* addr)
         : descriptor(descriptor), addr(addr) {
     }
 
@@ -303,7 +305,7 @@ public:
         )) {
             throw std::runtime_error(gai_strerror(res));
         }
-        int descriptor = socket(
+        SOCKET descriptor = socket(
             addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol
         );
         if (descriptor == -1) {
