@@ -199,7 +199,7 @@ static inline void handle_socket_error(const std::string& message) {
     );
 }
 #else
-static inline void handle_socket_error() {
+static inline void handle_socket_error(const std::string& message) {
     wchar_t* s = nullptr;
     FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
