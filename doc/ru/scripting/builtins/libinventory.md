@@ -66,5 +66,20 @@ inventory.clone(invid: int) -> int
 -- Перемещает предмет из slotA инвентаря invA в slotB инвентаря invB.
 -- invA и invB могут указывать на один инвентарь.
 -- slotB будет выбран автоматически, если не указывать явно.
+-- Перемещение может быть неполным, если стек слота заполнится.
 inventory.move(invA: int, slotA: int, invB: int, slotB: int)
+
+-- Перемещает предмет из slotA инвентаря invA в подходящий слот, находящийся в
+-- указанном отрезке инвентаря invB.
+-- invA и invB могут указывать на один инвентарь.
+-- rangeBegin - начало отрезка.
+-- rangeEnd - конец отрезка.
+-- Перемещение может быть неполным, если доступные слоты будут заполнены.
+inventory.move_range(
+    invA: int, 
+    slotA: int, 
+    invB: int, 
+    rangeBegin: int, 
+    [опционально] rangeEnd: int
+)
 ```

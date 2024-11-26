@@ -4,7 +4,7 @@
     ],
     "hitbox": [0.4, 0.25, 0.4],
     "sensors": [
-        ["aabb", -0.2, -0.2, -0.2, 0.2, 0.2, 0.2],
+        ["radius", 0.3],
         ["radius", 1.6]
     ],
     "blocking": false

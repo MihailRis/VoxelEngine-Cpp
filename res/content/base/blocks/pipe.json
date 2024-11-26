@@ -11,5 +11,6 @@
     "hitbox": [0.25, 0.0, 0.25, 0.5, 1.0, 0.5],
     "light-passing": true,
     "rotation": "pipe",
-    "material": "base:metal"
+    "material": "base:metal",
+    "base:durability": 4.7
 }

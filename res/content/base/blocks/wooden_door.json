@@ -14,5 +14,6 @@
     "rotation": "pane",
     "model": "aabb",
     "hitbox": [0.0, 0.0, 0.8, 1.0, 2.0, 0.2],
-    "ambient-occlusion": false
+    "ambient-occlusion": false,
+    "base:durability": 5.9
 }
