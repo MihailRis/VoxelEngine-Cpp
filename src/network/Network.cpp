@@ -214,7 +214,7 @@ static inline void handle_socket_error(const std::string& message) {
     assert(s != nullptr);
     std::string errorString = util::wstr2str_utf8(std::wstring(s));
     LocalFree(s);
-    throw std::runtime_error(message+"; "+errorString)
+    throw std::runtime_error(message+"; "+errorString);
 }
 #endif
 
