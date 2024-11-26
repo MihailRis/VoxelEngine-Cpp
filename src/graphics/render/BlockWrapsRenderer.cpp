@@ -49,7 +49,7 @@ void BlockWrapsRenderer::draw(const BlockWrapper& wrapper) {
                     glm::vec3(wrapper.position) + glm::vec3(0.5f),
                     glm::vec3(1.01f),
                     regions,
-                    glm::vec4(0),
+                    glm::vec4(1,1,1,0),
                     false
                 );
                 break;
@@ -66,7 +66,7 @@ void BlockWrapsRenderer::draw(const BlockWrapper& wrapper) {
                     glm::vec3(wrapper.position) + aabb.center(),
                     size * glm::vec3(1.01f),
                     regions,
-                    glm::vec4(0),
+                    glm::vec4(1,1,1,0),
                     false
                 );
                 break;
