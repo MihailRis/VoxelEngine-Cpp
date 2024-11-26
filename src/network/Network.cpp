@@ -191,15 +191,15 @@ public:
 static inline int closesocket(int descriptor) noexcept {
     return close(descriptor);
 }
-static inline void handle_socket_error(const std::string& message) {
+static inline std::runtime_error handle_socket_error(const std::string& message) {
     int err = errno;
-    throw std::runtime_error(
-        message+" [errno=" + std::to_string(err) +
-        "]: " + std::string(strerror(err))
+    return std::runtime_error(
+        message+" [errno=" + std::to_string(err) + "]: " + 
+        std::string(strerror(err))
     );
 }
 #else
-static inline void handle_socket_error(const std::string& message) {
+static inline std::runtime_error handle_socket_error(const std::string& message) {
     wchar_t* s = nullptr;
     FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
@@ -214,7 +214,7 @@ static inline void handle_socket_error(const std::string& message) {
     assert(s != nullptr);
     std::string errorString = util::wstr2str_utf8(std::wstring(s));
     LocalFree(s);
-    throw std::runtime_error(message+"; "+errorString);
+    return std::runtime_error(message+"; "+errorString);
 }
 #endif
 
@@ -356,9 +356,10 @@ public:
 
         int res = connectsocket(descriptor, addrinfo->ai_addr, addrinfo->ai_addrlen);
         if (res == -1) {
+            auto error = handle_socket_error("Connect failed");
             closesocket(descriptor);
             freeaddrinfo(addrinfo);
-            handle_socket_error("Connect failed");
+            throw error;
         }
         logger.info() << "connected to " << address << " ["
                       << to_string(addrinfo) << ":" << port << "]";
