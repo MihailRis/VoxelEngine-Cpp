@@ -39,8 +39,8 @@ SOFTWARE.
 #define ABSORPTION_FALLOFF 4e3 /* how much the absorption decreases the further away it gets from the maximum height */
 // and the steps (more looks better, but is slower)
 // the primary step has the most effect on looks
-#define PRIMARY_STEPS 12
-#define LIGHT_STEPS 4
+#define PRIMARY_STEPS 6
+#define LIGHT_STEPS 2
 
 vec3 calculate_scattering(
     vec3 start, 				// the start of the ray (the camera position)
