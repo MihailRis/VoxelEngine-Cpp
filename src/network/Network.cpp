@@ -312,8 +312,8 @@ public:
         }
 #ifdef _WIN32
         u_long mode = 1;
-        auto result = ioctlsocket(descriptor, FIONBIO, &mode);
-        if (result != NO_ERROR) {
+        auto err = ioctlsocket(descriptor, FIONBIO, &mode);
+        if (err != NO_ERROR) {
             throw std::runtime_error(
                 "Could not set to non-blocking mode [errno=" + std::to_string(err) +
                 "]: " + std::string(strerror(err))
