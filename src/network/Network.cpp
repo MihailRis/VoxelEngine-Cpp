@@ -21,10 +21,10 @@
 #include <fcntl.h>
 
 using SOCKET = int;
-
-#endif
+#endif // _WIN32
 
 #include "debug/Logger.hpp"
+#include "util/stringutil.hpp"
 
 using namespace network;
 
@@ -191,6 +191,31 @@ public:
 static inline int closesocket(int descriptor) noexcept {
     return close(descriptor);
 }
+static inline void handle_socket_error(const std::string& message) {
+    int err = errno;
+    throw std::runtime_error(
+        message+" [errno=" + std::to_string(err) +
+        "]: " + std::string(strerror(err))
+    );
+}
+#else
+static inline void handle_socket_error() {
+    wchar_t* s = nullptr;
+    FormatMessageW(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr,
+        WSAGetLastError(),
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPWSTR)&s,
+        0,
+        nullptr
+    );
+    assert(s != nullptr);
+    std::string errorString = util::wstr2str_utf8(std::wstring(s));
+    LocalFree(s);
+    throw std::runtime_error(message+"; "+errorString)
+}
 #endif
 
 static inline int connectsocket(
@@ -328,16 +353,12 @@ public:
             throw std::runtime_error("Failed to make socket non-blocking");
         }
 #endif
+
         int res = connectsocket(descriptor, addrinfo->ai_addr, addrinfo->ai_addrlen);
         if (res == -1) {
             closesocket(descriptor);
             freeaddrinfo(addrinfo);
-
-            int err = errno;
-            throw std::runtime_error(
-                "Connect failed [errno=" + std::to_string(err) +
-                "]: " + std::string(strerror(err))
-            );
+            handle_socket_error("Connect failed");
         }
         logger.info() << "connected to " << address << " ["
                       << to_string(addrinfo) << ":" << port << "]";
