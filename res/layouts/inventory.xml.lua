@@ -4,7 +4,9 @@ function inventory_share_func(invid, slotid)
         inventory.move(invid, slotid, blockinv)
     elseif rules.get("allow-content-access") then
         inventory.set(invid, slotid, 0, 0)
+    elseif slotid < 10 then
+        inventory.move_range(invid, slotid, invid, 10)
     else
-        inventory.move(invid, slotid, invid)
+        inventory.move_range(invid, slotid, invid, 0, 9)
     end
 end
