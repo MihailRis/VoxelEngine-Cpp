@@ -1,10 +1,6 @@
 name: Macos Build
 
-on:
-  push:
-    branches: [ "main", "release-**"]
-  pull_request:
-    branches: [ ]
+on: []
 
 jobs:
   build-dmg:
