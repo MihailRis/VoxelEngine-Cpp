@@ -19,7 +19,7 @@ TEST(curltest, curltest) {
         }, [](auto){}
     );
     if (false) {
-        auto socket = network->connect("localhost", 8000);
+        auto socket = network->getConnection(network->connect("localhost", 8000));
         const char* string = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
         socket->send(string, strlen(string));
         char data[1024];
