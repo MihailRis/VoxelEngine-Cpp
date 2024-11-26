@@ -7,5 +7,6 @@
     "replaceable": true,
     "grounded": true,
     "model": "X",
-    "hitbox": [0.15, 0.0, 0.15, 0.7, 0.7, 0.7]
+    "hitbox": [0.15, 0.0, 0.15, 0.7, 0.7, 0.7],
+    "base:durability": 0.0
 }

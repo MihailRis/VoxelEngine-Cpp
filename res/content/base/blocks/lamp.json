@@ -1,5 +1,6 @@
 {
     "texture": "lamp",
     "emission": [15, 14, 13],
-    "shadeless": true
+    "shadeless": true,
+    "base:durability": 0.3
 }

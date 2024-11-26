@@ -1,4 +1,5 @@
 {
     "texture": "planks",
-    "material": "base:wood"
+    "material": "base:wood",
+    "base:durability": 5.0
 }
