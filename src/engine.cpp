@@ -366,6 +366,7 @@ void Engine::loadContent() {
         load_configs(pack.folder);
     }
     content = contentBuilder.build();
+    interpreter->reset();
     scripting::on_content_load(content.get());
 
     ContentLoader::loadScripts(*content);

@@ -1,4 +1,5 @@
 {
     "texture": "sand",
-    "material": "base:sand"
+    "material": "base:sand",
+    "base:durability": 0.7
 }

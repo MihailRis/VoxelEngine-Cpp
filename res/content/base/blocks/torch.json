@@ -31,5 +31,6 @@
             "particles:smoke_0",
             "particles:smoke_1"
         ]
-    }
+    },
+    "base:durability": 0.1
 }

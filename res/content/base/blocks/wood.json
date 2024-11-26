@@ -8,5 +8,6 @@
         "wood",
         "wood"
     ],
-    "rotation": "pipe"
+    "rotation": "pipe",
+    "base:durability": 6.0
 }

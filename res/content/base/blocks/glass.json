@@ -4,5 +4,6 @@
     "draw-group": 2,
     "light-passing": true,
     "sky-light-passing": true,
-    "translucent": true
+    "translucent": true,
+    "base:durability": 0.36
 }

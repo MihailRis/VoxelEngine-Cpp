@@ -191,6 +191,7 @@ void ContentLoader::loadBlock(
     Block& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+    def.properties = root;
 
     if (root.has("parent")) {
         const auto& parentName = root["parent"].asString();
@@ -360,6 +361,7 @@ void ContentLoader::loadItem(
     ItemDef& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
+    def.properties = root;
 
     if (root.has("parent")) {
         const auto& parentName = root["parent"].asString();

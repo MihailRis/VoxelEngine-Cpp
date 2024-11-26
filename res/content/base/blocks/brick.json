@@ -1,3 +1,4 @@
 {
-    "texture": "brick"
+    "texture": "brick",
+    "base:durability": 10.5
 }

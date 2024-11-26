@@ -55,8 +55,21 @@ inventory.create(size: int) -> int
 -- Create inventory copy. Returns the created copy ID.
 inventory.clone(invid: int) -> int
 
--- Move item from slotA of invA to slotB of invB. 
+-- Move an item from slotA of invA to slotB of invB. 
 -- invA may be the same as invB.
 -- If slotB will be chosen automaticly if argument is not specified.
+-- The move may be incomplete if the available slot has no enough stack space.
 inventory.move(invA: int, slotA: int, invB: int, slotB: int)
+
+-- Moves an item from slotA of inventory invA to a suitable slot(s)
+-- in the specified range of inventory invB.
+-- invA may be the same as invB.
+-- The move may be incomplete if the available slots are filled.
+inventory.move(
+    invA: int, 
+    slotA: int, 
+    invB: int, 
+    rangeBegin: int, 
+    [optional] rangeEnd: int
+)
 ```

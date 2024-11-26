@@ -1,4 +1,5 @@
 {
     "texture": "rust",
-    "material": "base:metal"
+    "material": "base:metal",
+    "base:durability": 6.6
 }
