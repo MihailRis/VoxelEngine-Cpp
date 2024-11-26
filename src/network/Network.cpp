@@ -200,21 +200,26 @@ static inline std::runtime_error handle_socket_error(const std::string& message)
 }
 #else
 static inline std::runtime_error handle_socket_error(const std::string& message) {
+    int errorCode = WSAGetLastError();
     wchar_t* s = nullptr;
-    FormatMessageW(
+    size_t size = FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr,
-        WSAGetLastError(),
+        errorCode,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPWSTR)&s,
         0,
         nullptr
     );
     assert(s != nullptr);
-    std::string errorString = util::wstr2str_utf8(std::wstring(s));
+    while (size && isspace(s[size-1])) {
+        s[--size] = 0;
+    }
+    auto errorString = util::wstr2str_utf8(std::wstring(s));
     LocalFree(s);
-    return std::runtime_error(message+"; "+errorString);
+    return std::runtime_error(message+" [WSA error=" + 
+           std::to_string(errorCode) + "]: "+errorString);
 }
 #endif
 
