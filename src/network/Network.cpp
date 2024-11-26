@@ -346,43 +346,13 @@ public:
             freeaddrinfo(addrinfo);
             throw std::runtime_error("Could not create socket");
         }
-#ifdef _WIN32
-        u_long mode = 1;
-        auto err = ioctlsocket(descriptor, FIONBIO, &mode);
-        if (err != NO_ERROR) {
-            throw std::runtime_error(
-                "Could not set to non-blocking mode [errno=" + std::to_string(err) +
-                "]: " + std::string(strerror(err))
-            );
-        }
-#else
-        if (fcntl(descriptor, F_SETFL, O_NONBLOCK) < 0) {
-            freeaddrinfo(addrinfo);
-            closesocket(descriptor);
-            throw std::runtime_error("Failed to make socket non-blocking");
-        }
-#endif
-
         int res = connectsocket(descriptor, addrinfo->ai_addr, addrinfo->ai_addrlen);
-        if (res == -1) {
-#           ifdef _WIN32
-                if (WSAGetLastError() != WSAEWOULDBLOCK) {
-                    auto error = handle_socket_error("Connect failed");
-                    closesocket(descriptor);
-                    freeaddrinfo(addrinfo);
-                    throw error;
-                }
-#           else
-                if (errno != EINPROGRESS) {
-                    auto error = handle_socket_error("Connect failed");
-                    closesocket(descriptor);
-                    freeaddrinfo(addrinfo);
-                    throw error;
-                }
-#           endif
+        if (res < 0) {
+            auto error = handle_socket_error("Connect failed");
+            closesocket(descriptor);
+            freeaddrinfo(addrinfo);
+            throw error;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
         logger.info() << "connected to " << address << " ["
                       << to_string(addrinfo) << ":" << port << "]";
         return std::make_shared<SocketImpl>(descriptor, addrinfo);
