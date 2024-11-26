@@ -4,11 +4,11 @@ local rig = entity.skeleton
 
 inair = true
 target = -1
-ready = false
+timer = 0.3
 
 local dropitem = ARGS
 if dropitem then 
-    ready = dropitem.ready
+    timer = dropitem.pickup_delay or timer
 end
 if SAVED_DATA.item then
     dropitem.id = item.index(SAVED_DATA.item)
@@ -43,7 +43,6 @@ function on_grounded(force)
     mat4.scale(matrix, scale, matrix)
     rig:set_matrix(0, matrix)
     inair = false
-    ready = true
 end
 
 function on_fall()
@@ -53,12 +52,12 @@ end
 function on_sensor_enter(index, oid)
     local playerid = hud.get_player()
     local playerentity = player.get_entity(playerid)
-    if ready and oid == playerentity and index == 0 then
+    if timer < 0.0 and oid == playerentity and index == 0 then
         entity:despawn()
         inventory.add(player.get_inventory(playerid), dropitem.id, dropitem.count)
         audio.play_sound_2d("events/pickup", 0.5, 0.8+math.random()*0.4, "regular")
     end
-    if index == 1 and ready and oid == playerentity then
+    if index == 1 and oid == playerentity then
         target = oid
     end
 end
@@ -83,8 +82,12 @@ function on_render()
     end
 end
 
-function on_update()
+function on_update(tps)
+    timer = timer - 1.0/tps
     if target ~= -1 then
+        if timer > 0.0 then
+            return
+        end
         local dir = vec3.sub(entities.get(target).transform:get_pos(), tsf:get_pos())
         vec3.normalize(dir, dir)
         vec3.mul(dir, 10.0, dir)
