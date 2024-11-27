@@ -286,7 +286,8 @@ class SocketConnection : public Connection {
             closesocket(descriptor);
             freeaddrinfo(addr);
             state = ConnectionState::CLOSED;
-            throw error;
+            logger.error() << error.what();
+            return;
         }
         logger.info() << "connected to " << to_string(addr);
         state = ConnectionState::CONNECTED;
@@ -311,7 +312,9 @@ public:
     void connect(runnable callback) override {
         thread = std::make_unique<std::thread>([this, callback]() {
             connectSocket();
-            callback();
+            if (state == ConnectionState::CONNECTED) {
+                callback();
+            }
             while (state == ConnectionState::CONNECTED) {
                 int size = recvsocket(descriptor, buffer.data(), buffer.size());
                 if (size == 0) {
