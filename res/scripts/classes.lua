@@ -37,9 +37,11 @@ end
 
 
 local Socket = {__index={
-    send=function(self, bytes) return network.__send(self.id, bytes) end,
-    recv=function(self, len, usetable) return network.__recv(self.id, len, usetable) end,
+    send=function(self, ...) return network.__send(self.id, ...) end,
+    recv=function(self, ...) return network.__recv(self.id, ...) end,
     close=function(self) return network.__close(self.id) end,
+    is_alive=function(self) return network.__is_alive(self.id) end,
+    is_connected=function(self) return network.__is_connected(self.id) end,
 }}
 
 network.tcp_connect = function(address, port, callback)
@@ -52,6 +54,7 @@ end
 
 local ServerSocket = {__index={
     close=function(self) return network.__closeserver(self.id) end,
+    is_open=function(self) return network.__is_serveropen(self.id) end,
 }}
 
 network.tcp_open = function(port, handler)
