@@ -502,7 +502,11 @@ public:
             throw std::runtime_error("Could not create server socket");
         }
         int opt = 1;
-        if (setsockopt(descriptor, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        int flags = SO_REUSEADDR;
+#       ifndef _WIN32
+            flags |= SO_REUSEPORT;
+#       endif
+        if (setsockopt(descriptor, SOL_SOCKET, flags, &opt, sizeof(opt))) {
             closesocket(descriptor);
             throw std::runtime_error("setsockopt");
         }
