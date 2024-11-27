@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 
-std::string util::escape(std::string_view s) {
+std::string util::escape(std::string_view s, bool escapeUnicode) {
     std::stringstream ss;
     ss << '"';
     size_t pos = 0;
@@ -39,8 +39,12 @@ std::string util::escape(std::string_view s) {
                 if (c & 0x80) {
                     uint cpsize;
                     int codepoint = decode_utf8(cpsize, s.data() + pos);
+                    if (escapeUnicode) {
+                        ss << "\\u" << std::hex << codepoint;
+                    } else {
+                        ss << std::string(s.data() + pos, cpsize);
+                    }
                     pos += cpsize-1;
-                    ss << "\\u" << std::hex << codepoint;
                     break;
                 }
                 if (c < ' ') {
@@ -57,7 +61,7 @@ std::string util::escape(std::string_view s) {
 }
 
 std::string util::quote(const std::string& s) {
-    return escape(s);
+    return escape(s, false);
 }
 
 std::wstring util::lfill(std::wstring s, uint length, wchar_t c) {
