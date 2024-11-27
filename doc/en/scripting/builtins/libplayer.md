@@ -43,29 +43,29 @@ player.get_inventory(playerid: int) -> int, int
 Returns player inventory ID and selected slot index (0-9)
 
 ```lua
-player.is_flight() -> bool
-player.set_flight(bool)
+player.is_flight(playerid: int) -> bool
+player.set_flight(playerid: int, bool)
 ```
 
 Getter and setter for player flight mode
 
 ```lua
-player.is_noclip() -> bool
-player.set_noclip(bool)
+player.is_noclip(playerid: int) -> bool
+player.set_noclip(playerid: int, bool)
 ```
 
 Getter and setter for player noclip mode (collisions disabled)
 
 ```lua
-player.is_infinite_items() -> bool
-player.set_infinite_items(bool)
+player.is_infinite_items(playerid: int) -> bool
+player.set_infinite_items(playerid: int, bool)
 ```
 
 Getter and setter for infinite items (not removed from inventory after use)
 
 ```lua
-player.is_instant_destruction() -> bool
-player.set_instant_destruction(bool)
+player.is_instant_destruction(playerid: int) -> bool
+player.set_instant_destruction(playerid: int, bool)
 ```
 
 Getter and setter for instant destruction of blocks when the `player.destroy` binding is activated.
