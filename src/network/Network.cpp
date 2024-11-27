@@ -69,8 +69,8 @@ public:
     }
 
     virtual ~CurlRequests() {
-        curl_easy_cleanup(curl);
         curl_multi_remove_handle(multiHandle, curl);
+        curl_easy_cleanup(curl);
         curl_multi_cleanup(multiHandle);
     }
 
