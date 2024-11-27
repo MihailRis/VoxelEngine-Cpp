@@ -506,7 +506,7 @@ public:
 #       ifndef _WIN32
             flags |= SO_REUSEPORT;
 #       endif
-        if (setsockopt(descriptor, SOL_SOCKET, flags, &opt, sizeof(opt))) {
+        if (setsockopt(descriptor, SOL_SOCKET, flags, (const char*)&opt, sizeof(opt))) {
             closesocket(descriptor);
             throw std::runtime_error("setsockopt");
         }
