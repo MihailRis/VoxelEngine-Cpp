@@ -449,7 +449,7 @@ public:
                 SOCKET clientDescriptor;
                 sockaddr_in address;
                 logger.info() << "accepting clients";
-                if ((clientDescriptor = accept(descriptor, (sockaddr*)&address, &addrlen)) < 0) {
+                if ((clientDescriptor = accept(descriptor, (sockaddr*)&address, &addrlen)) == -1) {
                     close();
                     break;
                 }
