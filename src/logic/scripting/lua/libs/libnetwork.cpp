@@ -58,6 +58,14 @@ static int l_close(lua::State* L) {
     return 0;
 }
 
+static int l_closeserver(lua::State* L) {
+    u64id_t id = lua::tointeger(L, 1);
+    if (auto server = engine->getNetwork().getServer(id)) {
+        server->close();
+    }
+    return 0;
+}
+
 static int l_send(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     auto connection = engine->getNetwork().getConnection(id);
@@ -127,6 +135,7 @@ const luaL_Reg networklib[] = {
     {"get", lua::wrap<l_get>},
     {"get_binary", lua::wrap<l_get_binary>},
     {"__open", lua::wrap<l_open>},
+    {"__closeserver", lua::wrap<l_closeserver>},
     {"__connect", lua::wrap<l_connect>},
     {"__close", lua::wrap<l_close>},
     {"__send", lua::wrap<l_send>},

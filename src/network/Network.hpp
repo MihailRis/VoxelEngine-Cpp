@@ -75,6 +75,7 @@ namespace network {
         );
 
         [[nodiscard]] Connection* getConnection(u64id_t id) const;
+        [[nodiscard]] TcpServer* getServer(u64id_t id) const;
 
         u64id_t connect(const std::string& address, int port, consumer<u64id_t> callback);
 

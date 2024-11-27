@@ -254,11 +254,7 @@ static std::string to_string(const sockaddr_in* addr) {
 
 static std::string to_string(const addrinfo* addr) {
     if (addr->ai_family == AF_INET) {
-        auto psai = reinterpret_cast<sockaddr_in*>(addr->ai_addr);
-        char ip[INET_ADDRSTRLEN];
-        if (inet_ntop(addr->ai_family, &(psai->sin_addr), ip, INET_ADDRSTRLEN)) {
-            return std::string(ip)+":"+std::to_string(psai->sin_port);
-        }
+        return to_string(reinterpret_cast<sockaddr_in*>(addr->ai_addr));
     } else if (addr->ai_family == AF_INET6) {
         auto psai = reinterpret_cast<sockaddr_in6*>(addr->ai_addr);
         char ip[INET6_ADDRSTRLEN];
@@ -543,6 +539,14 @@ void Network::get(
 Connection* Network::getConnection(u64id_t id) const {
     const auto& found = connections.find(id);
     if (found == connections.end()) {
+        return nullptr;
+    }
+    return found->second.get();
+}
+
+TcpServer* Network::getServer(u64id_t id) const {
+    const auto& found = servers.find(id);
+    if (found == servers.end()) {
         return nullptr;
     }
     return found->second.get();
