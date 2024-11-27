@@ -42,7 +42,9 @@ static int l_connect(lua::State* L) {
     lua::pushvalue(L, 3);
     auto callback = lua::create_lambda(L);
     u64id_t id = engine->getNetwork().connect(address, port, [callback](u64id_t id) {
-        callback({id});
+        engine->postRunnable([=]() {
+            callback({id});
+        });
     });
     return lua::pushinteger(L, id);
 }
@@ -109,9 +111,22 @@ static int l_recv(lua::State* L) {
     return 1;
 }
 
+static int l_open(lua::State* L) {
+    int port = lua::tointeger(L, 1);
+    lua::pushvalue(L, 2);
+    auto callback = lua::create_lambda(L);
+    u64id_t id = engine->getNetwork().openServer(port, [callback](u64id_t id) {
+        engine->postRunnable([=]() {
+            callback({id});
+        });
+    });
+    return lua::pushinteger(L, id);
+}
+
 const luaL_Reg networklib[] = {
     {"get", lua::wrap<l_get>},
     {"get_binary", lua::wrap<l_get_binary>},
+    {"__open", lua::wrap<l_open>},
     {"__connect", lua::wrap<l_connect>},
     {"__close", lua::wrap<l_close>},
     {"__send", lua::wrap<l_send>},
