@@ -246,7 +246,7 @@ static inline int sendsocket(
 static std::string to_string(const sockaddr_in* addr) {
     char ip[INET_ADDRSTRLEN];
     if (inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN)) {
-        return std::string(ip)+":"+std::to_string(addr->sin_port);
+        return std::string(ip)+":"+std::to_string(htons(addr->sin_port));
     }
     return "";
 }
@@ -258,7 +258,7 @@ static std::string to_string(const addrinfo* addr) {
         auto psai = reinterpret_cast<sockaddr_in6*>(addr->ai_addr);
         char ip[INET6_ADDRSTRLEN];
         if (inet_ntop(addr->ai_family, &(psai->sin6_addr), ip, INET6_ADDRSTRLEN)) {
-            return std::string(ip)+":"+std::to_string(psai->sin6_port);
+            return std::string(ip)+":"+std::to_string(htons(psai->sin6_port));
         }
     }
     return "";
@@ -267,8 +267,7 @@ static std::string to_string(const addrinfo* addr) {
 class SocketConnection : public Connection {
     SOCKET descriptor;
     bool open = true;
-    addrinfo* addr;
-    std::string addrString;
+    sockaddr_in addr;
     size_t totalUpload = 0;
     size_t totalDownload = 0;
     ConnectionState state = ConnectionState::INITIAL;
@@ -279,22 +278,21 @@ class SocketConnection : public Connection {
 
     void connectSocket() {
         state = ConnectionState::CONNECTING;
-        logger.info() << "connecting to " << to_string(addr);
-        int res = connectsocket(descriptor, addr->ai_addr, addr->ai_addrlen);
+        logger.info() << "connecting to " << to_string(&addr);
+        int res = connectsocket(descriptor, (const sockaddr*)&addr, sizeof(sockaddr_in));
         if (res < 0) {
             auto error = handle_socket_error("Connect failed");
             closesocket(descriptor);
-            freeaddrinfo(addr);
             state = ConnectionState::CLOSED;
             logger.error() << error.what();
             return;
         }
-        logger.info() << "connected to " << to_string(addr);
+        logger.info() << "connected to " << to_string(&addr);
         state = ConnectionState::CONNECTED;
     }
 public:
-    SocketConnection(SOCKET descriptor, addrinfo* addr, const std::string& addrString)
-        : descriptor(descriptor), addr(addr), addrString(addrString), buffer(16'384) {}
+    SocketConnection(SOCKET descriptor, sockaddr_in addr)
+        : descriptor(descriptor), addr(std::move(addr)), buffer(16'384) {}
 
     ~SocketConnection() {
         if (state != ConnectionState::CLOSED) {
@@ -303,9 +301,6 @@ public:
         }
         if (thread) {
             thread->join();
-        }
-        if (addr) {
-            freeaddrinfo(addr);
         }
     }
 
@@ -318,13 +313,13 @@ public:
             while (state == ConnectionState::CONNECTED) {
                 int size = recvsocket(descriptor, buffer.data(), buffer.size());
                 if (size == 0) {
-                    logger.info() << "closed connection " << to_string(addr);
+                    logger.info() << "closed connection with " << to_string(&addr);
                     closesocket(descriptor);
                     state = ConnectionState::CLOSED;
                     break;
                 } else if (size < 0) {
                     logger.info() << "an error ocurred while receiving from "
-                                  << to_string(addr);
+                                  << to_string(&addr);
                     auto error = handle_socket_error("recv(...) error");
                     closesocket(descriptor);
                     state = ConnectionState::CLOSED;
@@ -338,7 +333,7 @@ public:
                     }
                     totalDownload += size;
                 }
-                logger.info() << "read " << size << " bytes from " << to_string(addr);
+                logger.info() << "read " << size << " bytes from " << to_string(&addr);
             }
         });
     }
@@ -403,18 +398,21 @@ public:
 
         addrinfo* addrinfo;
         if (int res = getaddrinfo(
-            address.c_str(), std::to_string(port).c_str(), &hints, &addrinfo
+            address.c_str(), nullptr, &hints, &addrinfo
         )) {
             throw std::runtime_error(gai_strerror(res));
         }
-        SOCKET descriptor = socket(
-            addrinfo->ai_family, addrinfo->ai_socktype, addrinfo->ai_protocol
-        );
+
+        sockaddr_in serverAddress = *(sockaddr_in*)addrinfo->ai_addr;
+        freeaddrinfo(addrinfo);
+        serverAddress.sin_port = htons(port);
+
+        SOCKET descriptor = socket(AF_INET, SOCK_STREAM, 0);
         if (descriptor == -1) {
             freeaddrinfo(addrinfo);
             throw std::runtime_error("Could not create socket");
         }
-        auto socket = std::make_shared<SocketConnection>(descriptor, addrinfo, to_string(addrinfo));
+        auto socket = std::make_shared<SocketConnection>(descriptor, std::move(serverAddress));
         socket->connect(std::move(callback));
         return socket;
     }
@@ -457,7 +455,7 @@ public:
                 }
                 logger.info() << "client connected: " << to_string(&address);
                 auto socket = std::make_shared<SocketConnection>(
-                    clientDescriptor, nullptr, to_string(&address)
+                    clientDescriptor, address
                 );
                 u64id_t id = network->addConnection(socket);
                 {
