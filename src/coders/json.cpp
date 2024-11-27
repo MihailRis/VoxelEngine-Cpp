@@ -241,6 +241,8 @@ dv::value Parser::parseValue() {
             return INFINITY;
         } else if (literal == "nan") {
             return NAN;
+        } else if (literal == "null") {
+            return nullptr;
         }
         throw error("invalid keyword " + literal);
     }
