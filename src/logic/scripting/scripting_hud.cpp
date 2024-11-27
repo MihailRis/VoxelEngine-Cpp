@@ -42,7 +42,7 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
         lua::call_nothrow(L, 0, 0);
     }
 
-    for (auto& pack : engine->getContentPacks()) {
+    for (auto& pack : engine->getAllContentPacks()) {
         lua::emit_event(
             lua::get_main_state(),
             pack.id + ":.hudopen",
@@ -54,7 +54,7 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
 }
 
 void scripting::on_frontend_render() {
-    for (auto& pack : engine->getContentPacks()) {
+    for (auto& pack : engine->getAllContentPacks()) {
         lua::emit_event(
             lua::get_main_state(),
             pack.id + ":.hudrender",
@@ -64,7 +64,7 @@ void scripting::on_frontend_render() {
 }
 
 void scripting::on_frontend_close() {
-    for (auto& pack : engine->getContentPacks()) {
+    for (auto& pack : engine->getAllContentPacks()) {
         lua::emit_event(
             lua::get_main_state(),
             pack.id + ":.hudclose",
