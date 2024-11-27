@@ -296,7 +296,9 @@ public:
             shutdown(descriptor, 2);
             closesocket(descriptor);
         }
-        thread->join();
+        if (thread) {
+            thread->join();
+        }
         freeaddrinfo(addr);
     }
 
@@ -369,6 +371,7 @@ public:
             closesocket(descriptor);
         }
         thread->join();
+        thread = nullptr;
     }
 
     size_t getTotalUpload() const override {

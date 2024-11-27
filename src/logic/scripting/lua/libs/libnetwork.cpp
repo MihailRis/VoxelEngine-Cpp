@@ -47,10 +47,21 @@ static int l_connect(lua::State* L) {
     return lua::pushinteger(L, id);
 }
 
+
+static int l_close(lua::State* L) {
+    u64id_t id = lua::tointeger(L, 1);
+    if (auto connection = engine->getNetwork().getConnection(id)) {
+        connection->close();
+    }
+    return 0;
+}
+
 static int l_send(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     auto connection = engine->getNetwork().getConnection(id);
-
+    if (connection == nullptr) {
+        return 0;
+    }
     if (lua::istable(L, 2)) {
         lua::pushvalue(L, 2);
         size_t size = lua::objlen(L, 2);
@@ -74,6 +85,9 @@ static int l_recv(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     int length = lua::tointeger(L, 2);
     auto connection = engine->getNetwork().getConnection(id);
+    if (connection == nullptr) {
+        return 0;
+    }
     util::Buffer<char> buffer(glm::min(length, connection->available()));
     
     int size = connection->recv(buffer.data(), length);
@@ -99,6 +113,7 @@ const luaL_Reg networklib[] = {
     {"get", lua::wrap<l_get>},
     {"get_binary", lua::wrap<l_get_binary>},
     {"__connect", lua::wrap<l_connect>},
+    {"__close", lua::wrap<l_close>},
     {"__send", lua::wrap<l_send>},
     {"__recv", lua::wrap<l_recv>},
     {NULL, NULL}
