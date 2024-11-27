@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <mutex>
 
 #include "typedefs.hpp"
 #include "settings.hpp"
@@ -58,11 +59,16 @@ namespace network {
 
     class Network {
         std::unique_ptr<Requests> requests;
+
         std::unordered_map<u64id_t, std::shared_ptr<Connection>> connections;
+        std::mutex connectionsMutex {};
         u64id_t nextConnection = 1;
 
         std::unordered_map<u64id_t, std::shared_ptr<TcpServer>> servers;
         u64id_t nextServer = 1;
+
+        size_t totalDownload = 0;
+        size_t totalUpload = 0;
     public:
         Network(std::unique_ptr<Requests> requests);
         ~Network();
@@ -74,7 +80,7 @@ namespace network {
             long maxSize=0
         );
 
-        [[nodiscard]] Connection* getConnection(u64id_t id) const;
+        [[nodiscard]] Connection* getConnection(u64id_t id);
         [[nodiscard]] TcpServer* getServer(u64id_t id) const;
 
         u64id_t connect(const std::string& address, int port, consumer<u64id_t> callback);

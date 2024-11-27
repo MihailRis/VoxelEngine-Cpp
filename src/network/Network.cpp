@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <limits>
 #include <queue>
-#include <mutex>
 #include <thread>
 
 #ifdef _WIN32
@@ -426,6 +425,7 @@ class SocketTcpSServer : public TcpServer {
     Network* network;
     SOCKET descriptor;
     std::vector<u64id_t> clients;
+    std::mutex clientsMutex;
     bool open = true;
     std::unique_ptr<std::thread> thread = nullptr;
 public:
@@ -457,7 +457,10 @@ public:
                     clientDescriptor, nullptr, to_string(&address)
                 );
                 u64id_t id = network->addConnection(socket);
-                clients.push_back(id);
+                {
+                    std::lock_guard lock(clientsMutex);
+                    clients.push_back(id);
+                }
                 handler(id);
             }
         });
@@ -469,9 +472,13 @@ public:
         }
         logger.info() << "closing server";
         open = false;
-        for (u64id_t clientid : clients) {
-            if (auto client = network->getConnection(clientid)) {
-                client->close();
+
+        {
+            std::lock_guard lock(clientsMutex);
+            for (u64id_t clientid : clients) {
+                if (auto client = network->getConnection(clientid)) {
+                    client->close();
+                }
             }
         }
         clients.clear();
@@ -536,7 +543,9 @@ void Network::get(
     requests->get(url, onResponse, onReject, maxSize);
 }
 
-Connection* Network::getConnection(u64id_t id) const {
+Connection* Network::getConnection(u64id_t id) {
+    std::lock_guard lock(connectionsMutex);
+
     const auto& found = connections.find(id);
     if (found == connections.end()) {
         return nullptr;
@@ -553,6 +562,8 @@ TcpServer* Network::getServer(u64id_t id) const {
 }
 
 u64id_t Network::connect(const std::string& address, int port, consumer<u64id_t> callback) {
+    std::lock_guard lock(connectionsMutex);
+    
     u64id_t id = nextConnection++;
     auto socket = SocketConnection::connect(address, port, [id, callback]() {
         callback(id);
@@ -569,29 +580,35 @@ u64id_t Network::openServer(int port, consumer<u64id_t> handler) {
 }
 
 u64id_t Network::addConnection(const std::shared_ptr<Connection>& socket) {
+    std::lock_guard lock(connectionsMutex);
+
     u64id_t id = nextConnection++;
     connections[id] = std::move(socket);
     return id;
 }
 
 size_t Network::getTotalUpload() const {
-    size_t totalUpload = 0;
-    for (const auto& [_, socket] : connections) {
-        totalUpload += socket->getTotalUpload();
-    }
     return requests->getTotalUpload() + totalUpload;
 }
 
 size_t Network::getTotalDownload() const {
-    size_t totalDownload = 0;
-    for (const auto& [_, socket] : connections) {
-        totalDownload += socket->getTotalDownload();
-    }
     return requests->getTotalDownload() + totalDownload;
 }
 
 void Network::update() {
     requests->update();
+
+    totalDownload = 0;
+    totalUpload = 0;
+    {
+        std::lock_guard lock(connectionsMutex);
+        for (const auto& [_, socket] : connections) {
+            totalDownload += socket->getTotalDownload();
+        }
+        for (const auto& [_, socket] : connections) {
+            totalUpload += socket->getTotalUpload();
+        }
+    }
 }
 
 std::unique_ptr<Network> Network::create(const NetworkSettings& settings) {
