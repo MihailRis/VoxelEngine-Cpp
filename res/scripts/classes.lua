@@ -46,10 +46,10 @@ local Socket = {__index={
 
 network.tcp_connect = function(address, port, callback)
     local socket = setmetatable({id=0}, Socket)
-    return setmetatable({id=network.__connect(address, port, function(id)
-        socket.id = id
+    socket.id = network.__connect(address, port, function(id)
         callback(socket)
-    end)}, Socket)
+    end)
+    return socket
 end
 
 local ServerSocket = {__index={
