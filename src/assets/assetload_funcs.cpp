@@ -50,7 +50,9 @@ assetload::postfunc assetload::texture(
 ) {
     auto actualFile = paths->find(filename + ".png").u8string();
     try {
-        std::shared_ptr<ImageData> image(imageio::read(actualFile).release());
+        std::shared_ptr<ImageData> image(
+            imageio::read(fs::u8path(actualFile)).release()
+        );
         return [name, image, actualFile](auto assets) {
             assets->store(Texture::from(image.get()), name);
         };
@@ -96,7 +98,7 @@ static bool append_atlas(AtlasBuilder& atlas, const fs::path& file) {
     if (atlas.has(name)) {
         return false;
     }
-    auto image = imageio::read(file.string());
+    auto image = imageio::read(file);
     image->fixAlphaColor();
     atlas.add(name, std::move(image));
     return true;
@@ -150,7 +152,7 @@ assetload::postfunc assetload::font(
         std::string pagefile = filename + "_" + std::to_string(i) + ".png";
         auto file = paths->find(pagefile);
         if (fs::exists(file)) {
-            pages->push_back(imageio::read(file.u8string()));
+            pages->push_back(imageio::read(file));
         } else if (i == 0) {
             throw std::runtime_error("font must have page 0");
         } else {

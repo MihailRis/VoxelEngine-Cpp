@@ -1,22 +1,25 @@
 #include <memory>
 #include <vector>
 
+#include "api_lua.hpp"
+#include "coders/png.hpp"
 #include "constants.hpp"
-#include "engine.hpp"
 #include "content/Content.hpp"
+#include "debug/Logger.hpp"
+#include "engine.hpp"
 #include "files/engine_paths.hpp"
+#include "files/files.hpp"
 #include "files/settings_io.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/MenuScreen.hpp"
+#include "graphics/core/Texture.hpp"
 #include "logic/EngineController.hpp"
 #include "logic/LevelController.hpp"
+#include "util/listutil.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
-#include "world/generator/WorldGenerator.hpp"
 #include "world/Level.hpp"
-#include "util/listutil.hpp"
-
-#include "api_lua.hpp"
+#include "world/generator/WorldGenerator.hpp"
 
 using namespace scripting;
 
@@ -187,24 +190,14 @@ static int l_get_setting_info(lua::State* L) {
     throw std::runtime_error("unsupported setting type");
 }
 
-#include "coders/png.hpp"
-#include "debug/Logger.hpp"
-#include "files/files.hpp"
-#include "graphics/core/Texture.hpp"
-
-/// FIXME: replace with in-memory implementation
-
 static void load_texture(
     const ubyte* bytes, size_t size, const std::string& destname
 ) {
-    auto path = engine->getPaths()->resolve("export:.__vc_imagedata");
     try {
-        files::write_bytes(path, bytes, size);
-        engine->getAssets()->store(png::load_texture(path.u8string()), destname);
-        std::filesystem::remove(path);
+        engine->getAssets()->store(png::load_texture(bytes, size), destname);
     } catch (const std::runtime_error& err) {
         debug::Logger logger("lua.corelib");
-        logger.error() << "could not to decode image: " << err.what();
+        logger.error() << err.what();
     }
 }
 
