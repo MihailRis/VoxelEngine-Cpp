@@ -251,19 +251,6 @@ static std::string to_string(const sockaddr_in* addr) {
     return "";
 }
 
-static std::string to_string(const addrinfo* addr) {
-    if (addr->ai_family == AF_INET) {
-        return to_string(reinterpret_cast<sockaddr_in*>(addr->ai_addr));
-    } else if (addr->ai_family == AF_INET6) {
-        auto psai = reinterpret_cast<sockaddr_in6*>(addr->ai_addr);
-        char ip[INET6_ADDRSTRLEN];
-        if (inet_ntop(addr->ai_family, &(psai->sin6_addr), ip, INET6_ADDRSTRLEN)) {
-            return std::string(ip)+":"+std::to_string(htons(psai->sin6_port));
-        }
-    }
-    return "";
-}
-
 class SocketConnection : public Connection {
     SOCKET descriptor;
     bool open = true;
