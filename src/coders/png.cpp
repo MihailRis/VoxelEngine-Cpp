@@ -92,82 +92,99 @@ int _png_write(
     return 0;
 }
 
-std::unique_ptr<ImageData> _png_load(const char* file) {
-    FILE* fp = nullptr;
-    if ((fp = fopen(file, "rb")) == nullptr) {
-        return nullptr;
+struct InMemoryReader {
+    const ubyte* bytes;
+    size_t size;
+    size_t offset;
+};
+
+static void read_in_memory(png_structp pngPtr, png_bytep dst, png_size_t toread) {
+    png_voidp ioPtr = png_get_io_ptr(pngPtr);
+    if (ioPtr == nullptr) {
+        throw std::runtime_error("png_get_io_ptr(...) -> NULL");
     }
-    png_struct* png = png_create_read_struct(
-        PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr
+    auto& reader = *reinterpret_cast<InMemoryReader*>(ioPtr);
+    if (reader.offset + toread > reader.size) {
+        throw std::runtime_error("buffer underflow");
+    }
+    std::memcpy(dst, reader.bytes + reader.offset, toread);
+    reader.offset += toread;
+}
+
+std::unique_ptr<ImageData> png::load_image(const ubyte* bytes, size_t size) {
+    if (!png_check_sig(bytes, size)) {
+        throw std::runtime_error("invalid png signature");
+    }
+    png_structp pngPtr = nullptr;
+    pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (pngPtr == nullptr) {
+        throw std::runtime_error("failed png_create_read_struct");
+    }
+    png_infop infoPtr = nullptr;
+    infoPtr = png_create_info_struct(pngPtr);
+    if(infoPtr == nullptr) {
+        png_destroy_read_struct(&pngPtr, nullptr, nullptr);
+        throw std::runtime_error("failed png_create_info_struct");
+    }
+
+    InMemoryReader reader {bytes, size, 0};
+
+    png_set_read_fn(pngPtr, &reader, read_in_memory);
+    png_read_info(pngPtr, infoPtr);
+
+    png_uint_32 width = 0;
+    png_uint_32 height = 0;
+    int bitDepth = 0;
+    int colorType = -1;
+    png_uint_32 retval = png_get_IHDR(pngPtr, infoPtr,
+        &width,
+        &height,
+        &bitDepth,
+        &colorType,
+        nullptr, nullptr, nullptr
     );
-    if (png == nullptr) {
-        fclose(fp);
-        return nullptr;
+    if (retval != 1) {
+        png_destroy_read_struct(&pngPtr, &infoPtr, nullptr);
+        throw std::runtime_error("failed png_get_IHDR");
     }
-    png_info* info = png_create_info_struct(png);
-    if (info == nullptr) {
-        png_destroy_read_struct(&png, (png_info**)nullptr, (png_info**)nullptr);
-        fclose(fp);
-        return nullptr;
+    if (bitDepth == 16) png_set_strip_16(pngPtr);
+
+    if (colorType == PNG_COLOR_TYPE_PALETTE) {
+        png_set_palette_to_rgb(pngPtr);
     }
-    png_info* end_info = png_create_info_struct(png);
-    if (end_info == nullptr) {
-        png_destroy_read_struct(&png, (png_info**)nullptr, (png_info**)nullptr);
-        fclose(fp);
-        return nullptr;
+    if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) {
+        png_set_expand_gray_1_2_4_to_8(pngPtr);
     }
-
-    if (setjmp(png_jmpbuf(png))) {
-        png_destroy_read_struct(&png, &info, &end_info);
-        fclose(fp);
-        return nullptr;
+    if (png_get_valid(pngPtr, infoPtr, PNG_INFO_tRNS)) {
+        png_set_tRNS_to_alpha(pngPtr);
     }
-
-    png_init_io(png, fp);
-    png_read_info(png, info);
-
-    int width = png_get_image_width(png, info);
-    int height = png_get_image_height(png, info);
-    png_byte color_type = png_get_color_type(png, info);
-    int bit_depth = png_get_bit_depth(png, info);
-
-    if (bit_depth == 16) png_set_strip_16(png);
-
-    if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_palette_to_rgb(png);
-
-    if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
-        png_set_expand_gray_1_2_4_to_8(png);
-
-    if (png_get_valid(png, info, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png);
-
     // These color_type don't have an alpha channel then fill it with 0xff.
-    if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY ||
-        color_type == PNG_COLOR_TYPE_PALETTE)
-        png_set_filler(png, 0xFF, PNG_FILLER_AFTER);
+    if (colorType == PNG_COLOR_TYPE_RGB || colorType == PNG_COLOR_TYPE_GRAY ||
+        colorType == PNG_COLOR_TYPE_PALETTE) {
+        png_set_filler(pngPtr, 0xFF, PNG_FILLER_AFTER);
+    }
+    if (colorType == PNG_COLOR_TYPE_GRAY ||
+        colorType == PNG_COLOR_TYPE_GRAY_ALPHA) {
+        png_set_gray_to_rgb(pngPtr);
+    }
+    png_read_update_info(pngPtr, infoPtr);
 
-    if (color_type == PNG_COLOR_TYPE_GRAY ||
-        color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
-        png_set_gray_to_rgb(png);
+    int rowBytes = png_get_rowbytes(pngPtr, infoPtr);
 
-    png_read_update_info(png, info);
-
-    int row_bytes = png_get_rowbytes(png, info);
-    // color_type = png_get_color_type(png, info);
     //  png_get_color_type returns 2 (RGB) but raster always have alpha channel
     //  due to PNG_FILLER_AFTER
+    colorType = 6;
+    bitDepth = png_get_bit_depth(pngPtr, infoPtr);
 
-    color_type = 6;
-    bit_depth = png_get_bit_depth(png, info);
-
-    auto image_data = std::make_unique<png_byte[]>(row_bytes * height);
-    auto row_pointers = std::make_unique<png_byte*[]>(height);
+    auto imageData = std::make_unique<png_byte[]>(rowBytes * height);
+    auto rowPointers = std::make_unique<png_byte*[]>(height);
     for (int i = 0; i < height; ++i) {
-        row_pointers[height - 1 - i] = image_data.get() + i * row_bytes;
+        rowPointers[height - 1 - i] = imageData.get() + i * rowBytes;
     }
-    png_read_image(png, row_pointers.get());
+    png_read_image(pngPtr, rowPointers.get());
 
     ImageFormat format = ImageFormat::rgba8888;
-    switch (color_type) {
+    switch (colorType) {
         case PNG_COLOR_TYPE_RGBA:
             format = ImageFormat::rgba8888;
             break;
@@ -175,33 +192,34 @@ std::unique_ptr<ImageData> _png_load(const char* file) {
             format = ImageFormat::rgb888;
             break;
         default:
-            logger.error() << "color type " << color_type
-                           << " is not supported!";
-            png_destroy_read_struct(&png, &info, &end_info);
-            fclose(fp);
-            return nullptr;
+            png_destroy_read_struct(&pngPtr, &infoPtr, nullptr);
+            throw std::runtime_error(
+                "color type " + std::to_string(colorType) + " is not supported!"
+            );
     }
     auto image = std::make_unique<ImageData>(
-        format, width, height, std::move(image_data)
+        format, width, height, std::move(imageData)
     );
-    png_destroy_read_struct(&png, &info, &end_info);
-    fclose(fp);
+    png_destroy_read_struct(&pngPtr, &infoPtr, nullptr);
     return image;
 }
 
-std::unique_ptr<ImageData> png::load_image(const std::string& filename) {
-    auto image = _png_load(filename.c_str());
-    if (image == nullptr) {
-        throw std::runtime_error("could not load image " + filename);
-    }
-    return image;
-}
-
-std::unique_ptr<Texture> png::load_texture(const std::string& filename) {
-    auto image = load_image(filename);
+std::unique_ptr<Texture> png::load_texture(const ubyte* bytes, size_t size) {
+    auto image = load_image(bytes, size);
     auto texture = GLTexture::from(image.get());
     texture->setNearestFilter();
     return texture;
+}
+
+std::unique_ptr<Texture> png::load_texture(const std::string& filename) {
+    auto bytes = files::read_bytes_buffer(fs::u8path(filename));
+    try {
+        return load_texture(bytes.data(), bytes.size());
+    } catch (const std::runtime_error& err) {
+        throw std::runtime_error(
+            "could not to load " + filename + ": " + err.what()
+        );
+    }
 }
 
 void png::write_image(const std::string& filename, const ImageData* image) {

@@ -62,7 +62,7 @@ static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
     try {
         auto file = resdir / fs::u8path("textures/misc/icon.png");
         if (fs::exists(file)) {
-            return imageio::read(file.u8string());
+            return imageio::read(file);
         }
     } catch (const std::exception& err) {
         logger.error() << "could not load window icon: " << err.what();
