@@ -393,7 +393,7 @@ public:
     ) {
         addrinfo hints {};
 
-        hints.ai_family = AF_UNSPEC;
+        hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
 
         addrinfo* addrinfo;
