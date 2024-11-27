@@ -5,12 +5,13 @@
 #include <unordered_map>
 
 #include "graphics/core/ImageData.hpp"
+#include "files/files.hpp"
 #include "png.hpp"
 
 namespace fs = std::filesystem;
 
 using image_reader =
-    std::function<std::unique_ptr<ImageData>(const std::string&)>;
+    std::function<std::unique_ptr<ImageData>(const ubyte*, size_t)>;
 using image_writer = std::function<void(const std::string&, const ImageData*)>;
 
 static std::unordered_map<std::string, image_reader> readers {
@@ -33,14 +34,21 @@ inline std::string extensionOf(const std::string& filename) {
     return fs::u8path(filename).extension().u8string();
 }
 
-std::unique_ptr<ImageData> imageio::read(const std::string& filename) {
-    auto found = readers.find(extensionOf(filename));
+std::unique_ptr<ImageData> imageio::read(const fs::path& filename) {
+    auto found = readers.find(extensionOf(filename.u8string()));
     if (found == readers.end()) {
         throw std::runtime_error(
-            "file format is not supported (read): " + filename
+            "file format is not supported (read): " + filename.u8string()
         );
     }
-    return std::unique_ptr<ImageData>(found->second(filename));
+    auto bytes = files::read_bytes_buffer(filename);
+    try {
+        return std::unique_ptr<ImageData>(found->second(bytes.data(), bytes.size()));
+    } catch (const std::runtime_error& err) {
+        throw std::runtime_error(
+            "could not to load image " + filename.u8string() + ": " + err.what()
+        );
+    }
 }
 
 void imageio::write(const std::string& filename, const ImageData* image) {

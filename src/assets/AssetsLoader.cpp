@@ -282,7 +282,7 @@ bool AssetsLoader::loadExternalTexture(
     for (auto& path : alternatives) {
         if (fs::exists(path)) {
             try {
-                auto image = imageio::read(path.string());
+                auto image = imageio::read(path);
                 assets->store(Texture::from(image.get()), name);
                 return true;
             } catch (const std::exception& err) {
