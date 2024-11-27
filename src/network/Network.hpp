@@ -6,6 +6,7 @@
 #include "typedefs.hpp"
 #include "settings.hpp"
 #include "util/Buffer.hpp"
+#include "delegates.hpp"
 
 namespace network {
     using OnResponse = std::function<void(std::vector<char>)>;
@@ -27,20 +28,27 @@ namespace network {
         virtual void update() = 0;
     };
 
-    class Socket {
+    enum class ConnectionState {
+        INITIAL, CONNECTING, CONNECTED, CLOSED
+    };
+
+    class Connection {
     public:
+        virtual void connect(runnable callback) = 0;
         virtual int recv(char* buffer, size_t length) = 0;
         virtual int send(const char* buffer, size_t length) = 0;
         virtual void close() = 0;
-        virtual bool isOpen() const = 0;
+        virtual int available() = 0;
 
         virtual size_t getTotalUpload() const = 0;
         virtual size_t getTotalDownload() const = 0;
+
+        virtual ConnectionState getState() const = 0;
     };
 
     class Network {
         std::unique_ptr<Requests> requests;
-        std::unordered_map<u64id_t, std::shared_ptr<Socket>> connections;
+        std::unordered_map<u64id_t, std::shared_ptr<Connection>> connections;
         u64id_t nextConnection = 1;
     public:
         Network(std::unique_ptr<Requests> requests);
@@ -53,9 +61,9 @@ namespace network {
             long maxSize=0
         );
 
-        Socket* getConnection(u64id_t id) const;
+        [[nodiscard]] Connection* getConnection(u64id_t id) const;
 
-        u64id_t connect(const std::string& address, int port);
+        u64id_t connect(const std::string& address, int port, consumer<u64id_t> callback);
 
         size_t getTotalUpload() const;
         size_t getTotalDownload() const;
