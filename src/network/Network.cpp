@@ -99,6 +99,7 @@ public:
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, request.followLocation);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl");
         if (request.maxSize == 0) {
             curl_easy_setopt(
                 curl, CURLOPT_MAXFILESIZE, std::numeric_limits<long>::max()

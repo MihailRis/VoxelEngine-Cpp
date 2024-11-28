@@ -22,6 +22,7 @@ Subsections:
     - [inventory](scripting/builtins/libinventory.md)
     - [item](scripting/builtins/libitem.md)
     - [mat4](scripting/builtins/libmat4.md)
+    - [network](scripting/builtins/libnetwork.md)
     - [pack](scripting/builtins/libpack.md)
     - [player](scripting/builtins/libplayer.md)
     - [quat](scripting/builtins/libquat.md)
