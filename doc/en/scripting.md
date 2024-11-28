@@ -15,6 +15,7 @@ Subsections:
     - [cameras](scripting/builtins/libcameras.md)
     - [entities](scripting/builtins/libentities.md)
     - [file](scripting/builtins/libfile.md)
+    - [gfx.blockwraps](scripting/builtins/libgfx-blockwraps.md)
     - [gfx.particles](particles.md#gfxparticles-library)
     - [gfx.text3d](3d-text.md#gfxtext3d-library)
     - [gui](scripting/builtins/libgui.md)

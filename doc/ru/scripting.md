@@ -15,6 +15,7 @@
     - [cameras](scripting/builtins/libcameras.md)
     - [entities](scripting/builtins/libentities.md)
     - [file](scripting/builtins/libfile.md)
+    - [gfx.blockwraps](scripting/builtins/libgfx-blockwraps.md)
     - [gfx.particles](particles.md#библиотека-gfxparticles)
     - [gfx.text3d](3d-text.md#библиотека-gfxtext3d)
     - [gui](scripting/builtins/libgui.md)
