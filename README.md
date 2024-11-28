@@ -78,7 +78,7 @@ cmake --build .
 ### Install libraries
 
 ```sh
-brew install glfw3 glew glm libpng libvorbis lua luajit openal-soft skypjack/entt/entt
+brew install glfw3 glew glm libpng libvorbis lua luajit libcurl openal-soft skypjack/entt/entt
 ```
 
 > [!TIP]
