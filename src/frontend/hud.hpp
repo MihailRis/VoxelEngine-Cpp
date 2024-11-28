@@ -153,7 +153,7 @@ public:
     /// @param doc ui layout
     /// @param inv inventory
     /// @param playerInventory show player inventory too
-    void openInventory(
+    std::shared_ptr<Inventory> openInventory(
         UiDocument* doc,
         std::shared_ptr<Inventory> inv,
         bool playerInventory
