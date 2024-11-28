@@ -367,12 +367,16 @@ public:
         }
     }
 
-    size_t getTotalUpload() const override {
-        return totalUpload;
+    size_t pullUpload() override {
+        size_t size = totalUpload;
+        totalUpload = 0;
+        return size;
     }
 
-    size_t getTotalDownload() const override {
-        return totalDownload;
+    size_t pullDownload() override {
+        size_t size = totalDownload;
+        totalDownload = 0;
+        return size;
     }
 
     static std::shared_ptr<SocketConnection> connect(
@@ -586,15 +590,28 @@ size_t Network::getTotalDownload() const {
 void Network::update() {
     requests->update();
 
-    totalDownload = 0;
-    totalUpload = 0;
     {
         std::lock_guard lock(connectionsMutex);
-        for (const auto& [_, socket] : connections) {
-            totalDownload += socket->getTotalDownload();
+        auto socketiter = connections.begin();
+        while (socketiter != connections.end()) {
+            auto socket = socketiter->second.get();
+            totalDownload += socket->pullDownload();
+            totalUpload += socket->pullUpload();
+            if (socket->available() == 0 && 
+                socket->getState() == ConnectionState::CLOSED) {
+                socketiter = connections.erase(socketiter);
+                continue;
+            }
+            ++socketiter;
         }
-        for (const auto& [_, socket] : connections) {
-            totalUpload += socket->getTotalUpload();
+        auto serveriter = servers.begin();
+        while (serveriter != servers.end()) {
+            auto server = serveriter->second.get();
+            if (!server->isOpen()) {
+                serveriter = servers.erase(serveriter);
+                continue;
+            }
+            ++serveriter;
         }
     }
 }

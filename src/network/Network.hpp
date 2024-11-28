@@ -43,8 +43,8 @@ namespace network {
         virtual void close() = 0;
         virtual int available() = 0;
 
-        virtual size_t getTotalUpload() const = 0;
-        virtual size_t getTotalDownload() const = 0;
+        virtual size_t pullUpload() = 0;
+        virtual size_t pullDownload() = 0;
 
         virtual ConnectionState getState() const = 0;
     };

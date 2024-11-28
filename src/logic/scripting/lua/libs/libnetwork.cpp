@@ -159,9 +159,19 @@ static int l_is_serveropen(lua::State* L) {
     return lua::pushboolean(L, false);
 }
 
+static int l_get_total_upload(lua::State* L) {
+    return lua::pushinteger(L, engine->getNetwork().getTotalUpload());
+}
+
+static int l_get_total_download(lua::State* L) {
+    return lua::pushinteger(L, engine->getNetwork().getTotalDownload());
+}
+
 const luaL_Reg networklib[] = {
     {"get", lua::wrap<l_get>},
     {"get_binary", lua::wrap<l_get_binary>},
+    {"get_total_upload", lua::wrap<l_get_total_upload>},
+    {"get_total_download", lua::wrap<l_get_total_download>},
     {"__open", lua::wrap<l_open>},
     {"__closeserver", lua::wrap<l_closeserver>},
     {"__connect", lua::wrap<l_connect>},
