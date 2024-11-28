@@ -8,8 +8,17 @@ hud.open_inventory()
 hud.close_inventory()
 
 -- Open UI and inventory.
--- Throws an exception if has no UI layout.
-hud.open(invid: int, layoutid: str)
+-- Throws an exception if has UI layout does not exists.
+-- If invid is not specified, a virtual (temporary) inventory is created.
+-- Returns the invid or id of the virtual inventory.
+hud.open(
+    -- UI layout name
+    layoutid: str, 
+    -- Don't open player inventory
+    [optional] disablePlayerInventory: bool, 
+    -- Inventory that UI layout will be bound to
+    [optional] invid: int
+) -> int
 
 -- Open block UI and inventory.
 -- Throws an exception if block has no UI layout.

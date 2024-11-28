@@ -382,16 +382,11 @@ void Hud::openInventory() {
     add(HudElement(hud_element_mode::inventory_bound, nullptr, exchangeSlot, false));
 }
 
-void Hud::openInventory(
+std::shared_ptr<Inventory> Hud::openInventory(
     UiDocument* doc,
     std::shared_ptr<Inventory> inv,
     bool playerInventory
 ) {
-    if (inv == nullptr) {
-        // why try to open nox-existent inventory??
-        return;
-    }
-
     if (isInventoryOpen()) {
         closeInventory();
     }
@@ -413,6 +408,7 @@ void Hud::openInventory(
     }
     secondInvView->bind(inv, content);
     add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+    return inv;
 }
 
 void Hud::openInventory(
