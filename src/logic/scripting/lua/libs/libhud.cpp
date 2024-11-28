@@ -37,23 +37,20 @@ static int l_close_inventory(lua::State*) {
 }
 
 static int l_open(lua::State* L) {
-    auto invid = lua::tointeger(L, 1);
-    auto layoutid = lua::require_string(L, 2);
-    bool playerInventory = !lua::toboolean(L, 3);
+    auto layoutid = lua::require_string(L, 1);
+    bool playerInventory = !lua::toboolean(L, 2);
+    auto invid = lua::tointeger(L, 3);
 
     auto assets = engine->getAssets();
     auto layout = assets->get<UiDocument>(layoutid);
     if (layout == nullptr) {
         throw std::runtime_error("there is no ui layout " + util::quote(layoutid));
     }
-
-    hud->openInventory(
+    return lua::pushinteger(L, hud->openInventory(
         layout,
         level->inventories->get(invid),
         playerInventory
-    );
-
-    return 0;
+    )->getId());
 }
 
 static int l_open_block(lua::State* L) {
