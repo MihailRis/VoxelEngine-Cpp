@@ -98,6 +98,7 @@ Inner text is a button text.
 Inner text - initially entered text
 
 - `placeholder` - placeholder text (used if the text field is empty)
+- `hint` - text displayed if the text field is empty (not sent to consumer, sub-consumer and validator).
 - `supplier` - text supplier (called every frame)
 - `consumer` - lua function that receives the entered text. Called only when input is complete
 - `sub-consumer` - lua function-receiver of the input text. Called during text input or deletion.
