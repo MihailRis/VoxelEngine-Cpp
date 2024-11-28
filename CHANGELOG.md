@@ -34,6 +34,7 @@ Table of contents:
 - item.properties table
 - add version to world info table
 - add 'sizeSpread' particles property
+- add user properties
 
 ### Functions
 
