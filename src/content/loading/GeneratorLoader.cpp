@@ -132,14 +132,14 @@ static VoxelStructureMeta load_structure_meta(
 }
 
 static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
-    const fs::path& structuresFile
+    const dv::value& map, const fs::path& filesFolder, const ResPaths& paths
 ) {
-    auto structuresDir = structuresFile.parent_path() / fs::path("fragments");
-    auto map = files::read_object(structuresFile);
+    auto structuresDir = filesFolder / fs::path("fragments");
 
     std::vector<std::unique_ptr<VoxelStructure>> structures;
     for (auto& [name, config] : map.asObject()) {
         auto structFile = structuresDir / fs::u8path(name + ".vox");
+        structFile = paths.find(structFile.u8string());
         logger.debug() << "loading voxel fragment " << structFile.u8string();
         if (!fs::exists(structFile)) {
             throw std::runtime_error("structure file does not exist (" +
@@ -159,8 +159,13 @@ static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
     return structures;
 }
 
-static void load_structures(GeneratorDef& def, const fs::path& structuresFile) {
-    auto rawStructures = load_structures(structuresFile);
+static void load_structures(
+    GeneratorDef& def,
+    const dv::value& map,
+    const fs::path& filesFolder,
+    const ResPaths& paths
+) {
+    auto rawStructures = load_structures(map, filesFolder, paths);
     def.structures.resize(rawStructures.size());
 
     for (int i = 0; i < rawStructures.size(); i++) {
@@ -231,10 +236,9 @@ void ContentLoader::loadGenerator(
     auto folder = generatorsDir / fs::u8path(name + ".files");
     auto scriptFile = folder / fs::u8path("script.lua");
 
-    auto structuresFile = folder / STRUCTURES_FILE;
-    if (fs::exists(structuresFile)) {
-        load_structures(def, structuresFile);
-    }
+    auto structuresFile = GENERATORS_DIR / fs::u8path(name + ".files") / STRUCTURES_FILE;
+    auto structuresMap = paths.readCombinedObject(structuresFile.u8string());
+    load_structures(def, structuresMap, structuresFile.parent_path(), paths);
 
     auto biomesFile = GENERATORS_DIR / fs::u8path(name + ".files") / BIOMES_FILE;
     auto biomesMap = paths.readCombinedObject(biomesFile.u8string());
