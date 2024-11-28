@@ -32,6 +32,7 @@ extern const luaL_Reg inventorylib[];
 extern const luaL_Reg itemlib[];
 extern const luaL_Reg jsonlib[];
 extern const luaL_Reg mat4lib[];
+extern const luaL_Reg networklib[];
 extern const luaL_Reg packlib[];
 extern const luaL_Reg particleslib[]; // gfx.particles
 extern const luaL_Reg playerlib[];

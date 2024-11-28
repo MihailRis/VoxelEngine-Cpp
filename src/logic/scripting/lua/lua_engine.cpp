@@ -65,6 +65,7 @@ static void create_libs(State* L, StateType stateType) {
         openlib(L, "audio", audiolib);
         openlib(L, "console", consolelib);
         openlib(L, "player", playerlib);
+        openlib(L, "network", networklib);
 
         openlib(L, "entities", entitylib);
         openlib(L, "cameras", cameralib);

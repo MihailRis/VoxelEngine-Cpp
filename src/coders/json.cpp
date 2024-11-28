@@ -73,7 +73,7 @@ void stringifyValue(
             break;
         }
         case value_type::string:
-            ss << util::escape(value.asString());
+            ss << util::escape(value.asString(), !nice);
             break;
         case value_type::number:
             ss << std::setprecision(15) << value.asNumber();
@@ -241,6 +241,8 @@ dv::value Parser::parseValue() {
             return INFINITY;
         } else if (literal == "nan") {
             return NAN;
+        } else if (literal == "null") {
+            return nullptr;
         }
         throw error("invalid keyword " + literal);
     }

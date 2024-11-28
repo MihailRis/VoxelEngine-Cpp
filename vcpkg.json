@@ -12,6 +12,7 @@
       "luajit",
       "libvorbis",
       "entt",
-      "gtest"
+      "gtest",
+      "curl"
     ]
   }

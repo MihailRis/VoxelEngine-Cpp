@@ -81,6 +81,9 @@ struct UiSettings {
     IntegerSetting worldPreviewSize {64, 1, 512};
 };
 
+struct NetworkSettings {
+};
+
 struct EngineSettings {
     AudioSettings audio;
     DisplaySettings display;
@@ -89,4 +92,5 @@ struct EngineSettings {
     GraphicsSettings graphics;
     DebugSettings debug;
     UiSettings ui;
+    NetworkSettings network;
 };

@@ -36,6 +36,10 @@ namespace cmd {
     class CommandsInterpreter;
 }
 
+namespace network {
+    class Network;
+}
+
 class initialize_error : public std::runtime_error {
 public:
     initialize_error(const std::string& message) : std::runtime_error(message) {}
@@ -55,6 +59,7 @@ class Engine : public util::ObjectsKeeper {
     std::recursive_mutex postRunnablesMutex;
     std::unique_ptr<EngineController> controller;
     std::unique_ptr<cmd::CommandsInterpreter> interpreter;
+    std::unique_ptr<network::Network> network;
     std::vector<std::string> basePacks;
 
     uint64_t frame = 0;
@@ -147,4 +152,6 @@ public:
     PacksManager createPacksManager(const fs::path& worldFolder);
 
     SettingsHandler& getSettingsHandler();
+
+    network::Network& getNetwork();
 };

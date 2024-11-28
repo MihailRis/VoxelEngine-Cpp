@@ -208,23 +208,22 @@ void scripting::on_world_load(LevelController* controller) {
     if (lua::getglobal(L, "__vc_on_world_open")) {
         lua::call_nothrow(L, 0, 0);
     } 
-    load_script("world.lua", false);
     
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : scripting::engine->getAllContentPacks()) {
         lua::emit_event(L, pack.id + ":.worldopen");
     }
 }
 
 void scripting::on_world_tick() {
     auto L = lua::get_main_state();
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : scripting::engine->getAllContentPacks()) {
         lua::emit_event(L, pack.id + ":.worldtick");
     }
 }
 
 void scripting::on_world_save() {
     auto L = lua::get_main_state();
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : scripting::engine->getAllContentPacks()) {
         lua::emit_event(L, pack.id + ":.worldsave");
     }
     if (lua::getglobal(L, "__vc_on_world_save")) {
@@ -234,7 +233,7 @@ void scripting::on_world_save() {
 
 void scripting::on_world_quit() {
     auto L = lua::get_main_state();
-    for (auto& pack : scripting::engine->getContentPacks()) {
+    for (auto& pack : scripting::engine->getAllContentPacks()) {
         lua::emit_event(L, pack.id + ":.worldquit");
     }
     if (lua::getglobal(L, "__vc_on_world_quit")) {

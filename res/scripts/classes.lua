@@ -34,3 +34,31 @@ cameras.get = function(name)
     wrappers[name] = wrapper
     return wrapper
 end
+
+
+local Socket = {__index={
+    send=function(self, ...) return network.__send(self.id, ...) end,
+    recv=function(self, ...) return network.__recv(self.id, ...) end,
+    close=function(self) return network.__close(self.id) end,
+    is_alive=function(self) return network.__is_alive(self.id) end,
+    is_connected=function(self) return network.__is_connected(self.id) end,
+}}
+
+network.tcp_connect = function(address, port, callback)
+    local socket = setmetatable({id=0}, Socket)
+    socket.id = network.__connect(address, port, function(id)
+        callback(socket)
+    end)
+    return socket
+end
+
+local ServerSocket = {__index={
+    close=function(self) return network.__closeserver(self.id) end,
+    is_open=function(self) return network.__is_serveropen(self.id) end,
+}}
+
+network.tcp_open = function(port, handler)
+    return setmetatable({id=network.__open(port, function(id)
+        handler(setmetatable({id=id}, Socket))
+    end)}, ServerSocket)
+end
