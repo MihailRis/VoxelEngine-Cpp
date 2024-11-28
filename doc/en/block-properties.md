@@ -187,3 +187,12 @@ Available data types:
 - Currently, the total sum of the field sizes cannot exceed 240 bytes.
 - A field without an array length specification is equivalent to an array of 1 element.
 - A character array can be used to store UTF-8 strings.
+
+## User properties
+
+User properties must be declared in `pack:config/user-props.toml` file:
+```toml
+"pack:property_name" = {}
+```
+
+Example: [user properties of pack **base**](../../res/content/base/config/user-props.toml).
