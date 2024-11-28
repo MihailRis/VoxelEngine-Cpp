@@ -25,13 +25,13 @@ sudo make install
 
 ```sh
 su -
-apt-get install entt-devel libglfw3-devel libGLEW-devel libglm-devel libpng-devel libvorbis-devel libopenal-devel libluajit-devel libstdc++13-devel-static
+apt-get install entt-devel libglfw3-devel libGLEW-devel libglm-devel libpng-devel libvorbis-devel libopenal-devel libluajit-devel libstdc++13-devel-static libcurl-devel
 ```
 
 #### Debian based distro
 
 ```sh
-sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev
+sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev libcurl4-openssl-dev
 ```
 
 > [!TIP]
@@ -45,7 +45,7 @@ sudo apt install libglfw3-dev libglfw3 libglew-dev libglm-dev libpng-dev libopen
 #### RHEL based distro
 
 ```sh
-sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit-devel
+sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-devel openal-devel luajit-devel libcurl-devel
 ```
 
 #### Arch based distro
@@ -53,13 +53,13 @@ sudo dnf install glfw-devel glfw glew-devel glm-devel libpng-devel libvorbis-dev
 If you use X11
 
 ```sh
-sudo pacman -S glfw-x11 glew glm libpng libvorbis openal luajit
+sudo pacman -S glfw-x11 glew glm libpng libvorbis openal luajit libcurl
 ```
 
 If you use Wayland
 
 ```sh
-sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit
+sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit libcurl
 ```
 
 ### Build engine with CMake
