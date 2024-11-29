@@ -9,7 +9,7 @@ static int l_get(lua::State* L) {
     std::string url(lua::require_lstring(L, 1));
 
     lua::pushvalue(L, 2);
-    auto onResponse = lua::create_lambda(L);
+    auto onResponse = lua::create_lambda_nothrow(L);
 
     engine->getNetwork().get(url, [onResponse](std::vector<char> bytes) {
         engine->postRunnable([=]() {
@@ -23,7 +23,7 @@ static int l_get_binary(lua::State* L) {
     std::string url(lua::require_lstring(L, 1));
 
     lua::pushvalue(L, 2);
-    auto onResponse = lua::create_lambda(L);
+    auto onResponse = lua::create_lambda_nothrow(L);
 
     engine->getNetwork().get(url, [onResponse](std::vector<char> bytes) {
         auto buffer = std::make_shared<util::Buffer<ubyte>>(
@@ -40,7 +40,7 @@ static int l_connect(lua::State* L) {
     std::string address = lua::require_string(L, 1);
     int port = lua::tointeger(L, 2);
     lua::pushvalue(L, 3);
-    auto callback = lua::create_lambda(L);
+    auto callback = lua::create_lambda_nothrow(L);
     u64id_t id = engine->getNetwork().connect(address, port, [callback](u64id_t id) {
         engine->postRunnable([=]() {
             callback({id});
@@ -122,7 +122,7 @@ static int l_recv(lua::State* L) {
 static int l_open(lua::State* L) {
     int port = lua::tointeger(L, 1);
     lua::pushvalue(L, 2);
-    auto callback = lua::create_lambda(L);
+    auto callback = lua::create_lambda_nothrow(L);
     u64id_t id = engine->getNetwork().openServer(port, [callback](u64id_t id) {
         engine->postRunnable([=]() {
             callback({id});
