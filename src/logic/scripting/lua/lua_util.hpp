@@ -574,6 +574,7 @@ namespace lua {
 
     runnable create_runnable(lua::State*);
     scripting::common_func create_lambda(lua::State*);
+    scripting::common_func create_lambda_nothrow(lua::State*);
 
     inline int pushenv(lua::State* L, int env) {
         if (getglobal(L, env_name(env))) {

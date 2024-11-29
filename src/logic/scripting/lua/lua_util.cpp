@@ -263,6 +263,23 @@ scripting::common_func lua::create_lambda(State* L) {
     };
 }
 
+scripting::common_func lua::create_lambda_nothrow(State* L) {
+    auto funcptr = create_lambda_handler(L);
+    return [=](const std::vector<dv::value>& args) -> dv::value {
+        getglobal(L, LAMBDAS_TABLE);
+        getfield(L, *funcptr);
+        for (const auto& arg : args) {
+            pushvalue(L, arg);
+        }
+        if (call_nothrow(L, args.size(), 1)) {
+            auto result = tovalue(L, -1);
+            pop(L);
+            return result;
+        }
+        return nullptr;
+    };
+}
+
 int lua::create_environment(State* L, int parent) {
     int id = nextEnvironment++;
 
