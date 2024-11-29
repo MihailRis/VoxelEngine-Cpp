@@ -20,17 +20,11 @@
     <panel id='content_info' pos='485,15' size='440,506' color='0' max-length='506' scrollable='true'>
         <label>@Creator</label>
         <label id='author' multiline="true" color='#8C8C8C'>None</label>
-        <label></label>
-        <label></label>
-        <label>@Version</label>
+        <label margin="0,50,0,0">@Version</label>
         <label id='version' multiline="true" color='#8C8C8C'>None</label>
-        <label></label>
-        <label></label>
-        <label>@Description</label>
+        <label margin="0,50,0,0">@Description</label>
         <label id='description' multiline="true" color='#8C8C8C'>None</label>
-        <label></label>
-        <label></label>
-        <label>@Dependencies</label>
+        <label margin="0,50,0,0">@Dependencies</label>
         <label id='dependencies' multiline="true" color='#8C8C8C'>None</label>
     </panel>
 
