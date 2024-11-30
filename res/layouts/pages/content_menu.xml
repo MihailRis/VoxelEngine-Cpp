@@ -13,7 +13,7 @@
         size='32' margin='0,0,10,15' gravity='bottom-right'
         color='#FFFFFF50' hover-color='#FFFFFF10'/>
 
-    <image id="open_config" onclick='open_config()' interactive='true' src='gui/settings_icon' 
+    <image id="open_config" enabled="false" onclick='open_config()' interactive='true' src='gui/settings_icon' 
         size='32' margin='0,0,52,15' gravity='bottom-right'
         color='#FFFFFF50' hover-color='#FFFFFF10'/>
 
