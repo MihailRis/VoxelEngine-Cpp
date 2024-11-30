@@ -349,7 +349,7 @@ std::string util::mangleid(uint64_t value) {
 util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
     util::Buffer<ubyte> bytes((size / 4) * 3);
     ubyte* dst = bytes.data();
-    for (size_t i = 0; i < size;) {
+    for (size_t i = 0; i < (size / 4) * 4;) {
         ubyte a = base64_decode_char(ubyte(str[i++]));
         ubyte b = base64_decode_char(ubyte(str[i++]));
         ubyte c = base64_decode_char(ubyte(str[i++]));
