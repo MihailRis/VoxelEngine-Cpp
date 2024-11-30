@@ -18,6 +18,17 @@ gfx.blockwraps.set_pos(id: int, position: vec3)
 
 -- Меняет текстуру обёртки, если она существует.
 gfx.blockwraps.set_texture(id: int, texture: str)
+
+-- Проверяет существование обертки.
+-- Возвращает true/false в зависимости от существования обертки.
+gfx.blockwraps.is_alive(id: int)
+
+-- Ищет обертоки на на указанной позиции.
+-- Возвращает массив id оберток.
+gfx.blockwraps.get_on_pos(position: vec3)
+
+-- Удаляет все обертки на указанной позиции.
+gfx.blockwraps.unwrap_on_pos(position: vec3)
 ```
 
-Обертки не удаляются автоматически без вызова `unwrap`.
+Обертки удаляются автоматически при ломании/замене блока.

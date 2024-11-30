@@ -4,18 +4,22 @@
 #include "assets/assets_util.hpp"
 #include "constants.hpp"
 #include "content/Content.hpp"
-#include "graphics/core/Atlas.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/render/MainBatch.hpp"
-#include "objects/Player.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunks.hpp"
-#include "window/Window.hpp"
 #include "world/Level.hpp"
+#include "world/LevelEvents.hpp"
 
 BlockWrapsRenderer::BlockWrapsRenderer(const Assets& assets, const Level& level)
     : assets(assets), level(level), batch(std::make_unique<MainBatch>(1024)) {
+    this->level.events->listen(
+        EVT_BLOCK_CHANGED,
+        [this](lvl_event_type, void* pos) {
+            remove_by_position(*static_cast<glm::ivec3*>(pos));
+        }
+    );
 }
 
 BlockWrapsRenderer::~BlockWrapsRenderer() = default;
@@ -92,6 +96,7 @@ u64id_t BlockWrapsRenderer::add(
     wrappers[id] = std::make_unique<BlockWrapper>(
         BlockWrapper {position, texture}
     );
+    positionIndex[position].insert(id);
     return id;
 }
 
@@ -103,6 +108,29 @@ BlockWrapper* BlockWrapsRenderer::get(u64id_t id) const {
     return found->second.get();
 }
 
+const std::unordered_set<u64id_t>* BlockWrapsRenderer::get_ids_by_position(const glm::ivec3& position) const {
+    const auto found = positionIndex.find(position);
+    return (found != positionIndex.end()) ? &found->second : nullptr;
+}
+
 void BlockWrapsRenderer::remove(u64id_t id) {
-    wrappers.erase(id);
+    if (const auto& found = wrappers.find(id); found != wrappers.end()) {
+        const glm::ivec3& position = found->second->position;
+        if (const auto pos = positionIndex.find(position); pos != positionIndex.end()) {
+            pos->second.erase(id);
+            if (pos->second.empty()) {
+                positionIndex.erase(pos);
+            }
+        }
+        wrappers.erase(found);
+    }
+}
+
+void BlockWrapsRenderer::remove_by_position(const glm::ivec3& position) {
+    if (const auto& found = positionIndex.find(position); found != positionIndex.end()) {
+        for (const auto& id : found->second) {
+            wrappers.erase(id);
+        }
+        positionIndex.erase(found);
+    }
 }

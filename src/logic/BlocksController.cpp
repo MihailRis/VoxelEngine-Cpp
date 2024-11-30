@@ -6,13 +6,12 @@
 #include "lighting/Lighting.hpp"
 #include "maths/fastmaths.hpp"
 #include "scripting/scripting.hpp"
-#include "util/timeutil.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/voxel.hpp"
 #include "world/Level.hpp"
-#include "world/World.hpp"
+#include "world/LevelEvents.hpp"
 
 BlocksController::BlocksController(const Level& level, uint padding)
     : level(level),
@@ -59,12 +58,14 @@ void BlocksController::updateSides(int x, int y, int z, int w, int h, int d) {
 void BlocksController::breakBlock(
     Player* player, const Block& def, int x, int y, int z
 ) {
+    glm::ivec3 pos(x, y, z);
     onBlockInteraction(
-        player, glm::ivec3(x, y, z), def, BlockInteraction::destruction
+        player, pos, def, BlockInteraction::destruction
     );
     chunks.set(x, y, z, 0, {});
     lighting.onBlockSet(x, y, z, 0);
-    scripting::on_block_broken(player, def, glm::ivec3(x, y, z));
+    level.events->trigger(EVT_BLOCK_CHANGED, &pos);
+    scripting::on_block_broken(player, def, pos);
     if (def.rt.extended) {
         updateSides(x, y, z , def.size.x, def.size.y, def.size.z);
     } else {
@@ -79,15 +80,17 @@ void BlocksController::placeBlock(
     if (voxel == nullptr) {
         return;
     }
+    glm::ivec3 pos(x, y, z);
     const auto& prevDef = level.content->getIndices()->blocks.require(voxel->id);
-    scripting::on_block_replaced(player, prevDef, {x, y, z});
+    level.events->trigger(EVT_BLOCK_CHANGED, &pos);
+    scripting::on_block_replaced(player, prevDef, pos);
 
     onBlockInteraction(
-        player, glm::ivec3(x, y, z), def, BlockInteraction::placing
+        player, pos, def, BlockInteraction::placing
     );
     chunks.set(x, y, z, def.rt.id, state);
     lighting.onBlockSet(x, y, z, def.rt.id);
-    scripting::on_block_placed(player, def, glm::ivec3(x, y, z));
+    scripting::on_block_placed(player, def, pos);
     if (def.rt.extended) {
         updateSides(x, y, z , def.size.x, def.size.y, def.size.z);
     } else {

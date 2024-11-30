@@ -3,12 +3,9 @@
 #include "content/Content.hpp"
 #include "data/dv_util.hpp"
 #include "items/Inventories.hpp"
-#include "items/Inventory.hpp"
 #include "lighting/Lighting.hpp"
 #include "objects/Entities.hpp"
-#include "objects/Player.hpp"
 #include "objects/Players.hpp"
-#include "physics/Hitbox.hpp"
 #include "physics/PhysicsSolver.hpp"
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
@@ -62,8 +59,8 @@ Level::Level(
     );
     lighting = std::make_unique<Lighting>(content, chunks.get());
 
-    events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type, Chunk* chunk) {
-        this->chunksStorage->remove(chunk->x, chunk->z);
+    events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type, void* chunk) {
+        this->chunksStorage->remove(static_cast<Chunk*>(chunk)->x, static_cast<Chunk*>(chunk)->z);
     });
 
     inventories = std::make_unique<Inventories>(*this);

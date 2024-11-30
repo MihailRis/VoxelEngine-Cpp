@@ -17,6 +17,17 @@ gfx.blockwraps.set_pos(id: int, position: vec3)
 
 -- Changes the texture of the wrapper, if it exists.
 gfx.blockwraps.set_texture(id: int, texture: str)
+
+-- Checks the existence of the wrapper.
+-- Returns true/false depending on the wrapper existence.
+gfx.blockwraps.is_alive(id: int)
+
+-- Searches for wrappers at the specified position.
+-- Returns an array of wrapper ids.
+gfx.block wrap s.get_on_pos(position: vec3)
+
+-- Removes all wrappers at the specified position.
+gfx.blockwraps.unwrap_on_pos(position: vec3)
 ```
 
-Wrappers are not automatically removed without calling `unwrap`.
+Wrappers are removed automatically when the block is broken/replaced.
