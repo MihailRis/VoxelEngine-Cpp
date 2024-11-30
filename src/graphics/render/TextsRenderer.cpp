@@ -65,12 +65,7 @@ void TextsRenderer::renderNote(
         xvec *= 1.0f + scale;
         yvec *= 1.0f + scale;
     }
-    if (preset.displayMode != NoteDisplayMode::PROJECTED) {
-        if (!frustum.isBoxVisible(pos - xvec * (width * 0.5f), 
-                                  pos + xvec * (width * 0.5f))) {
-            return;
-        }
-    } else {
+    if (preset.displayMode == NoteDisplayMode::PROJECTED) {
         float scale = 1.0f;
         if (glm::abs(preset.perspective) > 0.0001f) {
             float scale2 = scale /
@@ -99,6 +94,9 @@ void TextsRenderer::renderNote(
 
             pos = screenPos / screenPos.w;
         }
+    } else if (!frustum.isBoxVisible(pos - xvec * (width * 0.5f * preset.scale), 
+                                     pos + xvec * (width * 0.5f * preset.scale))) {
+        return;
     }
     auto color = preset.color;
     batch.setColor(glm::vec4(color.r, color.g, color.b, color.a * opacity));
