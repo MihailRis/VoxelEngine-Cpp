@@ -59,6 +59,9 @@ socket:is_alive() --> bool
 
 -- Checks if the connection is present (using socket:send(...) is available).
 socket:is_connected() --> bool
+
+-- Returns the address and port of the connection.
+socket:get_address() --> str, int
 ```
 
 ```lua
@@ -80,6 +83,9 @@ server:close()
 
 -- Checks if the TCP server exists and is open.
 server:is_open() --> bool
+
+-- Returns the server port.
+server:get_port() --> int
 ```
 
 ## Analytics
