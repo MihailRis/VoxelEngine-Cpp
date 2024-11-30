@@ -7,10 +7,27 @@ Back=Takaisin
 Continue=Jatka
 Add=lisätä
 Converting world...=Maailman muuttuminen on käynnissä...
+Version=Versio
+Creator=Tekijä
+Dependencies=Riippuvuudet
+Description=Kuvaus
+Unlimited=Rajaton
+Chat=Keskustelu
+Console=Konsoli
+Log=Loki
+Problems=Ongelmia
+Monitor=Valvonta
+Debug=Virheenkorjaus
+File=Tiedosto
 
+devtools.traceback=Puhelupino (viimeisestä)
 error.pack-not-found=Pakettia ei löytynyt!
 error.dependency-not-found=Käytetty riippuvuutta ei löytynyt
 pack.remove-confirm=Poistetaanko kaikki pakettien sisältö maailmasta (peruuttamattomasti)?
+
+# Подсказки
+graphics.gamma.tooltip=Valon kirkkauskäyrä
+graphics.backlight.tooltip=Taustavalo estää täydellisen pimeyden
 
 # Меню
 menu.Apply=Tallenna
@@ -20,6 +37,7 @@ menu.Content Error=Virhe Sisällössä
 menu.Content=Sisältö
 menu.Continue=Jatka
 menu.Controls=Ohjaus
+menu.Display=Näyttö
 menu.Graphics=Grafiikka
 menu.missing-content=Sisältö Puuttuu!
 menu.New World=Uusi Maailma
@@ -29,6 +47,10 @@ menu.Page not found=Sivu ei löytynyt!
 menu.Quit=Poistu
 menu.Save and Quit to Menu=Tallenna ja Takaisin Valikkoon
 menu.Settings=Asetukset
+menu.Reset settings=Palauta asetukset
+menu.Contents Menu=Sisältöpaketin valikko
+menu.Open data folder=Avaa data-kansio
+menu.Open content folder=Avaa kansio [content]
 
 world.Seed=Siemen
 world.Name=Nimi
@@ -38,14 +60,20 @@ world.generators.flat=Tasainen
 world.Create World=Luo Maailma
 world.convert-request=Indekseissä on muutoksia! Kääntää maailman?
 world.delete-confirm=Poistetaanko maailma pysyvästi?
+world.upgrade-request=Maailman muoto on vanhentunut! Kääntää maailman?
+world.convert-with-loss=Muuntaa maailman tappioilla?
+world.convert-block-layouts=Estokentissä on muutoksia! Kääntää maailman?
 
 # Настройки
 settings.Ambient=Tausta
 settings.Backlight=Taustavalo
 settings.Camera Shaking=Tärisevä kamera
+settings.Camera Inertia=Kameran inertia
+settings.Camera FOV Effects=Näkökentän tehosteet
 settings.Fog Curve=Sumukäurä
 settings.FOV=Näkokenttä
 settings.Fullscreen=Koko näyttö
+settings.Framerate=Kuvataajuus
 settings.Gamma=Gamma
 settings.Language=Kieli
 settings.Load Distance=Latausetäisyys
@@ -56,8 +84,12 @@ settings.Music=Musiikki
 settings.Regular Sounds=Tavalliset Äänet
 settings.UI Sounds=Käyttöliittymän äänet
 settings.V-Sync=Pystytahdistus
+settings.Key=Painike
+settings.Controls Search Mode=Hae sidotun ohjauspainikkeen perusteella
+settings.Limit Background FPS=Rajoita taustakuvanopeutta
 
 # Управление
+chunks.reload=Lataa kimpale uudelleen
 devtools.console=Konsoli
 movement.forward=Eteenpäin
 movement.back=Taaksepäin
@@ -69,8 +101,11 @@ movement.crouch=Hiipiä
 movement.cheat=Huijata
 hud.inventory=Varasto
 player.pick=Valitse lohko
-player.attack=Lyödä / Rikkoa
+player.attack=Lyödä
+player.destroy=Rikkoa
 player.build=Aseta lohko
+player.fast_interaction=Nopeutettu vuorovaikutus
 player.flight=Lento
+player.drop=Heitä kappale
 camera.zoom=Lähentäminen
 camera.mode=Vaihda kameratilaa

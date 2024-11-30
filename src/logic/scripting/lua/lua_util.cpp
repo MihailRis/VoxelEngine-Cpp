@@ -175,7 +175,7 @@ int lua::call_nothrow(State* L, int argc, int nresults) {
     int handler_pos = gettop(L) - argc;
     pushcfunction(L, l_error_handler);
     insert(L, handler_pos);
-    if (lua_pcall(L, argc, LUA_MULTRET, handler_pos)) {
+    if (lua_pcall(L, argc, -1, handler_pos)) {
         auto errorstr = tostring(L, -1);
         if (errorstr) {
             log_error(errorstr);
@@ -187,7 +187,7 @@ int lua::call_nothrow(State* L, int argc, int nresults) {
         return 0;
     }
     remove(L, handler_pos);
-    return nresults == -1 ? 1 : nresults;
+    return 1;
 }
 
 void lua::dump_stack(State* L) {
@@ -255,6 +255,23 @@ scripting::common_func lua::create_lambda(State* L) {
             pushvalue(L, arg);
         }
         if (call(L, args.size(), 1)) {
+            auto result = tovalue(L, -1);
+            pop(L);
+            return result;
+        }
+        return nullptr;
+    };
+}
+
+scripting::common_func lua::create_lambda_nothrow(State* L) {
+    auto funcptr = create_lambda_handler(L);
+    return [=](const std::vector<dv::value>& args) -> dv::value {
+        getglobal(L, LAMBDAS_TABLE);
+        getfield(L, *funcptr);
+        for (const auto& arg : args) {
+            pushvalue(L, arg);
+        }
+        if (call_nothrow(L, args.size(), 1)) {
             auto result = tovalue(L, -1);
             pop(L);
             return result;
