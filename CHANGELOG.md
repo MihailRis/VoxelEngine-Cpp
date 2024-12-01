@@ -1,4 +1,4 @@
-# 0.25 - 2024.11.30
+# 0.25 - 2024.12.01
 
 [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.25/doc/en/main-page.md) for 0.25
 
