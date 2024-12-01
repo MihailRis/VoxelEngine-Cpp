@@ -31,7 +31,7 @@ gfx.blockwraps.get_texture(id: int)
 -- Возвращает true/false в зависимости от существования обёртки.
 gfx.blockwraps.is_alive(id: int)
 
--- Ищет обёртку на на указанной позиции.
+-- Ищет обёртку на указанной позиции.
 -- Возвращает id обёртки.
 gfx.blockwraps.get_on_pos(position: vec3)
 ```
