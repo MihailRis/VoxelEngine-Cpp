@@ -18,6 +18,14 @@ gfx.blockwraps.set_pos(id: int, position: vec3)
 -- Changes the texture of the wrapper, if it exists.
 gfx.blockwraps.set_texture(id: int, texture: str)
 
+-- Gets the wrapper position if it exists.
+-- Returns the wrapper position.
+gfx.blockwraps.get_texture(id: int)
+
+-- Gets the texture of the wrapper, if it exists.
+-- Returns the wrapper texture.
+gfx.blockwraps.get_texture(id: int)
+
 -- Checks the existence of the wrapper.
 -- Returns true/false depending on the wrapper existence.
 gfx.blockwraps.is_alive(id: int)

@@ -34,6 +34,20 @@ static int l_set_texture(lua::State* L) {
     return 0;
 }
 
+static int l_get_pos(lua::State* L) {
+    if (const auto wrapper = renderer->blockWraps->get(lua::tointeger(L, 1))) {
+        return lua::pushvec3(L, wrapper->position);
+    }
+    return 0;
+}
+
+static int l_get_texture(lua::State* L) {
+    if (const auto wrapper = renderer->blockWraps->get(lua::tointeger(L, 1))) {
+        return lua::pushstring(L, wrapper->texture);
+    }
+    return 0;
+}
+
 static int l_is_alive(lua::State* L) {
     return lua::pushboolean(
         L, renderer->blockWraps->get(lua::tointeger(L, 1)) != nullptr
@@ -64,6 +78,8 @@ const luaL_Reg blockwrapslib[] = {
     {"unwrap", lua::wrap<l_unwrap>},
     {"set_pos", lua::wrap<l_set_pos>},
     {"set_texture", lua::wrap<l_set_texture>},
+    {"get_pos", lua::wrap<l_get_pos>},
+    {"get_texture", lua::wrap<l_get_texture>},
     {"is_alive", lua::wrap<l_is_alive>},
     {"get_on_pos", lua::wrap<l_get_on_pos>},
     {"unwrap_on_pos", lua::wrap<l_unwrap_on_pos>},

@@ -19,6 +19,14 @@ gfx.blockwraps.set_pos(id: int, position: vec3)
 -- Меняет текстуру обёртки, если она существует.
 gfx.blockwraps.set_texture(id: int, texture: str)
 
+-- Получает позицию обёртки, если она существует.
+-- Возвращает позицию обёртки.
+gfx.blockwraps.get_texture(id: int)
+
+-- Получает текстуру обёртки, если она существует.
+-- Возвращает текстуру обёртки.
+gfx.blockwraps.get_texture(id: int)
+
 -- Проверяет существование обертки.
 -- Возвращает true/false в зависимости от существования обертки.
 gfx.blockwraps.is_alive(id: int)

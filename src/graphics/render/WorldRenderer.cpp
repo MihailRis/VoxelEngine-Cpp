@@ -1,5 +1,9 @@
 #include "WorldRenderer.hpp"
 
+#include <GL/glew.h>
+#include <assert.h>
+
+#include <algorithm>
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <memory>
@@ -12,8 +16,10 @@
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
 #include "items/ItemStack.hpp"
+#include "logic/PlayerController.hpp"
 #include "logic/scripting/scripting_hud.hpp"
 #include "maths/FrustumCulling.hpp"
+#include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
 #include "settings.hpp"
@@ -26,11 +32,15 @@
 #include "world/LevelEvents.hpp"
 #include "world/World.hpp"
 #include "graphics/commons/Model.hpp"
+#include "graphics/core/Atlas.hpp"
 #include "graphics/core/Batch3D.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/LineBatch.hpp"
+#include "graphics/core/Mesh.hpp"
 #include "graphics/core/PostProcessing.hpp"
 #include "graphics/core/Shader.hpp"
+#include "graphics/core/Texture.hpp"
+#include "graphics/core/Font.hpp"
 #include "BlockWrapsRenderer.hpp"
 #include "ParticlesRenderer.hpp"
 #include "TextsRenderer.hpp"
@@ -38,6 +48,7 @@
 #include "GuidesRenderer.hpp"
 #include "ModelBatch.hpp"
 #include "Skybox.hpp"
+#include "Emitter.hpp"
 #include "TextNote.hpp"
 
 inline constexpr size_t BATCH3D_CAPACITY = 4096;
