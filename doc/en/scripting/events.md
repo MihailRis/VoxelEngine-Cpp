@@ -109,6 +109,12 @@ function on_block_placed(blockid, x, y, z, playerid)
 Called on block placed by player
 
 ```lua
+function on_block_replaced(blockid, x, y, z, playerid)
+```
+
+Called on block replaced with other by player
+
+```lua
 function on_block_broken(blockid, x, y, z, playerid)
 ```
 

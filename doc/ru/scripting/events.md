@@ -109,6 +109,12 @@ function on_block_placed(blockid, x, y, z, playerid)
 Вызывается после установки блока игроком
 
 ```lua
+function on_block_replaced(blockid, x, y, z, playerid)
+```
+
+Вызывается после замены блока игроком
+
+```lua
 function on_block_broken(blockid, x, y, z, playerid)
 ```
 
