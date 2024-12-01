@@ -20,7 +20,9 @@ BlockWrapsRenderer::BlockWrapsRenderer(const Assets& assets, const Level& level)
     this->level.events->listen(
         EVT_BLOCK_CHANGED,
         [this](lvl_event_type, void* pos) {
-            remove(get_id_by_pos(*static_cast<glm::ivec3*>(pos)));
+            if (const u64id_t existingId = get_id_by_pos(*static_cast<glm::ivec3*>(pos))) {
+                remove(existingId);
+            }
         }
     );
 }
@@ -96,8 +98,7 @@ u64id_t BlockWrapsRenderer::add(
     const glm::ivec3& position, const std::string& texture
 ) {
     if (const u64id_t existingId = get_id_by_pos(position)) {
-        get(existingId)->texture = texture;
-        return existingId;
+        remove(existingId);
     }
 
     u64id_t id = nextWrapper++;

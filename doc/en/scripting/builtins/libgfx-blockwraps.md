@@ -5,7 +5,7 @@ Library for working with *block wrappers*.
 Block wrappers are introduced to implement block destruction animation and can be used for other purposes.
 
 ```lua
--- Creates a wrapper at the specified position, with the specified texture, or modifies an existing one at the position.
+-- Creates a wrapper at the specified position, with the specified texture, removing the existing one at the position.
 -- Returns the wrapper id.
 gfx.blockwraps.wrap(position: vec3, texture: str) --> int
 
