@@ -33,7 +33,7 @@ class BlockWrapsRenderer {
     std::unique_ptr<MainBatch> batch;
 
     std::unordered_map<u64id_t, std::unique_ptr<BlockWrapper>> wrappers;
-    std::unordered_map<glm::ivec3, std::unordered_set<u64id_t>> positionIndex;
+    std::unordered_map<glm::ivec3, u64id_t> positionIndex;
     u64id_t nextWrapper = 1;
 
     void draw(const BlockWrapper& wrapper);
@@ -46,8 +46,7 @@ public:
     u64id_t add(const glm::ivec3& position, const std::string& texture);
 
     BlockWrapper* get(u64id_t id) const;
-    const std::unordered_set<u64id_t>* get_ids_by_position(const glm::ivec3& position) const;
+    u64id_t get_id_by_pos(const glm::ivec3& position) const;
 
     void remove(u64id_t id);
-    void remove_by_position(const glm::ivec3& position);
 };

@@ -30,12 +30,9 @@ gfx.blockwraps.get_texture(id: int)
 -- Returns true/false depending on the wrapper existence.
 gfx.blockwraps.is_alive(id: int)
 
--- Searches for wrappers at the specified position.
--- Returns an array of wrapper ids.
+-- Searches for wrapper at the specified position.
+-- Returns the wrapper id.
 gfx.block wrap s.get_on_pos(position: vec3)
-
--- Removes all wrappers at the specified position.
-gfx.blockwraps.unwrap_on_pos(position: vec3)
 ```
 
 Wrappers are removed automatically when the block is broken/replaced.

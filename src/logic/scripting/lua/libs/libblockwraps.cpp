@@ -55,21 +55,9 @@ static int l_is_alive(lua::State* L) {
 }
 
 static int l_get_on_pos(lua::State* L) {
-    auto  ids = renderer->blockWraps->get_ids_by_position(lua::tovec3(L, 1));
-    if (ids) {
-        lua::createtable(L, ids->size(), 0);
-        int i = 0;
-        for (auto id : *ids) {
-            lua::pushinteger(L, id);
-            lua::rawseti(L, i++);
-        }
-        return 1;
+    if (const auto id = renderer->blockWraps->get_id_by_pos(lua::tovec3(L, 1))) {
+        return lua::pushinteger(L, id);
     }
-    return 0;
-}
-
-static int l_unwrap_on_pos(lua::State* L) {
-    renderer->blockWraps->remove_by_position(lua::tovec3(L, 1));
     return 0;
 }
 
@@ -82,6 +70,5 @@ const luaL_Reg blockwrapslib[] = {
     {"get_texture", lua::wrap<l_get_texture>},
     {"is_alive", lua::wrap<l_is_alive>},
     {"get_on_pos", lua::wrap<l_get_on_pos>},
-    {"unwrap_on_pos", lua::wrap<l_unwrap_on_pos>},
     {NULL, NULL}
 };
