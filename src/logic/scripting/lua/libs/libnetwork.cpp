@@ -151,12 +151,30 @@ static int l_is_connected(lua::State* L) {
     return lua::pushboolean(L, false);
 }
 
+static int l_get_address(lua::State* L) {
+    u64id_t id = lua::tointeger(L, 1);
+    if (auto connection = engine->getNetwork().getConnection(id)) {
+        lua::pushstring(L, connection->getAddress());
+        lua::pushinteger(L, connection->getPort());
+        return 2;
+    }
+    return 0;
+}
+
 static int l_is_serveropen(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     if (auto server = engine->getNetwork().getServer(id)) {
         return lua::pushboolean(L, server->isOpen());
     }
     return lua::pushboolean(L, false);
+}
+
+static int l_get_serverport(lua::State* L) {
+    u64id_t id = lua::tointeger(L, 1);
+    if (auto server = engine->getNetwork().getServer(id)) {
+        return lua::pushinteger(L, server->getPort());
+    }
+    return 0;
 }
 
 static int l_get_total_upload(lua::State* L) {
@@ -180,6 +198,8 @@ const luaL_Reg networklib[] = {
     {"__recv", lua::wrap<l_recv>},
     {"__is_alive", lua::wrap<l_is_alive>},
     {"__is_connected", lua::wrap<l_is_connected>},
+    {"__get_address", lua::wrap<l_get_address>},
     {"__is_serveropen", lua::wrap<l_is_serveropen>},
+    {"__get_serverport", lua::wrap<l_get_serverport>},
     {NULL, NULL}
 };
