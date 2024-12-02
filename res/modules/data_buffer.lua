@@ -33,7 +33,7 @@ local data_buffer =
 function data_buffer:new(bytes)
     local obj = {
         pos = 1,
-        bytes = bytes or { }
+        bytes = Bytearray(bytes or { })
     }
 
     self.__index = self
@@ -49,7 +49,7 @@ function data_buffer:put_byte(byte)
 		error("invalid byte")
 	end
 
-	self.bytes[self.pos] = byte
+	self.bytes:insert(self.pos, byte)
 
 	self.pos = self.pos + 1
 end
