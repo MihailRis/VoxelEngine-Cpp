@@ -82,3 +82,11 @@ if (VOXELENGINE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+add_custom_target(copy_resources ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/res
+        ${CMAKE_CURRENT_BINARY_DIR}/res
+        COMMENT "Copying resource directory to the build directory"
+)
+add_dependencies(${PROJECT_NAME} copy_resources)

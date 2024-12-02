@@ -3,8 +3,8 @@
 #include <stdexcept>
 
 #include "api_lua.hpp"
-#include "assets/Assets.hpp"
 #include "assets/AssetsLoader.hpp"
+#include "coders/compression.hpp"
 #include "coders/gzip.hpp"
 #include "coders/json.hpp"
 #include "engine.hpp"
@@ -123,7 +123,8 @@ static int l_get_chunk_data(lua::State* L) {
     int x = (int)lua::tointeger(L, 1);
     int y = (int)lua::tointeger(L, 2);
     const auto& chunk = level->chunks->getChunk(x, y);
-    if (chunk->isEmpty()) {
+    if (chunk == nullptr) {
+        lua::pushnil(L);
         return 0;
     }
 
@@ -131,17 +132,42 @@ static int l_get_chunk_data(lua::State* L) {
     if (lua::gettop(L) >= 3) {
         compress = lua::toboolean(L, 3);
     }
-
+    std::vector<ubyte> chunk_data;
     if (compress) {
-        return lua::newuserdata<lua::LuaBytearray>(
-            L, gzip::compress(chunk->encode().get(), CHUNK_DATA_LEN)
+        size_t rle_compressed_size;
+        size_t gzip_compressed_size;
+        const auto& data_ptr = chunk->encode();
+        ubyte* data = data_ptr.get();
+        const auto& rle_compressed_data_ptr = compression::compress(
+            data,
+            CHUNK_DATA_LEN,
+            rle_compressed_size,
+            compression::Method::EXTRLE16
+        );
+        const auto& gzip_compressed_data = compression::compress(
+            rle_compressed_data_ptr.get(),
+            rle_compressed_size,
+            gzip_compressed_size,
+            compression::Method::GZIP
+        );
+        auto tmp = dataio::h2le(rle_compressed_size);
+        chunk_data.reserve(gzip_compressed_size + sizeof(tmp));
+        chunk_data.insert(
+            chunk_data.begin() + 0, (char*)&tmp, ((char*)&tmp) + sizeof(tmp)
+        );
+        chunk_data.insert(
+            chunk_data.begin() + sizeof(tmp),
+            gzip_compressed_data.get(),
+            gzip_compressed_data.get() + gzip_compressed_size
+        );
+    } else {
+        const auto& data = chunk->encode();
+        chunk_data.reserve(CHUNK_DATA_LEN);
+        chunk_data.insert(
+            chunk_data.begin(), data.get(), data.get() + CHUNK_DATA_LEN
         );
     }
-    const auto chunk_data = chunk->encode();
-    const std::vector<ubyte> data(
-        chunk_data.get(), chunk_data.get() + CHUNK_DATA_LEN
-    );
-    return lua::newuserdata<lua::LuaBytearray>(L, data);
+    return lua::newuserdata<lua::LuaBytearray>(L, chunk_data);
 }
 
 static int l_set_chunk_data(lua::State* L) {
@@ -154,9 +180,22 @@ static int l_set_chunk_data(lua::State* L) {
     }
     auto chunk = level->chunks->getChunk(x, y);
     if (is_compressed) {
-        auto data =
-            gzip::decompress(buffer->data().data(), buffer->data().size());
-        chunk->decode(data.data());
+        std::vector<ubyte>& raw_data = buffer->data();
+        size_t gzip_decompressed_size =
+            dataio::le2h(*(size_t*)(raw_data.data()));
+        const auto& rle_data = compression::decompress(
+            raw_data.data() + sizeof(gzip_decompressed_size),
+            buffer->data().size() - sizeof(gzip_decompressed_size),
+            gzip_decompressed_size,
+            compression::Method::GZIP
+        );
+        const auto& data = compression::decompress(
+            rle_data.get(),
+            gzip_decompressed_size,
+            CHUNK_DATA_LEN,
+            compression::Method::EXTRLE16
+        );
+        chunk->decode(data.get());
     } else {
         chunk->decode(buffer->data().data());
     }
