@@ -179,6 +179,9 @@ static int l_set_chunk_data(lua::State* L) {
         is_compressed = lua::toboolean(L, 4);
     }
     auto chunk = level->chunks->getChunk(x, y);
+    if(chunk== nullptr){
+        return 0;
+    }
     if (is_compressed) {
         std::vector<ubyte>& raw_data = buffer->data();
         size_t gzip_decompressed_size =
