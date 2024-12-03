@@ -1,4 +1,4 @@
-# Общее
+# Umumiy
 Yes=Ha
 No=Yo'q
 Ok=Ок
@@ -10,18 +10,26 @@ Version=Versiya
 Creator=Muallif
 Dependencies=Bog'liqliklar
 Description=Tavsif
-Converting world...=Dunyoni konvertatsiyalash amalga oshirilyapti...
+Converting world...=Dunyo konvertatsiya qilinmoqda...
 Unlimited=Cheksiz
+Chat=Suhbat
+Console=Konsol
+Log=log
+Problems=Muammolar
+Monitor=Monitoring
+Debug=Xatolarni tuzatish (Debug)
+File=Fayl
 
+devtools.traceback=Chaqiruvlar steki (so‘nggisidan boshlab)
 error.pack-not-found=Paketni topib bo'lmadi
 error.dependency-not-found=Amaldagi qaramliklar topilmadi
-pack.remove-confirm=Paketlar bilan taqdim etilgan barcha mazmunni dunyodan olib tashlash (qaytarib bo'lmaydi)?
+pack.remove-confirm=Paketlar bilan taqdim etilgan barcha contentni dunyodan olib tashlash (qaytarib bo'lmaydi)?
 
-# Подсказки
+# Maslahatlar
 graphics.gamma.tooltip=Yorug'lik yorqinligi egri chizig'i
 graphics.backlight.tooltip=To'liq zulmatni oldini oladigan orqa yorug'ligi
 
-# Меню
+# Menyu
 menu.Apply=Qo'llash
 menu.Audio=Tovush
 menu.Back to Main Menu=Menyuga qaytish
@@ -31,60 +39,72 @@ menu.Continue=Davom ettirish
 menu.Controls=Boshqaruv
 menu.Display=Displey
 menu.Graphics=Grafika
-menu.missing-content=Kontent etishmayapti!
+menu.missing-content=Kontent mavjud emas!
 menu.New World=Yangi Dunyo
-menu.Worlds=Dunyo
-menu.Open worlds folder=Dunyo papkasini ochish
+menu.Open worlds folder=Dunyolar papkasini ochish
+menu.Worlds=Dunyolar
 menu.Page not found=Sahifa topilmadi
 menu.Quit=Chiqish
-menu.Save and Quit to Menu=Saqlash va menyuga chiqish
+menu.Save and Quit to Menu=Saqlash va Menyuga chiqish
 menu.Settings=Sozlamalar
-menu.Contents Menu=Kontent to'plamlari menyusi
+menu.Reset settings=Sozlamalarni tiklash
+menu.Contents Menu=Kontent paklar menyusi
+menu.Open data folder=Ma'lumotlar papkasini ochish
+menu.Open content folder=[content] papkasini ochish
 
 world.Seed=Don
 world.Name=Nom
-world.World generator=Dunyo yaratuvchi
-world.generators.default=Oddiy
-world.generators.flat=Yassi
-world.Create World=Dunyoni Yaratish
-world.convert-request=Indekslarda o‘zgarishlar mavjud! Dunyoni konvertatsiya qilish kerakmi?
-world.delete-confirm=Dunyoni qaytarib bo'lmaydigan tarzda olib tashlaysizmi?
+world.World generator=Dunyo generatori
+world.generators.default=Standart bo'yicha
+world.generators.flat=Tekis
+world.Create World=Dunyo yaratish
+world.convert-request=Indekslar bo'yicha o'zgarishlar bor! Dunyoni konvertatsiya qilasizmi?
+world.upgrade-request=Dunyo formati eskirgan! Dunyoni konvertatsiya qilasizmi?
+world.convert-with-loss=Dunyoni yo'qotishlar bilan konvertatsiya qilasizmi?
+world.convert-block-layouts=Blok maydonlarida o'zgarishlar bor! Dunyoni konvertatsiya qilasizmi?
+world.delete-confirm=Dunyoni doimiy o'chirasizmi?
 
-# Настройки
+# Sozlamalar
 settings.Ambient=Fon
 settings.Backlight=Yoritish
-settings.Camera Shaking=Kamera Silkinishi
-settings.Camera Inertia=Kamera Inertsiyasi
-settings.Fog Curve=Tuman Egri Chizig'i
-settings.FOV=Ko'rish Maydoni
+settings.Camera Shaking=Kamera titrashi
+settings.Camera Inertia=Kamera inertsiyasi
+settings.Camera FOV Effects=Ko'rish maydoni effektlari
+settings.Fog Curve=Tuman egri chizig'i
+settings.FOV=Ko'rish maydoni
 settings.Fullscreen=To'liq ekran
-settings.Framerate=Kadr tezligi
+settings.Framerate=Kadrlar chastotasi
 settings.Gamma=Gamma
 settings.Language=Til
-settings.Load Distance=Yuklash Masofasi
-settings.Load Speed=Yuklash Tezligi
-settings.Master Volume=Umumiy Ovoz Balandligi
-settings.Mouse Sensitivity=Sichqoncha Sezgirligi
+settings.Load Distance=Yuklash masofasi
+settings.Load Speed=Yuklash tezligi
+settings.Master Volume=Umumiy ovoz balansi
+settings.Mouse Sensitivity=Sichqoncha sezgirligi
 settings.Music=Musiqa
-settings.Regular Sounds=Oddiy Tovushlar
-settings.UI Sounds=Interfeys Tovushlari
-settings.V-Sync=Vertikal Sinxronizatsiya
+settings.Regular Sounds=Oddiy tovushlar
+settings.UI Sounds=Interfeys tovushlari
+settings.V-Sync=Vertikal sinxronizatsiya
+settings.Key=Tugma
+settings.Controls Search Mode=Tayinlangan boshqaruv tugmasi bo'yicha qidirish
+settings.Limit Background FPS=Fon kadrlar chastotasini cheklash
 
-# Управление
+# Boshqaruv
 chunks.reload=Chanklarni qayta yuklash
 devtools.console=Konsol
 movement.forward=Oldinga
 movement.back=Orqaga
 movement.left=Chapga
-movement.right=O'ng tomonda
+movement.right=O'ngga
 movement.jump=Sakrash
-movement.sprint=Tezlanish
+movement.sprint=Tez yugurish
 movement.crouch=Egilish
-movement.cheat=Chit
-hud.inventory=inventar
+movement.cheat=Hiyla (Chit)
+hud.inventory=Inventar
 player.pick=Blokni olish
-player.attack=Hujum Qilish / Sindirish
-player.build=Blokni Joylashtiring
+player.attack=Hujum qilish
+player.destroy=Sindirish
+player.build=Blokni qo'yish
+player.fast_interaction=Tezkor o'zaro ta'sir
 player.flight=Parvoz
 player.drop=Narsani tashlash
 camera.zoom=Yaqinlashish
