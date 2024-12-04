@@ -52,17 +52,21 @@ static inline void draw_glyph(
     uint c, 
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval
+    float glyphInterval,
+    const FontStyle& style
 ) {
-    batch.sprite(
-        pos.x + offset.x * right.x,
-        pos.y + offset.y * right.y,
-        right.x / glyphInterval,
-        up.y,
-        16,
-        c,
-        batch.getColor()
-    );
+    for (int i = 0; i <= style.bold; i++) {
+        batch.sprite(
+            pos.x + (offset.x + i / (right.x/glyphInterval/2.0f)) * right.x,
+            pos.y + offset.y * right.y,
+            right.x / glyphInterval,
+            up.y,
+            -0.2f * style.italic,
+            16,
+            c,
+            batch.getColor()
+        );
+    }
 }
 
 static inline void draw_glyph(
@@ -72,17 +76,20 @@ static inline void draw_glyph(
     uint c, 
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval
+    float glyphInterval,
+    const FontStyle& style
 ) {
-    batch.sprite(
-        pos + right * offset.x + up * offset.y,
-        up, right / glyphInterval,
-        0.5f,
-        0.5f,
-        16,
-        c,
-        batch.getColor()
-    );
+    for (int i = 0; i <= style.bold; i++) {
+        batch.sprite(
+            pos + right * (offset.x + i) + up * offset.y,
+            up, right / glyphInterval,
+            0.5f,
+            0.5f,
+            16,
+            c,
+            batch.getColor()
+        );
+    }
 }
 
 template <class Batch>
@@ -99,6 +106,9 @@ static inline void draw_text(
     uint next = MAX_CODEPAGES;
     int x = 0;
     int y = 0;
+
+    FontStyle style {};
+
     do {
         for (uint c : text){
             if (!font.isPrintableChar(c)) {
@@ -109,7 +119,7 @@ static inline void draw_text(
             if (charpage == page){
                 batch.texture(font.getPage(charpage));
                 draw_glyph(
-                    batch, pos, glm::vec2(x, y), c, right, up, glyphInterval
+                    batch, pos, glm::vec2(x, y), c, right, up, glyphInterval, style
                 );
             }
             else if (charpage > page && charpage < next){

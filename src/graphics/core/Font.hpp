@@ -11,10 +11,10 @@ class Batch2D;
 class Batch3D;
 class Camera;
 
-enum class FontStyle {
-    none,
-    shadow,
-    outline
+struct FontStyle {
+    bool bold = false;
+    bool italic = false;
+    glm::vec4 color {1, 1, 1, 1};
 };
 
 class Font {
