@@ -95,6 +95,19 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
             if (node->isVisible())
                 node->draw(pctx, assets);
         }
+
+        int diff = (actualLength-size.y);
+        if (scrollable && diff > 0) {
+            int w = 10;
+            int h = glm::max(size.y / actualLength * size.y, w / 2.0f);
+            batch->untexture();
+            batch->setColor(glm::vec4(1, 1, 1, 0.5f));
+            batch->rect(
+                pos.x + size.x - w,
+                pos.y - scroll / static_cast<float>(diff) * (size.y - h),
+                w, h
+            );
+        }
         batch->flush();
     }
 }
