@@ -39,7 +39,7 @@ network.tcp_connect(
 
 ```lua
 -- Отправляет массив байт
-socket:send(table|ByteArray)
+socket:send(table|ByteArray|str)
 
 -- Читает полученные данные
 socket:recv(

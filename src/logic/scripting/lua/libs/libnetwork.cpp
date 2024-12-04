@@ -87,6 +87,9 @@ static int l_send(lua::State* L) {
         connection->send(
             reinterpret_cast<char*>(bytes->data().data()), bytes->data().size()
         );
+    } else if (lua::isstring(L, 2)) {
+        auto string = lua::tolstring(L, 2);
+        connection->send(string.data(), string.length());
     }
     return 0;
 }
