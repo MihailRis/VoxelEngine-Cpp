@@ -302,7 +302,7 @@ public:
                 state = ConnectionState::CLOSED;
                 break;
             } else if (size < 0) {
-                logger.info() << "an error ocurred while receiving from "
+                logger.warning() << "an error ocurred while receiving from "
                             << to_string(addr);
                 auto error = handle_socket_error("recv(...) error");
                 closesocket(descriptor);
@@ -317,7 +317,7 @@ public:
                 }
                 totalDownload += size;
             }
-            logger.info() << "read " << size << " bytes from " << to_string(addr);
+            logger.debug() << "read " << size << " bytes from " << to_string(addr);
         }
     }
 
