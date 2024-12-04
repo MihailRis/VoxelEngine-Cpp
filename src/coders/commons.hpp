@@ -105,6 +105,8 @@ protected:
     parsing_error error(const std::string& message);
 public:
     std::string_view readUntil(char c);
+    std::string_view readUntil(std::string_view s);
+    std::string_view readUntilWhitespace();
     std::string_view readUntilEOL();
     std::string parseName();
     std::string parseXmlName();

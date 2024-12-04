@@ -214,6 +214,24 @@ std::string_view BasicParser::readUntil(char c) {
     return source.substr(start, pos - start);
 }
 
+std::string_view BasicParser::readUntil(std::string_view s) {
+    int start = pos;
+    size_t found = source.find(s, pos);
+    if (found == std::string::npos) {
+        throw error(util::quote(std::string(s))+" expected");
+    }
+    skip(found - pos);
+    return source.substr(start, pos - start);
+}
+
+std::string_view BasicParser::readUntilWhitespace() {
+    int start = pos;
+    while (hasNext() && !is_whitespace(source[pos])) {
+        pos++;
+    }
+    return source.substr(start, pos - start);
+}
+
 std::string_view BasicParser::readUntilEOL() {
     int start = pos;
     while (hasNext() && source[pos] != '\r' && source[pos] != '\n') {
