@@ -119,24 +119,28 @@ public:
                 );
                 continue;
             } else if (is_digit(c)) {
-                auto value = parseNumber(1);
+                dv::value value;
+                auto tag = TokenTag::UNEXPECTED;
+                try {
+                    value = parseNumber(1);
+                    tag = value.isInteger() ? TokenTag::INTEGER
+                                            : TokenTag::NUMBER;
+                } catch (const parsing_error& err) {}
+
                 auto literal = source.substr(start.pos, pos - start.pos);
-                emitToken(
-                    value.isInteger() ? TokenTag::INTEGER : TokenTag::NUMBER,
-                    std::string(literal),
-                    start
-                );
+                emitToken(tag, std::string(literal), start);
                 continue;
             }
             switch (c) {
                 case '(': case '[': case '{': 
                     if (isNext("[==[")) {
-                        readUntil("]==]");
+                        auto string = readUntil("]==]", true);
                         skip(4);
+                        emitToken(TokenTag::COMMENT, std::string(string)+"]==]", start);
                         continue;
                     } else if (isNext("[[")) {
                         skip(2);
-                        auto string = readUntil("]]");
+                        auto string = readUntil("]]", true);
                         skip(2);
                         emitToken(TokenTag::STRING, std::string(string), start);
                         continue;
@@ -154,7 +158,7 @@ public:
                     continue;
                 case '\'': case '"': {
                     skip(1);
-                    auto string = parseString(c);
+                    auto string = parseString(c, false);
                     emitToken(TokenTag::STRING, std::move(string), start);
                     continue;
                 }
@@ -163,6 +167,8 @@ public:
             if (is_lua_operator_start(c)) {
                 auto text = parseOperator();
                 if (text == "--") {
+                    auto string = readUntilEOL();
+                    emitToken(TokenTag::COMMENT, std::string(string), start);
                     skipLine();
                     continue;
                 }

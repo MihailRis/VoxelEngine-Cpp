@@ -12,7 +12,7 @@ namespace lua {
 
     enum class TokenTag {
         KEYWORD, NAME, INTEGER, NUMBER, OPEN_BRACKET, CLOSE_BRACKET, STRING,
-        OPERATOR, COMMA, SEMICOLON, UNEXPECTED
+        OPERATOR, COMMA, SEMICOLON, UNEXPECTED, COMMENT
     };
 
     struct Token {

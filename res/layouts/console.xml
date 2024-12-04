@@ -32,10 +32,9 @@
             autoresize='true'
             margin='0'
             padding='5'
-            editable='false'
             multiline='true'
             line-numbers='true'
-            text-color="#FFFFFFA0"
+            syntax='lua'
             size-func="gui.get_viewport()[1]-350,40"
             gravity="top-left"
             text-wrap='false'

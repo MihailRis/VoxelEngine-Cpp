@@ -214,10 +214,14 @@ std::string_view BasicParser::readUntil(char c) {
     return source.substr(start, pos - start);
 }
 
-std::string_view BasicParser::readUntil(std::string_view s) {
+std::string_view BasicParser::readUntil(std::string_view s, bool nothrow) {
     int start = pos;
     size_t found = source.find(s, pos);
     if (found == std::string::npos) {
+        if (nothrow) {
+            pos = source.size();
+            return source.substr(start);
+        }
         throw error(util::quote(std::string(s))+" expected");
     }
     skip(found - pos);

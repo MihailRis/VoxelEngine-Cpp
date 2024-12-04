@@ -357,6 +357,9 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     }
     textbox->setText(text);
 
+    if (element->has("syntax")) {
+        textbox->setSyntax(element->attr("syntax").getText());
+    }
     if (element->has("multiline")) {
         textbox->setMultiline(element->attr("multiline").asBool());
     }

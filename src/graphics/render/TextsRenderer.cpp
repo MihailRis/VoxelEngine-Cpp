@@ -98,13 +98,13 @@ void TextsRenderer::renderNote(
                                      pos + xvec * (width * 0.5f * preset.scale))) {
         return;
     }
-    static FontStylesScheme styles {};
     auto color = preset.color;
     batch.setColor(glm::vec4(color.r, color.g, color.b, color.a * opacity));
     font.draw(
         batch,
         text,
-        &styles,
+        nullptr,
+        0,
         pos - xvec * (width * 0.5f) * preset.scale,
         xvec * preset.scale,
         yvec * preset.scale

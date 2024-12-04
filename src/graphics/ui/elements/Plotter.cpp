@@ -52,7 +52,8 @@ void Plotter::draw(const DrawContext* pctx, Assets* assets) {
             string,
             pos.x + dmwidth + 2,
             pos.y + dmheight - y - labelsInterval,
-            nullptr
+            nullptr,
+            0
         );
     }
 }
