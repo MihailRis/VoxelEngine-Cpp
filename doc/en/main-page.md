@@ -1,6 +1,6 @@
 # Documentation
 
-Documentation for stable release 0.24.x.
+Documentation for stable release 0.25.x.
 
 ## Sections
 
