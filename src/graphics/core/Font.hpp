@@ -12,9 +12,14 @@ class Batch3D;
 class Camera;
 
 struct FontStyle {
+    size_t n = -1;
     bool bold = false;
     bool italic = false;
     glm::vec4 color {1, 1, 1, 1};
+};
+
+struct FontStylesScheme {
+    std::vector<FontStyle> palette;
 };
 
 class Font {
@@ -45,12 +50,20 @@ public:
     /// @brief Check if character is visible (non-whitespace)
     /// @param codepoint character unicode codepoint
     bool isPrintableChar(uint codepoint) const;
-    
-    void draw(Batch2D& batch, std::wstring_view text, int x, int y, float scale=1) const;
+
+    void draw(
+        Batch2D& batch,
+        std::wstring_view text,
+        int x,
+        int y,
+        const FontStylesScheme* styles,
+        float scale = 1
+    ) const;
 
     void draw(
         Batch3D& batch,
         std::wstring_view text,
+        const FontStylesScheme* styles,
         const glm::vec3& pos,
         const glm::vec3& right={1, 0, 0},
         const glm::vec3& up={0, 1, 0}

@@ -1,5 +1,6 @@
 #include "Font.hpp"
 
+#include <limits>
 #include <utility>
 #include "Texture.hpp"
 #include "Batch2D.hpp"
@@ -64,7 +65,7 @@ static inline void draw_glyph(
             -0.2f * style.italic,
             16,
             c,
-            batch.getColor()
+            batch.getColor() * style.color
         );
     }
 }
@@ -87,7 +88,7 @@ static inline void draw_glyph(
             0.5f,
             16,
             c,
-            batch.getColor()
+            batch.getColor() * style.color
         );
     }
 }
@@ -100,17 +101,33 @@ static inline void draw_text(
     const glm::vec3& pos,
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval
+    float glyphInterval,
+    const FontStylesScheme* styles
 ) {
+    static FontStylesScheme defStyles {
+        {{std::numeric_limits<size_t>::max()}},
+    };
+    if (styles == nullptr) {
+        styles = &defStyles;
+    }
+    
     uint page = 0;
     uint next = MAX_CODEPAGES;
     int x = 0;
     int y = 0;
 
-    FontStyle style {};
-
     do {
-        for (uint c : text){
+        size_t entryIndex = 0;
+        int styleCharsCounter = -1;
+        const FontStyle* style = &styles->palette.at(entryIndex);
+
+        for (uint c : text) {
+            styleCharsCounter++;
+            if (styleCharsCounter > style->n && 
+                    entryIndex + 1 < styles->palette.size()) {
+                style = &styles->palette.at(++entryIndex);
+                styleCharsCounter = -1;
+            }
             if (!font.isPrintableChar(c)) {
                 x++;
                 continue;
@@ -119,7 +136,14 @@ static inline void draw_text(
             if (charpage == page){
                 batch.texture(font.getPage(charpage));
                 draw_glyph(
-                    batch, pos, glm::vec2(x, y), c, right, up, glyphInterval, style
+                    batch,
+                    pos,
+                    glm::vec2(x, y),
+                    c,
+                    right,
+                    up,
+                    glyphInterval,
+                    *style
                 );
             }
             else if (charpage > page && charpage < next){
@@ -145,20 +169,27 @@ const Texture* Font::getPage(int charpage) const {
 }
 
 void Font::draw(
-    Batch2D& batch, std::wstring_view text, int x, int y, float scale
+    Batch2D& batch,
+    std::wstring_view text,
+    int x,
+    int y,
+    const FontStylesScheme* styles,
+    float scale
 ) const {
     draw_text(
         *this, batch, text,
         glm::vec3(x, y, 0),
         glm::vec3(glyphInterval*scale, 0, 0),
         glm::vec3(0, lineHeight*scale, 0),
-        glyphInterval/static_cast<float>(lineHeight)
+        glyphInterval/static_cast<float>(lineHeight),
+        styles
     );
 }
 
 void Font::draw(
     Batch3D& batch,
     std::wstring_view text,
+    const FontStylesScheme* styles,
     const glm::vec3& pos,
     const glm::vec3& right,
     const glm::vec3& up
@@ -167,6 +198,7 @@ void Font::draw(
         *this, batch, text, pos,
         right * static_cast<float>(glyphInterval),
         up * static_cast<float>(lineHeight),
-        glyphInterval/static_cast<float>(lineHeight)
+        glyphInterval/static_cast<float>(lineHeight),
+        styles
     );
 }

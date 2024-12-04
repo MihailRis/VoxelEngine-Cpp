@@ -66,6 +66,8 @@ Label::Label(const std::wstring& text, std::string fontName)
     cache.update(this->text, multiline, textWrap);
 }
 
+Label::~Label() = default;
+
 glm::vec2 Label::calcSize() {
     auto font = cache.font;
     uint lineHeight = font->getLineHeight();
@@ -201,10 +203,10 @@ void Label::draw(const DrawContext* pctx, Assets* assets) {
             if (i < cache.lines.size()-1) {
                 view = std::wstring_view(text.c_str()+offset, cache.lines.at(i+1).offset-offset);
             }
-            font->draw(*batch, view, pos.x, pos.y + i * totalLineHeight);
+            font->draw(*batch, view, pos.x, pos.y + i * totalLineHeight, styles.get());
         }
     } else {
-        font->draw(*batch, text, pos.x, pos.y);
+        font->draw(*batch, text, pos.x, pos.y, styles.get());
     }
 }
 
@@ -238,4 +240,8 @@ void Label::setTextWrapping(bool flag) {
 
 bool Label::isTextWrapping() const {
     return textWrap;
+}
+
+void Label::setStyles(std::unique_ptr<FontStylesScheme> styles) {
+    this->styles = std::move(styles);
 }

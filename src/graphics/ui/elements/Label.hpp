@@ -3,6 +3,7 @@
 #include "UINode.hpp"
 
 class Font;
+struct FontStylesScheme;
 
 namespace gui {
     struct LineScheme {
@@ -51,9 +52,13 @@ namespace gui {
 
         /// @brief Auto resize label to fit text
         bool autoresize = false;
+
+        std::unique_ptr<FontStylesScheme> styles;
     public:
         Label(const std::string& text, std::string fontName="normal");
         Label(const std::wstring& text, std::string fontName="normal");
+
+        virtual ~Label();
 
         virtual void setText(const std::wstring& text);
         const std::wstring& getText() const;
@@ -107,5 +112,7 @@ namespace gui {
 
         virtual void setTextWrapping(bool flag);
         virtual bool isTextWrapping() const;
+
+        virtual void setStyles(std::unique_ptr<FontStylesScheme> styles);
     };
 }
