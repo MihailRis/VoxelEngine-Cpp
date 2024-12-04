@@ -13,7 +13,7 @@
 static debug::Logger logger("png-coder");
 
 // returns 0 if all-right, 1 otherwise
-int _png_write(
+static int png_write(
     const char* filename, uint width, uint height, const ubyte* data, bool alpha
 ) {
     uint pixsize = alpha ? 4 : 3;
@@ -112,7 +112,7 @@ static void read_in_memory(png_structp pngPtr, png_bytep dst, png_size_t toread)
 }
 
 std::unique_ptr<ImageData> png::load_image(const ubyte* bytes, size_t size) {
-    if (!png_check_sig(bytes, size)) {
+    if (size < 8 || !png_check_sig(bytes, 8)) {
         throw std::runtime_error("invalid png signature");
     }
     png_structp pngPtr = nullptr;
@@ -223,7 +223,7 @@ std::unique_ptr<Texture> png::load_texture(const std::string& filename) {
 }
 
 void png::write_image(const std::string& filename, const ImageData* image) {
-    _png_write(
+    png_write(
         filename.c_str(),
         image->getWidth(),
         image->getHeight(),
