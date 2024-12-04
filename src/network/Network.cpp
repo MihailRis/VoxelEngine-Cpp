@@ -293,37 +293,46 @@ public:
         }
     }
 
+    void startListen() {
+        while (state == ConnectionState::CONNECTED) {
+            int size = recvsocket(descriptor, buffer.data(), buffer.size());
+            if (size == 0) {
+                logger.info() << "closed connection with " << to_string(addr);
+                closesocket(descriptor);
+                state = ConnectionState::CLOSED;
+                break;
+            } else if (size < 0) {
+                logger.info() << "an error ocurred while receiving from "
+                            << to_string(addr);
+                auto error = handle_socket_error("recv(...) error");
+                closesocket(descriptor);
+                state = ConnectionState::CLOSED;
+                logger.error() << error.what();
+                break;
+            }
+            {
+                std::lock_guard lock(mutex);
+                for (size_t i = 0; i < size; i++) {
+                    readBatch.emplace_back(buffer[i]);
+                }
+                totalDownload += size;
+            }
+            logger.info() << "read " << size << " bytes from " << to_string(addr);
+        }
+    }
+
+    void startClient() {
+        state = ConnectionState::CONNECTED;
+        thread = std::make_unique<std::thread>([this]() { startListen();});
+    }
+
     void connect(runnable callback) override {
         thread = std::make_unique<std::thread>([this, callback]() {
             connectSocket();
             if (state == ConnectionState::CONNECTED) {
                 callback();
             }
-            while (state == ConnectionState::CONNECTED) {
-                int size = recvsocket(descriptor, buffer.data(), buffer.size());
-                if (size == 0) {
-                    logger.info() << "closed connection with " << to_string(addr);
-                    closesocket(descriptor);
-                    state = ConnectionState::CLOSED;
-                    break;
-                } else if (size < 0) {
-                    logger.info() << "an error ocurred while receiving from "
-                                  << to_string(addr);
-                    auto error = handle_socket_error("recv(...) error");
-                    closesocket(descriptor);
-                    state = ConnectionState::CLOSED;
-                    logger.error() << error.what();
-                    break;
-                }
-                {
-                    std::lock_guard lock(mutex);
-                    for (size_t i = 0; i < size; i++) {
-                        readBatch.emplace_back(buffer[i]);
-                    }
-                    totalDownload += size;
-                }
-                logger.info() << "read " << size << " bytes from " << to_string(addr);
-            }
+            startListen();
         });
     }
 
@@ -459,6 +468,7 @@ public:
                 auto socket = std::make_shared<SocketConnection>(
                     clientDescriptor, address
                 );
+                socket->startClient();
                 u64id_t id = network->addConnection(socket);
                 {
                     std::lock_guard lock(clientsMutex);
