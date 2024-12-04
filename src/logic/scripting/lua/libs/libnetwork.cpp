@@ -101,7 +101,8 @@ static int l_recv(lua::State* L) {
     if (connection == nullptr) {
         return 0;
     }
-    util::Buffer<char> buffer(glm::min(length, connection->available()));
+    length = glm::min(length, connection->available());
+    util::Buffer<char> buffer(length);
     
     int size = connection->recv(buffer.data(), length);
     if (size == -1) {
