@@ -74,6 +74,9 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
         batch->rect(lcoord.x + width, lcoord.y+label->getLineYOffset(line), 2, lineHeight);
     }
     if (selectionStart != selectionEnd) {
+        auto selectionCtx = subctx.sub(batch);
+        selectionCtx.setBlendMode(BlendMode::addition);
+        
         uint startLine = label->getLineByTextIndex(selectionStart);
         uint endLine = label->getLineByTextIndex(selectionEnd);
 
@@ -433,7 +436,11 @@ void TextBox::click(GUI*, int x, int y) {
     selectionOrigin = index;
 }
 
-void TextBox::mouseMove(GUI*, int x, int y) {
+void TextBox::mouseMove(GUI* gui, int x, int y) {
+    Container::mouseMove(gui, x, y);
+    if (isScrolling()) {
+        return;
+    }
     ptrdiff_t index = calcIndexAt(x, y);
     setCaret(index);
     extendSelection(index);

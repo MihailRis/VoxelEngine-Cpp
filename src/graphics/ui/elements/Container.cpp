@@ -23,6 +23,11 @@ std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> 
     }
     if (!isInside(pos)) return nullptr;
 
+    int diff = (actualLength-size.y);
+    if (scrollable && diff > 0 && pos.x > calcPos().x + getSize().x - scrollBarWidth) {
+        return UINode::getAt(pos, self);
+    }
+
     for (int i = nodes.size()-1; i >= 0; i--) {
         auto& node = nodes[i];
         if (!node->isVisible())
@@ -33,6 +38,35 @@ std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> 
         }
     }
     return UINode::getAt(pos, self);
+}
+
+void Container::mouseMove(GUI* gui, int x, int y) {
+    UINode::mouseMove(gui, x, y);
+    if (!scrollable) {
+        return;
+    }
+    auto pos = calcPos();
+    x -= pos.x;
+    y -= pos.y;
+    if (prevScrollY == -1) {
+        if (x >= size.x - scrollBarWidth) {
+            prevScrollY = y;
+        }
+        return;
+    }
+    int diff = (actualLength-size.y);
+    if (diff > 0) {
+        scroll -= (y - prevScrollY) / static_cast<float>(size.y) * actualLength;
+        scroll = -glm::min(
+            glm::max(static_cast<float>(-scroll), 0.0f), actualLength - size.y
+        );
+    }
+    prevScrollY = y;
+}
+
+void Container::mouseRelease(GUI* gui, int x, int y) {
+    UINode::mouseRelease(gui, x, y);
+    prevScrollY = -1;
 }
 
 void Container::act(float delta) {
@@ -98,14 +132,13 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
 
         int diff = (actualLength-size.y);
         if (scrollable && diff > 0) {
-            int w = 10;
-            int h = glm::max(size.y / actualLength * size.y, w / 2.0f);
+            int h = glm::max(size.y / actualLength * size.y, scrollBarWidth / 2.0f);
             batch->untexture();
-            batch->setColor(glm::vec4(1, 1, 1, 0.5f));
+            batch->setColor(glm::vec4(1, 1, 1, 0.3f));
             batch->rect(
-                pos.x + size.x - w,
+                pos.x + size.x - scrollBarWidth,
                 pos.y - scroll / static_cast<float>(diff) * (size.y - h),
-                w, h
+                scrollBarWidth, h
             );
         }
         batch->flush();

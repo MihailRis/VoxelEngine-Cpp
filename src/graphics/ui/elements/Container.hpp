@@ -7,13 +7,19 @@
 
 namespace gui {
     class Container : public UINode {
+        int prevScrollY = -1;
     protected:
         std::vector<std::shared_ptr<UINode>> nodes;
         std::vector<IntervalEvent> intervalEvents;
         int scroll = 0;
         int scrollStep = 40;
+        int scrollBarWidth = 10;
         int actualLength = 0;
         bool scrollable = true;
+
+        bool isScrolling() {
+            return prevScrollY != -1;
+        }
     public:
         Container(glm::vec2 size);
         virtual ~Container();
@@ -35,6 +41,9 @@ namespace gui {
         virtual int getScrollStep() const;
         virtual void setScrollStep(int step);
         virtual void refresh() override;
+
+        virtual void mouseMove(GUI*, int x, int y) override;
+        virtual void mouseRelease(GUI*, int x, int y) override;
 
         const std::vector<std::shared_ptr<UINode>>& getNodes() const;
     };
