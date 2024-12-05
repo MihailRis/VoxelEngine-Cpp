@@ -189,7 +189,9 @@ void UiXmlReader::readUINode(UiXmlReader& reader, const xml::xmlelement& element
     _readContainer(reader, element, container);
 }
 
-void UiXmlReader::readUINode(UiXmlReader& reader, const xml::xmlelement& element, UINode& node) {
+void UiXmlReader::readUINode(
+    const UiXmlReader& reader, const xml::xmlelement& element, UINode& node
+) {
     _readUINode(reader, element, node);
 }
 
@@ -246,7 +248,9 @@ static std::wstring readAndProcessInnerText(const xml::xmlelement& element, cons
     return text;
 }
 
-static std::shared_ptr<UINode> readLabel(UiXmlReader& reader, const xml::xmlelement& element) {
+static std::shared_ptr<UINode> readLabel(
+    const UiXmlReader& reader, const xml::xmlelement& element
+) {
     std::wstring text = readAndProcessInnerText(element, reader.getContext());
     auto label = std::make_shared<Label>(text);
     _readUINode(reader, element, *label);
@@ -423,14 +427,18 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     return textbox;
 }
 
-static std::shared_ptr<UINode> readImage(UiXmlReader& reader, const xml::xmlelement& element) {
+static std::shared_ptr<UINode> readImage(
+    const UiXmlReader& reader, const xml::xmlelement& element
+) {
     std::string src = element.attr("src", "").getText();
     auto image = std::make_shared<Image>(src);
     _readUINode(reader, element, *image);
     return image;
 }
 
-static std::shared_ptr<UINode> readTrackBar(UiXmlReader& reader, const xml::xmlelement& element) {
+static std::shared_ptr<UINode> readTrackBar(
+    const UiXmlReader& reader, const xml::xmlelement& element
+) {
     const auto& env = reader.getEnvironment();
     const auto& file = reader.getFilename();
     float minv = element.attr("min", "0.0").asFloat();

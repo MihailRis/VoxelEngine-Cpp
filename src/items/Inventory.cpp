@@ -5,7 +5,7 @@
 Inventory::Inventory(int64_t id, size_t size) : id(id), slots(size) {
 }
 
-Inventory::Inventory(const Inventory& orig) {
+Inventory::Inventory(const Inventory& orig) : id(0) {
     this->slots = orig.slots;
 }
 

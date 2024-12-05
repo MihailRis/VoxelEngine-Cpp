@@ -7,7 +7,7 @@
 namespace gui {
     struct Page {
         std::string name;
-        std::shared_ptr<UINode> panel = nullptr;
+        std::shared_ptr<UINode> panel;
     };
 
     using page_loader_func = std::function<std::shared_ptr<UINode>(const std::string& name)>;

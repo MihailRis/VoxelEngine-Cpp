@@ -30,7 +30,7 @@ namespace gui {
         std::shared_ptr<UINode> readUINode(const xml::xmlelement& element);
         
         void readUINode(
-            UiXmlReader& reader, 
+            const UiXmlReader& reader, 
             const xml::xmlelement& element,
             UINode& node
         );
