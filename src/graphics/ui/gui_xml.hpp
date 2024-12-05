@@ -11,7 +11,8 @@
 namespace gui {
     class UiXmlReader;
 
-    using uinode_reader = std::function<std::shared_ptr<UINode>(UiXmlReader&, xml::xmlelement)>;
+    using uinode_reader = std::function<
+        std::shared_ptr<UINode>(UiXmlReader&, const xml::xmlelement&)>;
 
     class UiXmlReader {
         std::unordered_map<std::string, uinode_reader> readers;

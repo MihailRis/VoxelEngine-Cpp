@@ -67,9 +67,7 @@ std::unique_ptr<UiDocument> UiDocument::read(
         : scripting::create_doc_environment(penv, name);
 
     gui::UiXmlReader reader(env);
-    auto view = reader.readXML(
-        file.u8string(), xmldoc->getRoot()
-    );
+    auto view = reader.readXML(file.u8string(), *xmldoc->getRoot());
     view->setId("root");
     uidocscript script {};
     auto scriptFile = fs::path(file.u8string()+".lua");
