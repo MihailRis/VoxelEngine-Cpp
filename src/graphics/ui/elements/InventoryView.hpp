@@ -64,7 +64,7 @@ namespace gui {
     public:
         SlotView(SlotLayout layout);
 
-        virtual void draw(const DrawContext* pctx, Assets* assets) override;
+        virtual void draw(const DrawContext& pctx, const Assets& assets) override;
 
         void setHighlighted(bool flag);
         bool isHighlighted() const;

@@ -206,7 +206,7 @@ void Engine::renderFrame(Batch2D& batch) {
 
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, &batch);
-    gui->draw(&ctx, assets.get());
+    gui->draw(ctx, *assets);
 }
 
 void Engine::processPostRunnables() {

@@ -31,13 +31,13 @@ namespace gui {
         /// @param history previous page will not be saved in history if false
         void setPage(const std::string &name, bool history=true);
         void setPage(Page page, bool history=true);
-        void addPage(const std::string& name, const std::shared_ptr<UINode> &panel);
+        void addPage(const std::string& name, const std::shared_ptr<UINode>& panel);
         std::shared_ptr<UINode> fetchPage(const std::string& name);
 
         /// @brief Add page supplier used if page is not found
         /// @param name page name
         /// @param pageSupplier page supplier function
-        void addSupplier(const std::string &name, const supplier<std::shared_ptr<UINode>> &pageSupplier);
+        void addSupplier(const std::string& name, const supplier<std::shared_ptr<UINode>>& pageSupplier);
 
         /// @brief Page loader is called if accessed page is not found 
         void setPageLoader(page_loader_func loader);

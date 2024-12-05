@@ -115,7 +115,7 @@ SlotView::SlotView(
     setTooltipDelay(0.0f);
 }
 
-void SlotView::draw(const DrawContext* pctx, Assets* assets) {
+void SlotView::draw(const DrawContext& pctx, const Assets& assets) {
     if (bound == nullptr) {
         return;
     }
@@ -144,7 +144,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
         color = glm::vec4(1, 1, 1, 0.2f);
     }
 
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->setColor(color);
     if (color.a > 0.0) {
         batch->texture(nullptr);
@@ -157,7 +157,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
     
     batch->setColor(glm::vec4(1.0f));
 
-    auto previews = assets->get<Atlas>("block-previews");
+    auto previews = assets.get<Atlas>("block-previews");
     auto indices = content->getIndices();
 
     auto& item = indices->items.require(stack.getItemId());
@@ -176,7 +176,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
         }
         case ItemIconType::SPRITE: {
             auto textureRegion =
-                util::get_texture_region(*assets, item.icon, "blocks:notfound");
+                util::get_texture_region(assets, item.icon, "blocks:notfound");
             
             batch->texture(textureRegion.texture);
             batch->rect(
@@ -187,7 +187,7 @@ void SlotView::draw(const DrawContext* pctx, Assets* assets) {
     }
 
     if (stack.getCount() > 1) {
-        auto font = assets->get<Font>("normal");
+        auto font = assets.get<Font>("normal");
         std::wstring text = std::to_wstring(stack.getCount());
 
         int x = pos.x+slotSize-text.length()*8;

@@ -158,9 +158,9 @@ uint Label::getLinesNumber() const {
     return cache.lines.size();
 }
 
-void Label::draw(const DrawContext* pctx, Assets* assets) {
-    auto batch = pctx->getBatch2D();
-    auto font = assets->get<Font>(fontName);
+void Label::draw(const DrawContext& pctx, const Assets& assets) {
+    auto batch = pctx.getBatch2D();
+    auto font = assets.get<Font>(fontName);
     cache.prepare(font, static_cast<size_t>(glm::abs(getSize().x)));
 
     if (supplier) {

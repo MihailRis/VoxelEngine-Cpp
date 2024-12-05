@@ -17,12 +17,15 @@ Container::~Container() {
     Container::clear();
 }
 
-std::shared_ptr<UINode> Container::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
+std::shared_ptr<UINode> Container::getAt(
+    const glm::vec2& pos, const std::shared_ptr<UINode>& self
+) {
     if (!isInteractive() || !isEnabled()) {
         return nullptr;
     }
-    if (!isInside(pos)) return nullptr;
-
+    if (!isInside(pos)) {
+        return nullptr;
+    }
     int diff = (actualLength-size.y);
     if (scrollable && diff > 0 && pos.x > calcPos().x + getSize().x - scrollBarWidth) {
         return UINode::getAt(pos, self);
@@ -114,16 +117,16 @@ void Container::setScrollable(bool flag) {
     scrollable = flag;
 }
 
-void Container::draw(const DrawContext* pctx, Assets* assets) {
+void Container::draw(const DrawContext& pctx, const Assets& assets) {
     glm::vec2 pos = calcPos();
     glm::vec2 size = getSize();
     drawBackground(pctx, assets);
 
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     if (!nodes.empty()) {
         batch->flush();
-        DrawContext ctx = pctx->sub();
+        DrawContext ctx = pctx.sub();
         ctx.setScissors(glm::vec4(pos.x, pos.y, glm::ceil(size.x), glm::ceil(size.y)));
         for (const auto& node : nodes) {
             if (node->isVisible())
@@ -145,19 +148,19 @@ void Container::draw(const DrawContext* pctx, Assets* assets) {
     }
 }
 
-void Container::drawBackground(const DrawContext* pctx, Assets*) {
+void Container::drawBackground(const DrawContext& pctx, const Assets&) {
     glm::vec4 color = calcColor();
     if (color.a <= 0.001f)
         return;
     glm::vec2 pos = calcPos();
 
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     batch->setColor(color);
     batch->rect(pos.x, pos.y, glm::ceil(size.x), glm::ceil(size.y));
 }
 
-void Container::add(const std::shared_ptr<UINode> &node) {
+void Container::add(const std::shared_ptr<UINode>& node) {
     nodes.push_back(node);
     node->setParent(this);
     node->reposition();

@@ -120,7 +120,7 @@ namespace gui {
         /// @brief Called every frame for all visible elements 
         /// @param delta delta timУ
         virtual void act(float delta) {};
-        virtual void draw(const DrawContext* pctx, Assets* assets) = 0;
+        virtual void draw(const DrawContext& pctx, const Assets& assets) = 0;
 
         virtual void setVisible(bool flag);
         bool isVisible() const;
@@ -190,7 +190,7 @@ namespace gui {
         /// @param pos cursor screen position
         /// @param self shared pointer to element
         /// @return self, sub-element or nullptr if element is not interractive
-        virtual std::shared_ptr<UINode> getAt(glm::vec2 pos, std::shared_ptr<UINode> self);
+        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos, const std::shared_ptr<UINode>& self);
 
         /// @brief Check if element is opaque for cursor
         virtual bool isInteractive() const;

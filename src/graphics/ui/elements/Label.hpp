@@ -100,7 +100,7 @@ namespace gui {
         virtual uint getLinesNumber() const;
         virtual bool isFakeLine(size_t line) const;
 
-        virtual void draw(const DrawContext* pctx, Assets* assets) override;
+        virtual void draw(const DrawContext& pctx, const Assets& assets) override;
 
         virtual void textSupplier(wstringsupplier supplier);
 

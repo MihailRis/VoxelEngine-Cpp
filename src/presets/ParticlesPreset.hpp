@@ -53,7 +53,7 @@ struct ParticlesPreset : public Serializable {
     /// @brief Size of random sub-uv region
     float randomSubUV = 1.0f;
     /// @brief Animation frames
-    std::vector<std::string> frames {};
+    std::vector<std::string> frames;
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;

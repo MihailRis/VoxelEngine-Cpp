@@ -15,21 +15,21 @@ Image::Image(std::string texture, glm::vec2 size) : UINode(size), texture(std::m
     setInteractive(false);
 }
 
-void Image::draw(const DrawContext* pctx, Assets* assets) {
+void Image::draw(const DrawContext& pctx, const Assets& assets) {
     glm::vec2 pos = calcPos();
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     
     Texture* texture = nullptr;
     auto separator = this->texture.find(':');
     if (separator == std::string::npos) {
-        texture = assets->get<Texture>(this->texture);
+        texture = assets.get<Texture>(this->texture);
         batch->texture(texture);
         if (texture && autoresize) {
             setSize(glm::vec2(texture->getWidth(), texture->getHeight()));
         }
     } else {
         auto atlasName = this->texture.substr(0, separator);
-        if (auto atlas = assets->get<Atlas>(atlasName)) {
+        if (auto atlas = assets.get<Atlas>(atlasName)) {
             if (auto region = atlas->getIf(this->texture.substr(separator+1))) {
                 texture = atlas->getTexture();
                 batch->texture(atlas->getTexture());
