@@ -39,16 +39,20 @@ jobs:
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
 
-      - name: Create DMG
+      - name: Run engine (headless)
         run: |
-          mkdir VoxelEngineDmgContent
-          cp -r build/res VoxelEngineDmgContent/
-          cp -r build/VoxelEngine VoxelEngineDmgContent/
-          cp -r build/libs VoxelEngineDmgContent/libs
-          hdiutil create VoxelEngineMacApp.dmg -volname "VoxelEngine" -srcfolder VoxelEngineDmgContent -ov -format UDZO
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: VoxelEngineMacOs
-          path: VoxelEngineMacApp.dmg
+          chmod +x build/VoxelEngine
+          build/VoxelEngine --headless --dir userdir
+#      - name: Create DMG
+#        run: |
+#          mkdir VoxelEngineDmgContent
+#          cp -r build/res VoxelEngineDmgContent/
+#          cp -r build/VoxelEngine VoxelEngineDmgContent/
+#          cp -r build/libs VoxelEngineDmgContent/libs
+#          hdiutil create VoxelEngineMacApp.dmg -volname "VoxelEngine" -srcfolder VoxelEngineDmgContent -ov -format UDZO
+#
+#      - name: Upload artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: VoxelEngineMacOs
+#          path: VoxelEngineMacApp.dmg

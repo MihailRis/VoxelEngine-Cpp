@@ -34,16 +34,18 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
           cmake --build . --config Release
-      - name: Package for Windows
-        run: |
-          mkdir packaged
-          cp -r build/* packaged/
-          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
-          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
-        working-directory: ${{ github.workspace }}
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Windows-Build
-          path: 'packaged/Release/*'
+      - name: Run engine (headless)
+        run: build/Release/VoxelEngine.exe --headless --dir userdir
+#      - name: Package for Windows
+#        run: |
+#          mkdir packaged
+#          cp -r build/* packaged/
+#          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
+#          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
+#        working-directory: ${{ github.workspace }}
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: Windows-Build
+#          path: 'packaged/Release/*'

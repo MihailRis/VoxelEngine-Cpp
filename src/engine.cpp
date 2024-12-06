@@ -75,6 +75,7 @@ Engine::Engine(CoreParameters coreParameters)
       settingsHandler({settings}),
       interpreter(std::make_unique<cmd::CommandsInterpreter>()),
       network(network::Network::create(settings.network)) {
+    logger.info() << "engine version: " << ENGINE_VERSION_STRING;
     if (params.headless) {
         logger.info() << "headless mode is enabled";
     }
