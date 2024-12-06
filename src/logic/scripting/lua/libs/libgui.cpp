@@ -12,6 +12,8 @@
 #include "graphics/ui/elements/TrackBar.hpp"
 #include "graphics/ui/elements/UINode.hpp"
 #include "graphics/ui/gui_util.hpp"
+#include "graphics/ui/markdown.hpp"
+#include "graphics/core/Font.hpp"
 #include "items/Inventories.hpp"
 #include "util/stringutil.hpp"
 #include "world/Level.hpp"
@@ -726,6 +728,16 @@ static int l_gui_getviewport(lua::State* L) {
     return lua::pushvec2(L, engine->getGUI()->getContainer()->getSize());
 }
 
+static int l_gui_clear_markup(lua::State* L) {
+    auto lang = lua::require_string(L, 1);
+    std::string text = lua::require_string(L, 2);
+    if (std::strcmp(lang, "md") == 0) {
+        auto [processed, _] = markdown::process(text, true);
+        text = std::move(processed);
+    }
+    return lua::pushstring(L, text);
+}
+
 const luaL_Reg guilib[] = {
     {"get_viewport", lua::wrap<l_gui_getviewport>},
     {"getattr", lua::wrap<l_gui_getattr>},
@@ -733,5 +745,6 @@ const luaL_Reg guilib[] = {
     {"get_env", lua::wrap<l_gui_get_env>},
     {"str", lua::wrap<l_gui_str>},
     {"get_locales_info", lua::wrap<l_gui_get_locales_info>},
+    {"clear_markup", lua::wrap<l_gui_clear_markup>},
     {"__reindex", lua::wrap<l_gui_reindex>},
     {NULL, NULL}};
