@@ -32,7 +32,7 @@ document["worlds-panel"]:clear()
 
 Properties that apply to all elements:
 
-| Title         | Type   | Read | Write | Description                                 |
+| Name          | Type   | Read | Write | Description                                 |
 | ------------- | ------ | ---- | ----- | ------------------------------------------- |
 | id            | string | yes  | *no*  | element id                                  |
 | pos           | vec2   | yes  | yes   | element position inside a container         |
@@ -60,17 +60,17 @@ Common element methods:
 
 Common methods for containers (elements: container, panel, button, pagebox):
 
-| Method | Description |
-| ------------------------------- | ------------------------------------------------------------------ |
-| clear() | clears content |
-| add(xml) | adds an element, creating it using xml code. Example: `container:add("<image src='test'/>")` |
-| setInterval(interval, callback) | assigns a function to be executed repeatedly at an interval specified in milliseconds |
+| Method                          | Description                                                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| clear()                         | clears content                                                                               |
+| add(xml)                        | adds an element, creating it using xml code. Example: `container:add("<image src='test'/>")` |
+| setInterval(interval, callback) | assigns a function to be executed repeatedly at an interval specified in milliseconds        |
 
 ## Textbox
 
 Properties:
 
-| Title       | Type   | Read | Write | Description                                                                          |
+| Name        | Type   | Read | Write | Description                                                                          |
 | ----------- | ------ | ---- | ----- | ------------------------------------------------------------------------------------ |
 | text        | string | yes  | yes   | entered text or placeholder                                                          |
 | placeholder | string | yes  | yes   | placeholder (used if nothing has been entered)                                       |
@@ -97,7 +97,7 @@ Methods:
 
 Properties:
 
-| Title      | Type  | Read | Write | Description           |
+| Name       | Type  | Read | Write | Description           |
 | ---------- | ----- | ---- | ----- | --------------------- |
 | value      | float | yes  | yes   | current value         |
 | min        | float | yes  | yes   | minimum value         |
@@ -110,7 +110,7 @@ Properties:
 
 Properties:
 
-| Title | Type   | Read | Write | Description  |
+| Name  | Type   | Read | Write | Description  |
 | ----- | ------ | ---- | ----- | ------------ |
 | page  | string | yes  | yes   | current page |
 
@@ -125,7 +125,7 @@ Methods:
 
 Properties:
 
-| Title   | Type | Read | Write | Description |
+| Name    | Type | Read | Write | Description |
 | ------- | ---- | ---- | ----- | ----------- |
 | checked | bool | yes  | yes   | mark status |
 
@@ -133,7 +133,7 @@ Properties:
 
 Properties:
 
-| Title | Type   | Read | Write | Description  |
+| Name  | Type   | Read | Write | Description  |
 | ----- | ------ | ---- | ----- | ------------ |
 | text  | string | yes  | yes   | button text  |
 
@@ -141,7 +141,7 @@ Properties:
 
 Properties:
 
-| Title  | Type   | Read | Write | Description                            |
+| Name   | Type   | Read | Write | Description                            |
 | ------ | ------ | ---- | ----- | -------------------------------------- |
 | text   | string | yes  | yes   | label text                             |
 | markup | string | yes  | yes   | text markup language ("md" - Markdown) |
@@ -150,7 +150,7 @@ Properties:
 
 Properties:
 
-| Title | Type   | Read | Write | Description  |
+| Name  | Type   | Read | Write | Description  |
 | ----- | ------ | ---- | ----- | ------------ |
 | src   | string | yes  | yes   | texture name |
 
@@ -158,6 +158,6 @@ Properties:
 
 Properties:
 
-| Title     | Type | Read | Write | Description                                       |
+| Name      | Type | Read | Write | Description                                       |
 | --------- | ---- | ---- | ----- | ------------------------------------------------- |
 | inventory | int  | yes  | yes   | id of the inventory to which the element is bound |
