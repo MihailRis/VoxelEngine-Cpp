@@ -56,8 +56,7 @@ namespace gui {
         bool editable = true;
         bool autoresize = false;
         bool showLineNumbers = false;
-        bool markdown = false;
-
+        std::string markup;
         std::string syntax;
 
         void stepLeft(bool shiftPressed, bool breakSelection);
@@ -227,9 +226,9 @@ namespace gui {
         virtual void setOnUpPressed(const runnable &callback);
         virtual void setOnDownPressed(const runnable &callback);
 
-        virtual void setSyntax(const std::string& lang);
+        virtual void setSyntax(std::string_view lang);
 
-        virtual void setMarkdown(bool flag);
-        virtual bool isMarkdown() const;
+        virtual void setMarkup(std::string_view lang);
+        virtual const std::string& getMarkup() const;
     };
 }

@@ -53,8 +53,8 @@ namespace gui {
         /// @brief Auto resize label to fit text
         bool autoresize = false;
 
-        /// @brief Enable text markdown
-        bool markdown = false;
+        /// @brief Text markup language
+        std::string markup;
 
         std::unique_ptr<FontStylesScheme> styles;
     public:
@@ -116,8 +116,8 @@ namespace gui {
         virtual void setTextWrapping(bool flag);
         virtual bool isTextWrapping() const;
 
-        virtual void setMarkdown(bool flag);
-        virtual bool isMarkdown() const;
+        virtual void setMarkup(std::string_view lang);
+        virtual const std::string& getMarkup() const;
 
         virtual void setStyles(std::unique_ptr<FontStylesScheme> styles);
     };

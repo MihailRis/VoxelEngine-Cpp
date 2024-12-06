@@ -278,8 +278,8 @@ static std::shared_ptr<UINode> readLabel(
     if (element.has("text-wrap")) {
         label->setTextWrapping(element.attr("text-wrap").asBool());
     }
-    if (element.has("markdown")) {
-        label->setMarkdown(element.attr("markdown").asBool());
+    if (element.has("markup")) {
+        label->setMarkup(element.attr("markup").getText());
     }
     return label;
 }
@@ -384,8 +384,8 @@ static std::shared_ptr<UINode> readTextBox(UiXmlReader& reader, const xml::xmlel
     if (element.has("line-numbers")) {
         textbox->setShowLineNumbers(element.attr("line-numbers").asBool());
     }
-    if (element.has("markdown")) {
-        textbox->setMarkdown(element.attr("markdown").asBool());
+    if (element.has("markup")) {
+        textbox->setMarkup(element.attr("markup").getText());
     }
     if (element.has("consumer")) {
         textbox->setTextConsumer(scripting::create_wstring_consumer(

@@ -82,7 +82,7 @@ glm::vec2 Label::calcSize() {
 }
 
 void Label::setText(std::wstring text) {
-    if (isMarkdown()) {
+    if (markup == "md") {
         auto [processedText, styles] = markdown::process(text, true);
         text = std::move(processedText);
         setStyles(std::move(styles));
@@ -248,13 +248,13 @@ bool Label::isTextWrapping() const {
     return textWrap;
 }
 
-void Label::setMarkdown(bool flag) {
-    markdown = flag;
+void Label::setMarkup(std::string_view lang) {
+    markup = lang;
     setText(text);
 }
 
-bool Label::isMarkdown() const {
-    return markdown;    
+const std::string& Label::getMarkup() const {
+    return markup;
 }
 
 void Label::setStyles(std::unique_ptr<FontStylesScheme> styles) {

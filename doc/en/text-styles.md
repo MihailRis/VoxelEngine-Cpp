@@ -1,7 +1,7 @@
 # Text styles
 
 A proprietary Markdown dialect is used to mark up text styles.
-Formatting works on UI elements: label and textbox, if `markdown="true"` is explicitly specified.
+Formatting works on UI elements: label and textbox, if `markup="md"` is explicitly specified.
 
 ## Styles
 

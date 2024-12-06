@@ -194,7 +194,7 @@ void TextBox::refreshLabel() {
     label->setColor(textColor * glm::vec4(input.empty() ? 0.5f : 1.0f));
 
     const auto& displayText = input.empty() && !hint.empty() ? hint : getText();
-    if (markdown) {
+    if (markup == "md") {
         auto [processedText, styles] = markdown::process(displayText, !focused);
         label->setText(std::move(processedText));
         label->setStyles(std::move(styles));
@@ -850,7 +850,7 @@ bool TextBox::isShowLineNumbers() const {
     return showLineNumbers;
 }
 
-void TextBox::setSyntax(const std::string& lang) {
+void TextBox::setSyntax(std::string_view lang) {
     syntax = lang;
     if (syntax.empty()) {
         label->setStyles(nullptr);
@@ -859,10 +859,10 @@ void TextBox::setSyntax(const std::string& lang) {
     }
 }
 
-void TextBox::setMarkdown(bool flag) {
-    markdown = flag;
+void TextBox::setMarkup(std::string_view lang) {
+    markup = lang;
 }
 
-bool TextBox::isMarkdown() const {
-    return markdown;
+const std::string& TextBox::getMarkup() const {
+    return markup;
 }
