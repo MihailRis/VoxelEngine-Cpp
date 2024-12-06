@@ -7,7 +7,7 @@ namespace gui {
 
     class Button : public Panel {
     protected:
-        std::shared_ptr<Label> label = nullptr;
+        std::shared_ptr<Label> label;
     public:
         Button(const std::shared_ptr<UINode>& content,
                glm::vec4 padding=glm::vec4(2.0f));
@@ -17,7 +17,9 @@ namespace gui {
                const onaction& action,
                glm::vec2 size=glm::vec2(-1));
 
-        virtual void drawBackground(const DrawContext* pctx, Assets* assets) override;
+        virtual void drawBackground(
+            const DrawContext& pctx, const Assets& assets
+        ) override;
 
         virtual Align getTextAlign() const;
         virtual void setTextAlign(Align align);

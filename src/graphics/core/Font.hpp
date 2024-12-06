@@ -11,10 +11,33 @@ class Batch2D;
 class Batch3D;
 class Camera;
 
-enum class FontStyle {
-    none,
-    shadow,
-    outline
+struct FontStyle {
+    bool bold = false;
+    bool italic = false;
+    bool strikethrough = false;
+    bool underline = false;
+    glm::vec4 color {1, 1, 1, 1};
+
+    FontStyle() = default;
+
+    FontStyle(
+        bool bold,
+        bool italic,
+        bool strikethrough,
+        bool underline,
+        glm::vec4 color
+    )
+        : bold(bold),
+          italic(italic),
+          strikethrough(strikethrough),
+          underline(underline),
+          color(std::move(color)) {
+    }
+};
+
+struct FontStylesScheme {
+    std::vector<FontStyle> palette;
+    std::vector<ubyte> map;
 };
 
 class Font {
@@ -45,12 +68,22 @@ public:
     /// @brief Check if character is visible (non-whitespace)
     /// @param codepoint character unicode codepoint
     bool isPrintableChar(uint codepoint) const;
-    
-    void draw(Batch2D& batch, std::wstring_view text, int x, int y, float scale=1) const;
+
+    void draw(
+        Batch2D& batch,
+        std::wstring_view text,
+        int x,
+        int y,
+        const FontStylesScheme* styles,
+        size_t styleMapOffset,
+        float scale = 1
+    ) const;
 
     void draw(
         Batch3D& batch,
         std::wstring_view text,
+        const FontStylesScheme* styles,
+        size_t styleMapOffset,
         const glm::vec3& pos,
         const glm::vec3& right={1, 0, 0},
         const glm::vec3& up={0, 1, 0}

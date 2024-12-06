@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include "Label.hpp"
+#include "devtools/syntax_highlighting.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/Font.hpp"
@@ -12,6 +13,7 @@
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
+#include "../markdown.hpp"
 
 using namespace gui;
 
@@ -46,10 +48,10 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     scrollStep = 0;
 }
 
-void TextBox::draw(const DrawContext* pctx, Assets* assets) {
+void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
     Container::draw(pctx, assets);
 
-    font = assets->get<Font>(label->getFontName());
+    font = assets.get<Font>(label->getFontName());
 
     if (!isFocused()) {
         return;
@@ -57,39 +59,67 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
     glm::vec2 pos = calcPos();
     glm::vec2 size = getSize();
 
-    auto subctx = pctx->sub();
+    auto subctx = pctx.sub();
     subctx.setScissors(glm::vec4(pos.x, pos.y, size.x, size.y));
 
     const int lineHeight = font->getLineHeight() * label->getLineInterval();
     glm::vec2 lcoord = label->calcPos();
     lcoord.y -= 2;
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
+    batch->setColor(glm::vec4(1.0f));
     if (editable && int((Window::time() - caretLastMove) * 2) % 2 == 0) {
         uint line = label->getLineByTextIndex(caret);
         uint lcaret = caret - label->getTextLineOffset(line);
-        batch->setColor(glm::vec4(1.0f));
-
         int width = font->calcWidth(input, lcaret);
-        batch->rect(lcoord.x + width, lcoord.y+label->getLineYOffset(line), 2, lineHeight);
+        batch->rect(
+            lcoord.x + width,
+            lcoord.y + label->getLineYOffset(line),
+            2,
+            lineHeight
+        );
     }
     if (selectionStart != selectionEnd) {
+        auto selectionCtx = subctx.sub(batch);
+        selectionCtx.setBlendMode(BlendMode::addition);
+
         uint startLine = label->getLineByTextIndex(selectionStart);
         uint endLine = label->getLineByTextIndex(selectionEnd);
 
         batch->setColor(glm::vec4(0.8f, 0.9f, 1.0f, 0.25f));
-        int start = font->calcWidth(input, selectionStart-label->getTextLineOffset(startLine));
-        int end = font->calcWidth(input, selectionEnd-label->getTextLineOffset(endLine));
+        int start = font->calcWidth(
+            input, selectionStart - label->getTextLineOffset(startLine)
+        );
+        int end = font->calcWidth(
+            input, selectionEnd - label->getTextLineOffset(endLine)
+        );
         int lineY = label->getLineYOffset(startLine);
 
         if (startLine == endLine) {
-            batch->rect(lcoord.x + start, lcoord.y+lineY, end-start, lineHeight);
+            batch->rect(
+                lcoord.x + start, lcoord.y + lineY, end - start, lineHeight
+            );
         } else {
-            batch->rect(lcoord.x + start, lcoord.y+lineY, label->getSize().x-start-padding.z-padding.x-2, lineHeight);
-            for (uint i = startLine+1; i < endLine; i++) {
-                batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(i), label->getSize().x-padding.z-padding.x-2, lineHeight);
+            batch->rect(
+                lcoord.x + start,
+                lcoord.y + lineY,
+                label->getSize().x - start - padding.z - padding.x - 2,
+                lineHeight
+            );
+            for (uint i = startLine + 1; i < endLine; i++) {
+                batch->rect(
+                    lcoord.x,
+                    lcoord.y + label->getLineYOffset(i),
+                    label->getSize().x - padding.z - padding.x - 2,
+                    lineHeight
+                );
             }
-            batch->rect(lcoord.x, lcoord.y+label->getLineYOffset(endLine), end, lineHeight);
+            batch->rect(
+                lcoord.x,
+                lcoord.y + label->getLineYOffset(endLine),
+                end,
+                lineHeight
+            );
         }
     }
 
@@ -132,13 +162,13 @@ void TextBox::draw(const DrawContext* pctx, Assets* assets) {
     }
 }
 
-void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
+void TextBox::drawBackground(const DrawContext& pctx, const Assets&) {
     glm::vec2 pos = calcPos();
 
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
 
-    auto subctx = pctx->sub();
+    auto subctx = pctx.sub();
     subctx.setScissors(glm::vec4(pos.x, pos.y-0.5, size.x, size.y+1));
 
     if (valid) {
@@ -162,7 +192,18 @@ void TextBox::drawBackground(const DrawContext* pctx, Assets*) {
 
 void TextBox::refreshLabel() {
     label->setColor(textColor * glm::vec4(input.empty() ? 0.5f : 1.0f));
-    label->setText(input.empty() && !hint.empty() ? hint : getText());
+
+    const auto& displayText = input.empty() && !hint.empty() ? hint : getText();
+    if (markup == "md") {
+        auto [processedText, styles] = markdown::process(displayText, !focused);
+        label->setText(std::move(processedText));
+        label->setStyles(std::move(styles));
+    } else {
+        label->setText(displayText);
+        if (syntax.empty()) {
+            label->setStyles(nullptr);
+        }
+    }
     
     if (showLineNumbers) {
         if (lineNumbersLabel->getLinesNumber() != label->getLinesNumber()) {
@@ -202,7 +243,8 @@ void TextBox::refreshLabel() {
 
     if (multiline && font) {
         setScrollable(true);
-        uint height = label->getLinesNumber() * font->getLineHeight() * label->getLineInterval();
+        uint height = label->getLinesNumber() * font->getLineHeight() *
+                      label->getLineInterval();
         label->setSize(glm::vec2(label->getSize().x, height));
         actualLength = height;
     } else {
@@ -388,7 +430,7 @@ int TextBox::calcIndexAt(int x, int y) const {
     return std::min(offset+label->getTextLineOffset(line), input.length());
 }
 
-inline std::wstring get_alphabet(wchar_t c) {
+static inline std::wstring get_alphabet(wchar_t c) {
     std::wstring alphabet {c};
     if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
         return L"abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -433,7 +475,11 @@ void TextBox::click(GUI*, int x, int y) {
     selectionOrigin = index;
 }
 
-void TextBox::mouseMove(GUI*, int x, int y) {
+void TextBox::mouseMove(GUI* gui, int x, int y) {
+    Container::mouseMove(gui, x, y);
+    if (isScrolling()) {
+        return;
+    }
     ptrdiff_t index = calcIndexAt(x, y);
     setCaret(index);
     extendSelection(index);
@@ -529,10 +575,21 @@ void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
     }
 }
 
+void TextBox::refreshSyntax() {
+    if (!syntax.empty()) {
+        if (auto styles = devtools::syntax_highlight(
+                syntax, util::wstr2str_utf8(input)
+            )) {
+            label->setStyles(std::move(styles));
+        }
+    }
+}
+
 void TextBox::onInput() {
     if (subconsumer) {
         subconsumer(input);
     }
+    refreshSyntax();
 }
 
 void TextBox::performEditingKeyboardEvents(keycode key) {
@@ -632,7 +689,9 @@ size_t TextBox::getLinePos(uint line) const {
     return label->getTextLineOffset(line);
 }
 
-std::shared_ptr<UINode> TextBox::getAt(glm::vec2 pos, std::shared_ptr<UINode> self) {
+std::shared_ptr<UINode> TextBox::getAt(
+    const glm::vec2& pos, const std::shared_ptr<UINode>& self
+) {
     return UINode::getAt(pos, self);
 }
 
@@ -710,6 +769,7 @@ const std::wstring& TextBox::getText() const {
 void TextBox::setText(const std::wstring& value) {
     this->input = value;
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
+    refreshSyntax();
 }
 
 const std::wstring& TextBox::getPlaceholder() const {
@@ -788,4 +848,25 @@ void TextBox::setShowLineNumbers(bool flag) {
 
 bool TextBox::isShowLineNumbers() const {
     return showLineNumbers;
+}
+
+void TextBox::setSyntax(std::string_view lang) {
+    syntax = lang;
+    if (syntax.empty()) {
+        label->setStyles(nullptr);
+    } else {
+        refreshSyntax();
+    }
+}
+
+const std::string& TextBox::getSyntax() const {
+    return syntax;
+}
+
+void TextBox::setMarkup(std::string_view lang) {
+    markup = lang;
+}
+
+const std::string& TextBox::getMarkup() const {
+    return markup;
 }

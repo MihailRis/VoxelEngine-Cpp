@@ -21,7 +21,7 @@ namespace gui {
                  double value, 
                  double step=1.0, 
                  int trackWidth=12);
-        virtual void draw(const DrawContext* pctx, Assets* assets) override;
+        virtual void draw(const DrawContext& pctx, const Assets& assets) override;
 
         virtual void setSupplier(doublesupplier);
         virtual void setConsumer(doubleconsumer);

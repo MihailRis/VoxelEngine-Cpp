@@ -36,3 +36,25 @@ gui.get_locales_info() -> таблица таблиц где
 ```
 
 Возвращает информацию о всех загруженных локалях (res/texts/\*).
+
+```lua
+gui.clear_markup(
+    -- язык разметки ("md" - Markdown)
+    language: str, 
+    -- текст с разметкой
+    text: str
+) -> str
+```
+
+Удаляет разметку из текста.
+
+```lua
+gui.escape_markup(
+    -- язык разметки ("md" - Markdown)
+    language: str, 
+    -- текст с разметкой
+    text: str
+) -> str
+```
+
+Экранирует разметку в тексте.

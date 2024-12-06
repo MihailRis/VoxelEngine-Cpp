@@ -103,6 +103,8 @@ void TextsRenderer::renderNote(
     font.draw(
         batch,
         text,
+        nullptr,
+        0,
         pos - xvec * (width * 0.5f) * preset.scale,
         xvec * preset.scale,
         yvec * preset.scale

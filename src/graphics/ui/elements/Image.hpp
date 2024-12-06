@@ -10,7 +10,7 @@ namespace gui {
     public:
         Image(std::string texture, glm::vec2 size=glm::vec2(32,32));
 
-        virtual void draw(const DrawContext* pctx, Assets* assets) override;
+        virtual void draw(const DrawContext& pctx, const Assets& assets) override;
 
         virtual void setAutoResize(bool flag);
         virtual bool isAutoResize() const;

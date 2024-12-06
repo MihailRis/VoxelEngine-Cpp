@@ -52,7 +52,7 @@ Button::Button(
 
 void Button::setText(std::wstring text) {
     if (label) {
-        label->setText(text);
+        label->setText(std::move(text));
     }
 }
 
@@ -77,9 +77,9 @@ void Button::refresh() {
     }
 }
 
-void Button::drawBackground(const DrawContext* pctx, Assets*) {
+void Button::drawBackground(const DrawContext& pctx, const Assets&) {
     glm::vec2 pos = calcPos();
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     batch->setColor(calcColor());
     batch->rect(pos.x, pos.y, size.x, size.y);

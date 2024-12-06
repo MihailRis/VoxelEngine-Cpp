@@ -13,12 +13,12 @@ CheckBox::CheckBox(bool checked) : UINode(glm::vec2(32.0f)), checked(checked) {
     setHoverColor({0.05f, 0.1f, 0.2f, 0.75f});
 }
 
-void CheckBox::draw(const DrawContext* pctx, Assets*) {
+void CheckBox::draw(const DrawContext& pctx, const Assets&) {
     if (supplier) {
         checked = supplier();
     }
     glm::vec2 pos = calcPos();
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     batch->setColor(checked ? checkColor : calcColor());
     batch->rect(pos.x, pos.y, size.x, size.y);

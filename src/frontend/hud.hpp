@@ -95,16 +95,16 @@ class Hud : public util::ObjectsKeeper {
     /// @brief Inventories interaction agent (grabbed item)
     std::shared_ptr<gui::SlotView> exchangeSlot;
     /// @brief Exchange slot inventory (1 slot only)
-    std::shared_ptr<Inventory> exchangeSlotInv = nullptr;
+    std::shared_ptr<Inventory> exchangeSlotInv;
     /// @brief List of all controlled hud elements
     std::vector<HudElement> elements;
 
     /// @brief Player inventory view
-    std::shared_ptr<gui::InventoryView> inventoryView = nullptr;
+    std::shared_ptr<gui::InventoryView> inventoryView;
     /// @brief Block inventory view
-    std::shared_ptr<gui::InventoryView> blockUI = nullptr;
+    std::shared_ptr<gui::InventoryView> blockUI;
     /// @brief Secondary inventory view
-    std::shared_ptr<gui::InventoryView> secondInvView = nullptr;
+    std::shared_ptr<gui::InventoryView> secondInvView;
     /// @brief Position of the block open
     glm::ivec3 blockPos {};
     /// @brief Id of the block open (used to detect block destruction or replacement)
@@ -114,9 +114,9 @@ class Hud : public util::ObjectsKeeper {
     /// @brief Provide cheat controllers to the debug panel
     bool allowDebugCheats = true;
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
-    std::shared_ptr<gui::UINode> secondUI = nullptr;
+    std::shared_ptr<gui::UINode> secondUI;
 
-    std::shared_ptr<gui::UINode> debugMinimap = nullptr;
+    std::shared_ptr<gui::UINode> debugMinimap;
 
     std::unique_ptr<ImageData> debugImgWorldGen;
     

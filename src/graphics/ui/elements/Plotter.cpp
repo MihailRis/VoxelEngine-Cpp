@@ -14,9 +14,9 @@ void Plotter::act(float delta) {
     points[index % dmwidth] = std::min(value, dmheight);
 }
 
-void Plotter::draw(const DrawContext* pctx, Assets* assets) {
+void Plotter::draw(const DrawContext& pctx, const Assets& assets) {
     glm::vec2 pos = calcPos();
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     batch->lineWidth(1);
     for (int i = index+1; i < index+dmwidth; i++) {
@@ -37,7 +37,7 @@ void Plotter::draw(const DrawContext* pctx, Assets* assets) {
     }
 
     int current_point = static_cast<int>(points[index % dmwidth]);
-    auto font = assets->get<Font>("normal");
+    auto font = assets.get<Font>("normal");
     for (int y = 0; y < dmheight; y += labelsInterval) {
         std::wstring string;
         if (current_point/16 == y/labelsInterval) {
@@ -47,6 +47,13 @@ void Plotter::draw(const DrawContext* pctx, Assets* assets) {
             batch->setColor({1,1,1,0.2f});
             string = util::to_wstring(y / multiplier, 3);
         }
-        font->draw(*batch, string, pos.x+dmwidth+2, pos.y+dmheight-y-labelsInterval);
+        font->draw(
+            *batch,
+            string,
+            pos.x + dmwidth + 2,
+            pos.y + dmheight - y - labelsInterval,
+            nullptr,
+            0
+        );
     }
 }

@@ -261,6 +261,24 @@ void Batch2D::rect(
     vertex(x+w, y+h, u+tx, v, r,g,b,a);
 }
 
+void Batch2D::parallelogram(
+    float x, float y, float w, float h, float skew,
+    float u, float v, float tx, float ty,
+    float r, float g, float b, float a
+){
+    if (index + 6*B2D_VERTEX_SIZE >= capacity) {
+        flush();
+    }
+    setPrimitive(DrawPrimitive::triangle);
+    vertex(x-skew*w, y, u, v+ty, r,g,b,a);
+    vertex(x+(1+skew)*w, y+h, u+tx, v, r,g,b,a);
+    vertex(x+skew*w, y+h, u, v, r,g,b,a);
+
+    vertex(x-skew*w, y, u, v+ty, r,g,b,a);
+    vertex(x+w-skew*w, y, u+tx, v+ty, r,g,b,a);
+    vertex(x+(1+skew)*w, y+h, u+tx, v, r,g,b,a);
+}
+
 void Batch2D::rect(
     float x, float y, float w, float h,
     float r0, float g0, float b0,
@@ -334,6 +352,22 @@ void Batch2D::sprite(float x, float y, float w, float h, int atlasRes, int index
     float u = (index % atlasRes) * scale;
     float v = 1.0f - ((index / atlasRes) * scale) - scale;
     rect(x, y, w, h, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
+}
+
+void Batch2D::sprite(
+    float x,
+    float y,
+    float w,
+    float h,
+    float skew,
+    int atlasRes,
+    int index,
+    glm::vec4 tint
+) {
+    float scale = 1.0f / (float)atlasRes;
+    float u = (index % atlasRes) * scale;
+    float v = 1.0f - ((index / atlasRes) * scale) - scale;
+    parallelogram(x, y, w, h, skew, u, v, scale, scale, tint.r, tint.g, tint.b, tint.a);
 }
 
 void Batch2D::flush() {
