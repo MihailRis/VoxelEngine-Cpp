@@ -859,6 +859,10 @@ void TextBox::setSyntax(std::string_view lang) {
     }
 }
 
+const std::string& TextBox::getSyntax() const {
+    return syntax;
+}
+
 void TextBox::setMarkup(std::string_view lang) {
     markup = lang;
 }

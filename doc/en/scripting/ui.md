@@ -82,6 +82,8 @@ Properties:
 | textWrap    | bool   | yes  | yes   | automatic text wrapping (only with multiline: "true")                                |
 | valid       | bool   | yes  | no    | is the entered text correct                                                          |
 | textColor   | vec4   | yes  | yes   | text color                                                                           |
+| syntax      | string | yes  | yes   | syntax highlighting ("lua" - Lua)                                                    |
+| markup      | string | yes  | yes   | text markup language ("md" - Markdown)                                               |
 
 Methods:
 
@@ -139,9 +141,10 @@ Properties:
 
 Properties:
 
-| Title | Type   | Read | Write | Description |
-| ----- | ------ | ---- | ----- | ----------- |
-| text  | string | yes  | yes   | label text  |
+| Title  | Type   | Read | Write | Description                            |
+| ------ | ------ | ---- | ----- | -------------------------------------- |
+| text   | string | yes  | yes   | label text                             |
+| markup | string | yes  | yes   | text markup language ("md" - Markdown) |
 
 ## Image
 

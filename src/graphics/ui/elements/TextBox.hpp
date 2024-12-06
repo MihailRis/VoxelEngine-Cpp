@@ -227,6 +227,7 @@ namespace gui {
         virtual void setOnDownPressed(const runnable &callback);
 
         virtual void setSyntax(std::string_view lang);
+        virtual const std::string& getSyntax() const;
 
         virtual void setMarkup(std::string_view lang);
         virtual const std::string& getMarkup() const;
