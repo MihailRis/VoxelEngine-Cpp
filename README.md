@@ -62,6 +62,12 @@ If you use Wayland
 sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit libcurl
 ```
 
+And you need entt. In yay you can use
+
+```sh
+yay -S entt
+```
+
 ### Build engine with CMake
 
 ```sh

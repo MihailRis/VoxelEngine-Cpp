@@ -39,7 +39,7 @@ The Socket class has the following methods:
 
 ```lua
 -- Sends a byte array
-socket:send(table|ByteArray)
+socket:send(table|ByteArray|str)
 
 -- Reads the received data
 socket:recv(

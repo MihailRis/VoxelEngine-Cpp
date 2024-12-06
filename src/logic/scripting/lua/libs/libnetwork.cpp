@@ -87,6 +87,9 @@ static int l_send(lua::State* L) {
         connection->send(
             reinterpret_cast<char*>(bytes->data().data()), bytes->data().size()
         );
+    } else if (lua::isstring(L, 2)) {
+        auto string = lua::tolstring(L, 2);
+        connection->send(string.data(), string.length());
     }
     return 0;
 }
@@ -98,7 +101,8 @@ static int l_recv(lua::State* L) {
     if (connection == nullptr) {
         return 0;
     }
-    util::Buffer<char> buffer(glm::min(length, connection->available()));
+    length = glm::min(length, connection->available());
+    util::Buffer<char> buffer(length);
     
     int size = connection->recv(buffer.data(), length);
     if (size == -1) {
