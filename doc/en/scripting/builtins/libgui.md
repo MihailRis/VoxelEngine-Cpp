@@ -50,3 +50,14 @@ gui.clear_markup(
 ```
 
 Removes markup from text.
+
+```lua
+gui.escape_markup(
+    -- markup language ("md" - Markdown)
+    language: str,
+    -- text with markup
+    text: str
+) -> str
+```
+
+Escapes markup in text.

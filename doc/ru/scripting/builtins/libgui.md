@@ -47,3 +47,14 @@ gui.clear_markup(
 ```
 
 Удаляет разметку из текста.
+
+```lua
+gui.escape_markup(
+    -- язык разметки ("md" - Markdown)
+    language: str, 
+    -- текст с разметкой
+    text: str
+) -> str
+```
+
+Экранирует разметку в тексте.

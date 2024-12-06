@@ -738,6 +738,15 @@ static int l_gui_clear_markup(lua::State* L) {
     return lua::pushstring(L, text);
 }
 
+static int l_gui_escape_markup(lua::State* L) {
+    auto lang = lua::require_string(L, 1);
+    std::string text = lua::require_string(L, 2);
+    if (std::strcmp(lang, "md") == 0) {
+        text = std::move(markdown::escape<char>(text));
+    }
+    return lua::pushstring(L, text);
+}
+
 const luaL_Reg guilib[] = {
     {"get_viewport", lua::wrap<l_gui_getviewport>},
     {"getattr", lua::wrap<l_gui_getattr>},
@@ -746,5 +755,7 @@ const luaL_Reg guilib[] = {
     {"str", lua::wrap<l_gui_str>},
     {"get_locales_info", lua::wrap<l_gui_get_locales_info>},
     {"clear_markup", lua::wrap<l_gui_clear_markup>},
+    {"escape_markup", lua::wrap<l_gui_escape_markup>},
     {"__reindex", lua::wrap<l_gui_reindex>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};
