@@ -40,7 +40,7 @@ public:
     }
 };
 
-bool perform_keyword(
+static bool perform_keyword(
     ArgsReader& reader, const std::string& keyword, EnginePaths& paths
 ) {
     if (keyword == "--res") {

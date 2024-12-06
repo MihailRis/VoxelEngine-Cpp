@@ -15,7 +15,6 @@
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
 #include "files/files.hpp"
-#include "files/settings_io.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
@@ -37,7 +36,6 @@
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
-#include "settings.hpp"
 
 #include <iostream>
 #include <assert.h>
@@ -71,15 +69,15 @@ static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
     return nullptr;
 }
 
-Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths) 
-    : settings(settings), settingsHandler(settingsHandler), paths(paths),
+Engine::Engine(EnginePaths& paths) 
+    : settings(), settingsHandler({settings}), paths(paths),
       interpreter(std::make_unique<cmd::CommandsInterpreter>()),
       network(network::Network::create(settings.network))
 {
-    paths->prepare();
+    paths.prepare();
     loadSettings();
 
-    auto resdir = paths->getResourcesFolder();
+    auto resdir = paths.getResourcesFolder();
 
     controller = std::make_unique<EngineController>(this);
     if (Window::initialize(&this->settings.display)){
@@ -101,7 +99,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
     if (settings.ui.language.get() == "auto") {
         settings.ui.language.set(langs::locale_by_envlocale(
             platform::detect_locale(),
-            paths->getResourcesFolder()
+            paths.getResourcesFolder()
         ));
     }
     if (ENGINE_DEBUG_BUILD) {
@@ -116,7 +114,7 @@ Engine::Engine(EngineSettings& settings, SettingsHandler& settingsHandler, Engin
 }
 
 void Engine::loadSettings() {
-    fs::path settings_file = paths->getSettingsFile();
+    fs::path settings_file = paths.getSettingsFile();
     if (fs::is_regular_file(settings_file)) {
         logger.info() << "loading settings";
         std::string text = files::read_string(settings_file);
@@ -130,7 +128,7 @@ void Engine::loadSettings() {
 }
 
 void Engine::loadControls() {
-    fs::path controls_file = paths->getControlsFile();
+    fs::path controls_file = paths.getControlsFile();
     if (fs::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
         std::string text = files::read_string(controls_file);
@@ -162,7 +160,7 @@ void Engine::updateHotkeys() {
 void Engine::saveScreenshot() {
     auto image = Window::takeScreenshot();
     image->flipY();
-    fs::path filename = paths->getNewScreenshotFile("png");
+    fs::path filename = paths.getNewScreenshotFile("png");
     imageio::write(filename.string(), image.get());
     logger.info() << "saved screenshot as " << filename.u8string();
 }
@@ -220,9 +218,9 @@ void Engine::processPostRunnables() {
 
 void Engine::saveSettings() {
     logger.info() << "saving settings";
-    files::write_string(paths->getSettingsFile(), toml::stringify(settingsHandler));
+    files::write_string(paths.getSettingsFile(), toml::stringify(settingsHandler));
     logger.info() << "saving bindings";
-    files::write_string(paths->getControlsFile(), Events::writeBindings());
+    files::write_string(paths.getControlsFile(), Events::writeBindings());
 }
 
 Engine::~Engine() {
@@ -257,8 +255,8 @@ PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     PacksManager manager;
     manager.setSources({
         worldFolder/fs::path("content"),
-        paths->getUserFilesFolder()/fs::path("content"),
-        paths->getResourcesFolder()/fs::path("content")
+        paths.getUserFilesFolder()/fs::path("content"),
+        paths.getResourcesFolder()/fs::path("content")
     });
     return manager;
 }
@@ -329,7 +327,7 @@ static void load_configs(const fs::path& root) {
 void Engine::loadContent() {
     scripting::cleanup();
 
-    auto resdir = paths->getResourcesFolder();
+    auto resdir = paths.getResourcesFolder();
 
     std::vector<std::string> names;
     for (auto& pack : contentPacks) {
@@ -337,10 +335,10 @@ void Engine::loadContent() {
     }
 
     ContentBuilder contentBuilder;
-    corecontent::setup(paths, &contentBuilder);
+    corecontent::setup(paths, contentBuilder);
 
-    paths->setContentPacks(&contentPacks);
-    PacksManager manager = createPacksManager(paths->getCurrentWorldFolder());
+    paths.setContentPacks(&contentPacks);
+    PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
     names = manager.assembly(names);
     contentPacks = manager.getAll(names);
@@ -378,7 +376,7 @@ void Engine::loadContent() {
 
 void Engine::resetContent() {
     scripting::cleanup();
-    auto resdir = paths->getResourcesFolder();
+    auto resdir = paths.getResourcesFolder();
     std::vector<PathsRoot> resRoots;
     {
         auto pack = ContentPack::createCore(paths);
@@ -407,17 +405,17 @@ void Engine::loadWorldContent(const fs::path& folder) {
     PacksManager manager;
     manager.setSources({
         folder/fs::path("content"),
-        paths->getUserFilesFolder()/fs::path("content"),
-        paths->getResourcesFolder()/fs::path("content")
+        paths.getUserFilesFolder()/fs::path("content"),
+        paths.getResourcesFolder()/fs::path("content")
     });
     manager.scan();
     contentPacks = manager.getAll(manager.assembly(packNames));
-    paths->setCurrentWorldFolder(folder);
+    paths.setCurrentWorldFolder(folder);
     loadContent();
 }
 
 void Engine::loadAllPacks() {
-    PacksManager manager = createPacksManager(paths->getCurrentWorldFolder());
+    PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
     auto allnames = manager.getAllNames();
     contentPacks = manager.getAll(manager.assembly(allnames));
@@ -435,7 +433,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 }
 
 void Engine::setLanguage(std::string locale) {
-    langs::setup(paths->getResourcesFolder(), std::move(locale), contentPacks);
+    langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
     gui->getMenu()->setPageLoader(menus::create_page_loader(this));
 }
 
@@ -470,7 +468,7 @@ std::vector<std::string>& Engine::getBasePacks() {
 }
 
 EnginePaths* Engine::getPaths() {
-    return paths;
+    return &paths;
 }
 
 ResPaths* Engine::getResPaths() {

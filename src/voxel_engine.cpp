@@ -1,6 +1,4 @@
 #include "engine.hpp"
-#include "settings.hpp"
-#include "files/settings_io.hpp"
 #include "files/engine_paths.hpp"
 #include "util/platform.hpp"
 #include "util/command_line.hpp"
@@ -19,12 +17,7 @@ int main(int argc, char** argv) {
 
     platform::configure_encoding();
     try {
-        EngineSettings settings;
-        SettingsHandler handler(settings);
-        
-        Engine engine(settings, handler, &paths);
-
-        engine.mainloop();
+        Engine(paths).mainloop();
     }
     catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();

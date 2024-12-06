@@ -35,5 +35,5 @@ class EnginePaths;
 class ContentBuilder;
 
 namespace corecontent {
-    void setup(EnginePaths* paths, ContentBuilder* builder);
+    void setup(const EnginePaths& paths, ContentBuilder& builder);
 }

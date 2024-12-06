@@ -2,12 +2,14 @@
 
 #include "delegates.hpp"
 #include "typedefs.hpp"
+#include "settings.hpp"
 
 #include "assets/Assets.hpp"
 #include "content/content_fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "content/PacksManager.hpp"
 #include "files/engine_paths.hpp"
+#include "files/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
 
 #include <filesystem>
@@ -25,8 +27,6 @@ class Batch2D;
 class EngineController;
 class SettingsHandler;
 struct EngineSettings;
-
-namespace fs = std::filesystem;
 
 namespace gui {
     class GUI;
@@ -46,9 +46,9 @@ public:
 };
 
 class Engine : public util::ObjectsKeeper {
-    EngineSettings& settings;
-    SettingsHandler& settingsHandler;
-    EnginePaths* paths;
+    EngineSettings settings;
+    SettingsHandler settingsHandler;
+    EnginePaths& paths;
 
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
@@ -77,7 +77,7 @@ class Engine : public util::ObjectsKeeper {
     void processPostRunnables();
     void loadAssets();
 public:
-    Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths);
+    Engine(EnginePaths& paths);
     ~Engine();
  
     /// @brief Start main engine input/update/render loop. 
