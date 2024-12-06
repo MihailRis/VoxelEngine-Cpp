@@ -18,28 +18,44 @@ local TYPE_UINT32 = 2
 local TYPE_INT16 = 3
 local TYPE_INT32 = 4
 local TYPE_INT64 = 5
-local TYPE_DOUBLE = 6
+local TYPE_FLOAT64 = 6
+local TYPE_SINT16 = 7
+local TYPE_SINT32 = 8
 
 -- Data buffer
 
 local data_buffer =
 {
 	__call =
-	function(data_buffer, bytes)
-		return data_buffer:new(bytes)
+	function(data_buffer, ...)
+		return data_buffer:new(...)
 	end
 }
 
-function data_buffer:new(bytes)
+function data_buffer:new(bytes, order, useBytearray)
+	bytes = bytes or { }
+	
+	if order then bit_converter.validate_order(order)
+	else order = bit_converter.default_order end
+
     local obj = {
         pos = 1,
-        bytes = Bytearray(bytes or { })
+        order = order,
+        useBytearray = useBytearray or false,
+        bytes = useBytearray and Bytearray(bytes) or bytes
     }
 
     self.__index = self
     setmetatable(obj, self)
 
     return obj
+end
+
+function data_buffer:set_order(order)
+	bit_converter.validate_order(order)
+
+	self.order = order
+	self.floatsOrder = order
 end
 
 -- Push functions
@@ -49,7 +65,8 @@ function data_buffer:put_byte(byte)
 		error("invalid byte")
 	end
 
-	self.bytes:insert(self.pos, byte)
+	if self.useBytearray then self.bytes:insert(self.pos, byte)
+	else table.insert(self.bytes, self.pos, byte) end
 
 	self.pos = self.pos + 1
 end
@@ -61,11 +78,21 @@ function data_buffer:put_bytes(bytes)
 end
 
 function data_buffer:put_single(single)
-	self:put_bytes(bit_converter.single_to_bytes(single))
+	on_deprecated_call("data_buffer:put_single", "data_buffer:put_float32")
+	self:put_bytes(bit_converter.single_to_bytes(single, self.order))
 end
 
 function data_buffer:put_double(double)
-	self:put_bytes(bit_converter.double_to_bytes(double))
+	on_deprecated_call("data_buffer:put_single", "data_buffer:put_float64")
+	self:put_bytes(bit_converter.double_to_bytes(double, self.order))
+end
+
+function data_buffer:put_float32(single)
+	self:put_bytes(bit_converter.float32_to_bytes(single, self.order))
+end
+
+function data_buffer:put_float64(float)
+	self:put_bytes(bit_converter.float64_to_bytes(float, self.order))
 end
 
 function data_buffer:put_string(str)
@@ -77,23 +104,33 @@ function data_buffer:put_bool(bool)
 end
 
 function data_buffer:put_uint16(uint16)
-	self:put_bytes(bit_converter.uint16_to_bytes(uint16))
+	self:put_bytes(bit_converter.uint16_to_bytes(uint16, self.order))
 end
 
 function data_buffer:put_uint32(uint32)
-	self:put_bytes(bit_converter.uint32_to_bytes(uint32))
+	self:put_bytes(bit_converter.uint32_to_bytes(uint32, self.order))
 end
 
 function data_buffer:put_int16(int16)
-	self:put_bytes(bit_converter.int16_to_bytes(int16))
+	on_deprecated_call("data_buffer:put_int16", "data_buffer:put_sint16")
+	self:put_bytes(bit_converter.int16_to_bytes(int16, self.order))
 end
 
 function data_buffer:put_int32(int32)
-	self:put_bytes(bit_converter.int32_to_bytes(int32))
+	on_deprecated_call("data_buffer:put_int32", "data_buffer:put_sint32")
+	self:put_bytes(bit_converter.int32_to_bytes(int32, self.order))
+end
+
+function data_buffer:put_sint16(int16)
+	self:put_bytes(bit_converter.sint16_to_bytes(int16, self.order))
+end
+
+function data_buffer:put_sint32(int32)
+	self:put_bytes(bit_converter.sint32_to_bytes(int32, self.order))
 end
 
 function data_buffer:put_int64(int64)
-	self:put_bytes(bit_converter.int64_to_bytes(int64))
+	self:put_bytes(bit_converter.int64_to_bytes(int64, self.order))
 end
 
 function data_buffer:put_number(num)
@@ -101,8 +138,8 @@ function data_buffer:put_number(num)
 	local type
 
 	if math.floor(num) ~= num then
-		type = TYPE_DOUBLE
-		bytes = bit_converter.double_to_bytes(num)
+		type = TYPE_FLOAT64
+		bytes = bit_converter.float64_to_bytes(num)
 	elseif num == 0 then
 		type = TYPE_ZERO
 		bytes = { }
@@ -119,11 +156,11 @@ function data_buffer:put_number(num)
 		end
 	elseif num < 0 then
 		if num >= MIN_INT16 then
-			type = TYPE_INT16
-			bytes = bit_converter.int16_to_bytes(num)
+			type = TYPE_SINT16
+			bytes = bit_converter.sint16_to_bytes(num)
 		elseif num >= MIN_INT32 then
-			type = TYPE_INT32
-			bytes = bit_converter.int32_to_bytes(num)
+			type = TYPE_SINT32
+			bytes = bit_converter.sint32_to_bytes(num)
 		elseif num >= MIN_INT64 then
 			type = TYPE_INT64
 			bytes = bit_converter.int64_to_bytes(num)
@@ -155,9 +192,13 @@ function data_buffer:get_number()
 		return self:get_int16()
 	elseif type == TYPE_INT32 then 
 		return self:get_int32()
+	elseif type == TYPE_SINT16 then 
+		return self:get_sint16()
+	elseif type == TYPE_SINT32 then 
+		return self:get_sint32()
 	elseif type == TYPE_INT64 then 
 		return self:get_int64()
-	elseif type == TYPE_DOUBLE then
+	elseif type == TYPE_FLOAT64 then
 		return self:get_double()
 	else
 		error("unknown lua number type: "..type)
@@ -165,11 +206,21 @@ function data_buffer:get_number()
 end
 
 function data_buffer:get_single()
-	return bit_converter.bytes_to_single(self:get_bytes(4))
+	on_deprecated_call("data_buffer:get_single", "data_buffer:get_float32")
+	return bit_converter.bytes_to_single(self:get_bytes(4), self.order)
 end
 
 function data_buffer:get_double()
-	return bit_converter.bytes_to_double(self:get_bytes(8))
+	on_deprecated_call("data_buffer:get_double", "data_buffer:get_float64")
+	return bit_converter.bytes_to_double(self:get_bytes(8), self.order)
+end
+
+function data_buffer:get_float32()
+	return bit_converter.bytes_to_float32(self:get_bytes(4), self.order)
+end
+
+function data_buffer:get_float64()
+	return bit_converter.bytes_to_float64(self:get_bytes(8), self.order)
 end
 
 function data_buffer:get_string()
@@ -193,23 +244,33 @@ function data_buffer:get_bool()
 end
 
 function data_buffer:get_uint16()
-	return bit_converter.bytes_to_uint16(self:get_bytes(2))
+	return bit_converter.bytes_to_uint16(self:get_bytes(2), self.order)
 end
 
 function data_buffer:get_uint32()
-	return bit_converter.bytes_to_uint32(self:get_bytes(4))
+	return bit_converter.bytes_to_uint32(self:get_bytes(4), self.order)
 end
 
 function data_buffer:get_int16()
-	return bit_converter.bytes_to_int16(self:get_bytes(2))
+	on_deprecated_call("data_buffer:get_int16", "data_buffer:get_sint16")
+	return bit_converter.bytes_to_int16(self:get_bytes(2), self.order)
 end
 
 function data_buffer:get_int32()
-	return bit_converter.bytes_to_int32(self:get_bytes(4))
+	on_deprecated_call("data_buffer:get_int32", "data_buffer:get_sint32")
+	return bit_converter.bytes_to_int32(self:get_bytes(4), self.order)
+end
+
+function data_buffer:get_sint16()
+	return bit_converter.bytes_to_sint16(self:get_bytes(2), self.order)
+end
+
+function data_buffer:get_sint32()
+	return bit_converter.bytes_to_sint32(self:get_bytes(4), self.order)
 end
 
 function data_buffer:get_int64()
-	return bit_converter.bytes_to_int64(self:get_bytes(8))
+	return bit_converter.bytes_to_int64(self:get_bytes(8), self.order)
 end
 
 function data_buffer:size()
