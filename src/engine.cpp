@@ -108,7 +108,8 @@ Engine::Engine(CoreParameters coreParameters)
     create_channel(this, "ambient", settings.audio.volumeAmbient);
     create_channel(this, "ui", settings.audio.volumeUI);
 
-    if (settings.ui.language.get() == "auto") {
+    bool langNotSet = settings.ui.language.get() == "auto";
+    if (langNotSet) {
         settings.ui.language.set(langs::locale_by_envlocale(
             platform::detect_locale(),
             paths.getResourcesFolder()
@@ -116,7 +117,7 @@ Engine::Engine(CoreParameters coreParameters)
     }
     keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
-    }, true));
+    }, !langNotSet));
     
     scripting::initialize(this);
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
