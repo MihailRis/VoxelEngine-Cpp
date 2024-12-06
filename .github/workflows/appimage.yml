@@ -40,13 +40,18 @@ jobs:
         run: cmake --build build -t install
       - name: Run tests
         run: ctest --test-dir ${{github.workspace}}/build
-      - name: Build AppImage
-        uses: AppImageCrafters/build-appimage-action@fe2205a4d6056be47051f7b1b3811106e9814910
-        env:
-          UPDATE_INFO: gh-releases-zsync|MihailRis|VoxelEngine-Cpp|latest|*x86_64.AppImage.zsync
-        with:
-          recipe: dev/AppImageBuilder.yml
-      - uses: actions/upload-artifact@v4
-        with:
-          name: AppImage
-          path: './*.AppImage*'
+      - name: Run engine (headless)
+        run: |
+            mkdir ${{github.workspace}}/userdir
+            chmod +x ${{github.workspace}}/build/VoxelEngine
+            ${{github.workspace}}/build/VoxelEngine --headless --dir ${{github.workspace}}/userdir
+#      - name: Build AppImage
+#        uses: AppImageCrafters/build-appimage-action@fe2205a4d6056be47051f7b1b3811106e9814910
+#        env:
+#          UPDATE_INFO: gh-releases-zsync|MihailRis|VoxelEngine-Cpp|latest|*x86_64.AppImage.zsync
+#        with:
+#          recipe: dev/AppImageBuilder.yml
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: AppImage
+#          path: './*.AppImage*'
