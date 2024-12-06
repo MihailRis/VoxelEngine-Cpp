@@ -94,6 +94,9 @@ Result<CharT> process_markdown(
             restyle(first, style, styles, ss, pos, eraseMarkdown);
             continue;
         }
+        if (first == '\n') {
+            styles.palette.push_back(styles.palette.at(1));
+        }
         emit(first, styles, ss);
         pos++;
     }
