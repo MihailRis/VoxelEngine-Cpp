@@ -69,41 +69,50 @@ static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
     return nullptr;
 }
 
-Engine::Engine(EnginePaths& paths) 
-    : settings(), settingsHandler({settings}), paths(paths),
+Engine::Engine(CoreParameters coreParameters)
+    : params(std::move(coreParameters)),
+      settings(),
+      settingsHandler({settings}),
       interpreter(std::make_unique<cmd::CommandsInterpreter>()),
-      network(network::Network::create(settings.network))
-{
+      network(network::Network::create(settings.network)) {
+    if (params.headless) {
+        logger.info() << "headless mode is enabled";
+    }
+    paths.setResourcesFolder(params.resFolder);
+    paths.setUserFilesFolder(params.userFolder);
     paths.prepare();
     loadSettings();
 
     auto resdir = paths.getResourcesFolder();
 
     controller = std::make_unique<EngineController>(this);
-    if (Window::initialize(&this->settings.display)){
-        throw initialize_error("could not initialize window");
+    if (!params.headless) {
+        if (Window::initialize(&settings.display)){
+            throw initialize_error("could not initialize window");
+        }
+        if (auto icon = load_icon(resdir)) {
+            icon->flipY();
+            Window::setIcon(icon.get());
+        }
+        loadControls();
+
+        gui = std::make_unique<gui::GUI>();
+        if (ENGINE_DEBUG_BUILD) {
+            menus::create_version_label(this);
+        }
     }
-    if (auto icon = load_icon(resdir)) {
-        icon->flipY();
-        Window::setIcon(icon.get());
-    }
-    loadControls();
-    audio::initialize(settings.audio.enabled.get());
+    audio::initialize(settings.audio.enabled.get() && !params.headless);
     create_channel(this, "master", settings.audio.volumeMaster);
     create_channel(this, "regular", settings.audio.volumeRegular);
     create_channel(this, "music", settings.audio.volumeMusic);
     create_channel(this, "ambient", settings.audio.volumeAmbient);
     create_channel(this, "ui", settings.audio.volumeUI);
 
-    gui = std::make_unique<gui::GUI>();
     if (settings.ui.language.get() == "auto") {
         settings.ui.language.set(langs::locale_by_envlocale(
             platform::detect_locale(),
             paths.getResourcesFolder()
         ));
-    }
-    if (ENGINE_DEBUG_BUILD) {
-        menus::create_version_label(this);
     }
     keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
@@ -165,6 +174,14 @@ void Engine::saveScreenshot() {
     logger.info() << "saved screenshot as " << filename.u8string();
 }
 
+void Engine::run() {
+    if (params.headless) {
+        logger.info() << "nothing to do";
+    } else {
+        mainloop();
+    }
+}
+
 void Engine::mainloop() {
     logger.info() << "starting menu screen";
     setScreen(std::make_shared<MenuScreen>(this));
@@ -219,8 +236,10 @@ void Engine::processPostRunnables() {
 void Engine::saveSettings() {
     logger.info() << "saving settings";
     files::write_string(paths.getSettingsFile(), toml::stringify(settingsHandler));
-    logger.info() << "saving bindings";
-    files::write_string(paths.getControlsFile(), Events::writeBindings());
+    if (!params.headless) {
+        logger.info() << "saving bindings";
+        files::write_string(paths.getControlsFile(), Events::writeBindings());
+    }
 }
 
 Engine::~Engine() {
@@ -233,13 +252,18 @@ Engine::~Engine() {
     content.reset();
     assets.reset();
     interpreter.reset();
-    gui.reset();
-    logger.info() << "gui finished";
+    if (gui) {
+        gui.reset();
+        logger.info() << "gui finished";
+    }
     audio::close();
     network.reset();
     scripting::close();
     logger.info() << "scripting finished";
-    Window::terminate();
+    if (!params.headless) {
+        Window::terminate();
+        logger.info() << "window closed";
+    }
     logger.info() << "engine finished";
 }
 
@@ -434,7 +458,9 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 
 void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
-    gui->getMenu()->setPageLoader(menus::create_page_loader(this));
+    if (gui) {
+        gui->getMenu()->setPageLoader(menus::create_page_loader(this));
+    }
 }
 
 gui::GUI* Engine::getGUI() {

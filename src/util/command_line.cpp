@@ -7,6 +7,7 @@
 #include <string>
 
 #include "files/engine_paths.hpp"
+#include "engine.hpp"
 
 namespace fs = std::filesystem;
 
@@ -41,27 +42,24 @@ public:
 };
 
 static bool perform_keyword(
-    ArgsReader& reader, const std::string& keyword, EnginePaths& paths
+    ArgsReader& reader, const std::string& keyword, CoreParameters& params
 ) {
     if (keyword == "--res") {
         auto token = reader.next();
-        if (!fs::is_directory(fs::path(token))) {
-            throw std::runtime_error(token + " is not a directory");
-        }
-        paths.setResourcesFolder(fs::path(token));
-        std::cout << "resources folder: " << token << std::endl;
+        params.resFolder = fs::u8path(token);
     } else if (keyword == "--dir") {
         auto token = reader.next();
-        if (!fs::is_directory(fs::path(token))) {
-            fs::create_directories(fs::path(token));
-        }
-        paths.setUserFilesFolder(fs::path(token));
-        std::cout << "userfiles folder: " << token << std::endl;
+        params.userFolder = fs::u8path(token);
     } else if (keyword == "--help" || keyword == "-h") {
-        std::cout << "VoxelEngine command-line arguments:" << std::endl;
-        std::cout << " --res [path] - set resources directory" << std::endl;
-        std::cout << " --dir [path] - set userfiles directory" << std::endl;
+        std::cout << "VoxelEngine command-line arguments:\n";
+        std::cout << " --help - show help\n";
+        std::cout << " --res [path] - set resources directory\n";
+        std::cout << " --dir [path] - set userfiles directory\n";
+        std::cout << " --headless - run in headless mode\n";
+        std::cout << std::endl;
         return false;
+    } else if (keyword == "--headless") {
+        params.headless = true;
     } else {
         std::cerr << "unknown argument " << keyword << std::endl;
         return false;
@@ -69,13 +67,13 @@ static bool perform_keyword(
     return true;
 }
 
-bool parse_cmdline(int argc, char** argv, EnginePaths& paths) {
+bool parse_cmdline(int argc, char** argv, CoreParameters& params) {
     ArgsReader reader(argc, argv);
     reader.skip();
     while (reader.hasNext()) {
         std::string token = reader.next();
         if (reader.isKeywordArg()) {
-            if (!perform_keyword(reader, token, paths)) {
+            if (!perform_keyword(reader, token, params)) {
                 return false;
             }
         } else {

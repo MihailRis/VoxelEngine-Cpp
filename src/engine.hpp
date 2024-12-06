@@ -45,10 +45,17 @@ public:
     initialize_error(const std::string& message) : std::runtime_error(message) {}
 };
 
+struct CoreParameters {
+    bool headless = false;
+    std::filesystem::path resFolder {"res"};
+    std::filesystem::path userFolder {"."};
+};
+
 class Engine : public util::ObjectsKeeper {
+    CoreParameters params;
     EngineSettings settings;
     SettingsHandler settingsHandler;
-    EnginePaths& paths;
+    EnginePaths paths;
 
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
@@ -77,9 +84,12 @@ class Engine : public util::ObjectsKeeper {
     void processPostRunnables();
     void loadAssets();
 public:
-    Engine(EnginePaths& paths);
+    Engine(CoreParameters coreParameters);
     ~Engine();
- 
+
+    /// @brief Start the engine
+    void run();
+
     /// @brief Start main engine input/update/render loop. 
     /// Automatically sets MenuScreen
     void mainloop();

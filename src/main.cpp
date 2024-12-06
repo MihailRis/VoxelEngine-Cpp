@@ -1,5 +1,4 @@
 #include "engine.hpp"
-#include "files/engine_paths.hpp"
 #include "util/platform.hpp"
 #include "util/command_line.hpp"
 #include "debug/Logger.hpp"
@@ -11,15 +10,14 @@ static debug::Logger logger("main");
 int main(int argc, char** argv) {
     debug::Logger::init("latest.log");
 
-    EnginePaths paths;
-    if (!parse_cmdline(argc, argv, paths))
+    CoreParameters coreParameters;
+    if (!parse_cmdline(argc, argv, coreParameters)) {
         return EXIT_SUCCESS;
-
+    }
     platform::configure_encoding();
     try {
-        Engine(paths).mainloop();
-    }
-    catch (const initialize_error& err) {
+        Engine(std::move(coreParameters)).run();
+    } catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();
     }
 #ifdef NDEBUG
