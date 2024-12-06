@@ -42,7 +42,6 @@ jobs:
         run: ctest --test-dir ${{github.workspace}}/build
       - name: Run engine (headless)
         run: |
-            mkdir ${{github.workspace}}/userdir
             chmod +x ${{github.workspace}}/build/VoxelEngine
             ${{github.workspace}}/build/VoxelEngine --headless --dir ${{github.workspace}}/userdir
 #      - name: Build AppImage

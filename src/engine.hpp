@@ -68,12 +68,11 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<cmd::CommandsInterpreter> interpreter;
     std::unique_ptr<network::Network> network;
     std::vector<std::string> basePacks;
+    std::unique_ptr<gui::GUI> gui;
 
     uint64_t frame = 0;
     double lastTime = 0.0;
     double delta = 0.0;
-
-    std::unique_ptr<gui::GUI> gui;
     
     void loadControls();
     void loadSettings();

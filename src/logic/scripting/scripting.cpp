@@ -368,7 +368,7 @@ bool scripting::on_block_interact(
     Player* player, const Block& block, const glm::ivec3& pos
 ) {
     std::string name = block.name + ".interact";
-    return lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
+    auto result = lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
         lua::pushivec_stack(L, pos);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -386,6 +386,7 @@ bool scripting::on_block_interact(
             );
         }
     }
+    return result;
 }
 
 void scripting::on_player_tick(Player* player, int tps) {

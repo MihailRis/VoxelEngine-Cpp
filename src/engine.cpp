@@ -258,6 +258,7 @@ Engine::~Engine() {
     }
     audio::close();
     network.reset();
+    clearKeepedObjects();
     scripting::close();
     logger.info() << "scripting finished";
     if (!params.headless) {

@@ -14,5 +14,9 @@ namespace util {
         virtual void keepAlive(std::shared_ptr<void> ptr) {
             ptrs.push_back(ptr);
         }
+
+        virtual void clearKeepedObjects() {
+            ptrs.clear();
+        }
     };
 }
