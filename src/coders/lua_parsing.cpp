@@ -5,6 +5,7 @@
 #include "commons.hpp"
 
 using namespace lua;
+using namespace devtools;
 
 static std::set<std::string_view> keywords {
     "and", "break", "do", "else", "elseif", "end", "false", "for", "function", 

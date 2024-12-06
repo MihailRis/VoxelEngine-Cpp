@@ -56,6 +56,7 @@ namespace gui {
         bool editable = true;
         bool autoresize = false;
         bool showLineNumbers = false;
+        bool markdown = false;
 
         std::string syntax;
 
@@ -227,5 +228,8 @@ namespace gui {
         virtual void setOnDownPressed(const runnable &callback);
 
         virtual void setSyntax(const std::string& lang);
+
+        virtual void setMarkdown(bool flag);
+        virtual bool isMarkdown() const;
     };
 }

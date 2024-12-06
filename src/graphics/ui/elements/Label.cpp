@@ -6,6 +6,7 @@
 #include "graphics/core/Font.hpp"
 #include "assets/Assets.hpp"
 #include "util/stringutil.hpp"
+#include "../markdown.hpp"
 
 using namespace gui;
 
@@ -80,11 +81,16 @@ glm::vec2 Label::calcSize() {
     );
 }
 
-void Label::setText(const std::wstring& text) {
+void Label::setText(std::wstring text) {
+    if (isMarkdown()) {
+        auto [processedText, styles] = markdown::process(text, true);
+        text = std::move(processedText);
+        setStyles(std::move(styles));
+    }
     if (text == this->text && !cache.resetFlag) {
         return;
     }
-    this->text = text;
+    this->text = std::move(text);
     cache.update(this->text, multiline, textWrap);
 
     if (cache.font && autoresize) {
@@ -240,6 +246,15 @@ void Label::setTextWrapping(bool flag) {
 
 bool Label::isTextWrapping() const {
     return textWrap;
+}
+
+void Label::setMarkdown(bool flag) {
+    markdown = flag;
+    setText(text);
+}
+
+bool Label::isMarkdown() const {
+    return markdown;    
 }
 
 void Label::setStyles(std::unique_ptr<FontStylesScheme> styles) {

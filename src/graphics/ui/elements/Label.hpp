@@ -53,6 +53,9 @@ namespace gui {
         /// @brief Auto resize label to fit text
         bool autoresize = false;
 
+        /// @brief Enable text markdown
+        bool markdown = false;
+
         std::unique_ptr<FontStylesScheme> styles;
     public:
         Label(const std::string& text, std::string fontName="normal");
@@ -60,7 +63,7 @@ namespace gui {
 
         virtual ~Label();
 
-        virtual void setText(const std::wstring& text);
+        virtual void setText(std::wstring text);
         const std::wstring& getText() const;
 
         virtual void setFontName(std::string name);
@@ -112,6 +115,9 @@ namespace gui {
 
         virtual void setTextWrapping(bool flag);
         virtual bool isTextWrapping() const;
+
+        virtual void setMarkdown(bool flag);
+        virtual bool isMarkdown() const;
 
         virtual void setStyles(std::unique_ptr<FontStylesScheme> styles);
     };

@@ -101,7 +101,7 @@ static inline void draw_text(
     const glm::vec3& pos,
     const glm::vec3& right,
     const glm::vec3& up,
-    float glyphInterval,
+    float interval,
     const FontStylesScheme* styles,
     size_t styleMapOffset
 ) {
@@ -115,6 +115,7 @@ static inline void draw_text(
     uint next = MAX_CODEPAGES;
     int x = 0;
     int y = 0;
+    bool hasLines = false;
 
     do {
         for (size_t i = 0; i < text.length(); i++) {
@@ -123,6 +124,9 @@ static inline void draw_text(
                 std::min(styles->map.size() - 1, i + styleMapOffset)
             );
             const FontStyle& style = styles->palette.at(styleIndex);
+            hasLines |= style.strikethrough;
+            hasLines |= style.underline;
+
             if (!font.isPrintableChar(c)) {
                 x++;
                 continue;
@@ -131,14 +135,7 @@ static inline void draw_text(
             if (charpage == page){
                 batch.texture(font.getPage(charpage));
                 draw_glyph(
-                    batch,
-                    pos,
-                    glm::vec2(x, y),
-                    c,
-                    right,
-                    up,
-                    glyphInterval,
-                    style
+                    batch, pos, glm::vec2(x, y), c, right, up, interval, style
                 );
             }
             else if (charpage > page && charpage < next){
@@ -150,6 +147,31 @@ static inline void draw_text(
         next = MAX_CODEPAGES;
         x = 0;
     } while (page < MAX_CODEPAGES);
+
+    if (!hasLines) {
+        return;
+    }
+    batch.texture(font.getPage(0));
+    for (size_t i = 0; i < text.length(); i++) {
+        uint c = text[i];
+        size_t styleIndex = styles->map.at(
+            std::min(styles->map.size() - 1, i + styleMapOffset)
+        );
+        const FontStyle& style = styles->palette.at(styleIndex);
+        FontStyle lineStyle = style;
+        lineStyle.bold = true;
+        if (style.strikethrough) {
+            draw_glyph(
+                batch, pos, glm::vec2(x, y), '-', right, up, interval, lineStyle
+            );
+        }
+        if (style.underline) {
+            draw_glyph(
+                batch, pos, glm::vec2(x, y), '_', right, up, interval, lineStyle
+            );
+        }
+        x++;
+    }
 }
 
 const Texture* Font::getPage(int charpage) const {

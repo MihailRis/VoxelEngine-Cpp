@@ -13,6 +13,7 @@
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
+#include "../markdown.hpp"
 
 using namespace gui;
 
@@ -191,7 +192,18 @@ void TextBox::drawBackground(const DrawContext& pctx, const Assets&) {
 
 void TextBox::refreshLabel() {
     label->setColor(textColor * glm::vec4(input.empty() ? 0.5f : 1.0f));
-    label->setText(input.empty() && !hint.empty() ? hint : getText());
+
+    const auto& displayText = input.empty() && !hint.empty() ? hint : getText();
+    if (markdown) {
+        auto [processedText, styles] = markdown::process(displayText, !focused);
+        label->setText(std::move(processedText));
+        label->setStyles(std::move(styles));
+    } else {
+        label->setText(displayText);
+        if (syntax.empty()) {
+            label->setStyles(nullptr);
+        }
+    }
     
     if (showLineNumbers) {
         if (lineNumbersLabel->getLinesNumber() != label->getLinesNumber()) {
@@ -845,4 +857,12 @@ void TextBox::setSyntax(const std::string& lang) {
     } else {
         refreshSyntax();
     }
+}
+
+void TextBox::setMarkdown(bool flag) {
+    markdown = flag;
+}
+
+bool TextBox::isMarkdown() const {
+    return markdown;
 }
