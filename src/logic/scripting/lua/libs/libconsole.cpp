@@ -31,9 +31,16 @@ static int l_add_command(lua::State* L) {
 
 static int l_execute(lua::State* L) {
     auto prompt = lua::require_string(L, 1);
-    auto result = engine->getCommandsInterpreter()->execute(prompt);
-    lua::pushvalue(L, result);
-    return 1;
+    try {
+        auto result = engine->getCommandsInterpreter()->execute(prompt);
+        lua::pushvalue(L, result);
+        return 1;
+    } catch (const parsing_error& err) {
+        if (std::string(err.what()).find("unknown command ") == 0) {
+            throw;
+        }
+        throw std::runtime_error(err.errorLog());
+    }
 }
 
 static int l_set(lua::State* L) {
