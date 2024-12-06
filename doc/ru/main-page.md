@@ -19,4 +19,5 @@
 - [Свойства блоков](block-properties.md)
 - [Свойства предметов](item-properties.md)
 - [Скриптинг](scripting.md)
+- [Стили текста](text-styles.md)
 - [Частицы](particles.md)
