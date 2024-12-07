@@ -126,6 +126,15 @@ static void display_test_output(const fs::path& path, std::ostream& stream) {
     }
 }
 
+static std::string fix_path(std::string s) {
+    for (char& c : s) {
+        if (c == '\\') {
+            c = '/';
+        }
+    }
+    return s;
+}
+
 static bool run_test(const Config& config, const fs::path& path) {
     using std::chrono::duration_cast;
     using std::chrono::high_resolution_clock;
@@ -139,7 +148,7 @@ static bool run_test(const Config& config, const fs::path& path) {
     ss << " --test " << path;
     ss << " --res " << config.resDir;
     ss << " --dir " << config.workingDir;
-    ss << " >" << (config.workingDir / "output.txt").string() << " 2>&1";
+    ss << " >" << fix_path((config.workingDir / "output.txt").string()) << " 2>&1";
     auto command = ss.str();
 
     print_separator(std::cout);
