@@ -143,7 +143,7 @@ static bool run_test(const Config& config, const fs::path& path) {
 
     auto name = path.stem();
     std::stringstream ss;
-    ss << fs::canonical(config.executable) << " --headless";
+    ss << fix_path(config.executable.string()) << " --headless";
     ss << " --test " << path;
     ss << " --res " << config.resDir;
     ss << " --dir " << config.workingDir;
