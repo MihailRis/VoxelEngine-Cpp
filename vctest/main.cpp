@@ -150,8 +150,6 @@ static bool run_test(const Config& config, const fs::path& path) {
     //ss << " >" << fix_path(outputFile.string()) << " 2>&1";
     auto command = ss.str();
 
-    return true;
-
     print_separator(std::cout);
     std::cout << "executing test " << name << "\ncommand: " << command << std::endl;
 
