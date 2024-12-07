@@ -11,8 +11,6 @@
 #include "typedefs.hpp"
 #include "scripting_functional.hpp"
 
-namespace fs = std::filesystem;
-
 class Engine;
 class Content;
 struct ContentPack;
@@ -34,6 +32,7 @@ class Entity;
 struct EntityDef;
 class GeneratorScript;
 struct GeneratorDef;
+class Process;
 
 namespace scripting {
     extern Engine* engine;
@@ -59,6 +58,10 @@ namespace scripting {
     );
 
     void process_post_runnables();
+
+    std::unique_ptr<Process> start_coroutine(
+        const std::filesystem::path& script
+    );
 
     void on_world_load(LevelController* controller);
     void on_world_tick();
@@ -136,7 +139,7 @@ namespace scripting {
     void load_content_script(
         const scriptenv& env,
         const std::string& prefix,
-        const fs::path& file,
+        const std::filesystem::path& file,
         const std::string& fileName,
         block_funcs_set& funcsset
     );
@@ -150,7 +153,7 @@ namespace scripting {
     void load_content_script(
         const scriptenv& env,
         const std::string& prefix,
-        const fs::path& file,
+        const std::filesystem::path& file,
         const std::string& fileName,
         item_funcs_set& funcsset
     );
@@ -161,13 +164,13 @@ namespace scripting {
     /// @param fileName script file path using the engine format
     void load_entity_component(
         const std::string& name,
-        const fs::path& file,
+        const std::filesystem::path& file,
         const std::string& fileName
     );
 
     std::unique_ptr<GeneratorScript> load_generator(
         const GeneratorDef& def,
-        const fs::path& file,
+        const std::filesystem::path& file,
         const std::string& dirPath
     );
 
@@ -179,7 +182,7 @@ namespace scripting {
     void load_world_script(
         const scriptenv& env,
         const std::string& packid,
-        const fs::path& file,
+        const std::filesystem::path& file,
         const std::string& fileName,
         world_funcs_set& funcsset
     );
@@ -193,7 +196,7 @@ namespace scripting {
     void load_layout_script(
         const scriptenv& env,
         const std::string& prefix,
-        const fs::path& file,
+        const std::filesystem::path& file,
         const std::string& fileName,
         uidocscript& script
     );

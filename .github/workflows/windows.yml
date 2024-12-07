@@ -38,6 +38,7 @@ jobs:
         run: ctest --output-on-failure --test-dir build
       - name: Run engine (headless)
         run: build/Release/VoxelEngine.exe --headless --dir userdir
+        timeout-minutes: 1
 #      - name: Package for Windows
 #        run: |
 #          mkdir packaged

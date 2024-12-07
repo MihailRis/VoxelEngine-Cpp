@@ -43,6 +43,7 @@ jobs:
         run: |
           chmod +x build/VoxelEngine
           build/VoxelEngine --headless --dir userdir
+        timeout-minutes: 1
 #      - name: Create DMG
 #        run: |
 #          mkdir VoxelEngineDmgContent

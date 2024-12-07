@@ -41,6 +41,7 @@ jobs:
       - name: Run tests
         run: ctest --test-dir ${{github.workspace}}/build
       - name: Run engine (headless)
+        timeout-minutes: 1
         run: |
             chmod +x ${{github.workspace}}/build/VoxelEngine
             ${{github.workspace}}/build/VoxelEngine --headless --dir ${{github.workspace}}/userdir

@@ -328,6 +328,43 @@ function __vc_on_world_quit()
     _rules.clear()
 end
 
+local __vc_coroutines = {}
+local __vc_next_coroutine = 1
+local __vc_coroutine_error = nil
+
+function __vc_start_coroutine(chunk)
+    local co = coroutine.create(function()
+        local status, err = pcall(chunk)
+        if not status then
+            __vc_coroutine_error = err
+        end
+    end)
+    local id = __vc_next_coroutine
+    __vc_next_coroutine = __vc_next_coroutine + 1
+    __vc_coroutines[id] = co
+    return id
+end
+
+function __vc_resume_coroutine(id)
+    local co = __vc_coroutines[id]
+    if co then
+        coroutine.resume(co)
+        if __vc_coroutine_error then
+            error(__vc_coroutine_error)
+        end
+        return coroutine.status(co) ~= "dead"
+    end
+    return false
+end
+
+function __vc_stop_coroutine(id)
+    local co = __vc_coroutines[id]
+    if co then
+        coroutine.close(co)
+        __vc_coroutines[id] = nil
+    end
+end
+
 assets = {}
 assets.load_texture = core.__load_texture
 

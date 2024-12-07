@@ -36,6 +36,7 @@
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
+#include "interfaces/Process.hpp"
 
 #include <iostream>
 #include <assert.h>
@@ -178,10 +179,23 @@ void Engine::saveScreenshot() {
 
 void Engine::run() {
     if (params.headless) {
-        logger.info() << "nothing to do";
+        runTest();
     } else {
         mainloop();
     }
+}
+
+void Engine::runTest() {
+    if (params.testFile.empty()) {
+        logger.info() << "nothing to do";
+        return;
+    }
+    logger.info() << "starting test " << params.testFile;
+    auto process = scripting::start_coroutine(params.testFile);
+    while (process->isActive()) {
+        process->update();
+    }
+    logger.info() << "test finished";
 }
 
 void Engine::mainloop() {

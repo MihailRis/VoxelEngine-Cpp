@@ -49,6 +49,7 @@ struct CoreParameters {
     bool headless = false;
     std::filesystem::path resFolder {"res"};
     std::filesystem::path userFolder {"."};
+    std::filesystem::path testFile;
 };
 
 class Engine : public util::ObjectsKeeper {
@@ -92,6 +93,8 @@ public:
     /// @brief Start main engine input/update/render loop. 
     /// Automatically sets MenuScreen
     void mainloop();
+
+    void runTest();
 
     /// @brief Called after assets loading when all engine systems are initialized
     void onAssetsLoaded();

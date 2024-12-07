@@ -3,17 +3,23 @@
 #include "util/command_line.hpp"
 #include "debug/Logger.hpp"
 
+#include <iostream>
 #include <stdexcept>
 
 static debug::Logger logger("main");
 
 int main(int argc, char** argv) {
-    debug::Logger::init("latest.log");
-
     CoreParameters coreParameters;
-    if (!parse_cmdline(argc, argv, coreParameters)) {
-        return EXIT_SUCCESS;
+    try {
+        if (!parse_cmdline(argc, argv, coreParameters)) {
+            return EXIT_SUCCESS;
+        }
+    } catch (const std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
+        return EXIT_FAILURE;
     }
+
+    debug::Logger::init(coreParameters.userFolder.string()+"/latest.log");
     platform::configure_encoding();
     try {
         Engine(std::move(coreParameters)).run();
