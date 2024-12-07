@@ -40,14 +40,14 @@ jobs:
         run: |
             build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build
         timeout-minutes: 1
-#      - name: Package for Windows
-#        run: |
-#          mkdir packaged
-#          cp -r build/* packaged/
-#          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
-#          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
-#        working-directory: ${{ github.workspace }}
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: Windows-Build
-#          path: 'build/Release/*'
+      - name: Package for Windows
+        run: |
+          mkdir packaged
+          cp -r build/* packaged/
+          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
+          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
+        working-directory: ${{ github.workspace }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Build
+          path: 'build/Release/*'
