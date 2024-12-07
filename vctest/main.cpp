@@ -141,6 +141,8 @@ static bool run_test(const Config& config, const fs::path& path) {
 
     auto outputFile = config.workingDir / "output.txt";
 
+    system(("dir "+config.executable.parent_path().u8string()).c_str());
+
     auto name = path.stem();
     std::stringstream ss;
     ss << fs::canonical(config.executable) << " --headless";
