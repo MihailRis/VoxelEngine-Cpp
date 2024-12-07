@@ -9,6 +9,11 @@ function sleep(timesec)
     end
 end
 
+if test then
+    test.sleep = sleep
+    test.name = __VC_TEST_NAME
+end
+
 ------------------------------------------------
 ------------------- Events ---------------------
 ------------------------------------------------

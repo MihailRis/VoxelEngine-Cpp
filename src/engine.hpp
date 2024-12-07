@@ -125,6 +125,8 @@ public:
     /// @brief Get current frame delta-time
     double getDelta() const;
 
+    double getUptime() const;
+
     /// @brief Get active assets storage instance
     Assets* getAssets();
     
@@ -166,4 +168,6 @@ public:
     SettingsHandler& getSettingsHandler();
 
     network::Network& getNetwork();
+
+    const CoreParameters& getCoreParameters() const;
 };

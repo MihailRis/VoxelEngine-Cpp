@@ -66,7 +66,7 @@ int scripting::load_script(
 
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
-    lua::initialize(*engine->getPaths());
+    lua::initialize(*engine->getPaths(), engine->getCoreParameters());
 
     load_script(fs::path("stdlib.lua"), true);
     load_script(fs::path("classes.lua"), true);

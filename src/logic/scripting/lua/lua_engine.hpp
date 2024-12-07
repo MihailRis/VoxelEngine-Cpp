@@ -8,14 +8,16 @@
 #include "lua_util.hpp"
 
 class EnginePaths;
+struct CoreParameters;
 
 namespace lua {
     enum class StateType {
         BASE,
+        TEST,
         GENERATOR,
     };
 
-    void initialize(const EnginePaths& paths);
+    void initialize(const EnginePaths& paths, const CoreParameters& params);
     void finalize();
 
     bool emit_event(

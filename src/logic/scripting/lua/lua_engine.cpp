@@ -9,6 +9,7 @@
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
 #include "lua_custom_types.hpp"
+#include "engine.hpp"
 
 static debug::Logger logger("lua-state");
 static lua::State* main_thread = nullptr;
@@ -57,7 +58,10 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "vec3", vec3lib);
     openlib(L, "vec4", vec4lib);
 
-    if (stateType == StateType::BASE) {
+    if (stateType == StateType::TEST) {
+        openlib(L, "test", testlib);
+    }
+    if (stateType == StateType::BASE || stateType == StateType::TEST) {
         openlib(L, "gui", guilib);
         openlib(L, "input", inputlib);
         openlib(L, "inventory", inventorylib);
@@ -110,11 +114,15 @@ void lua::init_state(State* L, StateType stateType) {
     newusertype<LuaVoxelFragment>(L);
 }
 
-void lua::initialize(const EnginePaths& paths) {
+void lua::initialize(const EnginePaths& paths, const CoreParameters& params) {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
 
-    main_thread = create_state(paths, StateType::BASE);
+    main_thread = create_state(
+        paths, params.headless ? StateType::TEST : StateType::BASE
+    );
+    lua::pushstring(main_thread, params.testFile.stem().u8string());
+    lua::setglobal(main_thread, "__VC_TEST_NAME");
 }
 
 void lua::finalize() {

@@ -190,9 +190,15 @@ void Engine::runTest() {
         logger.info() << "nothing to do";
         return;
     }
+    int tps = 20;
+
     logger.info() << "starting test " << params.testFile;
     auto process = scripting::start_coroutine(params.testFile);
     while (process->isActive()) {
+        frame++;
+        delta = 1.0f / static_cast<float>(tps);
+        lastTime += delta;
+
         process->update();
     }
     logger.info() << "test finished";
@@ -466,6 +472,10 @@ double Engine::getDelta() const {
     return delta;
 }
 
+double Engine::getUptime() const {
+    return lastTime;
+}
+
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
     // reset audio channels (stop all sources)
     audio::reset_channel(audio::get_channel_index("regular"));
@@ -533,4 +543,8 @@ SettingsHandler& Engine::getSettingsHandler() {
 
 network::Network& Engine::getNetwork() {
     return *network;
+}
+
+const CoreParameters& Engine::getCoreParameters() const {
+    return params;
 }
