@@ -36,8 +36,10 @@ jobs:
           cmake --build . --config Release
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
-      - name: Run engine (headless)
-        run: build/Release/VoxelEngine.exe --headless --dir userdir
+      - name: Run engine tests
+        run: |
+            tree
+            build/Release/vctest/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build
         timeout-minutes: 1
 #      - name: Package for Windows
 #        run: |
