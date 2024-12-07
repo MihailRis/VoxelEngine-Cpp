@@ -17,7 +17,7 @@ jobs:
 
       - name: Install dependencies from brew
         run: |
-          brew install glfw3 glew libpng openal-soft luajit libvorbis skypjack/entt/entt googletest
+          brew install glfw3 glew libpng openal-soft luajit libvorbis skypjack/entt/entt googletest tree
 
       - name: Install specific version of GLM
         run: |
@@ -42,6 +42,7 @@ jobs:
       - name: Run engine tests
         timeout-minutes: 1
         run: |
+          tree
           chmod +x build/VoxelEngine
           chmod +x build/vctest/vctest
           build/vctest/vctest -e build/VoxelEngine -d dev/tests -u build --output-always
