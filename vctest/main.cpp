@@ -144,9 +144,9 @@ static bool run_test(const Config& config, const fs::path& path) {
     auto name = path.stem();
     std::stringstream ss;
     ss << fs::canonical(config.executable) << " --headless";
-    ss << " --test " << path;
-    ss << " --res " << config.resDir;
-    ss << " --dir " << config.workingDir;
+    //ss << " --test " << path;
+    //ss << " --res " << config.resDir;
+    //ss << " --dir " << config.workingDir;
     //ss << " >" << fix_path(outputFile.string()) << " 2>&1";
     auto command = ss.str();
 
