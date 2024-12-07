@@ -180,7 +180,7 @@ namespace util {
         }
 
         TCoord getHeight() const {
-            return sizeX;
+            return sizeY;
         }
 
         const std::vector<T>& getBuffer() const {
