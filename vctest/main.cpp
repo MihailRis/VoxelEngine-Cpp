@@ -189,8 +189,6 @@ int main(int argc, char** argv) {
     }
     dump_config(config);
 
-    system("tree build/Release");
-    
     std::vector<fs::path> tests;
     std::cout << "scanning for tests" << std::endl;
     for (const auto& entry : fs::directory_iterator(config.directory)) {
