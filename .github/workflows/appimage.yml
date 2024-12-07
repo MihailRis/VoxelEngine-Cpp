@@ -39,12 +39,13 @@ jobs:
       - name: Build
         run: cmake --build build -t install
       - name: Run tests
-        run: ctest --test-dir ${{github.workspace}}/build
-      - name: Run engine (headless)
+        run: ctest --test-dir build
+      - name: Run engine tests
         timeout-minutes: 1
         run: |
-            chmod +x ${{github.workspace}}/build/VoxelEngine
-            ${{github.workspace}}/build/VoxelEngine --headless --dir ${{github.workspace}}/userdir
+            chmod +x build/VoxelEngine
+            chmod +x build/vctest/vctest
+            build/vctest/vctest -e build/VoxelEngine -d dev/tests -u build --output-always
 #      - name: Build AppImage
 #        uses: AppImageCrafters/build-appimage-action@fe2205a4d6056be47051f7b1b3811106e9814910
 #        env:
