@@ -103,8 +103,7 @@ static void dump_config(const Config& config) {
     std::cout << std::endl;
 }
 
-static void cleanup(const fs::path& workingDir) {
-    auto dir = workingDir / TESTING_DIR;
+static void cleanup(const fs::path& dir) {
     std::cout << "cleaning up " << dir << std::endl;
     fs::remove_all(dir);
 }
@@ -113,7 +112,7 @@ static void setup_working_dir(const fs::path& workingDir) {
     auto dir = workingDir / TESTING_DIR;
     std::cout << "setting up working directory " << dir << std::endl;
     if (fs::is_directory(dir)) {
-        cleanup(workingDir);
+        cleanup(dir);
     }
     fs::create_directories(dir);
 }
@@ -148,7 +147,7 @@ static bool run_test(const Config& config, const fs::path& path) {
     ss << " --test " << path;
     ss << " --res " << config.resDir;
     ss << " --dir " << config.workingDir;
-    ss << " >" << fix_path((config.workingDir / "output.txt").string()) << " 2>&1";
+    ss << " >" << fix_path(outputFile.string()) << " 2>&1";
     auto command = ss.str();
 
     print_separator(std::cout);
@@ -189,6 +188,8 @@ int main(int argc, char** argv) {
         return 1;
     }
     dump_config(config);
+
+    system("cd");
     
     std::vector<fs::path> tests;
     std::cout << "scanning for tests" << std::endl;
