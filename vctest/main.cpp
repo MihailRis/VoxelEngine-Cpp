@@ -189,7 +189,8 @@ int main(int argc, char** argv) {
     }
     dump_config(config);
 
-    system("cd");
+    system("tree build");
+    return 0;
     
     std::vector<fs::path> tests;
     std::cout << "scanning for tests" << std::endl;
