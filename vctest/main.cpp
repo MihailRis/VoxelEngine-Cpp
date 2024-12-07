@@ -147,9 +147,9 @@ static bool run_test(const Config& config, const fs::path& path) {
     std::stringstream ss;
     ss << fs::canonical(config.executable) << " --headless";
     ss << " --test " << fix_path(path.string());
-    //ss << " --res " << config.resDir;
-    //ss << " --dir " << config.workingDir;
-    //ss << " >" << fix_path(outputFile.string()) << " 2>&1";
+    ss << " --res " << fix_path(config.resDir.string());
+    ss << " --dir " << fix_path(config.workingDir.string());
+    ss << " >" << fix_path(outputFile.string()) << " 2>&1";
     auto command = ss.str();
 
     print_separator(std::cout);
