@@ -422,7 +422,7 @@ void Chunks::set(
     if (lz == 0 && (chunk = getChunk(cx, cz - 1))) {
         chunk->flags.modified = true;
     }
-    if (lx == CHUNK_W - 1 && (chunk = getChunk(cx, cz))) {
+    if (lx == CHUNK_W - 1 && (chunk = getChunk(cx + 1, cz))) {
         chunk->flags.modified = true;
     }
     if (lz == CHUNK_D - 1 && (chunk = getChunk(cx, cz + 1))) {
