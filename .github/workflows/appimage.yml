@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev \
-            libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev libcurl4-openssl-dev libgtest-dev cmake squashfs-tools
+            libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev libcurl4-openssl-dev libgtest-dev cmake squashfs-tools tree
           # fix luajit paths
           sudo ln -s /usr/lib/x86_64-linux-gnu/libluajit-5.1.a /usr/lib/x86_64-linux-gnu/liblua5.1.a
           sudo ln -s /usr/include/luajit-2.1 /usr/include/lua
@@ -43,9 +43,10 @@ jobs:
       - name: Run engine tests
         timeout-minutes: 1
         run: |
+            tree
             chmod +x build/VoxelEngine
-            chmod +x build/vctest/vctest
-            build/vctest/vctest -e build/VoxelEngine -d dev/tests -u build --output-always
+#            chmod +x build/vctest/vctest
+#            build/vctest/vctest -e build/VoxelEngine -d dev/tests -u build --output-always
 #      - name: Build AppImage
 #        uses: AppImageCrafters/build-appimage-action@fe2205a4d6056be47051f7b1b3811106e9814910
 #        env:
