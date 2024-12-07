@@ -139,7 +139,7 @@ static bool run_test(const Config& config, const fs::path& path) {
     ss << " --test " << path;
     ss << " --res " << config.resDir;
     ss << " --dir " << config.workingDir;
-    ss << " >" << (config.workingDir / "output.txt") << " 2>&1";
+    ss << " >" << (config.workingDir / "output.txt").string() << " 2>&1";
     auto command = ss.str();
 
     print_separator(std::cout);
