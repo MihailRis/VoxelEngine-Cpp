@@ -143,11 +143,11 @@ static bool run_test(const Config& config, const fs::path& path) {
 
     auto name = path.stem();
     std::stringstream ss;
-    ss << fix_path(config.executable.string()) << " --headless";
-    ss << " --test " << path;
-    ss << " --res " << config.resDir;
-    ss << " --dir " << config.workingDir;
-    //ss << " >" << fix_path(outputFile.string()) << " 2>&1";
+    ss << fs::canonical(config.executable) << " --headless";
+    ss << " --test " << fix_path(path.string());
+    ss << " --res " << fix_path(config.resDir.string());
+    ss << " --dir " << fix_path(config.workingDir.string());
+    ss << " >" << fix_path(outputFile.string()) << " 2>&1";
     auto command = ss.str();
 
     print_separator(std::cout);
@@ -189,8 +189,6 @@ int main(int argc, char** argv) {
     }
     dump_config(config);
 
-    system("tree build/Release");
-    
     std::vector<fs::path> tests;
     std::cout << "scanning for tests" << std::endl;
     for (const auto& entry : fs::directory_iterator(config.directory)) {
