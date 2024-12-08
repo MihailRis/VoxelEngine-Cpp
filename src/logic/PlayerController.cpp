@@ -197,7 +197,7 @@ PlayerController::PlayerController(
       player(level->players->get(0)),
       camControl(player, settings.camera),
       blocksController(blocksController),
-      playerTickClock(60, 1) {
+      playerTickClock(20, 3) {
 }
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
