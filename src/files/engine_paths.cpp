@@ -48,6 +48,18 @@ static std::filesystem::path toCanonic(std::filesystem::path path) {
 }
 
 void EnginePaths::prepare() {
+    if (!fs::is_directory(resourcesFolder)) {
+        throw std::runtime_error(
+            resourcesFolder.u8string() + " is not a directory"
+        );
+    }
+    if (!fs::is_directory(userFilesFolder)) {
+        fs::create_directories(userFilesFolder);
+    }
+
+    logger.info() << "resources folder: " << fs::canonical(resourcesFolder).u8string();
+    logger.info() << "user files folder: " << fs::canonical(userFilesFolder).u8string();
+    
     auto contentFolder = userFilesFolder / CONTENT_FOLDER;
     if (!fs::is_directory(contentFolder)) {
         fs::create_directories(contentFolder);
