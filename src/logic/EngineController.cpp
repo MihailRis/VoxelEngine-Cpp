@@ -132,13 +132,18 @@ static void show_content_missing(
     menus::show(engine, "reports/missing_content", {std::move(root)});
 }
 
-static bool loadWorldContent(Engine* engine, const fs::path& folder) {
-    return menus::call(engine, [engine, folder]() {
+static bool load_world_content(Engine* engine, const fs::path& folder) {
+    if (engine->isHeadless()) {
         engine->loadWorldContent(folder);
-    });
+        return true;
+    } else {
+        return menus::call(engine, [engine, folder]() {
+            engine->loadWorldContent(folder);
+        });
+    }
 }
 
-static void loadWorld(Engine* engine, const std::shared_ptr<WorldFiles>& worldFiles) {
+static void load_world(Engine* engine, const std::shared_ptr<WorldFiles>& worldFiles) {
     try {
         auto content = engine->getContent();
         auto& packs = engine->getContentPacks();
@@ -160,7 +165,12 @@ static void loadWorld(Engine* engine, const std::shared_ptr<WorldFiles>& worldFi
 void EngineController::openWorld(const std::string& name, bool confirmConvert) {
     auto paths = engine->getPaths();
     auto folder = paths->getWorldsFolder() / fs::u8path(name);
-    if (!loadWorldContent(engine, folder)) {
+    auto worldFile = folder / fs::u8path("world.json");
+    if (!fs::exists(worldFile)) {
+        throw std::runtime_error(worldFile.u8string() + " does not exists");
+    }
+
+    if (!load_world_content(engine, folder)) {
         return;
     }
 
@@ -192,7 +202,7 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
         }
         return;
     }
-    loadWorld(engine, std::move(worldFiles));
+    load_world(engine, std::move(worldFiles));
 }
 
 inline uint64_t str2seed(const std::string& seedstr) {

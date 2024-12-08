@@ -20,7 +20,6 @@
 #include "frontend/screens/Screen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
 #include "graphics/render/ModelsGenerator.hpp"
-#include "graphics/core/Batch2D.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
@@ -36,7 +35,8 @@
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
-#include "interfaces/Process.hpp"
+#include "Mainloop.hpp"
+#include "TestMainloop.hpp"
 
 #include <iostream>
 #include <assert.h>
@@ -92,6 +92,7 @@ Engine::Engine(CoreParameters coreParameters)
         if (Window::initialize(&settings.display)){
             throw initialize_error("could not initialize window");
         }
+        time.set(Window::time());
         if (auto icon = load_icon(resdir)) {
             icon->flipY();
             Window::setIcon(icon.get());
@@ -153,13 +154,6 @@ void Engine::onAssetsLoaded() {
     gui->onAssetsLoad(assets.get());
 }
 
-void Engine::updateTimers() {
-    frame++;
-    double currentTime = Window::time();
-    delta = currentTime - lastTime;
-    lastTime = currentTime;
-}
-
 void Engine::updateHotkeys() {
     if (Events::jpressed(keycode::F2)) {
         saveScreenshot();
@@ -179,70 +173,40 @@ void Engine::saveScreenshot() {
 
 void Engine::run() {
     if (params.headless) {
-        runTest();
+        TestMainloop(*this).run();
     } else {
-        mainloop();
+        Mainloop(*this).run();
     }
 }
 
-void Engine::runTest() {
-    if (params.testFile.empty()) {
-        logger.info() << "nothing to do";
-        return;
-    }
-    int tps = 20;
-
-    logger.info() << "starting test " << params.testFile;
-    auto process = scripting::start_coroutine(params.testFile);
-    while (process->isActive()) {
-        frame++;
-        delta = 1.0f / static_cast<float>(tps);
-        lastTime += delta;
-
-        process->update();
-    }
-    logger.info() << "test finished";
+void Engine::postUpdate() {
+    network->update();
+    processPostRunnables();
 }
 
-void Engine::mainloop() {
-    logger.info() << "starting menu screen";
-    setScreen(std::make_shared<MenuScreen>(this));
-
-    Batch2D batch(1024);
-    lastTime = Window::time();
-    
-    logger.info() << "engine started";
-    while (!Window::isShouldClose()){
-        assert(screen != nullptr);
-        updateTimers();
-        updateHotkeys();
-        audio::update(delta);
-
-        gui->act(delta, Viewport(Window::width, Window::height));
-        screen->update(delta);
-
-        if (!Window::isIconified()) {
-            renderFrame(batch);
-        }
-        Window::setFramerate(
-            Window::isIconified() && settings.display.limitFpsIconified.get()
-                ? 20
-                : settings.display.framerate.get()
-        );
-
-        network->update();
-        processPostRunnables();
-
-        Window::swapBuffers();
-        Events::pollEvents();
-    }
+void Engine::updateFrontend() {
+    double delta = time.getDelta();
+    updateHotkeys();
+    audio::update(delta);
+    gui->act(delta, Viewport(Window::width, Window::height));
+    screen->update(delta);
 }
 
-void Engine::renderFrame(Batch2D& batch) {
-    screen->draw(delta);
+void Engine::nextFrame() {
+    Window::setFramerate(
+        Window::isIconified() && settings.display.limitFpsIconified.get()
+            ? 20
+            : settings.display.framerate.get()
+    );
+    Window::swapBuffers();
+    Events::pollEvents();
+}
+
+void Engine::renderFrame() {
+    screen->draw(time.getDelta());
 
     Viewport viewport(Window::width, Window::height);
-    DrawContext ctx(nullptr, viewport, &batch);
+    DrawContext ctx(nullptr, viewport, nullptr);
     gui->draw(ctx, *assets);
 }
 
@@ -333,31 +297,30 @@ void Engine::loadAssets() {
         }
     }
     assets = std::move(new_assets);
-    
-    if (content) {
-        for (auto& [name, def] : content->blocks.getDefs()) {
-            if (def->model == BlockModel::custom) {
-                if (def->modelName.empty()) {
-                    assets->store(
-                        std::make_unique<model::Model>(
-                            ModelsGenerator::loadCustomBlockModel(
-                                def->customModelRaw, *assets, !def->shadeless
-                            )
-                        ),
-                        name + ".model"
-                    );
-                    def->modelName = def->name + ".model";
-                }
-            }
-        }
-        for (auto& [name, def] : content->items.getDefs()) {
+
+    if (content == nullptr) {
+        return;
+    }
+    for (auto& [name, def] : content->blocks.getDefs()) {
+        if (def->model == BlockModel::custom && def->modelName.empty()) {
             assets->store(
                 std::make_unique<model::Model>(
-                    ModelsGenerator::generate(*def, *content, *assets)
+                    ModelsGenerator::loadCustomBlockModel(
+                        def->customModelRaw, *assets, !def->shadeless
+                    )
                 ),
                 name + ".model"
             );
+            def->modelName = def->name + ".model";
         }
+    }
+    for (auto& [name, def] : content->items.getDefs()) {
+        assets->store(
+            std::make_unique<model::Model>(
+                ModelsGenerator::generate(*def, *content, *assets)
+            ),
+            name + ".model"
+        );
     }
 }
 
@@ -468,14 +431,6 @@ void Engine::loadAllPacks() {
     contentPacks = manager.getAll(manager.assembly(allnames));
 }
 
-double Engine::getDelta() const {
-    return delta;
-}
-
-double Engine::getUptime() const {
-    return lastTime;
-}
-
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
     // reset audio channels (stop all sources)
     audio::reset_channel(audio::get_channel_index("regular"));
@@ -545,6 +500,14 @@ network::Network& Engine::getNetwork() {
     return *network;
 }
 
+Time& Engine::getTime() {
+    return time;
+}
+
 const CoreParameters& Engine::getCoreParameters() const {
     return params;
+}
+
+bool Engine::isHeadless() const {
+    return params.headless;
 }

@@ -11,6 +11,7 @@
 #include "files/engine_paths.hpp"
 #include "files/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
+#include "Time.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -23,7 +24,6 @@
 class Screen;
 class EnginePaths;
 class ResPaths;
-class Batch2D;
 class EngineController;
 class SettingsHandler;
 struct EngineSettings;
@@ -70,17 +70,12 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<network::Network> network;
     std::vector<std::string> basePacks;
     std::unique_ptr<gui::GUI> gui;
-
-    uint64_t frame = 0;
-    double lastTime = 0.0;
-    double delta = 0.0;
+    Time time;
     
     void loadControls();
     void loadSettings();
     void saveSettings();
-    void updateTimers();
     void updateHotkeys();
-    void renderFrame(Batch2D& batch);
     void processPostRunnables();
     void loadAssets();
 public:
@@ -90,11 +85,11 @@ public:
     /// @brief Start the engine
     void run();
 
-    /// @brief Start main engine input/update/render loop. 
-    /// Automatically sets MenuScreen
-    void mainloop();
+    void postUpdate();
 
-    void runTest();
+    void updateFrontend();
+    void renderFrame();
+    void nextFrame();
 
     /// @brief Called after assets loading when all engine systems are initialized
     void onAssetsLoaded();
@@ -121,11 +116,6 @@ public:
 
     /// @brief Collect all available content-packs from res/content
     void loadAllPacks();
-
-    /// @brief Get current frame delta-time
-    double getDelta() const;
-
-    double getUptime() const;
 
     /// @brief Get active assets storage instance
     Assets* getAssets();
@@ -169,5 +159,9 @@ public:
 
     network::Network& getNetwork();
 
+    Time& getTime();
+
     const CoreParameters& getCoreParameters() const;
+
+    bool isHeadless() const;
 };

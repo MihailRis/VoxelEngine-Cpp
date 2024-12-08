@@ -13,6 +13,7 @@ class Viewport;
 class DrawContext;
 class Assets;
 class Camera;
+class Batch2D;
 
 /*
  Some info about padding and margin.
@@ -52,6 +53,7 @@ namespace gui {
 
     /// @brief The main UI controller
     class GUI {
+        std::unique_ptr<Batch2D> batch2D;
         std::shared_ptr<Container> container;
         std::shared_ptr<UINode> hover;
         std::shared_ptr<UINode> pressed;

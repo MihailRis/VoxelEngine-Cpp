@@ -5,11 +5,11 @@
 using namespace scripting;
 
 static int l_uptime(lua::State* L) {
-    return lua::pushnumber(L, engine->getUptime());
+    return lua::pushnumber(L, engine->getTime().getTime());
 }
 
 static int l_delta(lua::State* L) {
-    return lua::pushnumber(L, engine->getDelta());
+    return lua::pushnumber(L, engine->getTime().getDelta());
 }
 
 const luaL_Reg timelib[] = {
