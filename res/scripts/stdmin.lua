@@ -57,7 +57,11 @@ function table.copy(t)
     local copied = {}
 
     for k, v in pairs(t) do
-        copied[k] = v
+        if type(v) == "table" then
+            copied[k] = table.copy(v)
+        else
+            copied[k] = v
+        end
     end
 
     return copied
