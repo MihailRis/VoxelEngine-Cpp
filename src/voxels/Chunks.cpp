@@ -428,6 +428,9 @@ void Chunks::set(
     if (lz == CHUNK_D - 1 && (chunk = getChunk(cx, cz + 1))) {
         chunk->flags.modified = true;
     }
+
+    glm::ivec3 pos(x, y, z);
+    level->events->trigger(EVT_BLOCK_SET, &pos);
 }
 
 voxel* Chunks::rayCast(
