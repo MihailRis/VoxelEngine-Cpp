@@ -12,16 +12,56 @@ local MIN_INT32 = -2147483648
 local MAX_INT64 = 9223372036854775807
 local MIN_INT64 = -9223372036854775808
 
-local function intToByte(num)
+local function maskHighBytes(num)
 	return bit.band(num, 0xFF)
 end
 
-local function reverse(tab)
-    for i = 1, math.floor(#tab, 2), 1 do
-        tab[i], tab[#tab-i+1] = tab[#tab-i+1], tab[i]
-    end
-    return tab
+local function reverse(tbl)
+	  for i=1, math.floor(#tbl / 2) do
+	    local tmp = tbl[i]
+	    tbl[i] = tbl[#tbl - i + 1]
+	    tbl[#tbl - i + 1] = tmp
+	  end
+    return tbl
 end
+
+local orders = { "LE", "BE" }
+
+local fromLEConvertors =
+{
+		LE = function(bytes) return bytes end,
+		BE = function(bytes) return reverse(bytes) end
+}
+
+local toLEConvertors =
+{
+		LE = function(bytes) return bytes end,
+		BE = function(bytes) return reverse(bytes) end
+}
+
+bit_converter.default_order = "LE"
+
+local function fromLE(bytes, orderTo)
+	if orderTo then
+		bit_converter.validate_order(orderTo)
+		return fromLEConvertors[orderTo](bytes)
+	else return bytes end
+end
+
+local function toLE(bytes, orderFrom)
+	if orderFrom then
+		bit_converter.validate_order(orderFrom)
+		return toLEConvertors[orderFrom](bytes)
+	else return bytes end
+end
+
+function bit_converter.validate_order(order)
+	if not bit_converter.is_valid_order(order) then
+		 error("invalid order: "..order)
+	end
+end
+
+function bit_converter.is_valid_order(order) return table.has(orders, order) end
 
 function bit_converter.string_to_bytes(str)
 	local bytes = { }
@@ -83,18 +123,11 @@ local function floatOrDoubleToBytes(val, opt)
       bytes[#bytes + 1] = math.floor(sign * 128 + val) % (2 ^ 8)
       val = math.floor((sign * 128 + val) / (2 ^ 8))
 
-      if not endianness then
-        reverse(bytes)
-      end
       return bytes
 end
 
 local function bytesToFloatOrDouble(bytes, opt)
       local n = (opt == 'd') and 8 or 4
-
-      if not endianness then
-        reverse(bytes)
-      end
 
       local sign = 1
       local mantissa = bytes[n - 1] % ((opt == 'd') and 16 or 128)
@@ -117,80 +150,128 @@ end
 
 --
 
-function bit_converter.single_to_bytes(float)
-	return floatOrDoubleToBytes(float, 'f')
+function bit_converter.float32_to_bytes(float, order)
+	return fromLE(floatOrDoubleToBytes(float, 'f'), order)
 end
 
-function bit_converter.double_to_bytes(double)
-	return floatOrDoubleToBytes(double, 'd')
+function bit_converter.float64_to_bytes(float, order)
+	return fromLE(floatOrDoubleToBytes(float, 'd'), order)
 end
 
-function bit_converter.uint32_to_bytes(int)
+function bit_converter.single_to_bytes(float, order)
+	on_deprecated_call("bit_converter.float_to_bytes", "bit_converter.float32_to_bytes")
+	return bit_converter.float32_to_bytes(bytes, order)
+end
+
+function bit_converter.double_to_bytes(double, order)
+	on_deprecated_call("bit_converter.double_to_bytes", "bit_converter.float64_to_bytes")
+	return bit_converter.float64_to_bytes(bytes, order)
+end
+
+local function uint32ToBytes(int, order)
+	return fromLE({
+		maskHighBytes(bit.rshift(int, 24)),
+		maskHighBytes(bit.rshift(int, 16)),
+		maskHighBytes(bit.rshift(int, 8)),
+		maskHighBytes(int)
+	}, order)
+end
+
+local function uint16ToBytes(int, order)
+	return fromLE({
+		maskHighBytes(bit.rshift(int, 8)),
+		maskHighBytes(int)
+	}, order)
+end
+
+function bit_converter.uint32_to_bytes(int, order)
 	if int > MAX_UINT32 or int < MIN_UINT32 then
 		error("invalid uint32")
 	end
 
-	return {
-		intToByte(bit.rshift(int, 24)),
-		intToByte(bit.rshift(int, 16)),
-		intToByte(bit.rshift(int, 8)),
-		intToByte(int)
-	}
+	return uint32ToBytes(int, order)
 end
 
-function bit_converter.uint16_to_bytes(int)
+function bit_converter.uint16_to_bytes(int, order)
 	if int > MAX_UINT16 or int < MIN_UINT16 then
 		error("invalid uint16")
 	end
 
-	return {
-		intToByte(bit.rshift(int, 8)),
-		intToByte(int)
-	}
+	return uint16ToBytes(int, order)
 end
 
-function bit_converter.int64_to_bytes(int)
+function bit_converter.int64_to_bytes(int, order)
 	if int > MAX_INT64 or int < MIN_INT64 then
 		error("invalid int64")
 	end
 
-	return {
-		intToByte(bit.rshift(int, 56)),
-		intToByte(bit.rshift(int, 48)),
-		intToByte(bit.rshift(int, 40)),
-		intToByte(bit.rshift(int, 32)),
-		intToByte(bit.rshift(int, 24)),
-		intToByte(bit.rshift(int, 16)),
-		intToByte(bit.rshift(int, 8)),
-		intToByte(int)
-	}
+	return fromLE({
+		maskHighBytes(bit.rshift(int, 56)),
+		maskHighBytes(bit.rshift(int, 48)),
+		maskHighBytes(bit.rshift(int, 40)),
+		maskHighBytes(bit.rshift(int, 32)),
+		maskHighBytes(bit.rshift(int, 24)),
+		maskHighBytes(bit.rshift(int, 16)),
+		maskHighBytes(bit.rshift(int, 8)),
+		maskHighBytes(int)
+	}, order)
 end
 
-function bit_converter.int32_to_bytes(int)
+function bit_converter.int32_to_bytes(int, order)
+	on_deprecated_call("bit_converter.int32_to_bytes", "bit_converter.sint32_to_bytes")
+
 	if int > MAX_INT32 or int < MIN_INT32 then
 		error("invalid int32")
 	end
 
-	return bit_converter.uint32_to_bytes(int + MAX_INT32)
+	return uint32ToBytes(int + MAX_INT32, order)
 end
 
-function bit_converter.int16_to_bytes(int)
+function bit_converter.int16_to_bytes(int, order)
+	on_deprecated_call("bit_converter.int32_to_bytes", "bit_converter.sint16_to_bytes")
+
 	if int > MAX_INT16 or int < MIN_INT16 then
 		error("invalid int16")
 	end
 
-	return bit_converter.uint16_to_bytes(int + MAX_INT16)
+	return uint16ToBytes(int + MAX_INT16, order)
 end
 
-function bit_converter.bytes_to_single(bytes)
-	return bytesToFloatOrDouble(bytes, 'f')
+function bit_converter.sint32_to_bytes(int, order)
+	if int > MAX_INT32 or int < MIN_INT32 then
+		error("invalid sint32")
+	end
+
+	return uint32ToBytes(int + MAX_UINT32 + 1, order)
 end
 
-function bit_converter.bytes_to_double(bytes)
-	return bytesToFloatOrDouble(bytes, 'd')
+function bit_converter.sint16_to_bytes(int, order)
+	if int > MAX_INT16 or int < MIN_INT16 then
+		error("invalid sint16")
+	end
+
+	return uint16ToBytes(int + MAX_UINT16 + 1, order)
 end
 
-function bit_converter.bytes_to_string(bytes)
+function bit_converter.bytes_to_float32(bytes, order)
+	return bytesToFloatOrDouble(toLE(bytes, order), 'f')
+end
+
+function bit_converter.bytes_to_float64(bytes, order)
+	return bytesToFloatOrDouble(toLE(bytes, order), 'd')
+end
+
+function bit_converter.bytes_to_single(bytes, order)
+	on_deprecated_call("bit_converter.bytes_to_single", "bit_converter.bytes_to_float32")
+	return bit_converter.bytes_to_float32(bytes, order)
+end
+
+function bit_converter.bytes_to_double(bytes, order)
+	on_deprecated_call("bit_converter.bytes_to_double", "bit_converter.bytes_to_float64")
+	return bit_converter.bytes_to_float64(bytes, order)
+end
+
+function bit_converter.bytes_to_string(bytes, order)
 	local len = bit_converter.bytes_to_uint16({ bytes[1], bytes[2] })
 
 	local str = ""
@@ -206,17 +287,13 @@ function bit_converter.byte_to_bool(byte)
 	return byte ~= 0
 end
 
-function bit_converter.bytes_to_float(bytes)
-	if #bytes < 8 then
-		error("eof")
-	end
-	error("unsupported operation")
-end
-
-function bit_converter.bytes_to_uint32(bytes)
+function bit_converter.bytes_to_uint32(bytes, order)
 	if #bytes < 4 then
 		error("eof")
 	end
+
+	bytes = toLE(bytes, order)
+
      return
      bit.bor(
      bit.bor(
@@ -226,20 +303,26 @@ function bit_converter.bytes_to_uint32(bytes)
      bit.lshift(bytes[3], 8)),bytes[4])
 end
 
-function bit_converter.bytes_to_uint16(bytes)
+function bit_converter.bytes_to_uint16(bytes, order)
 	if #bytes < 2 then
 		error("eof")
 	end
+
+	bytes = toLE(bytes, order)
+
      return
      bit.bor(
      bit.lshift(bytes[1], 8),
      bytes[2], 0)
 end
 
-function bit_converter.bytes_to_int64(bytes)
+function bit_converter.bytes_to_int64(bytes, order)
 	if #bytes < 8 then
 		error("eof")
 	end
+
+	bytes = toLE(bytes, order)
+
      return
      bit.bor(
      bit.bor(
@@ -257,12 +340,26 @@ function bit_converter.bytes_to_int64(bytes)
      bit.lshift(bit.band(bytes[7], 0xFF), 8)),bit.band(bytes[8], 0xFF))
 end
 
-function bit_converter.bytes_to_int32(bytes)
-	return bit_converter.bytes_to_uint32(bytes) - MAX_INT32
+function bit_converter.bytes_to_int32(bytes, order)
+	on_deprecated_call("bit_converter.bytes_to_int32", "bit_converter.bytes_to_sint32")
+	return bit_converter.bytes_to_uint32(bytes, order) - MAX_INT32
 end
 
-function bit_converter.bytes_to_int16(bytes)
-	return bit_converter.bytes_to_uint16(bytes) - MAX_INT16
+function bit_converter.bytes_to_int16(bytes, order)
+	on_deprecated_call("bit_converter.bytes_to_int16", "bit_converter.bytes_to_sint16")
+	return bit_converter.bytes_to_uint16(bytes, order) - MAX_INT16
+end
+
+function bit_converter.bytes_to_sint32(bytes, order)
+	local num = bit_converter.bytes_to_uint32(bytes, order)
+
+	return MIN_INT32 * (bit.band(MAX_INT32 + 1, num) ~= 0 and 1 or 0) + bit.band(MAX_INT32, num)
+end
+
+function bit_converter.bytes_to_sint16(bytes, order)
+	local num = bit_converter.bytes_to_uint16(bytes, order)
+
+	return MIN_INT16 * (bit.band(MAX_INT16 + 1, num) ~= 0 and 1 or 0) + bit.band(MAX_INT16, num)
 end
 
 return bit_converter

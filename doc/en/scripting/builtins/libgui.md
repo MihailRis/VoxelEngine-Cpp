@@ -39,3 +39,25 @@ gui.get_locales_info() -> table of tables {
 ```
 
 Returns information about all loaded locales (res/texts/\*).
+
+```lua
+gui.clear_markup(
+    -- markup language ("md" - Markdown)
+    language: str,
+    -- text with markup
+    text: str
+) -> str
+```
+
+Removes markup from text.
+
+```lua
+gui.escape_markup(
+    -- markup language ("md" - Markdown)
+    language: str,
+    -- text with markup
+    text: str
+) -> str
+```
+
+Escapes markup in text.

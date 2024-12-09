@@ -13,11 +13,6 @@ namespace xml {
     class Attribute;
     class Document;
 
-    using xmlattribute = Attribute;
-    using xmlelement = std::shared_ptr<Node>;
-    using xmldocument = std::shared_ptr<Document>;
-    using xmlelements_map = std::unordered_map<std::string, xmlattribute>;
-
     class Attribute {
         std::string name;
         std::string text;
@@ -40,13 +35,15 @@ namespace xml {
     /// 'text'
     class Node {
         std::string tag;
-        std::unordered_map<std::string, xmlattribute> attrs;
-        std::vector<xmlelement> elements;
+        std::unordered_map<std::string, Attribute> attrs;
+        std::vector<std::unique_ptr<Node>> elements;
     public:
         Node(std::string tag);
 
+        Node(const Node&) = delete;
+
         /// @brief Add sub-element
-        void add(const xmlelement& element);
+        void add(std::unique_ptr<Node> element);
 
         /// @brief Set attribute value. Creates attribute if does not exists
         /// @param name attribute name
@@ -67,15 +64,15 @@ namespace xml {
         /// @brief Get attribute by name
         /// @param name attribute name
         /// @throws std::runtime_error if element has no attribute
-        /// @return xmlattribute - {name, value}
-        const xmlattribute& attr(const std::string& name) const;
+        /// @return xml attribute - {name, value}
+        const Attribute& attr(const std::string& name) const;
 
         /// @brief Get attribute by name
         /// @param name attribute name
         /// @param def default value will be returned wrapped in xmlattribute
         /// if element has no attribute
-        /// @return xmlattribute - {name, value} or {name, def} if not found*/
-        xmlattribute attr(const std::string& name, const std::string& def)
+        /// @return xml attribute - {name, value} or {name, def} if not found
+        Attribute attr(const std::string& name, const std::string& def)
             const;
 
         /// @brief Check if element has attribute
@@ -86,42 +83,28 @@ namespace xml {
         /// @param index sub-element index
         /// @throws std::out_of_range if an invalid index given
         /// @return sub-element
-        xmlelement sub(size_t index);
+        Node& sub(size_t index);
+        const Node& sub(size_t index) const;
 
         /// @brief Get number of sub-elements
         size_t size() const;
 
-        const std::vector<xmlelement>& getElements() const;
-        const xmlelements_map& getAttributes() const;
+        const std::vector<std::unique_ptr<Node>>& getElements() const;
+        const std::unordered_map<std::string, Attribute>& getAttributes() const;
     };
 
     class Document {
-        xmlelement root = nullptr;
+        std::unique_ptr<Node> root = nullptr;
         std::string version;
         std::string encoding;
     public:
         Document(std::string version, std::string encoding);
 
-        void setRoot(const xmlelement& element);
-        xmlelement getRoot() const;
+        void setRoot(std::unique_ptr<Node> element);
+        const Node* getRoot() const;
 
         const std::string& getVersion() const;
         const std::string& getEncoding() const;
-    };
-
-    class Parser : BasicParser {
-        xmldocument document;
-
-        xmlelement parseOpenTag();
-        xmlelement parseElement();
-        void parseDeclaration();
-        void parseComment();
-        std::string parseText();
-        std::string parseXMLName();
-    public:
-        Parser(std::string_view filename, std::string_view source);
-
-        xmldocument parse();
     };
 
     /// @brief Serialize XML Document to string
@@ -129,8 +112,8 @@ namespace xml {
     /// @param nice use human readable format (with indents and line-separators)
     /// @param indentStr indentation characters sequence (default - 4 spaces)
     /// @return XML string
-    extern std::string stringify(
-        const xmldocument& document,
+    std::string stringify(
+        const Document& document,
         bool nice = true,
         const std::string& indentStr = "    "
     );
@@ -139,7 +122,9 @@ namespace xml {
     /// @param filename file name will be shown in error messages
     /// @param source xml source code string
     /// @return xml document
-    extern xmldocument parse(
+    std::unique_ptr<Document> parse(
         std::string_view filename, std::string_view source
     );
+
+    using xmlelement = Node;
 }

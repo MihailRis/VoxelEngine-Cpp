@@ -45,6 +45,7 @@ public:
     void setRegion(UVRegion region);
     void sprite(float x, float y, float w, float h, const UVRegion& region, glm::vec4 tint);
     void sprite(float x, float y, float w, float h, int atlasRes, int index, glm::vec4 tint);
+    void sprite(float x, float y, float w, float h, float skew, int atlasRes, int index, glm::vec4 tint);
     void point(float x, float y, float r, float g, float b, float a);
     
     inline void setColor(glm::vec4 color) {
@@ -75,6 +76,12 @@ public:
 
     void rect(
         float x, float y, float w, float h,
+        float u, float v, float tx, float ty,
+        float r, float g, float b, float a
+    );
+
+    void parallelogram(
+        float x, float y, float w, float h, float skew,
         float u, float v, float tx, float ty,
         float r, float g, float b, float a
     );

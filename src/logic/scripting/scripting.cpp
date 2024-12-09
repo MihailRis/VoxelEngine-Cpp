@@ -191,7 +191,7 @@ void scripting::on_content_load(Content* content) {
         lua::pop(L);
     }
     if (lua::getglobal(L, "item")) {
-        push_properties_tables(L, indices.blocks);
+        push_properties_tables(L, indices.items);
         lua::setfield(L, "properties");
         lua::pop(L);
     }

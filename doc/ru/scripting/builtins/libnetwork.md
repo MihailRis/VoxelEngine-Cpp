@@ -39,7 +39,7 @@ network.tcp_connect(
 
 ```lua
 -- Отправляет массив байт
-socket:send(table|ByteArray)
+socket:send(table|ByteArray|str)
 
 -- Читает полученные данные
 socket:recv(
@@ -59,6 +59,9 @@ socket:is_alive() --> bool
 
 -- Проверяет наличие соединения (доступно использование socket:send(...)).
 socket:is_connected() --> bool
+
+-- Возвращает адрес и порт соединения.
+socket:get_address() --> str, int
 ```
 
 ```lua
@@ -80,6 +83,9 @@ server:close()
 
 -- Проверяет, существует и открыт ли TCP сервер.
 server:is_open() --> bool
+
+-- Возвращает порт сервера.
+server:get_port() --> int
 ```
 
 ## Аналитика

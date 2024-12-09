@@ -3,7 +3,7 @@
 ## Latest release
 
 - [Download](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) | [Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest)
-- [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.24/doc/en/main-page.md) | [Документация](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.24/doc/ru/main-page.md)
+- [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.25/doc/en/main-page.md) | [Документация](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.25/doc/ru/main-page.md)
 
 ## Build project in Linux
 
@@ -60,6 +60,12 @@ If you use Wayland
 
 ```sh
 sudo pacman -S glfw-wayland glew glm libpng libvorbis openal luajit libcurl
+```
+
+And you need entt. In yay you can use
+
+```sh
+yay -S entt
 ```
 
 ### Build engine with CMake

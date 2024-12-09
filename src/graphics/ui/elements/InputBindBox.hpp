@@ -13,7 +13,10 @@ namespace gui {
         Binding& binding;
     public:
         InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
-        virtual void drawBackground(const DrawContext* pctx, Assets* assets) override;
+        
+        virtual void drawBackground(
+            const DrawContext& pctx, const Assets& assets
+        ) override;
 
         virtual void clicked(GUI*, mousecode button) override;
         virtual void keyPressed(keycode key) override;

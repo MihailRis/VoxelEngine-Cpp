@@ -244,10 +244,11 @@ static inline int sendsocket(
     return send(descriptor, buf, len, flags);
 }
 
-static std::string to_string(const sockaddr_in* addr) {
+static std::string to_string(const sockaddr_in& addr, bool port=true) {
     char ip[INET_ADDRSTRLEN];
-    if (inet_ntop(AF_INET, &(addr->sin_addr), ip, INET_ADDRSTRLEN)) {
-        return std::string(ip)+":"+std::to_string(htons(addr->sin_port));
+    if (inet_ntop(AF_INET, &(addr.sin_addr), ip, INET_ADDRSTRLEN)) {
+        return std::string(ip) +
+               (port ? (":" + std::to_string(htons(addr.sin_port))) : "");
     }
     return "";
 }
@@ -266,7 +267,7 @@ class SocketConnection : public Connection {
 
     void connectSocket() {
         state = ConnectionState::CONNECTING;
-        logger.info() << "connecting to " << to_string(&addr);
+        logger.info() << "connecting to " << to_string(addr);
         int res = connectsocket(descriptor, (const sockaddr*)&addr, sizeof(sockaddr_in));
         if (res < 0) {
             auto error = handle_socket_error("Connect failed");
@@ -275,7 +276,7 @@ class SocketConnection : public Connection {
             logger.error() << error.what();
             return;
         }
-        logger.info() << "connected to " << to_string(&addr);
+        logger.info() << "connected to " << to_string(addr);
         state = ConnectionState::CONNECTED;
     }
 public:
@@ -292,37 +293,46 @@ public:
         }
     }
 
+    void startListen() {
+        while (state == ConnectionState::CONNECTED) {
+            int size = recvsocket(descriptor, buffer.data(), buffer.size());
+            if (size == 0) {
+                logger.info() << "closed connection with " << to_string(addr);
+                closesocket(descriptor);
+                state = ConnectionState::CLOSED;
+                break;
+            } else if (size < 0) {
+                logger.warning() << "an error ocurred while receiving from "
+                            << to_string(addr);
+                auto error = handle_socket_error("recv(...) error");
+                closesocket(descriptor);
+                state = ConnectionState::CLOSED;
+                logger.error() << error.what();
+                break;
+            }
+            {
+                std::lock_guard lock(mutex);
+                for (size_t i = 0; i < size; i++) {
+                    readBatch.emplace_back(buffer[i]);
+                }
+                totalDownload += size;
+            }
+            logger.debug() << "read " << size << " bytes from " << to_string(addr);
+        }
+    }
+
+    void startClient() {
+        state = ConnectionState::CONNECTED;
+        thread = std::make_unique<std::thread>([this]() { startListen();});
+    }
+
     void connect(runnable callback) override {
         thread = std::make_unique<std::thread>([this, callback]() {
             connectSocket();
             if (state == ConnectionState::CONNECTED) {
                 callback();
             }
-            while (state == ConnectionState::CONNECTED) {
-                int size = recvsocket(descriptor, buffer.data(), buffer.size());
-                if (size == 0) {
-                    logger.info() << "closed connection with " << to_string(&addr);
-                    closesocket(descriptor);
-                    state = ConnectionState::CLOSED;
-                    break;
-                } else if (size < 0) {
-                    logger.info() << "an error ocurred while receiving from "
-                                  << to_string(&addr);
-                    auto error = handle_socket_error("recv(...) error");
-                    closesocket(descriptor);
-                    state = ConnectionState::CLOSED;
-                    logger.error() << error.what();
-                    break;
-                }
-                {
-                    std::lock_guard lock(mutex);
-                    for (size_t i = 0; i < size; i++) {
-                        readBatch.emplace_back(buffer[i]);
-                    }
-                    totalDownload += size;
-                }
-                logger.info() << "read " << size << " bytes from " << to_string(&addr);
-            }
+            startListen();
         });
     }
 
@@ -380,6 +390,14 @@ public:
         return size;
     }
 
+    int getPort() const override {
+        return htons(addr.sin_port);
+    }
+
+    std::string getAddress() const override {
+        return to_string(addr, false);
+    }
+
     static std::shared_ptr<SocketConnection> connect(
         const std::string& address, int port, runnable callback
     ) {
@@ -421,9 +439,10 @@ class SocketTcpSServer : public TcpServer {
     std::mutex clientsMutex;
     bool open = true;
     std::unique_ptr<std::thread> thread = nullptr;
+    int port;
 public:
-    SocketTcpSServer(Network* network, SOCKET descriptor)
-    : network(network), descriptor(descriptor) {}
+    SocketTcpSServer(Network* network, SOCKET descriptor, int port)
+    : network(network), descriptor(descriptor), port(port) {}
 
     ~SocketTcpSServer() {
         closeSocket();
@@ -445,10 +464,11 @@ public:
                     close();
                     break;
                 }
-                logger.info() << "client connected: " << to_string(&address);
+                logger.info() << "client connected: " << to_string(address);
                 auto socket = std::make_shared<SocketConnection>(
                     clientDescriptor, address
                 );
+                socket->startClient();
                 u64id_t id = network->addConnection(socket);
                 {
                     std::lock_guard lock(clientsMutex);
@@ -488,6 +508,11 @@ public:
     bool isOpen() override {
         return open;
     }
+
+    int getPort() const override {
+        return port;
+    }
+
     static std::shared_ptr<SocketTcpSServer> openServer(
         Network* network, int port, consumer<u64id_t> handler
     ) {
@@ -515,7 +540,8 @@ public:
             throw std::runtime_error("could not bind port "+std::to_string(port));
         }
         logger.info() << "opened server at port " << port;
-        auto server = std::make_shared<SocketTcpSServer>(network, descriptor);
+        auto server =
+            std::make_shared<SocketTcpSServer>(network, descriptor, port);
         server->startListen(std::move(handler));
         return server;
     }

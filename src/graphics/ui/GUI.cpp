@@ -197,18 +197,18 @@ void GUI::act(float delta, const Viewport& vp) {
     }
 }
 
-void GUI::draw(const DrawContext* pctx, Assets* assets) {
-    auto& viewport = pctx->getViewport();
+void GUI::draw(const DrawContext& pctx, const Assets& assets) {
+    auto& viewport = pctx.getViewport();
     glm::vec2 wsize = viewport.size();
 
     menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
 
-    auto uishader = assets->get<Shader>("ui");
+    auto uishader = assets.get<Shader>("ui");
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
-    pctx->getBatch2D()->begin();
+    pctx.getBatch2D()->begin();
     container->draw(pctx, assets);
 }
 

@@ -25,12 +25,12 @@ TrackBar::TrackBar(
     setHoverColor(glm::vec4(0.01f, 0.02f, 0.03f, 0.5f));
 }
 
-void TrackBar::draw(const DrawContext* pctx, Assets*) {
+void TrackBar::draw(const DrawContext& pctx, const Assets&) {
     if (supplier) {
         value = supplier();
     }
     glm::vec2 pos = calcPos();
-    auto batch = pctx->getBatch2D();
+    auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     batch->setColor(hover ? hoverColor : color);
     batch->rect(pos.x, pos.y, size.x, size.y);

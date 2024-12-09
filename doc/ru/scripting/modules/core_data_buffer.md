@@ -4,67 +4,78 @@
 ### Хранит в себе массив байтов и позволяет легко получать или добавлять разные значения
 
 ```lua
-function data_buffer(bytes)
+function data_buffer(
+	[опционально] bytes: table,
+	[опционально] order: string,
+	[опционально] useBytearray: boolean
+)
 ```
-Создаёт новый экземпляр data_buffer (параметр bytes необязательный)
+Создаёт новый экземпляр **data_buffer**.
+Если **useBytearray** равен **true**, то байты буффера будут хранится ввиде **Bytearray**. Это может снизить производительность, но также и уменьшить размер буффера в памяти
 
 ```lua
-function data_buffer:put_byte(integer: byte)
+function data_buffer:set_order(order: string)
+```
+Задаёт порядок байтов для чисел.
+Должен равняться одному из перечисленных в [**bit_converter**](core_bit_converter.md)
+
+```lua
+function data_buffer:put_byte(byte: integer)
 ```
 Записывает байт в буффер
 
 ```lua
-function data_buffer:put_bytes(table: bytes)
+function data_buffer:put_bytes(bytes: table|Bytearray)
 ```
 Записывает байты в буффер
 
 ```lua
-function data_buffer:put_string(string: str)
+function data_buffer:put_string(str: string)
 ```
 Конвертирует строку в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_bool(boolean: bool)
+function data_buffer:put_bool(bool: boolean)
 ```
 Конвертирует булевое значение в байт и записывает его в буффер
 
 ```lua
-function data_buffer:put_single(number: single)
+function data_buffer:put_float32(float: number)
 ```
 Конвертирует плавающее число одинарной точности в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_double(number: double)
+function data_buffer:put_float64(float: number)
 ```
 Конвертирует плавающее число двойной точности в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_uint16(integer: int)
+function data_buffer:put_uint16(int: integer)
 ```
 Конвертирует беззнаковое 2-х байтовое число в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_uint32(integer: int)
+function data_buffer:put_uint32(int: integer)
 ```
 Конвертирует беззнаковое 4-х байтовое число в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_int16(integer: int)
+function data_buffer:put_sint16(int: integer)
 ```
 Конвертирует знаковое 2-х байтовое число в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_int32(integer: int)
+function data_buffer:put_sint32(int: integer)
 ```
 Конвертирует знаковое 4-х байтовое число в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_int64(integer: int)
+function data_buffer:put_int64(int: integer)
 ```
 Конвертирует знаковое 8-и байтовое число в байты и записывает их в буффер
 
 ```lua
-function data_buffer:put_number(number: num)
+function data_buffer:put_number(num: number)
 ```
 Конвертирует любое число в байты и записывает их в буффер;
 
@@ -73,10 +84,10 @@ function data_buffer:put_number(number: num)
 zero = 0
 uint16 = 1
 uint32 = 2
-int16 = 3
-int32 = 4
 int64 = 5
-double = 6
+float64 = 6
+sint16 = 7
+sint32 = 8
 ```
 
 ```lua
@@ -85,9 +96,9 @@ function data_buffer:get_byte() -> integer
 Возвращает следующий байт из буффера
 
 ```lua
-function data_buffer:get_bytes(n) -> table
+function data_buffer:get_bytes(n) -> table|Bytearray
 ```
-Возвращает n следующих байтов, если n равен nil или не указан, то возвращается массив всех байтов
+Возвращает **n** следующих байтов, если **n** равен **nil** или не указан, то возвращается массив всех байтов
 
 ```lua
 function data_buffer:get_string() -> string
@@ -100,12 +111,12 @@ function data_buffer:get_bool() -> boolean
 Читает следующий логический булев из буффера
 
 ```lua
-function data_buffer:get_single() -> number
+function data_buffer:get_float32() -> number
 ```
 Читает следующее плавающее число одинарной точности из буффера
 
 ```lua
-function data_buffer:get_double() -> number
+function data_buffer:get_float64() -> number
 ```
 Читает следующее плавающее число двойной точности из буффера
 
@@ -120,12 +131,12 @@ function data_buffer:get_uint32() -> integer
 Читает следующее 4-х байтовое беззнаковое целое число из буффера
 
 ```lua
-function data_buffer:get_int16() -> integer
+function data_buffer:get_sint16() -> integer
 ```
 Читает следующее 2-х байтовое знаковое целое число из буффера
 
 ```lua
-function data_buffer:get_int32() -> integer
+function data_buffer:get_sint32() -> integer
 ```
 Читает следующее 4-х байтовое знаковое целое число из буффера
 

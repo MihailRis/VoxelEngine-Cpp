@@ -87,6 +87,7 @@ Inner text is a button text.
 - `autoresize` - automatic change of element size (default - false). Does not affect font size.
 - `multiline` - allows display of multiline text.
 - `text-wrap` - allows automatic text wrapping (works only with multiline: "true").
+- `markup` - text markup language ("md" - Markdown).
 
 ## *image*
 
@@ -112,6 +113,8 @@ Inner text - initially entered text
 - `validator` - lua function that checks text for correctness. Takes a string as input, returns true if the text is correct.
 - `onup` - lua function called when the up arrow is pressed.
 - `ondown` - lua function called when the down arrow is pressed.
+- `syntax` - syntax highlighting ("lua" - Lua).
+- `markup` - text markup language ("md" - Markdown).
 
 ## *trackbar*
 

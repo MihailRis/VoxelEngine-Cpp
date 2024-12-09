@@ -29,6 +29,6 @@ namespace gui {
         }
 
         void act(float delta) override;
-        void draw(const DrawContext* pctx, Assets* assets) override;
+        void draw(const DrawContext& pctx, const Assets& assets) override;
     };
 }

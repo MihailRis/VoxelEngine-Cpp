@@ -1,8 +1,8 @@
 # Documentation
 
-Documentation for the engine of in-development version 0.25.
+Documentation for in-development version 0.26.
 
-[Documentation for stable release 0.24.x.](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.24/doc/en/main-page.md)
+[Documentation for stable release 0.25.x.](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.25/doc/en/main-page.md)
 
 ## Sections
 
@@ -14,9 +14,10 @@ Documentation for the engine of in-development version 0.25.
 - [Content-packs](content-packs.md)
 - [Engine usage recommendations](engine-use-recommendations.md)
 - [Item properties](item-properties.md)
+- [Particles](particles.md)
 - [Resources (resources.json)](resources.md)
 - [Rigging](rigging.md)
 - [Scripting](scripting.md)
+- [Text styles](text-styles.md)
 - [World generator engine](world-generator.md)
 - [XML UI building](xml-ui-layouts.md)
-- [Particles](particles.md)

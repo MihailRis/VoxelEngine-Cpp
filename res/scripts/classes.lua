@@ -42,6 +42,7 @@ local Socket = {__index={
     close=function(self) return network.__close(self.id) end,
     is_alive=function(self) return network.__is_alive(self.id) end,
     is_connected=function(self) return network.__is_connected(self.id) end,
+    get_address=function(self) return network.__get_address(self.id) end,
 }}
 
 network.tcp_connect = function(address, port, callback)
@@ -55,6 +56,7 @@ end
 local ServerSocket = {__index={
     close=function(self) return network.__closeserver(self.id) end,
     is_open=function(self) return network.__is_serveropen(self.id) end,
+    get_port=function(self) return network.__get_serverport(self.id) end,
 }}
 
 network.tcp_open = function(port, handler)

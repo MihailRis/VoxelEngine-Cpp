@@ -20,7 +20,9 @@ std::shared_ptr<Inventory> Inventories::create(size_t size) {
 std::shared_ptr<Inventory> Inventories::createVirtual(size_t size) {
     int64_t id;
     do {
-        id = -std::max<int64_t>(1LL, std::llabs(random.rand64()));
+        // lua does not support long integers because Number is floating-point
+        // type. Changing int_consumer to use 64 bit integer does not change anything
+        id = -std::max<int64_t>(1LL, std::llabs(random.rand64() % 1000'000'000));
     } while (map.find(id) != map.end());
 
     auto inv = std::make_shared<Inventory>(id, size);

@@ -94,7 +94,7 @@ namespace gui {
         /// @brief Draw all visible elements on main container 
         /// @param pctx parent graphics context
         /// @param assets active assets storage
-        void draw(const DrawContext* pctx, Assets* assets);
+        void draw(const DrawContext& pctx, const Assets& assets);
 
         /// @brief Add element to the main container
         /// @param node UI element
