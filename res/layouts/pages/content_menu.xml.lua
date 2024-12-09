@@ -78,19 +78,19 @@ end
 local function create_label(id, text, color)
     if id then
         document.configs:add(string.format(
-            "<label id='%s' color='%s'>%s</label>",
+            "<label markup='md' id='%s' color='%s'>%s</label>",
             id, color, text
         ))
     else
         document.configs:add(string.format(
-            "<label color='%s'>%s</label>",
+            "<label markup='md' color='%s'>%s</label>",
             color, text
         ))
     end
 end
 
 local function create_config(i, config, name, path)
-    create_label(name, ('[' .. name .. ']'):upper(), "#FFFFFF")
+    create_label(name, ('**[' .. name .. ']**'):upper(), "#FFFFFF")
     pack_open[2][i] = {elements = {}, path = path}
     for _, a in ipairs(config.checkboxes) do
         create_checkbox(i .. '_' .. a[1], a[1], a[2])
