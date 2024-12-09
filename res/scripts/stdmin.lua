@@ -63,6 +63,20 @@ function table.copy(t)
     return copied
 end
 
+function table.deep_copy(t)
+    local copied = {}
+
+    for k, v in pairs(t) do
+        if type(v) == "table" then
+            copied[k] = table.deep_copy(v)
+        else
+            copied[k] = v
+        end
+    end
+
+    return copied
+end
+
 function table.count_pairs(t)
     local count = 0
 
