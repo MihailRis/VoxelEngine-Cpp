@@ -2,13 +2,16 @@
 
 #include "delegates.hpp"
 #include "typedefs.hpp"
+#include "settings.hpp"
 
 #include "assets/Assets.hpp"
 #include "content/content_fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "content/PacksManager.hpp"
 #include "files/engine_paths.hpp"
+#include "files/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
+#include "Time.hpp"
 
 #include <filesystem>
 #include <memory>
@@ -21,12 +24,9 @@
 class Screen;
 class EnginePaths;
 class ResPaths;
-class Batch2D;
 class EngineController;
 class SettingsHandler;
 struct EngineSettings;
-
-namespace fs = std::filesystem;
 
 namespace gui {
     class GUI;
@@ -45,10 +45,18 @@ public:
     initialize_error(const std::string& message) : std::runtime_error(message) {}
 };
 
+struct CoreParameters {
+    bool headless = false;
+    std::filesystem::path resFolder {"res"};
+    std::filesystem::path userFolder {"."};
+    std::filesystem::path testFile;
+};
+
 class Engine : public util::ObjectsKeeper {
-    EngineSettings& settings;
-    SettingsHandler& settingsHandler;
-    EnginePaths* paths;
+    CoreParameters params;
+    EngineSettings settings;
+    SettingsHandler settingsHandler;
+    EnginePaths paths;
 
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
@@ -61,28 +69,27 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<cmd::CommandsInterpreter> interpreter;
     std::unique_ptr<network::Network> network;
     std::vector<std::string> basePacks;
-
-    uint64_t frame = 0;
-    double lastTime = 0.0;
-    double delta = 0.0;
-
     std::unique_ptr<gui::GUI> gui;
+    Time time;
     
     void loadControls();
     void loadSettings();
     void saveSettings();
-    void updateTimers();
     void updateHotkeys();
-    void renderFrame(Batch2D& batch);
     void processPostRunnables();
     void loadAssets();
 public:
-    Engine(EngineSettings& settings, SettingsHandler& settingsHandler, EnginePaths* paths);
+    Engine(CoreParameters coreParameters);
     ~Engine();
- 
-    /// @brief Start main engine input/update/render loop. 
-    /// Automatically sets MenuScreen
-    void mainloop();
+
+    /// @brief Start the engine
+    void run();
+
+    void postUpdate();
+
+    void updateFrontend();
+    void renderFrame();
+    void nextFrame();
 
     /// @brief Called after assets loading when all engine systems are initialized
     void onAssetsLoaded();
@@ -109,9 +116,6 @@ public:
 
     /// @brief Collect all available content-packs from res/content
     void loadAllPacks();
-
-    /// @brief Get current frame delta-time
-    double getDelta() const;
 
     /// @brief Get active assets storage instance
     Assets* getAssets();
@@ -154,4 +158,10 @@ public:
     SettingsHandler& getSettingsHandler();
 
     network::Network& getNetwork();
+
+    Time& getTime();
+
+    const CoreParameters& getCoreParameters() const;
+
+    bool isHeadless() const;
 };

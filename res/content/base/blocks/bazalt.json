@@ -1,4 +1,5 @@
 {
     "texture": "bazalt",
-    "breakable": false
+    "breakable": false,
+    "base:durability": 1e9
 }
