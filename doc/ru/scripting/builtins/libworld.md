@@ -36,7 +36,7 @@ world.get_seed() -> int
 world.get_generator() -> str
 
 -- Проверяет существование мира по имени.
-world.exists() -> bool
+world.exists(name: str) -> bool
 
 -- Проверяет является ли текущее время днём. От 0.333(8 утра) до 0.833(8 вечера).
 world.is_day() -> bool
