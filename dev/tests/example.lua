@@ -1,4 +1,3 @@
-test.reconfig_packs({"base"}, {})
 test.new_world("demo", "2019", "core:default")
 assert(world.get_generator() == "core:default")
 coroutine.yield()

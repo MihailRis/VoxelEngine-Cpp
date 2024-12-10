@@ -6,6 +6,7 @@
 #include "engine.hpp"
 #include "files/WorldFiles.hpp"
 #include "objects/Entities.hpp"
+#include "objects/Players.hpp"
 #include "physics/Hitbox.hpp"
 #include "settings.hpp"
 #include "world/Level.hpp"
@@ -23,34 +24,42 @@ LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr
       )),
       chunks(std::make_unique<ChunksController>(
           *level, settings.chunks.padding.get()
-      )),
-      player(std::make_unique<PlayerController>(
-        settings, level.get(), blocks.get()
       )) {
+    if (!engine->isHeadless()) {
+        player = std::make_unique<PlayerController>(
+            settings, level.get(), level->players->get(0), blocks.get()
+        );
+    }
     scripting::on_world_load(this);
 }
 
 void LevelController::update(float delta, bool input, bool pause) {
-    glm::vec3 position = player->getPlayer()->getPosition();
-    level->loadMatrix(
-        position.x,
-        position.z,
-        settings.chunks.loadDistance.get() + settings.chunks.padding.get() * 2
-    );
-    chunks->update(
-        settings.chunks.loadSpeed.get(), settings.chunks.loadDistance.get(),
-        floordiv(position.x, CHUNK_W), floordiv(position.z, CHUNK_D)
-    );
+    if (player) {
+        glm::vec3 position = player->getPlayer()->getPosition();
+        level->loadMatrix(
+            position.x,
+            position.z,
+            settings.chunks.loadDistance.get() + settings.chunks.padding.get() * 2
+        );
+        chunks->update(
+            settings.chunks.loadSpeed.get(), settings.chunks.loadDistance.get(),
+            floordiv(position.x, CHUNK_W), floordiv(position.z, CHUNK_D)
+        );
+    }
 
     if (!pause) {
         // update all objects that needed
         blocks->update(delta);
-        player->update(delta, input, pause);
+        if (player) {
+            player->update(delta, input);
+        }
         level->entities->updatePhysics(delta);
         level->entities->update(delta);
     }
     level->entities->clean();
-    player->postUpdate(delta, input, pause);
+    if (player) {
+        player->postUpdate(delta, input, pause);
+    }
 }
 
 void LevelController::saveWorld() {

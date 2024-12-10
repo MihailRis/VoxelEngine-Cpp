@@ -190,11 +190,14 @@ void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
 }
 
 PlayerController::PlayerController(
-    const EngineSettings& settings, Level* level,
+    const EngineSettings& settings,
+    Level* level,
+    Player* player,
     BlocksController* blocksController
 )
-    : settings(settings), level(level),
-      player(level->players->get(0)),
+    : settings(settings),
+      level(level),
+      player(player),
       camControl(player, settings.camera),
       blocksController(blocksController),
       playerTickClock(20, 3) {
@@ -242,21 +245,19 @@ void PlayerController::updateFootsteps(float delta) {
     }
 }
 
-void PlayerController::update(float delta, bool input, bool pause) {
-    if (!pause) {
-        if (input) {
-            updateKeyboard();
-            player->updateSelectedEntity();
-        } else {
-            resetKeyboard();
-        }
-        updatePlayer(delta);
+void PlayerController::update(float delta, bool input) {
+    if (input) {
+        updateKeyboard();
+        player->updateSelectedEntity();
+    } else {
+        resetKeyboard();
+    }
+    updatePlayer(delta);
 
-        if (playerTickClock.update(delta)) {
-            if (player->getId() % playerTickClock.getParts() ==
-                playerTickClock.getPart()) {
-                scripting::on_player_tick(player, playerTickClock.getTickRate());
-            }
+    if (playerTickClock.update(delta)) {
+        if (player->getId() % playerTickClock.getParts() ==
+            playerTickClock.getPart()) {
+            scripting::on_player_tick(player, playerTickClock.getTickRate());
         }
     }
 }
