@@ -69,10 +69,7 @@ static int l_close_world(lua::State* L) {
     if (save_world) {
         controller->saveWorld();
     }
-    // destroy LevelScreen and run quit callbacks
-    engine->setScreen(nullptr);
-    // create and go to menu screen
-    engine->setScreen(std::make_shared<MenuScreen>(engine));
+    engine->onWorldClosed();
     return 0;
 }
 

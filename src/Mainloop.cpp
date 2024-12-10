@@ -16,7 +16,14 @@ void Mainloop::run() {
     auto& time = engine.getTime();
 
     engine.setLevelConsumer([this](auto level) {
-        engine.setScreen(std::make_shared<LevelScreen>(&engine, std::move(level)));
+        if (level == nullptr) {
+            // destroy LevelScreen and run quit callbacks
+            engine.setScreen(nullptr);
+            // create and go to menu screen
+            engine.setScreen(std::make_shared<MenuScreen>(&engine));
+        } else {
+            engine.setScreen(std::make_shared<LevelScreen>(&engine, std::move(level)));
+        }
     });
 
     logger.info() << "starting menu screen";

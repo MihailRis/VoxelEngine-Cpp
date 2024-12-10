@@ -135,6 +135,7 @@ public:
     ResPaths* getResPaths();
 
     void onWorldOpen(std::unique_ptr<Level> level);
+    void onWorldClosed();
 
     /// @brief Get current Content instance
     const Content* getContent() const;

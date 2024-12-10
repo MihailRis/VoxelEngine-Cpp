@@ -18,8 +18,6 @@
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
-#include "frontend/screens/MenuScreen.hpp"
-#include "frontend/screens/LevelScreen.hpp"
 #include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
@@ -454,7 +452,13 @@ void Engine::setLanguage(std::string locale) {
 }
 
 void Engine::onWorldOpen(std::unique_ptr<Level> level) {
+    logger.info() << "world open";
     levelConsumer(std::move(level));
+}
+
+void Engine::onWorldClosed() {
+    logger.info() << "world closed";
+    levelConsumer(nullptr);
 }
 
 gui::GUI* Engine::getGUI() {
