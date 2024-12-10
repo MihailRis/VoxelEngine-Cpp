@@ -95,6 +95,8 @@ std::unique_ptr<Level> World::create(
         content,
         packs
     );
+    logger.info() << "created world '" << name << "' (" << directory.u8string() << ")";
+    logger.info() << "world seed: " << seed << " generator: " << generator;
     auto level = std::make_unique<Level>(std::move(world), content, settings);
     level->players->create();
     return level;

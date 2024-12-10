@@ -12,6 +12,7 @@ end
 if test then
     test.sleep = sleep
     test.name = __VC_TEST_NAME
+    test.new_world = core.new_world
 end
 
 ------------------------------------------------

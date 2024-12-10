@@ -150,9 +150,7 @@ static void load_world(Engine* engine, const std::shared_ptr<WorldFiles>& worldF
         auto& settings = engine->getSettings();
 
         auto level = World::load(worldFiles, settings, content, packs);
-        engine->setScreen(
-            std::make_shared<LevelScreen>(engine, std::move(level))
-        );
+        engine->onWorldOpen(std::move(level));
     } catch (const world_load_error& error) {
         guiutil::alert(
             engine->getGUI(),
@@ -229,7 +227,10 @@ void EngineController::createWorld(
     EnginePaths* paths = engine->getPaths();
     auto folder = paths->getWorldsFolder() / fs::u8path(name);
 
-    if (!menus::call(engine, [this, paths, folder]() {
+    if (engine->isHeadless()) {
+        engine->loadContent();
+        paths->setCurrentWorldFolder(folder);
+    } else if (!menus::call(engine, [this, paths, folder]() {
             engine->loadContent();
             paths->setCurrentWorldFolder(folder);
         })) {
@@ -244,7 +245,7 @@ void EngineController::createWorld(
         engine->getContent(),
         engine->getContentPacks()
     );
-    engine->setScreen(std::make_shared<LevelScreen>(engine, std::move(level)));
+    engine->onWorldOpen(std::move(level));
 }
 
 void EngineController::reopenWorld(World* world) {

@@ -19,6 +19,7 @@
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
+#include "frontend/screens/LevelScreen.hpp"
 #include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
@@ -35,6 +36,7 @@
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
+#include "world/Level.hpp"
 #include "Mainloop.hpp"
 #include "TestMainloop.hpp"
 
@@ -120,7 +122,7 @@ Engine::Engine(CoreParameters coreParameters)
     }
     keepAlive(settings.ui.language.observe([=](auto lang) {
         setLanguage(lang);
-    }, !langNotSet));
+    }, true));
     
     scripting::initialize(this);
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
@@ -272,6 +274,10 @@ PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     return manager;
 }
 
+void Engine::setLevelConsumer(consumer<std::unique_ptr<Level>> levelConsumer) {
+    this->levelConsumer = std::move(levelConsumer);
+}
+
 void Engine::loadAssets() {
     logger.info() << "loading assets";
     Shader::preprocessor->setPaths(resPaths.get());
@@ -380,8 +386,10 @@ void Engine::loadContent() {
     ContentLoader::loadScripts(*content);
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
-    loadAssets();
-    onAssetsLoaded();
+    if (!isHeadless()) {
+        loadAssets();
+        onAssetsLoaded();
+    }
 }
 
 void Engine::resetContent() {
@@ -443,6 +451,10 @@ void Engine::setLanguage(std::string locale) {
     if (gui) {
         gui->getMenu()->setPageLoader(menus::create_page_loader(this));
     }
+}
+
+void Engine::onWorldOpen(std::unique_ptr<Level> level) {
+    levelConsumer(std::move(level));
 }
 
 gui::GUI* Engine::getGUI() {

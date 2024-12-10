@@ -21,6 +21,7 @@
 #include <vector>
 #include <mutex>
 
+class Level;
 class Screen;
 class EnginePaths;
 class ResPaths;
@@ -71,6 +72,7 @@ class Engine : public util::ObjectsKeeper {
     std::vector<std::string> basePacks;
     std::unique_ptr<gui::GUI> gui;
     Time time;
+    consumer<std::unique_ptr<Level>> levelConsumer;
     
     void loadControls();
     void loadSettings();
@@ -132,6 +134,8 @@ public:
     /// @brief Get engine resource paths controller
     ResPaths* getResPaths();
 
+    void onWorldOpen(std::unique_ptr<Level> level);
+
     /// @brief Get current Content instance
     const Content* getContent() const;
 
@@ -154,6 +158,8 @@ public:
     cmd::CommandsInterpreter* getCommandsInterpreter();
 
     PacksManager createPacksManager(const fs::path& worldFolder);
+
+    void setLevelConsumer(consumer<std::unique_ptr<Level>> levelConsumer);
 
     SettingsHandler& getSettingsHandler();
 
