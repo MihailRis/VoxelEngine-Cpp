@@ -115,8 +115,8 @@ static int l_reconfig_packs(lua::State* L) {
         remPacks.emplace_back(lua::tostring(L, -1));
         lua::pop(L);
     }
-    auto engine_controller = engine->getController();
-    engine_controller->reconfigPacks(controller, addPacks, remPacks);
+    auto engineController = engine->getController();
+    engineController->reconfigPacks(controller, addPacks, remPacks);
     return 0;
 }
 

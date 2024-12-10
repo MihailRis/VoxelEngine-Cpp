@@ -18,6 +18,7 @@ public:
     void step(double delta) {
         frame++;
         lastTime += delta;
+        this->delta = delta;
     }
 
     void set(double currentTime) {

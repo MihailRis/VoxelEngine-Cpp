@@ -5,6 +5,7 @@
 #include "interfaces/Process.hpp"
 #include "debug/Logger.hpp"
 #include "world/Level.hpp"
+#include "world/World.hpp"
 #include "engine.hpp"
 
 static debug::Logger logger("mainloop");
@@ -33,6 +34,11 @@ void TestMainloop::run() {
     while (process->isActive()) {
         time.step(1.0f / static_cast<float>(TPS));
         process->update();
+        if (controller) {
+            float delta = time.getDelta();
+            controller->getLevel()->getWorld()->updateTimers(delta);
+            controller->update(glm::min(delta, 0.2f), false, false);
+        }
     }
     logger.info() << "test finished";
 }

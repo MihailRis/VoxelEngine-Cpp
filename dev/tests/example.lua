@@ -1,4 +1,8 @@
+test.reconfig_packs({"base"}, {})
 test.new_world("demo", "2019", "core:default")
 assert(world.get_generator() == "core:default")
+coroutine.yield()
+assert(world.get_total_time() > 0.0)
+print(world.get_total_time())
 test.close_world(true)
 assert(not world.is_open())
