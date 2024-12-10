@@ -38,7 +38,7 @@ jobs:
         run: ctest --output-on-failure --test-dir build
       - name: Run engine tests
         run: |
-            build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build
+            build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build --output-always
         timeout-minutes: 1
       - name: Package for Windows
         run: |
