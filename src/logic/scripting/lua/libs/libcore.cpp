@@ -69,10 +69,7 @@ static int l_close_world(lua::State* L) {
     if (save_world) {
         controller->saveWorld();
     }
-    // destroy LevelScreen and run quit callbacks
-    engine->setScreen(nullptr);
-    // create and go to menu screen
-    engine->setScreen(std::make_shared<MenuScreen>(engine));
+    engine->onWorldClosed();
     return 0;
 }
 
@@ -118,8 +115,8 @@ static int l_reconfig_packs(lua::State* L) {
         remPacks.emplace_back(lua::tostring(L, -1));
         lua::pop(L);
     }
-    auto engine_controller = engine->getController();
-    engine_controller->reconfigPacks(controller, addPacks, remPacks);
+    auto engineController = engine->getController();
+    engineController->reconfigPacks(controller, addPacks, remPacks);
     return 0;
 }
 

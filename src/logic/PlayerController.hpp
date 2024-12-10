@@ -71,9 +71,21 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        const EngineSettings& settings, Level* level, BlocksController* blocksController
+        const EngineSettings& settings,
+        Level* level,
+        Player* player,
+        BlocksController* blocksController
     );
-    void update(float delta, bool input, bool pause);
+
+    /// @brief Called after blocks update if not paused
+    /// @param delta delta time
+    /// @param input process user input
+    void update(float delta, bool input);
+
+    /// @brief Called after whole level update
+    /// @param delta delta time
+    /// @param input process user input
+    /// @param pause is game paused
     void postUpdate(float delta, bool input, bool pause);
     Player* getPlayer();
 };

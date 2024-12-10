@@ -1,32 +1,29 @@
 #include "engine.hpp"
-#include "settings.hpp"
-#include "files/settings_io.hpp"
-#include "files/engine_paths.hpp"
 #include "util/platform.hpp"
 #include "util/command_line.hpp"
 #include "debug/Logger.hpp"
 
+#include <iostream>
 #include <stdexcept>
 
 static debug::Logger logger("main");
 
 int main(int argc, char** argv) {
-    debug::Logger::init("latest.log");
+    CoreParameters coreParameters;
+    try {
+        if (!parse_cmdline(argc, argv, coreParameters)) {
+            return EXIT_SUCCESS;
+        }
+    } catch (const std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
-    EnginePaths paths;
-    if (!parse_cmdline(argc, argv, paths))
-        return EXIT_SUCCESS;
-
+    debug::Logger::init(coreParameters.userFolder.string()+"/latest.log");
     platform::configure_encoding();
     try {
-        EngineSettings settings;
-        SettingsHandler handler(settings);
-        
-        Engine engine(settings, handler, &paths);
-
-        engine.mainloop();
-    }
-    catch (const initialize_error& err) {
+        Engine(std::move(coreParameters)).run();
+    } catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();
     }
 #ifdef NDEBUG
