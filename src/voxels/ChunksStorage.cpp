@@ -40,13 +40,23 @@ void ChunksStorage::remove(int x, int z) {
 }
 
 static void check_voxels(const ContentIndices& indices, Chunk* chunk) {
+    bool corrupted = false;
     for (size_t i = 0; i < CHUNK_VOL; i++) {
         blockid_t id = chunk->voxels[i].id;
         if (indices.blocks.get(id) == nullptr) {
-            auto logline = logger.error();
-            logline << "corruped block detected at " << i << " of chunk ";
-            logline << chunk->x << "x" << chunk->z;
-            logline << " -> " << id;
+            if (!corrupted) {
+#ifdef NDEBUG
+                // release
+                auto logline = logger.error();
+                logline << "corruped blocks detected at " << i << " of chunk ";
+                logline << chunk->x << "x" << chunk->z;
+                logline << " -> " << id;
+                corrupted = true;
+#else
+                // debug
+                abort();
+#endif
+            }
             chunk->voxels[i].id = BLOCK_AIR;
         }
     }
