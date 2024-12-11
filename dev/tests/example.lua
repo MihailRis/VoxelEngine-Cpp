@@ -1,6 +1,7 @@
 test.new_world("demo", "2019", "core:default")
+assert(world.is_open())
 assert(world.get_generator() == "core:default")
-coroutine.yield()
+test.sleep(1)
 assert(world.get_total_time() > 0.0)
 print(world.get_total_time())
 test.close_world(true)

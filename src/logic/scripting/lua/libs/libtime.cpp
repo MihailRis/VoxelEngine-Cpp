@@ -1,5 +1,4 @@
 #include "engine.hpp"
-#include "window/Window.hpp"
 #include "api_lua.hpp"
 
 using namespace scripting;
