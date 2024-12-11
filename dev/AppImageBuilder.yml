@@ -30,6 +30,7 @@ AppDir:
     - libogg0
     - libvorbis0a
     - libvorbisfile3
+    - libluajit-5.1-2
     exclude:
       - hicolor-icon-theme
       - sound-theme-freedesktop
