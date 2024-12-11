@@ -133,8 +133,10 @@ std::unique_ptr<Level> World::load(
         auto playerRoot = files::read_json(file);
         level->players->deserialize(playerRoot);
 
-        if (!playerRoot["players"][0].has("id")) {
-            level->getWorld()->getInfo().nextPlayerId++;
+        if (!playerRoot["players"].empty()) {
+            if (!playerRoot["players"][0].has("id")) {
+                level->getWorld()->getInfo().nextPlayerId++;
+            }
         }
     }
     return level;
