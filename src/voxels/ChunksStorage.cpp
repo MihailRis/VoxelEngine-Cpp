@@ -20,23 +20,18 @@ static debug::Logger logger("chunks-storage");
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
 }
 
-void ChunksStorage::store(const std::shared_ptr<Chunk>& chunk) {
-    chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
-}
+std::shared_ptr<Chunk> ChunksStorage::fetch(int x, int z) {
+    std::lock_guard lock(mutex);
 
-std::shared_ptr<Chunk> ChunksStorage::get(int x, int z) const {
     auto found = chunksMap.find(glm::ivec2(x, z));
     if (found == chunksMap.end()) {
         return nullptr;
     }
-    return found->second;
-}
-
-void ChunksStorage::remove(int x, int z) {
-    auto found = chunksMap.find(glm::ivec2(x, z));
-    if (found != chunksMap.end()) {
-        chunksMap.erase(found->first);
+    auto ptr = found->second.lock();
+    if (ptr == nullptr) {
+        chunksMap.erase(found);
     }
+    return ptr;
 }
 
 static void check_voxels(const ContentIndices& indices, Chunk* chunk) {
@@ -63,11 +58,21 @@ static void check_voxels(const ContentIndices& indices, Chunk* chunk) {
 }
 
 std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
+    std::lock_guard lock(mutex);
+
+    auto found = chunksMap.find(glm::ivec2(x, z));
+    if (found != chunksMap.end()) {
+        auto chunk = found->second.lock();
+        if (chunk) {
+            return chunk;
+        }
+    }
+
     World* world = level->getWorld();
     auto& regions = world->wfile.get()->getRegions();
 
     auto chunk = std::make_shared<Chunk>(x, z);
-    store(chunk);
+    chunksMap[glm::ivec2(chunk->x, chunk->z)] = chunk;
     if (auto data = regions.getVoxels(chunk->x, chunk->z)) {
         const auto& indices = *level->content->getIndices();
 

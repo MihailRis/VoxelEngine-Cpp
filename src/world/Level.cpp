@@ -62,10 +62,6 @@ Level::Level(
     );
     lighting = std::make_unique<Lighting>(content, chunks.get());
 
-    events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type, Chunk* chunk) {
-        this->chunksStorage->remove(chunk->x, chunk->z);
-    });
-
     inventories = std::make_unique<Inventories>(*this);
 }
 
