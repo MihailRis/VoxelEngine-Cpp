@@ -10,6 +10,7 @@
 #include "voxels/Block.hpp"
 #include "world/Level.hpp"
 #include "window/Camera.hpp"
+#include "objects/Player.hpp"
 #include "objects/Players.hpp"
 #include "logic/LevelController.hpp"
 #include "util/stringutil.hpp"
@@ -29,13 +30,17 @@ inline constexpr int ITERATIONS = 512;
 inline constexpr int BIG_PRIME = 666667;
 
 Decorator::Decorator(
-    Engine& engine, LevelController& controller, WorldRenderer& renderer, const Assets& assets
+    Engine& engine,
+    LevelController& controller,
+    WorldRenderer& renderer,
+    const Assets& assets,
+    Player& player
 )
     : engine(engine),
       level(*controller.getLevel()),
       renderer(renderer),
       assets(assets),
-      player(*controller.getPlayer()) {
+      player(player) {
     controller.getBlocksController()->listenBlockInteraction(
     [this](auto player, const auto& pos, const auto& def, BlockInteraction type) {
         if (type == BlockInteraction::placing && def.particles) {
@@ -43,7 +48,7 @@ Decorator::Decorator(
         }
     });
     for (const auto& [id, player] : *level.players) {
-        if (id == controller.getPlayer()->getId()) {
+        if (id == this->player.getId()) {
             continue;
         }
         playerTexts[id] = renderer.texts->add(std::make_unique<TextNote>(

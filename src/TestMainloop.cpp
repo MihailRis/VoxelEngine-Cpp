@@ -37,7 +37,7 @@ void TestMainloop::run() {
         if (controller) {
             float delta = time.getDelta();
             controller->getLevel()->getWorld()->updateTimers(delta);
-            controller->update(glm::min(delta, 0.2f), false, false);
+            controller->update(glm::min(delta, 0.2f), false);
         }
     }
     logger.info() << "test finished";
