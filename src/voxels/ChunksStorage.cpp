@@ -62,7 +62,7 @@ std::shared_ptr<Chunk> ChunksStorage::create(int x, int z) {
     auto& localChunksMap = chunksMap;
     auto chunk = std::shared_ptr<Chunk>(
         new Chunk(x, z),
-        [localChunksMap, x, z](auto ptr) {
+        [localChunksMap, x, z](Chunk* ptr) {
             std::lock_guard lock(*localChunksMap);
             localChunksMap->erase({x, z});
             delete ptr;
