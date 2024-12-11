@@ -556,10 +556,6 @@ void Entities::render(
     float delta,
     bool pause
 ) {
-    if (!pause) {
-        scripting::on_entities_render(delta);
-    }
-
     auto view = registry.view<Transform, rigging::Skeleton>();
     for (auto [entity, transform, skeleton] : view.each()) {
         if (transform.dirty) {

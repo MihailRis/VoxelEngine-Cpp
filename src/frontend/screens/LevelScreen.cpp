@@ -18,6 +18,7 @@
 #include "graphics/ui/elements/Menu.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "logic/LevelController.hpp"
+#include "logic/scripting/scripting.hpp"
 #include "logic/scripting/scripting_hud.hpp"
 #include "util/stringutil.hpp"
 #include "physics/Hitbox.hpp"
@@ -182,6 +183,9 @@ void LevelScreen::draw(float delta) {
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, batch.get());
 
+    if (!hud->isPause()) {
+        scripting::on_entities_render(engine->getTime().getDelta());
+    }
     worldRenderer->draw(
         ctx, *camera, hudVisible, hud->isPause(), delta, postProcessing.get()
     );
