@@ -44,4 +44,7 @@ world.is_day() -> bool
 
 -- Checks if the current time is nighttime. From 0.833(8pm) to 0.333(8am).
 world.is_night() -> bool
+
+-- Returns the total number of chunks loaded into memory
+world.count_chunks() -> int
 ```
