@@ -86,11 +86,12 @@ void Lighting::buildSkyLight(int cx, int cz){
     solverS->solve();
 }
 
-void Lighting::onChunkLoaded(int cx, int cz, bool expand){
-    LightSolver* solverR = this->solverR.get();
-    LightSolver* solverG = this->solverG.get();
-    LightSolver* solverB = this->solverB.get();
-    LightSolver* solverS = this->solverS.get();
+
+void Lighting::onChunkLoaded(int cx, int cz, bool expand) {
+    auto& solverR = *this->solverR;
+    auto& solverG = *this->solverG;
+    auto& solverB = *this->solverB;
+    auto& solverS = *this->solverS;
 
     auto blockDefs = content->getIndices()->blocks.getDefs();
     auto chunk = chunks->getChunk(cx, cz);
@@ -103,9 +104,9 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
                 int gx = x + cx * CHUNK_W;
                 int gz = z + cz * CHUNK_D;
                 if (block->rt.emissive){
-                    solverR->add(gx,y,gz,block->emission[0]);
-                    solverG->add(gx,y,gz,block->emission[1]);
-                    solverB->add(gx,y,gz,block->emission[2]);
+                    solverR.add(gx,y,gz,block->emission[0]);
+                    solverG.add(gx,y,gz,block->emission[1]);
+                    solverB.add(gx,y,gz,block->emission[2]);
                 }
             }
         }
@@ -119,10 +120,10 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
                     int gz = z + cz * CHUNK_D;
                     int rgbs = chunk->lightmap.get(x, y, z);
                     if (rgbs){
-                        solverR->add(gx,y,gz, Lightmap::extract(rgbs, 0));
-                        solverG->add(gx,y,gz, Lightmap::extract(rgbs, 1));
-                        solverB->add(gx,y,gz, Lightmap::extract(rgbs, 2));
-                        solverS->add(gx,y,gz, Lightmap::extract(rgbs, 3));
+                        solverR.add(gx,y,gz, Lightmap::extract(rgbs, 0));
+                        solverG.add(gx,y,gz, Lightmap::extract(rgbs, 1));
+                        solverB.add(gx,y,gz, Lightmap::extract(rgbs, 2));
+                        solverS.add(gx,y,gz, Lightmap::extract(rgbs, 3));
                     }
                 }
             }
@@ -134,19 +135,19 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand){
                     int gz = z + cz * CHUNK_D;
                     int rgbs = chunk->lightmap.get(x, y, z);
                     if (rgbs){
-                        solverR->add(gx,y,gz, Lightmap::extract(rgbs, 0));
-                        solverG->add(gx,y,gz, Lightmap::extract(rgbs, 1));
-                        solverB->add(gx,y,gz, Lightmap::extract(rgbs, 2));
-                        solverS->add(gx,y,gz, Lightmap::extract(rgbs, 3));
+                        solverR.add(gx,y,gz, Lightmap::extract(rgbs, 0));
+                        solverG.add(gx,y,gz, Lightmap::extract(rgbs, 1));
+                        solverB.add(gx,y,gz, Lightmap::extract(rgbs, 2));
+                        solverS.add(gx,y,gz, Lightmap::extract(rgbs, 3));
                     }
                 }
             }
         }
     }
-    solverR->solve();
-    solverG->solve();
-    solverB->solve();
-    solverS->solve();
+    solverR.solve();
+    solverG.solve();
+    solverB.solve();
+    solverS.solve();
 }
 
 void Lighting::onBlockSet(int x, int y, int z, blockid_t id){

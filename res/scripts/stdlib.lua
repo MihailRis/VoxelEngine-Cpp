@@ -16,7 +16,19 @@ if test then
     test.open_world = core.open_world
     test.close_world = core.close_world
     test.reconfig_packs = core.reconfig_packs
+    test.set_setting = core.set_setting
     test.tick = coroutine.yield
+
+    function test.sleep_until(predicate, max_ticks)
+        max_ticks = max_ticks or 1e9
+        local ticks = 0
+        while ticks < max_ticks and not predicate() do
+            test.tick()
+        end
+        if ticks == max_ticks then
+            error("max ticks exceed")
+        end
+    end
 end
 
 ------------------------------------------------

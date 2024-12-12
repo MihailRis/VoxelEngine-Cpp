@@ -8,6 +8,7 @@
 #include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Players.hpp"
+#include "objects/Player.hpp"
 #include "physics/Hitbox.hpp"
 #include "scripting/scripting.hpp"
 #include "settings.hpp"
@@ -29,6 +30,18 @@ LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr
 }
 
 void LevelController::update(float delta, bool pause) {
+    for (const auto& [uid, player] : *level->players) {
+        glm::vec3 position = player->getPosition();
+        level->loadMatrix(
+            position.x,
+            position.z,
+            settings.chunks.loadDistance.get() + settings.chunks.padding.get() * 2
+        );
+        chunks->update(
+            settings.chunks.loadSpeed.get(), settings.chunks.loadDistance.get(),
+            floordiv(position.x, CHUNK_W), floordiv(position.z, CHUNK_D)
+        );
+    }
     if (!pause) {
         // update all objects that needed
         blocks->update(delta);

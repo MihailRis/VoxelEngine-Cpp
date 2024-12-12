@@ -17,4 +17,6 @@ public:
 
     std::shared_ptr<Chunk> fetch(int x, int z);
     std::shared_ptr<Chunk> create(int x, int z);
+
+    size_t size() const;
 };

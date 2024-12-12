@@ -13,6 +13,7 @@
 #include "lighting/Lighting.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
+#include "voxels/ChunksStorage.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
@@ -231,6 +232,13 @@ static int l_set_chunk_data(lua::State* L) {
     return 1;
 }
 
+static int l_count_chunks(lua::State* L) {
+    if (level == nullptr) {
+        return 0;
+    }
+    return lua::pushinteger(L, level->chunksStorage->size());
+}
+
 const luaL_Reg worldlib[] = {
     {"is_open", lua::wrap<l_is_open>},
     {"get_list", lua::wrap<l_get_list>},
@@ -246,5 +254,6 @@ const luaL_Reg worldlib[] = {
     {"exists", lua::wrap<l_exists>},
     {"get_chunk_data", lua::wrap<l_get_chunk_data>},
     {"set_chunk_data", lua::wrap<l_set_chunk_data>},
+    {"count_chunks", lua::wrap<l_count_chunks>},
     {NULL, NULL}
 };
