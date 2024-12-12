@@ -234,7 +234,12 @@ static int l_quit(lua::State*) {
     return 0;
 }
 
+static int l_blank(lua::State*) {
+    return 0;
+}
+
 const luaL_Reg corelib[] = {
+    {"nop", lua::wrap<l_blank>},
     {"get_version", lua::wrap<l_get_version>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
