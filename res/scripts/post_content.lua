@@ -7,7 +7,7 @@ local names = {
     "hidden", "draw-group", "picking-item", "surface-replacement", "script-name",
     "ui-layout", "inventory-size", "tick-interval", "overlay-texture",
     "translucent", "fields", "particles", "icon-type", "icon", "placing-block", 
-    "stack-size"
+    "stack-size", "name"
 }
 for name, _ in pairs(user_props) do
     table.insert(names, name)
@@ -40,3 +40,24 @@ make_read_only(block.properties)
 for k,v in pairs(block.properties) do
     make_read_only(v)
 end
+
+local function cache_names(library)
+    local indices = {}
+    local names = {}
+    for id=0,library.defs_count()-1 do
+        local name = library.properties[id].name
+        indices[name] = id
+        names[id] = name
+    end
+
+    function library.name(id)
+        return names[id]
+    end
+
+    function library.index(name)
+        return indices[name]
+    end
+end
+
+cache_names(block)
+cache_names(item)
