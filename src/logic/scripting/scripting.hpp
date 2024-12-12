@@ -118,6 +118,8 @@ namespace scripting {
     void on_aim_off(const Entity& entity, Player* player);
     void on_attacked(const Entity& entity, Player* player, entityid_t attacker);
     void on_entity_used(const Entity& entity, Player* player);
+    bool on_chunk_loaded(int chunk_x, int chunk_z);
+    bool on_chunk_unloaded(int chunk_x, int chunk_z);
 
     /// @brief Called on UI view show
     void on_ui_open(UiDocument* layout, std::vector<dv::value> args);

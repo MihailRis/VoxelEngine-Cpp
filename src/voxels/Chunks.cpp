@@ -24,6 +24,7 @@
 #include "Block.hpp"
 #include "Chunk.hpp"
 #include "voxel.hpp"
+#include "logic/scripting/scripting.hpp"
 
 Chunks::Chunks(
     int32_t w,
@@ -39,6 +40,7 @@ Chunks::Chunks(
       worldFiles(wfile) {
     areaMap.setCenter(ox-w/2, oz-d/2);
     areaMap.setOutCallback([this](int, int, const auto& chunk) {
+        scripting::on_chunk_unloaded(chunk->x, chunk->z);
         save(chunk.get());
         this->level->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
     });

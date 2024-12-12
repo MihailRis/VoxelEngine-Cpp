@@ -524,6 +524,22 @@ void scripting::on_entity_spawn(
     }
 }
 
+bool scripting::on_chunk_loaded(int chunk_x, int chunk_z) {
+    return lua::emit_event(lua::get_main_state(), "chunk_loaded", [chunk_x, chunk_z](auto L) {
+        lua::pushinteger(L, chunk_x);
+        lua::pushinteger(L, chunk_z);
+        return 2;
+    });
+}
+
+bool scripting::on_chunk_unloaded(int chunk_x, int chunk_z) {
+    return lua::emit_event(lua::get_main_state(), "chunk_unloaded", [chunk_x, chunk_z](auto L) {
+        lua::pushinteger(L, chunk_x);
+        lua::pushinteger(L, chunk_z);
+        return 2;
+    });
+}
+
 static void process_entity_callback(
     const scriptenv& env,
     const std::string& name,
@@ -800,6 +816,8 @@ void scripting::load_world_script(
     register_event(env, "on_world_tick", prefix + ":.worldtick");
     register_event(env, "on_world_save", prefix + ":.worldsave");
     register_event(env, "on_world_quit", prefix + ":.worldquit");
+    register_event(env, "on_chunk_loaded", "chunk_loaded");
+    register_event(env, "on_chunk_unloaded", "chunk_unloaded");
     funcsset.onblockplaced =
         register_event(env, "on_block_placed", prefix + ":.blockplaced");
     funcsset.onblockbroken =
@@ -810,6 +828,7 @@ void scripting::load_world_script(
         register_event(env, "on_block_interact", prefix + ":.blockinteract");
     funcsset.onplayertick =
         register_event(env, "on_player_tick", prefix + ":.playertick");
+
 }
 
 void scripting::load_layout_script(

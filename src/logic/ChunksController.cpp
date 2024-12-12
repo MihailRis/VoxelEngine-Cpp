@@ -18,6 +18,7 @@
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "world/generator/WorldGenerator.hpp"
+#include "scripting/scripting.hpp"
 
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;
@@ -132,4 +133,5 @@ void ChunksController::createChunk(int x, int z) {
     }
     chunkFlags.loaded = true;
     chunkFlags.ready = true;
+    scripting::on_chunk_loaded(x, z);
 }
