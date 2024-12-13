@@ -24,7 +24,7 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
             msystem: clang64
-            install: mingw-w64-clang-x86_64-toolchain mingw-w64-clang-x86_64-cmake
+            install: mingw-w64-clang-x86_64-toolchain mingw-w64-clang-x86_64-cmake git
       - name: Set up vcpkg
         shell: msys2 {0}
         run: |
