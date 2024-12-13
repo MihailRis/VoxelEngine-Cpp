@@ -29,7 +29,6 @@ inline long long keyfrom(int x, int z) {
 static debug::Logger logger("chunks-storage");
 
 ChunksStorage::ChunksStorage(Level* level) : level(level) {
-    chunksMap.max_load_factor(0.2f);
 }
 
 std::shared_ptr<Chunk> ChunksStorage::fetch(int x, int z) {
