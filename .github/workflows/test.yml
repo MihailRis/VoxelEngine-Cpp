@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: 'true'
       - name: Test
-        run: tree C://msys64/clang64/bin
+        run: tree C://msys64/bin
     #   - name: Add clang to PATH
     #     shell: bash
     #     run: echo "PATH=$PATH:C:\msys64\mingw64\bin" >> $GITHUB_ENV
