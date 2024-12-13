@@ -25,7 +25,7 @@ if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
   if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
     message(STATUS "Initializing and updating vcpkg submodule...")
     execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir vcpkg ./bootstrap-vcpkg.bat WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir vcpkg ./bootstrap-vcpkg.sh WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
 
   foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
