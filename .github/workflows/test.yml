@@ -28,7 +28,6 @@ jobs:
       - name: Set up vcpkg
         shell: msys2 {0}
         run: |
-              set VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
               git clone https://github.com/microsoft/vcpkg.git
               cd vcpkg
               ./bootstrap-vcpkg.bat
@@ -37,7 +36,6 @@ jobs:
       - name: Configure and build project with CMake and vcpkg
         shell: msys2 {0}
         run: |
-           set VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
            mkdir build
            cd build
-           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+           cmake -G "Unix Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
