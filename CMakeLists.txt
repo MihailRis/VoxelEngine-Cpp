@@ -11,6 +11,31 @@ option(VOXELENGINE_BUILD_TESTS OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
+  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
+    find_package(Git QUIET)
+    if(GIT_FOUND)
+      message(STATUS "Adding vcpkg as a git submodule...")
+      execute_process(COMMAND ${GIT_EXECUTABLE} submodule add https://github.com/microsoft/vcpkg.git vcpkg WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    else()
+      message(FATAL_ERROR "Git not found, cannot add vcpkg submodule.")
+    endif()
+  endif()
+
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
+    message(STATUS "Initializing and updating vcpkg submodule...")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir vcpkg ./bootstrap-vcpkg.bat WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+
+  foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${CONFIG_TYPE} CONFIG_TYPE_UPPER)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/${CONFIG_TYPE_UPPER}/res)
+  endforeach()
+endif()
+
 add_subdirectory(src)
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -39,31 +64,6 @@ else()
   if (CMAKE_BUILD_TYPE MATCHES "Debug")
     target_compile_options(${PROJECT_NAME} PRIVATE -Og)
   endif()
-endif()
-
-if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
-  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
-    find_package(Git QUIET)
-    if(GIT_FOUND)
-      message(STATUS "Adding vcpkg as a git submodule...")
-      execute_process(COMMAND ${GIT_EXECUTABLE} submodule add https://github.com/microsoft/vcpkg.git vcpkg WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    else()
-      message(FATAL_ERROR "Git not found, cannot add vcpkg submodule.")
-    endif()
-  endif()
-
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
-    message(STATUS "Initializing and updating vcpkg submodule...")
-    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir vcpkg ./bootstrap-vcpkg.bat WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  endif()
-
-  foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
-    string(TOUPPER ${CONFIG_TYPE} CONFIG_TYPE_UPPER)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/${CONFIG_TYPE_UPPER}/res)
-  endforeach()
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
