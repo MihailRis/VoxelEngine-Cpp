@@ -41,3 +41,4 @@ jobs:
            mkdir build
            cd build
            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+           cmake --build . --config Release
