@@ -1,4 +1,4 @@
-name: Test
+name: Windows Build (CLang)
 
 on:
   push:
@@ -28,17 +28,21 @@ jobs:
       - name: Set up vcpkg
         shell: msys2 {0}
         run: |
-              git clone https://github.com/microsoft/vcpkg.git
-              cd vcpkg
-              ./bootstrap-vcpkg.bat
-              ./vcpkg integrate install
-              cd ..
-      - name: Configure and build project with CMake and vcpkg
+            git clone https://github.com/microsoft/vcpkg.git
+            cd vcpkg
+            ./bootstrap-vcpkg.bat
+            ./vcpkg integrate install
+            cd ..
+      - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
         run: |
-           export VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
-           export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-dynamic
-           mkdir build
-           cd build
-           cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
-           cmake --build . --config Release
+            export VCPKG_DEFAULT_TRIPLET=x64-mingw-dynamic
+            export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-dynamic
+            mkdir build
+            cd build
+            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+      - name: Build project
+        shell: msys2 {0}
+        run: cmake --build . --config Release
+      - name: Check results
+        run: tree build
