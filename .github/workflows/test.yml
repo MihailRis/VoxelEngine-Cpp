@@ -2,7 +2,7 @@ name: Windows Build (CLang)
 
 on:
   push:
-    branches: [ "main", "release-**", "new-workflow"]
+    branches: [ "main", "release-**"]
   pull_request:
     branches: [ "main" ]
 
