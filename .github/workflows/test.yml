@@ -50,7 +50,11 @@ jobs:
       - name: Package for Windows
         run: |
           mkdir packaged
-          cp -r build/* packaged/
+          mkdir packaged/res
+          cp build/VoxelEngine.exe packaged/
+          cp build/vctest/vctest.exe packaged/
+          cp build/*.dll packaged/
+          cp -r build/res/* packaged/res/
           mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
         working-directory: ${{ github.workspace }}
       - uses: actions/upload-artifact@v4
