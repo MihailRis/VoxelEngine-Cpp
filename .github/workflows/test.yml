@@ -26,7 +26,7 @@ jobs:
             msystem: clang64
             install: mingw-w64-clang-x86_64-cmake
       - name: Configure and build project with CMake and vcpkg
-        shell: msys2
+        shell: msys2 {0}
         run: |
            mkdir build
            cd build
