@@ -38,4 +38,4 @@ jobs:
         run: |
            mkdir build
            cd build
-           cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+           cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
