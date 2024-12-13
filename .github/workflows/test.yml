@@ -21,12 +21,14 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'true'
-      - name: Add clang to PATH
-        shell: bash
-        run: echo "PATH=$PATH:C:\msys64\mingw64\bin" >> $GITHUB_ENV
-      - name: Configure and build project with CMake and vcpkg
-        shell: bash
-        run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_CXX_COMPILER=${{matrix.compiler}} -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+      - name: Test
+        run: tree C://msys64/clang64/bin
+    #   - name: Add clang to PATH
+    #     shell: bash
+    #     run: echo "PATH=$PATH:C:\msys64\mingw64\bin" >> $GITHUB_ENV
+    #   - name: Configure and build project with CMake and vcpkg
+    #     shell: bash
+    #     run: |
+    #       mkdir build
+    #       cd build
+    #       cmake -DCMAKE_CXX_COMPILER=${{matrix.compiler}} -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
