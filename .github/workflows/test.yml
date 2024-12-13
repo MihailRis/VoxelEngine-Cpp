@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir packaged
           cp -r build/* packaged/
-          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
+          mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
         working-directory: ${{ github.workspace }}
       - uses: actions/upload-artifact@v4
         with:
