@@ -24,7 +24,12 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
             msystem: clang64
-            install: mingw-w64-clang-x86_64-toolchain mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-make git tree
+            install: >-
+                mingw-w64-clang-x86_64-toolchain 
+                mingw-w64-clang-x86_64-cmake 
+                mingw-w64-clang-x86_64-make 
+                mingw-w64-clang-x86_64-luajit 
+                git tree
       - name: Set up vcpkg
         shell: msys2 {0}
         run: |
