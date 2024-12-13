@@ -22,6 +22,7 @@ jobs:
         with:
           submodules: 'true'
       - uses: msys2/setup-msys2@v2
+        id: msys2
         with:
             msystem: clang64
             install: >-
@@ -30,6 +31,9 @@ jobs:
                 mingw-w64-clang-x86_64-make 
                 mingw-w64-clang-x86_64-luajit 
                 git tree
+      - env:
+          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+        run: echo "$env:MSYS2_LOCATION"
       - name: Set up vcpkg
         shell: msys2 {0}
         run: |
