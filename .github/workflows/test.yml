@@ -47,5 +47,15 @@ jobs:
             cd build
             cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
             cmake --build . --config Release
-#      - name: Check results
-#        run: tree build
+      - name: Check results
+        run: tree build
+      - name: Package for Windows
+        run: |
+          mkdir packaged
+          cp -r build/* packaged/
+          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
+        working-directory: ${{ github.workspace }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Build
+          path: 'build/Release/*'
