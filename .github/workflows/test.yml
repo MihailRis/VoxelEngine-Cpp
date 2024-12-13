@@ -69,6 +69,7 @@ jobs:
           name: Windows-Build
           path: 'packaged/*'
       - name: Run engine tests
+        shell: msys2 {0}
         working-directory: ${{ github.workspace }}
         run: |
           packaged/vctest.exe -e packaged/VoxelCore.exe -d dev/tests -u build --output-always
