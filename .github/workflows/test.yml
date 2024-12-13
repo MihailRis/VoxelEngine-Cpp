@@ -1,0 +1,34 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main", "release-**", "new-workflow"]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-windows:
+
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            compiler: clang
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - name: Check if it real
+        run: tree C://msys64
+      - name: Add clang to PATH
+        shell: bash
+        run: echo "PATH=$PATH:C:\msys64\mingw64\bin CC=${{matrix.compiler}}" >> $GITHUB_ENV
+      - name: Configure and build project with CMake and vcpkg
+        shell: bash
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
