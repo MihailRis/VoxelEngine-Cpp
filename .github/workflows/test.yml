@@ -25,7 +25,9 @@ jobs:
         with:
             msystem: clang64
             install: mingw-w64-clang-x86_64-cmake
-      - run: tree C:\msys\mingw64\
+      - run: |
+         tree C:\msys64\mingw64\
+         tree ${{ github.workspace }}
       - name: Add clang to PATH
         shell: bash
         run: echo "PATH=$PATH:C:\msys64\mingw64\bin" >> $GITHUB_ENV
