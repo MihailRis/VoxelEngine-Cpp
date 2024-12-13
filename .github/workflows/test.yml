@@ -30,8 +30,8 @@ jobs:
         run: |
               git clone https://github.com/microsoft/vcpkg.git
               cd vcpkg
-              .\bootstrap-vcpkg.bat
-              .\vcpkg integrate install --
+              ./bootstrap-vcpkg.bat
+              ./vcpkg integrate install --
               cd ..
       - name: Configure and build project with CMake and vcpkg
         shell: msys2 {0}
