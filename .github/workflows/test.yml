@@ -25,6 +25,14 @@ jobs:
         with:
             msystem: clang64
             install: mingw-w64-clang-x86_64-toolchain mingw-w64-clang-x86_64-cmake
+      - name: Set up vcpkg
+        shell: msys2 {0}
+        run: |
+              git clone https://github.com/microsoft/vcpkg.git
+              cd vcpkg
+              .\bootstrap-vcpkg.bat
+              .\vcpkg integrate install --
+              cd ..
       - name: Configure and build project with CMake and vcpkg
         shell: msys2 {0}
         run: |
