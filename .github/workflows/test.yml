@@ -33,35 +33,36 @@ jobs:
                 git tree
       - env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
-        run: echo "$env:MSYS2_LOCATION"
-      - name: Set up vcpkg
-        shell: msys2 {0}
         run: |
-            git clone https://github.com/microsoft/vcpkg.git
-            cd vcpkg
-            ./bootstrap-vcpkg.bat
-            ./vcpkg integrate install
-            cd ..
-      - name: Configure project with CMake and vcpkg
-        shell: msys2 {0}
-        run: |
-            export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
-            export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
-            mkdir build
-            cd build
-            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
-            cmake --build . --config Release
-      - name: Package for Windows
-        run: |
-          mkdir packaged
-          mkdir packaged/res
-          cp build/VoxelEngine.exe packaged/
-          cp build/vctest/vctest.exe packaged/
-          cp build/*.dll packaged/
-          cp -r build/res/* packaged/res/
-          mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
-        working-directory: ${{ github.workspace }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Windows-Build
-          path: 'packaged/*'
+          tree "$env:MSYS2_LOCATION"
+    #   - name: Set up vcpkg
+    #     shell: msys2 {0}
+    #     run: |
+    #         git clone https://github.com/microsoft/vcpkg.git
+    #         cd vcpkg
+    #         ./bootstrap-vcpkg.bat
+    #         ./vcpkg integrate install
+    #         cd ..
+    #   - name: Configure project with CMake and vcpkg
+    #     shell: msys2 {0}
+    #     run: |
+    #         export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
+    #         export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
+    #         mkdir build
+    #         cd build
+    #         cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+    #         cmake --build . --config Release
+    #   - name: Package for Windows
+    #     run: |
+    #       mkdir packaged
+    #       mkdir packaged/res
+    #       cp build/VoxelEngine.exe packaged/
+    #       cp build/vctest/vctest.exe packaged/
+    #       cp build/*.dll packaged/
+    #       cp -r build/res/* packaged/res/
+    #       mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
+    #     working-directory: ${{ github.workspace }}
+    #   - uses: actions/upload-artifact@v4
+    #     with:
+    #       name: Windows-Build
+    #       path: 'packaged/*'
