@@ -86,7 +86,7 @@ WorldRenderer::WorldRenderer(
     auto& settings = engine->getSettings();
     level.events->listen(
         EVT_CHUNK_HIDDEN,
-        [this](lvl_event_type, Chunk* chunk) { chunks->unload(chunk); }
+        [this](LevelEventType, Chunk* chunk) { chunks->unload(chunk); }
     );
     auto assets = engine->getAssets();
     skybox = std::make_unique<Skybox>(

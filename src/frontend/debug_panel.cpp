@@ -21,6 +21,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
+#include "voxels/ChunksStorage.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
@@ -95,7 +96,7 @@ std::shared_ptr<UINode> create_debug_panel(
                std::to_wstring(ParticlesRenderer::aliveEmitters);
     }));
     panel->add(create_label([&]() {
-        return L"chunks: "+std::to_wstring(level.chunks->getChunksCount())+
+        return L"chunks: "+std::to_wstring(level.chunksStorage->size())+
                L" visible: "+std::to_wstring(ChunksRenderer::visibleChunks);
     }));
     panel->add(create_label([&]() {

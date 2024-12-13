@@ -124,8 +124,6 @@ public:
     void resize(uint32_t newW, uint32_t newD);
 
     void saveAndClear();
-    void save(Chunk* chunk);
-    void saveAll();
 
     const std::vector<std::shared_ptr<Chunk>>& getChunks() const {
         return areaMap.getBuffer();

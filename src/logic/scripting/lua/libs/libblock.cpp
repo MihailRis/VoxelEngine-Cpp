@@ -7,6 +7,7 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/voxel.hpp"
+#include "voxels/ChunksStorage.hpp"
 #include "world/Level.hpp"
 #include "maths/voxmaths.hpp"
 #include "data/StructLayout.hpp"
@@ -110,6 +111,15 @@ static int l_get(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto vox = level->chunks->get(x, y, z);
+    int id = vox == nullptr ? -1 : vox->id;
+    return lua::pushinteger(L, id);
+}
+
+static int l_get_slow(lua::State* L) {
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    auto vox = level->chunksStorage->get(x, y, z);
     int id = vox == nullptr ? -1 : vox->id;
     return lua::pushinteger(L, id);
 }
@@ -598,6 +608,7 @@ const luaL_Reg blocklib[] = {
     {"is_replaceable_at", lua::wrap<l_is_replaceable_at>},
     {"set", lua::wrap<l_set>},
     {"get", lua::wrap<l_get>},
+    {"get_slow", lua::wrap<l_get_slow>},
     {"get_X", lua::wrap<l_get_x>},
     {"get_Y", lua::wrap<l_get_y>},
     {"get_Z", lua::wrap<l_get_z>},

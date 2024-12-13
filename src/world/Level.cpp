@@ -54,12 +54,20 @@ Level::Level(
         entities->setNextID(worldInfo.nextEntityId);
     }
 
+    events->listen(LevelEventType::EVT_CHUNK_SHOWN, [this](LevelEventType, Chunk* chunk) {
+        chunksStorage->incref(chunk);
+    });
+    events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
+        chunksStorage->decref(chunk);
+    });
+
     uint matrixSize =
         (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
         2;
     chunks = std::make_unique<Chunks>(
         matrixSize, matrixSize, 0, 0, world->wfile.get(), this
     );
+
     lighting = std::make_unique<Lighting>(content, chunks.get());
 
     inventories = std::make_unique<Inventories>(*this);
