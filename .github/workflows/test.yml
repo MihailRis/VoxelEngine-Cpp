@@ -35,6 +35,7 @@ jobs:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
           cp $env:MSYS2_LOCATION/clang64/bin/lua51.dll ${{ github.workspace }}/
+          tree ${{ github.workspace }}/
     #   - name: Set up vcpkg
     #     shell: msys2 {0}
     #     run: |
