@@ -128,7 +128,7 @@ static int l_get_x(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    auto vox = level->chunks->get(x, y, z);
+    auto vox = level->chunksStorage->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushivec_stack(L, glm::ivec3(1, 0, 0));
     }
@@ -145,7 +145,7 @@ static int l_get_y(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    auto vox = level->chunks->get(x, y, z);
+    auto vox = level->chunksStorage->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushivec_stack(L, glm::ivec3(0, 1, 0));
     }
@@ -162,7 +162,7 @@ static int l_get_z(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    auto vox = level->chunks->get(x, y, z);
+    auto vox = level->chunksStorage->get(x, y, z);
     if (vox == nullptr) {
         return lua::pushivec_stack(L, glm::ivec3(0, 0, 1));
     }
@@ -179,7 +179,7 @@ static int l_get_rotation(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    voxel* vox = level->chunks->get(x, y, z);
+    voxel* vox = level->chunksStorage->get(x, y, z);
     int rotation = vox == nullptr ? 0 : vox->state.rotation;
     return lua::pushinteger(L, rotation);
 }
@@ -197,7 +197,7 @@ static int l_get_states(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    auto vox = level->chunks->get(x, y, z);
+    auto vox = level->chunksStorage->get(x, y, z);
     int states = vox == nullptr ? 0 : blockstate2int(vox->state);
     return lua::pushinteger(L, states);
 }
