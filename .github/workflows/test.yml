@@ -25,15 +25,9 @@ jobs:
         with:
             msystem: clang64
             install: mingw-w64-clang-x86_64-cmake
-      - run: |
-         tree C:\msys64\mingw64\
-         tree ${{ github.workspace }}
-      - name: Add clang to PATH
-        shell: bash
-        run: echo "PATH=$PATH:C:\msys64\mingw64\bin" >> $GITHUB_ENV
-    #   - name: Configure and build project with CMake and vcpkg
-    #     shell: bash
-    #     run: |
-    #        mkdir build
-    #        cd build
-    #        mingw-w64-cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
+      - name: Configure and build project with CMake and vcpkg
+        shell: msys2
+        run: |
+           mkdir build
+           cd build
+           mingw-w64-clang-x86_64-cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
