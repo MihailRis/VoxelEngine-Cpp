@@ -14,7 +14,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "world/generator/WorldGenerator.hpp"

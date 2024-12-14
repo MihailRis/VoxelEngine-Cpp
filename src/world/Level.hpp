@@ -15,7 +15,7 @@ class Inventories;
 class LevelEvents;
 class Lighting;
 class PhysicsSolver;
-class ChunksStorage;
+class GlobalChunks;
 class Camera;
 class Players;
 struct EngineSettings;
@@ -27,7 +27,7 @@ public:
     const Content* const content;
     
     std::unique_ptr<Chunks> chunks;
-    std::unique_ptr<ChunksStorage> chunksStorage;
+    std::unique_ptr<GlobalChunks> chunksStorage;
     std::unique_ptr<Inventories> inventories;
 
     std::unique_ptr<PhysicsSolver> physics;

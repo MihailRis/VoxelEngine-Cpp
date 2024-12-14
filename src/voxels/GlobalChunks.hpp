@@ -12,14 +12,14 @@
 class Chunk;
 class Level;
 
-class ChunksStorage {
+class GlobalChunks {
     Level* level;
     std::unordered_map<long long, std::shared_ptr<Chunk>> chunksMap;
     std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> pinnedChunks;
     std::unordered_map<ptrdiff_t, int> refCounters;
 public:
-    ChunksStorage(Level* level);
-    ~ChunksStorage() = default;
+    GlobalChunks(Level* level);
+    ~GlobalChunks() = default;
 
     std::shared_ptr<Chunk> fetch(int x, int z);
     std::shared_ptr<Chunk> create(int x, int z);

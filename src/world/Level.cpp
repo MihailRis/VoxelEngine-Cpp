@@ -13,7 +13,7 @@
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "window/Camera.hpp"
 #include "LevelEvents.hpp"
 #include "World.hpp"
@@ -25,7 +25,7 @@ Level::Level(
 )
     : world(std::move(worldPtr)),
       content(content),
-      chunksStorage(std::make_unique<ChunksStorage>(this)),
+      chunksStorage(std::make_unique<GlobalChunks>(this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),

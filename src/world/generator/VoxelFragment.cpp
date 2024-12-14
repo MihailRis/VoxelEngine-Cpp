@@ -8,7 +8,7 @@
 #include "content/Content.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/Block.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "voxels/VoxelsVolume.hpp"
 #include "world/Level.hpp"
 #include "core_defs.hpp"
