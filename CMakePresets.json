@@ -2,7 +2,7 @@
     "version": 6,
     "configurePresets": [
         {
-            "name": "windows-default",
+            "name": "default-windows",
             "condition": {
                 "type": "equals",
                 "rhs": "${hostSystemName}",

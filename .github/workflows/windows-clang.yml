@@ -1,8 +1,8 @@
 name: Windows Build (CLang)
 
 on:
-  push:
-    branches: [ "main", "release-**"]
+  # push:
+    # branches: [ "main", "release-**"]
   pull_request:
     branches: [ "main" ]
 
@@ -43,11 +43,12 @@ jobs:
       - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
         run: |
+            export VCPKG_ROOT=./vcpkg
             export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
             export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
             mkdir build
             cd build
-            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+            cmake --preset default-windows -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release ..
             cmake --build . --config Release
       - name: Package for Windows
         run: |
