@@ -15,7 +15,8 @@ entities.get(uid: int) -> table
 -- prefix - component pack id
 -- name - component name
 -- component prefix and name are separated with two underscores
-entities.spawn(name: str, pos: vec3, [optional] args: table)
+-- Returns an entity object
+entities.spawn(name: str, pos: vec3, [optional] args: table) -> table
 
 -- Checks the existence of an entity by a unique identifier.
 entities.exists(uid: int) -> bool
