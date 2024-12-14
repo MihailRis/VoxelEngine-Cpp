@@ -1,10 +1,10 @@
-name: Windows Build
+name: MSVC Build
 
 on:
   push:
     branches: [ "main", "release-**"]
   pull_request:
-    branches: [ "main", "headless-mode" ]
+    branches: [ "main" ]
 
 jobs:
   build-windows:

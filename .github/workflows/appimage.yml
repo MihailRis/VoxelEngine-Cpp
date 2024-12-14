@@ -1,4 +1,4 @@
-name: C/C++ AppImage
+name: x86-64 AppImage
 
 on:
   push:
