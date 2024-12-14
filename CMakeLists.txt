@@ -1,13 +1,8 @@
-option(VOXELENGINE_BUILD_WINDOWS_VCPKG ON)
-if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-  set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-endif()
-
 cmake_minimum_required(VERSION 3.15)
 project(VoxelEngine)
 
-option(VOXELENGINE_BUILD_APPDIR OFF)
-option(VOXELENGINE_BUILD_TESTS OFF)
+option(VOXELENGINE_BUILD_APPDIR "" OFF)
+option(VOXELENGINE_BUILD_TESTS "" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -44,30 +39,14 @@ else()
   endif()
 endif()
 
-if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
-  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
-    find_package(Git QUIET)
-    if(GIT_FOUND)
-      message(STATUS "Adding vcpkg as a git submodule...")
-      execute_process(COMMAND ${GIT_EXECUTABLE} submodule add https://github.com/microsoft/vcpkg.git vcpkg WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    else()
-      message(FATAL_ERROR "Git not found, cannot add vcpkg submodule.")
-    endif()
-  endif()
-
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/.git")
-    message(STATUS "Initializing and updating vcpkg submodule...")
-    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E chdir vcpkg ./bootstrap-vcpkg.bat WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-  endif()
-
-  foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
-    string(TOUPPER ${CONFIG_TYPE} CONFIG_TYPE_UPPER)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/${CONFIG_TYPE_UPPER}/res)
-  endforeach()
-endif()
+# if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
+#   foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
+#     string(TOUPPER ${CONFIG_TYPE} CONFIG_TYPE_UPPER)
+#     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#                        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#                        ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/${CONFIG_TYPE_UPPER}/res)
+#   endforeach()
+# endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie -lstdc++fs")
