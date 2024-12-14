@@ -8,8 +8,6 @@ list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/voxel_engine.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-option(VOXELENGINE_BUILD_WINDOWS_VCPKG ON)
-
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenAL REQUIRED)
@@ -22,8 +20,8 @@ endif()
 
 if (WIN32)
     if(VOXELENGINE_BUILD_WINDOWS_VCPKG)
-      set(LUA_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/../vcpkg/packages/luajit_x64-windows/lib/lua51.lib")
-      set(LUA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../vcpkg/packages/luajit_x64-windows/include/luajit")
+      set(LUA_LIBRARIES "${CMAKE_SOURCE_DIR}/vcpkg/packages/luajit_x64-windows/lib/lua51.lib")
+      set(LUA_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/vcpkg/packages/luajit_x64-windows/include/luajit")
       find_package(glfw3 REQUIRED)
       find_package(glm REQUIRED)
       find_package(vorbis REQUIRED)
