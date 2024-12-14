@@ -116,9 +116,6 @@ cd VoxelEngine-Cpp
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
-del CMakeCache.txt
-rmdir /s /q CMakeFiles
-cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
 cmake --build . --config Release
 ```
 
