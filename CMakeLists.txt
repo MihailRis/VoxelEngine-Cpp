@@ -39,15 +39,6 @@ else()
   endif()
 endif()
 
-if(VOXELENGINE_BUILD_WINDOWS_VCPKG AND WIN32)
-  foreach(CONFIG_TYPE ${CMAKE_CONFIGURATION_TYPES})
-    string(TOUPPER ${CONFIG_TYPE} CONFIG_TYPE_UPPER)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                       COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/res ${CMAKE_BINARY_DIR}/${CONFIG_TYPE_UPPER}/res)
-  endforeach()
-endif()
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie -lstdc++fs")
 endif()
