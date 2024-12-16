@@ -107,6 +107,13 @@ inline bool is_replaceable_at(const Storage& chunks, int32_t x, int32_t y, int32
     return false;
 }
 
+/// @brief Set block at specified position if voxel exists.
+/// @param chunks chunks matrix
+/// @param x block position X
+/// @param y block position Y
+/// @param z block position Z
+/// @param id new block id
+/// @param state new block state
 void set(
     Chunks& chunks,
     int32_t x,
@@ -116,6 +123,13 @@ void set(
     blockstate state
 );
 
+/// @brief Set block at specified position if voxel exists.
+/// @param chunks chunks storage
+/// @param x block position X
+/// @param y block position Y
+/// @param z block position Z
+/// @param id new block id
+/// @param state new block state
 void set(
     GlobalChunks& chunks,
     int32_t x,
@@ -376,6 +390,16 @@ inline void set_rotation(
     }
 }
 
+/// @brief Cast ray to a selectable block with filter based on id.
+/// @param chunks chunks matrix
+/// @param start ray start position
+/// @param dir normalized ray direction vector
+/// @param maxDist maximum ray length
+/// @param end [out] ray end position
+/// @param norm [out] surface normal vector
+/// @param iend [out] ray end integer position (voxel position + normal)
+/// @param filter filtered ids
+/// @return voxel pointer or nullptr
 voxel* raycast(
     const Chunks& chunks,
     const glm::vec3& start,
@@ -387,6 +411,16 @@ voxel* raycast(
     std::set<blockid_t> filter
 );
 
+/// @brief Cast ray to a selectable block with filter based on id.
+/// @param chunks chunks storage
+/// @param start ray start position
+/// @param dir normalized ray direction vector
+/// @param maxDist maximum ray length
+/// @param end [out] ray end position
+/// @param norm [out] surface normal vector
+/// @param iend [out] ray end integer position (voxel position + normal)
+/// @param filter filtered ids
+/// @return voxel pointer or nullptr
 voxel* raycast(
     const GlobalChunks& chunks,
     const glm::vec3& start,
