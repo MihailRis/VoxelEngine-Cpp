@@ -160,23 +160,7 @@ Chunk* Chunks::getChunk(int x, int z) const {
 glm::ivec3 Chunks::seekOrigin(
     const glm::ivec3& srcpos, const Block& def, blockstate state
 ) const {
-    auto pos = srcpos;
-    const auto& rotation = def.rotations.variants[state.rotation];
-    auto segment = state.segment;
-    while (true) {
-        if (!segment) {
-            return pos;
-        }
-        if (segment & 1) pos -= rotation.axisX;
-        if (segment & 2) pos -= rotation.axisY;
-        if (segment & 4) pos -= rotation.axisZ;
-
-        if (auto* voxel = get(pos.x, pos.y, pos.z)) {
-            segment = voxel->state.segment;
-        } else {
-            return pos;
-        }
-    }
+    return blocks_agent::seek_origin(*this, srcpos, def, state);
 }
 
 void Chunks::eraseSegments(

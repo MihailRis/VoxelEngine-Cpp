@@ -70,7 +70,7 @@ static int l_is_segment(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    const auto& vox = level->chunks->require(x, y, z);
+    const auto& vox = blocks_agent::require(*level->chunksStorage, x, y, z);
     return lua::pushboolean(L, vox.state.segment);
 }
 
@@ -78,10 +78,13 @@ static int l_seek_origin(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    const auto& vox = level->chunks->require(x, y, z);
+    const auto& vox = blocks_agent::require(*level->chunksStorage, x, y, z);
     auto& def = indices->blocks.require(vox.id);
     return lua::pushivec_stack(
-        L, level->chunks->seekOrigin({x, y, z}, def, vox.state)
+        L,
+        blocks_agent::seek_origin(
+            *level->chunksStorage, {x, y, z}, def, vox.state
+        )
     );
 }
 
@@ -198,13 +201,18 @@ static int l_set_states(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto states = lua::tointeger(L, 4);
-
-    auto chunk = level->chunks->getChunkByVoxel(x, y, z);
+    if (y < 0 || y >= CHUNK_H) {
+        return 0;
+    }
+    int cx = floordiv<CHUNK_W>(x);
+    int cz = floordiv<CHUNK_D>(z);
+    auto chunk = blocks_agent::get_chunk(*level->chunksStorage, cx, cz);
     if (chunk == nullptr) {
         return 0;
     }
-    auto vox = level->chunks->get(x, y, z);
-    vox->state = int2blockstate(states);
+    int lx = x - cx * CHUNK_W;
+    int lz = z - cz * CHUNK_D;
+    chunk->voxels[vox_index(lx, y, lz)].state = int2blockstate(states);
     chunk->setModifiedAndUnsaved();
     return 0;
 }
@@ -223,7 +231,9 @@ static int l_get_user_bits(lua::State* L) {
     }
     const auto& def = content->getIndices()->blocks.require(vox->id);
     if (def.rt.extended) {
-        auto origin = level->chunks->seekOrigin({x, y, z}, def, vox->state);
+        auto origin = blocks_agent::seek_origin(
+            *level->chunksStorage, {x, y, z}, def, vox->state
+        );
         vox = level->chunks->get(origin.x, origin.y, origin.z);
         if (vox == nullptr) {
             return lua::pushinteger(L, 0);

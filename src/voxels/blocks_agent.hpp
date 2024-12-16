@@ -11,6 +11,7 @@
 #include "maths/voxmaths.hpp"
 
 #include <stdexcept>
+#include <glm/glm.hpp>
 
 /// Using templates to minimize OOP overhead
 
@@ -132,6 +133,29 @@ inline void repair_segments(
                 pos += rotation.axisZ * sz;
                 set(chunks, pos.x, pos.y, pos.z, id, segState);
             }
+        }
+    }
+}
+
+template <class Storage>
+inline glm::ivec3 seek_origin(
+    Storage& chunks, const glm::ivec3& srcpos, const Block& def, blockstate state
+) {
+    auto pos = srcpos;
+    const auto& rotation = def.rotations.variants[state.rotation];
+    auto segment = state.segment;
+    while (true) {
+        if (!segment) {
+            return pos;
+        }
+        if (segment & 1) pos -= rotation.axisX;
+        if (segment & 2) pos -= rotation.axisY;
+        if (segment & 4) pos -= rotation.axisZ;
+
+        if (auto* voxel = get(chunks, pos.x, pos.y, pos.z)) {
+            segment = voxel->state.segment;
+        } else {
+            return pos;
         }
     }
 }
