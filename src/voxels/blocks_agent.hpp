@@ -1,5 +1,7 @@
 #pragma once
 
+/// blocks_agent is set of templates but not a class to minimize OOP overhead.
+
 #include "voxel.hpp"
 #include "Block.hpp"
 #include "Chunk.hpp"
@@ -11,18 +13,31 @@
 #include "maths/voxmaths.hpp"
 
 #include <set>
+#include <stdint.h>
 #include <stdexcept>
 #include <glm/glm.hpp>
 
-/// Using templates to minimize OOP overhead
-
 namespace blocks_agent {
 
+/// @brief Get specified chunk.
+/// @tparam Storage 
+/// @param chunks 
+/// @param cx chunk grid position X
+/// @param cz chunk grid position Z
+/// @return chunk or nullptr if does not exists
 template<class Storage>
 inline Chunk* get_chunk(const Storage& chunks, int cx, int cz) {
     return chunks.getChunk(cx, cz);
 }
 
+/// @brief Get voxel at specified position.
+/// Returns nullptr if voxel does not exists. 
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param x position X
+/// @param y position Y
+/// @param z position Z
+/// @return voxel pointer or nullptr
 template<class Storage>
 inline voxel* get(const Storage& chunks, int32_t x, int32_t y, int32_t z) {
     if (y < 0 || y >= CHUNK_H) {
@@ -39,6 +54,14 @@ inline voxel* get(const Storage& chunks, int32_t x, int32_t y, int32_t z) {
     return &chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
 }
 
+/// @brief Get voxel at specified position.
+/// @throws std::runtime_error if voxel does not exists
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param x position X
+/// @param y position Y
+/// @param z position Z
+/// @return voxel reference
 template<class Storage>
 inline voxel& require(const Storage& chunks, int32_t x, int32_t y, int32_t z) {
     auto vox = get(chunks, x, y, z);
@@ -53,6 +76,14 @@ inline const Block& get_block_def(const Storage& chunks, blockid_t id) {
     return chunks.getContentIndices().blocks.require(id);
 }
 
+
+/// @brief Check if block at specified position is solid.
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param x position X
+/// @param y position Y
+/// @param z position Z
+/// @return true if block exists and solid
 template<class Storage>
 inline bool is_solid_at(const Storage& chunks, int32_t x, int32_t y, int32_t z) {
     if (auto vox = get(chunks, x, y, z)) {
@@ -61,6 +92,13 @@ inline bool is_solid_at(const Storage& chunks, int32_t x, int32_t y, int32_t z) 
     return false;
 }
 
+/// @brief Check if block at specified position is replaceable.
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param x position X
+/// @param y position Y
+/// @param z position Z
+/// @return true if block exists and replaceable
 template<class Storage>
 inline bool is_replaceable_at(const Storage& chunks, int32_t x, int32_t y, int32_t z) {
     if (auto vox = get(chunks, x, y, z)) {
@@ -87,6 +125,14 @@ void set(
     blockstate state
 );
 
+/// @brief Erase extended block segments
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param def origin block definition
+/// @param state origin block state
+/// @param x origin position X
+/// @param y origin position Y
+/// @param z origin position Z
 template<class Storage>
 inline void erase_segments(
     Storage& chunks, const Block& def, blockstate state, int x, int y, int z
@@ -108,10 +154,23 @@ inline void erase_segments(
     }
 }
 
-static constexpr uint8_t segment_to_int(int sx, int sy, int sz) {
+/// @brief Convert segment offset to segment bits
+/// @param sx segment offset X
+/// @param sy segment offset Y
+/// @param sz segment offset Z
+/// @return segment bits
+static constexpr inline uint8_t segment_to_int(int sx, int sy, int sz) {
     return ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
 }
 
+/// @brief Restore invalid extended block segments
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param def origin block definition
+/// @param state origin block state
+/// @param x origin position X
+/// @param y origin position Y
+/// @param z origin position Z
 template <class Storage>
 inline void repair_segments(
     Storage& chunks, const Block& def, blockstate state, int x, int y, int z
