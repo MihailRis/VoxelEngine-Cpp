@@ -23,6 +23,7 @@
 #include "Block.hpp"
 #include "Chunk.hpp"
 #include "voxel.hpp"
+#include "blocks_agent.hpp"
 
 Chunks::Chunks(
     int32_t w,
@@ -33,7 +34,7 @@ Chunks::Chunks(
     Level* level
 )
     : level(level),
-      indices(level->content->getIndices()),
+      indices(level ? level->content->getIndices() : nullptr),
       areaMap(w, d),
       worldFiles(wfile) {
     areaMap.setCenter(ox-w/2, oz-d/2);
@@ -43,30 +44,11 @@ Chunks::Chunks(
 }
 
 voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
-    if (y < 0 || y >= CHUNK_H) {
-        return nullptr;
-    }
-    int cx = floordiv<CHUNK_W>(x);
-    int cz = floordiv<CHUNK_D>(z);
-    auto ptr = areaMap.getIf(cx, cz);
-    if (ptr == nullptr) {
-        return nullptr;
-    }
-    Chunk* chunk = ptr->get();
-    if (chunk == nullptr) {
-        return nullptr;
-    }
-    int lx = x - cx * CHUNK_W;
-    int lz = z - cz * CHUNK_D;
-    return &chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
+    return blocks_agent::get(*this, x, y, z);
 }
 
 voxel& Chunks::require(int32_t x, int32_t y, int32_t z) const {
-    auto voxel = get(x, y, z);
-    if (voxel == nullptr) {
-        throw std::runtime_error("voxel does not exist");
-    }
-    return *voxel;
+    return blocks_agent::require(*this, x, y, z);
 }
 
 const AABB* Chunks::isObstacleAt(float x, float y, float z) const {
@@ -103,9 +85,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z) const {
 }
 
 bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
-    voxel* v = get(x, y, z);
-    if (v == nullptr) return false;
-    return indices->blocks.require(v->id).rt.solid;
+    return blocks_agent::is_solid_at(*this, x, y, z);
 }
 
 bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {

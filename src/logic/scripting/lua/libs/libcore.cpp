@@ -16,6 +16,7 @@
 #include "logic/EngineController.hpp"
 #include "logic/LevelController.hpp"
 #include "util/listutil.hpp"
+#include "util/platform.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
@@ -220,8 +221,6 @@ static int l_load_texture(lua::State* L) {
     return 0;
 }
 
-#include "util/platform.hpp"
-
 static int l_open_folder(lua::State* L) {
     auto path = engine->getPaths()->resolve(lua::require_string(L, 1));
     platform::open_folder(path);
@@ -239,7 +238,7 @@ static int l_blank(lua::State*) {
 }
 
 const luaL_Reg corelib[] = {
-    {"nop", lua::wrap<l_blank>},
+    {"blank", lua::wrap<l_blank>},
     {"get_version", lua::wrap<l_get_version>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
