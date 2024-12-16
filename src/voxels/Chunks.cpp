@@ -89,9 +89,7 @@ bool Chunks::isSolidBlock(int32_t x, int32_t y, int32_t z) {
 }
 
 bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
-    voxel* v = get(x, y, z);
-    if (v == nullptr) return false;
-    return indices->blocks.require(v->id).replaceable;
+    return blocks_agent::is_replaceable_at(*this, x, y, z);
 }
 
 bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
@@ -184,50 +182,13 @@ glm::ivec3 Chunks::seekOrigin(
 void Chunks::eraseSegments(
     const Block& def, blockstate state, int x, int y, int z
 ) {
-    const auto& rotation = def.rotations.variants[state.rotation];
-    for (int sy = 0; sy < def.size.y; sy++) {
-        for (int sz = 0; sz < def.size.z; sz++) {
-            for (int sx = 0; sx < def.size.x; sx++) {
-                if ((sx | sy | sz) == 0) {
-                    continue;
-                }
-                glm::ivec3 pos(x, y, z);
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
-                set(pos.x, pos.y, pos.z, 0, {});
-            }
-        }
-    }
-}
-
-static constexpr uint8_t segment_to_int(int sx, int sy, int sz) {
-    return ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+    blocks_agent::erase_segments(*this, def, state, x, y, z);
 }
 
 void Chunks::repairSegments(
     const Block& def, blockstate state, int x, int y, int z
 ) {
-    const auto& rotation = def.rotations.variants[state.rotation];
-    const auto id = def.rt.id;
-    const auto size = def.size;
-    for (int sy = 0; sy < size.y; sy++) {
-        for (int sz = 0; sz < size.z; sz++) {
-            for (int sx = 0; sx < size.x; sx++) {
-                if ((sx | sy | sz) == 0) {
-                    continue;
-                }
-                blockstate segState = state;
-                segState.segment = segment_to_int(sx, sy, sz);
-
-                glm::ivec3 pos(x, y, z);
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
-                set(pos.x, pos.y, pos.z, id, segState);
-            }
-        }
-    }
+    blocks_agent::repair_segments(*this, def, state, x, y, z);
 }
 
 bool Chunks::checkReplaceability(
@@ -283,7 +244,7 @@ void Chunks::setRotationExtended(
                 pos += rotation.axisZ * sz;
 
                 blockstate segState = newstate;
-                segState.segment = segment_to_int(sx, sy, sz);
+                segState.segment = blocks_agent::segment_to_int(sx, sy, sz);
 
                 auto vox = get(pos);
                 // checked for nullptr by checkReplaceability
@@ -344,68 +305,7 @@ void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
 void Chunks::set(
     int32_t x, int32_t y, int32_t z, uint32_t id, blockstate state
 ) {
-    if (y < 0 || y >= CHUNK_H) {
-        return;
-    }
-    int cx = floordiv<CHUNK_W>(x);
-    int cz = floordiv<CHUNK_D>(z);
-    auto ptr = areaMap.getIf(cx, cz);
-    if (ptr == nullptr) {
-        return;
-    }
-    Chunk* chunk = ptr->get();
-    if (chunk == nullptr) {
-        return;
-    }
-    int lx = x - cx * CHUNK_W;
-    int lz = z - cz * CHUNK_D;
-    size_t index = vox_index(lx, y, lz);
-
-    // block finalization
-    voxel& vox = chunk->voxels[(y * CHUNK_D + lz) * CHUNK_W + lx];
-    const auto& prevdef = indices->blocks.require(vox.id);
-    if (prevdef.inventorySize != 0) {
-        chunk->removeBlockInventory(lx, y, lz);
-    }
-    if (prevdef.rt.extended && !vox.state.segment) {
-        eraseSegments(prevdef, vox.state, x, y, z);
-    }
-    if (prevdef.dataStruct) {
-        if (auto found = chunk->blocksMetadata.find(index)) {
-            chunk->blocksMetadata.free(found);
-            chunk->flags.unsaved = true;
-            chunk->flags.blocksData = true;
-        }
-    }
-
-    // block initialization
-    const auto& newdef = indices->blocks.require(id);
-    vox.id = id;
-    vox.state = state;
-    chunk->setModifiedAndUnsaved();
-    if (!state.segment && newdef.rt.extended) {
-        repairSegments(newdef, state, x, y, z);
-    }
-
-    if (y < chunk->bottom)
-        chunk->bottom = y;
-    else if (y + 1 > chunk->top)
-        chunk->top = y + 1;
-    else if (id == 0)
-        chunk->updateHeights();
-
-    if (lx == 0 && (chunk = getChunk(cx - 1, cz))) {
-        chunk->flags.modified = true;
-    }
-    if (lz == 0 && (chunk = getChunk(cx, cz - 1))) {
-        chunk->flags.modified = true;
-    }
-    if (lx == CHUNK_W - 1 && (chunk = getChunk(cx + 1, cz))) {
-        chunk->flags.modified = true;
-    }
-    if (lz == CHUNK_D - 1 && (chunk = getChunk(cx, cz + 1))) {
-        chunk->flags.modified = true;
-    }
+    blocks_agent::set(*this, x, y, z, id, state);
 }
 
 voxel* Chunks::rayCast(
@@ -652,6 +552,7 @@ void Chunks::resize(uint32_t newW, uint32_t newD) {
 
 bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     if (areaMap.set(chunk->x, chunk->z, chunk)) {
+        if (level)
         level->events->trigger(LevelEventType::EVT_CHUNK_SHOWN, chunk.get());
         return true;
     }

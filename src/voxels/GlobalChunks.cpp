@@ -16,16 +16,6 @@
 #include "Block.hpp"
 #include "Chunk.hpp"
 
-inline uint64_t keyfrom(int32_t x, int32_t z) {
-    union {
-        int32_t pos[2];
-        uint64_t key;
-    } ekey;
-    ekey.pos[0] = x;
-    ekey.pos[1] = z;
-    return ekey.key;
-}
-
 static debug::Logger logger("chunks-storage");
 
 GlobalChunks::GlobalChunks(Level* level)
@@ -207,12 +197,4 @@ void GlobalChunks::saveAll() {
 
 void GlobalChunks::putChunk(std::shared_ptr<Chunk> chunk) {
     chunksMap[keyfrom(chunk->x, chunk->z)] = std::move(chunk);
-}
-
-Chunk* GlobalChunks::getChunk(int cx, int cz) const {
-    const auto& found = chunksMap.find(keyfrom(cx, cz));
-    if (found == chunksMap.end()) {
-        return nullptr;
-    }
-    return found->second.get();
 }

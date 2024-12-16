@@ -1,12 +1,16 @@
 #pragma once
 
 #include "voxel.hpp"
+#include "Block.hpp"
+#include "Chunk.hpp"
+#include "Chunks.hpp"
+#include "GlobalChunks.hpp"
+#include "constants.hpp"
 #include "typedefs.hpp"
+#include "content/Content.hpp"
 #include "maths/voxmaths.hpp"
 
-class Chunk;
-class Chunks;
-class GlobalChunks;
+#include <stdexcept>
 
 /// Using templates to minimize OOP overhead
 
@@ -53,6 +57,83 @@ inline bool is_solid_at(const Storage& chunks, int32_t x, int32_t y, int32_t z) 
         return get_block_def(chunks, vox->id).rt.solid;
     }
     return false;
+}
+
+template<class Storage>
+inline bool is_replaceable_at(const Storage& chunks, int32_t x, int32_t y, int32_t z) {
+    if (auto vox = get(chunks, x, y, z)) {
+        return get_block_def(chunks, vox->id).replaceable;
+    }
+    return false;
+}
+
+void set(
+    Chunks& chunks,
+    int32_t x,
+    int32_t y,
+    int32_t z,
+    uint32_t id,
+    blockstate state
+);
+
+void set(
+    GlobalChunks& chunks,
+    int32_t x,
+    int32_t y,
+    int32_t z,
+    uint32_t id,
+    blockstate state
+);
+
+template<class Storage>
+inline void erase_segments(
+    Storage& chunks, const Block& def, blockstate state, int x, int y, int z
+) {
+    const auto& rotation = def.rotations.variants[state.rotation];
+    for (int sy = 0; sy < def.size.y; sy++) {
+        for (int sz = 0; sz < def.size.z; sz++) {
+            for (int sx = 0; sx < def.size.x; sx++) {
+                if ((sx | sy | sz) == 0) {
+                    continue;
+                }
+                glm::ivec3 pos(x, y, z);
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                set(chunks, pos.x, pos.y, pos.z, 0, {});
+            }
+        }
+    }
+}
+
+static constexpr uint8_t segment_to_int(int sx, int sy, int sz) {
+    return ((sx > 0) | ((sy > 0) << 1) | ((sz > 0) << 2));
+}
+
+template <class Storage>
+inline void repair_segments(
+    Storage& chunks, const Block& def, blockstate state, int x, int y, int z
+) {
+    const auto& rotation = def.rotations.variants[state.rotation];
+    const auto id = def.rt.id;
+    const auto size = def.size;
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                if ((sx | sy | sz) == 0) {
+                    continue;
+                }
+                blockstate segState = state;
+                segState.segment = segment_to_int(sx, sy, sz);
+
+                glm::ivec3 pos(x, y, z);
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                set(chunks, pos.x, pos.y, pos.z, id, segState);
+            }
+        }
+    }
 }
 
 } // blocks_agent

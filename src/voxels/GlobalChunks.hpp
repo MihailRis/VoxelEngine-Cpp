@@ -14,6 +14,16 @@ class Level;
 class ContentIndices;
 
 class GlobalChunks {
+    static inline uint64_t keyfrom(int32_t x, int32_t z) {
+        union {
+            int32_t pos[2];
+            uint64_t key;
+        } ekey;
+        ekey.pos[0] = x;
+        ekey.pos[1] = z;
+        return ekey.key;
+    }
+
     Level* level;
     const ContentIndices* indices;
     std::unordered_map<uint64_t, std::shared_ptr<Chunk>> chunksMap;
@@ -41,7 +51,13 @@ public:
 
     void putChunk(std::shared_ptr<Chunk> chunk);
 
-    Chunk* getChunk(int cx, int cz) const;
+    inline Chunk* getChunk(int cx, int cz) const {
+        const auto& found = chunksMap.find(keyfrom(cx, cz));
+        if (found == chunksMap.end()) {
+            return nullptr;
+        }
+        return found->second.get();
+    }
 
     const ContentIndices& getContentIndices() const {
         return *indices;

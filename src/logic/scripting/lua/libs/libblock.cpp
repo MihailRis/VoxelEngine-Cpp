@@ -98,7 +98,7 @@ static int l_set(lua::State* L) {
     if (!level->chunks->get(x, y, z)) {
         return 0;
     }
-    level->chunks->set(x, y, z, id, int2blockstate(state));
+    blocks_agent::set(*level->chunksStorage, x, y, z, id, int2blockstate(state));
     level->lighting->onBlockSet(x, y, z, id);
     if (!noupdate) {
         blocks->updateSides(x, y, z);
@@ -269,7 +269,9 @@ static int l_is_replaceable_at(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    return lua::pushboolean(L, level->chunks->isReplaceableBlock(x, y, z));
+    return lua::pushboolean(
+        L, blocks_agent::is_replaceable_at(*level->chunksStorage, x, y, z)
+    );
 }
 
 static int l_caption(lua::State* L) {
