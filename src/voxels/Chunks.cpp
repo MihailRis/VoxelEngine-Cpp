@@ -181,109 +181,17 @@ bool Chunks::checkReplaceability(
     const glm::ivec3& origin,
     blockid_t ignore
 ) {
-    const auto& rotation = def.rotations.variants[state.rotation];
-    const auto size = def.size;
-    for (int sy = 0; sy < size.y; sy++) {
-        for (int sz = 0; sz < size.z; sz++) {
-            for (int sx = 0; sx < size.x; sx++) {
-                auto pos = origin;
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
-                if (auto vox = get(pos.x, pos.y, pos.z)) {
-                    auto& target = indices->blocks.require(vox->id);
-                    if (!target.replaceable && vox->id != ignore) {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
+    return blocks_agent::check_replaceability(*this, def, state, origin, ignore);
 }
 
 void Chunks::setRotationExtended(
     const Block& def, blockstate state, const glm::ivec3& origin, uint8_t index
 ) {
-    auto newstate = state;
-    newstate.rotation = index;
-
-    // unable to rotate block (cause: obstacles)
-    if (!checkReplaceability(def, newstate, origin, def.rt.id)) {
-        return;
-    }
-
-    const auto& rotation = def.rotations.variants[index];
-    const auto size = def.size;
-    std::vector<glm::ivec3> segmentBlocks;
-
-    for (int sy = 0; sy < size.y; sy++) {
-        for (int sz = 0; sz < size.z; sz++) {
-            for (int sx = 0; sx < size.x; sx++) {
-                auto pos = origin;
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
-
-                blockstate segState = newstate;
-                segState.segment = blocks_agent::segment_to_int(sx, sy, sz);
-
-                auto vox = get(pos);
-                // checked for nullptr by checkReplaceability
-                if (vox->id != def.rt.id) {
-                    set(pos.x, pos.y, pos.z, def.rt.id, segState);
-                } else {
-                    vox->state = segState;
-                    auto chunk = getChunkByVoxel(pos.x, pos.y, pos.z);
-                    assert(chunk != nullptr);
-                    chunk->setModifiedAndUnsaved();
-                    segmentBlocks.emplace_back(pos);
-                }
-            }
-        }
-    }
-    const auto& prevRotation = def.rotations.variants[state.rotation];
-    for (int sy = 0; sy < size.y; sy++) {
-        for (int sz = 0; sz < size.z; sz++) {
-            for (int sx = 0; sx < size.x; sx++) {
-                auto pos = origin;
-                pos += prevRotation.axisX * sx;
-                pos += prevRotation.axisY * sy;
-                pos += prevRotation.axisZ * sz;
-                if (std::find(
-                        segmentBlocks.begin(), segmentBlocks.end(), pos
-                    ) == segmentBlocks.end()) {
-                    set(pos.x, pos.y, pos.z, 0, {});
-                }
-            }
-        }
-    }
+    blocks_agent::set_rotation_extended(*this, def, state, origin, index);
 }
 
 void Chunks::setRotation(int32_t x, int32_t y, int32_t z, uint8_t index) {
-    if (index >= BlockRotProfile::MAX_COUNT) {
-        return;
-    }
-    auto vox = get(x, y, z);
-    if (vox == nullptr) {
-        return;
-    }
-    auto& def = indices->blocks.require(vox->id);
-    if (!def.rotatable || vox->state.rotation == index) {
-        return;
-    }
-    if (def.rt.extended) {
-        auto origin = seekOrigin({x, y, z}, def, vox->state);
-        vox = get(origin);
-        setRotationExtended(def, vox->state, origin, index);
-    } else {
-        vox->state.rotation = index;
-        auto chunk = getChunkByVoxel(x, y, z);
-        assert(chunk != nullptr);
-        chunk->setModifiedAndUnsaved();
-    }
+    return blocks_agent::set_rotation(*this, x, y, z, index);
 }
 
 void Chunks::set(
@@ -301,134 +209,9 @@ voxel* Chunks::rayCast(
     glm::ivec3& iend,
     std::set<blockid_t> filter
 ) const {
-    float px = start.x;
-    float py = start.y;
-    float pz = start.z;
-
-    float dx = dir.x;
-    float dy = dir.y;
-    float dz = dir.z;
-
-    float t = 0.0f;
-    int ix = std::floor(px);
-    int iy = std::floor(py);
-    int iz = std::floor(pz);
-
-    int stepx = (dx > 0.0f) ? 1 : -1;
-    int stepy = (dy > 0.0f) ? 1 : -1;
-    int stepz = (dz > 0.0f) ? 1 : -1;
-
-    constexpr float infinity = std::numeric_limits<float>::infinity();
-    constexpr float epsilon = 1e-6f;  // 0.000001
-    float txDelta = (std::fabs(dx) < epsilon) ? infinity : std::fabs(1.0f / dx);
-    float tyDelta = (std::fabs(dy) < epsilon) ? infinity : std::fabs(1.0f / dy);
-    float tzDelta = (std::fabs(dz) < epsilon) ? infinity : std::fabs(1.0f / dz);
-
-    float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
-    float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
-    float zdist = (stepz > 0) ? (iz + 1 - pz) : (pz - iz);
-
-    float txMax = (txDelta < infinity) ? txDelta * xdist : infinity;
-    float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
-    float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
-
-    int steppedIndex = -1;
-
-    while (t <= maxDist) {
-        voxel* voxel = get(ix, iy, iz);
-        if (voxel == nullptr) {
-            return nullptr;
-        }
-
-        const auto& def = indices->blocks.require(voxel->id);
-        if ((filter.empty() && def.selectable) ||
-            (!filter.empty() && filter.find(def.rt.id) == filter.end())) {
-            end.x = px + t * dx;
-            end.y = py + t * dy;
-            end.z = pz + t * dz;
-            iend.x = ix;
-            iend.y = iy;
-            iend.z = iz;
-
-            if (!def.rt.solid) {
-                const std::vector<AABB>& hitboxes =
-                    def.rotatable ? def.rt.hitboxes[voxel->state.rotation]
-                                  : def.hitboxes;
-
-                scalar_t distance = maxDist;
-                Ray ray(start, dir);
-
-                bool hit = false;
-
-                glm::vec3 offset {};
-                if (voxel->state.segment) {
-                    offset = seekOrigin(iend, def, voxel->state) - iend;
-                }
-
-                for (auto box : hitboxes) {
-                    box.a += offset;
-                    box.b += offset;
-                    scalar_t boxDistance;
-                    glm::ivec3 boxNorm;
-                    if (ray.intersectAABB(
-                            iend, box, maxDist, boxNorm, boxDistance
-                        ) > RayRelation::None &&
-                        boxDistance < distance) {
-                        hit = true;
-                        distance = boxDistance;
-                        norm = boxNorm;
-                        end = start + (dir * glm::vec3(distance));
-                    }
-                }
-
-                if (hit) return voxel;
-            } else {
-                iend.x = ix;
-                iend.y = iy;
-                iend.z = iz;
-
-                norm.x = norm.y = norm.z = 0;
-                if (steppedIndex == 0) norm.x = -stepx;
-                if (steppedIndex == 1) norm.y = -stepy;
-                if (steppedIndex == 2) norm.z = -stepz;
-                return voxel;
-            }
-        }
-        if (txMax < tyMax) {
-            if (txMax < tzMax) {
-                ix += stepx;
-                t = txMax;
-                txMax += txDelta;
-                steppedIndex = 0;
-            } else {
-                iz += stepz;
-                t = tzMax;
-                tzMax += tzDelta;
-                steppedIndex = 2;
-            }
-        } else {
-            if (tyMax < tzMax) {
-                iy += stepy;
-                t = tyMax;
-                tyMax += tyDelta;
-                steppedIndex = 1;
-            } else {
-                iz += stepz;
-                t = tzMax;
-                tzMax += tzDelta;
-                steppedIndex = 2;
-            }
-        }
-    }
-    iend.x = ix;
-    iend.y = iy;
-    iend.z = iz;
-
-    end.x = px + t * dx;
-    end.y = py + t * dy;
-    end.z = pz + t * dz;
-    norm.x = norm.y = norm.z = 0;
-    return nullptr;
+    return blocks_agent::raycast(
+        *this, start, dir, maxDist, end, norm, iend, std::move(filter)
+    );
 }
 
 glm::vec3 Chunks::rayCastToObstacle(

@@ -10,6 +10,7 @@
 #include "content/Content.hpp"
 #include "maths/voxmaths.hpp"
 
+#include <set>
 #include <stdexcept>
 #include <glm/glm.hpp>
 
@@ -159,5 +160,159 @@ inline glm::ivec3 seek_origin(
         }
     }
 }
+
+template <class Storage>
+inline bool check_replaceability(
+    const Storage& chunks,
+    const Block& def,
+    blockstate state,
+    const glm::ivec3& origin,
+    blockid_t ignore
+) {
+    const auto& blocks = chunks.getContentIndices().blocks;
+    const auto& rotation = def.rotations.variants[state.rotation];
+    const auto size = def.size;
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+                if (auto vox = get(chunks, pos.x, pos.y, pos.z)) {
+                    auto& target = blocks.require(vox->id);
+                    if (!target.replaceable && vox->id != ignore) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+/// @brief Set rotation to an extended block
+/// @tparam Storage chunks storage
+/// @param def block definition
+/// @param state current block state
+/// @param origin extended block origin
+/// @param index target rotation index
+template <class Storage>
+inline void set_rotation_extended(
+    Storage& chunks,
+    const Block& def,
+    blockstate state,
+    const glm::ivec3& origin,
+    uint8_t index
+) {
+    auto newstate = state;
+    newstate.rotation = index;
+
+    // unable to rotate block (cause: obstacles)
+    if (!check_replaceability(chunks, def, newstate, origin, def.rt.id)) {
+        return;
+    }
+
+    const auto& rotation = def.rotations.variants[index];
+    const auto size = def.size;
+    std::vector<glm::ivec3> segmentBlocks;
+
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += rotation.axisX * sx;
+                pos += rotation.axisY * sy;
+                pos += rotation.axisZ * sz;
+
+                blockstate segState = newstate;
+                segState.segment = segment_to_int(sx, sy, sz);
+
+                auto vox = get(chunks, pos.x, pos.y, pos.z);
+                // checked for nullptr by checkReplaceability
+                if (vox->id != def.rt.id) {
+                    set(chunks, pos.x, pos.y, pos.z, def.rt.id, segState);
+                } else {
+                    vox->state = segState;
+                    int cx = floordiv<CHUNK_W>(pos.x);
+                    int cz = floordiv<CHUNK_D>(pos.z);
+                    auto chunk = get_chunk(chunks, cx, cz);
+                    assert(chunk != nullptr);
+                    chunk->setModifiedAndUnsaved();
+                    segmentBlocks.emplace_back(pos);
+                }
+            }
+        }
+    }
+    const auto& prevRotation = def.rotations.variants[state.rotation];
+    for (int sy = 0; sy < size.y; sy++) {
+        for (int sz = 0; sz < size.z; sz++) {
+            for (int sx = 0; sx < size.x; sx++) {
+                auto pos = origin;
+                pos += prevRotation.axisX * sx;
+                pos += prevRotation.axisY * sy;
+                pos += prevRotation.axisZ * sz;
+                if (std::find(
+                        segmentBlocks.begin(), segmentBlocks.end(), pos
+                    ) == segmentBlocks.end()) {
+                    set(chunks, pos.x, pos.y, pos.z, 0, {});
+                }
+            }
+        }
+    }
+}
+
+template <class Storage>
+inline void set_rotation(
+    Storage& chunks, int32_t x, int32_t y, int32_t z, uint8_t index
+) {
+    if (index >= BlockRotProfile::MAX_COUNT) {
+        return;
+    }
+    auto vox = get(chunks, x, y, z);
+    if (vox == nullptr) {
+        return;
+    }
+    const auto& def = chunks.getContentIndices().blocks.require(vox->id);
+    if (!def.rotatable || vox->state.rotation == index) {
+        return;
+    }
+    if (def.rt.extended) {
+        auto origin = seek_origin(chunks, {x, y, z}, def, vox->state);
+        vox = get(chunks, origin.x, origin.y, origin.z);
+        set_rotation_extended(chunks, def, vox->state, origin, index);
+    } else {
+        vox->state.rotation = index;
+        int cx = floordiv<CHUNK_W>(x);
+        int cz = floordiv<CHUNK_D>(z);
+        auto chunk = get_chunk(chunks, cx, cz);
+        assert(chunk != nullptr);
+        chunk->setModifiedAndUnsaved();
+    }
+}
+
+voxel* raycast(
+    const Chunks& chunks,
+    const glm::vec3& start,
+    const glm::vec3& dir,
+    float maxDist,
+    glm::vec3& end,
+    glm::ivec3& norm,
+    glm::ivec3& iend,
+    std::set<blockid_t> filter
+);
+
+voxel* raycast(
+    const GlobalChunks& chunks,
+    const glm::vec3& start,
+    const glm::vec3& dir,
+    float maxDist,
+    glm::vec3& end,
+    glm::ivec3& norm,
+    glm::ivec3& iend,
+    std::set<blockid_t> filter
+);
 
 } // blocks_agent

@@ -1,5 +1,9 @@
 #include "blocks_agent.hpp"
 
+#include "maths/rays.hpp"
+
+#include <limits>
+
 using namespace blocks_agent;
 
 template <class Storage>
@@ -92,4 +96,172 @@ void blocks_agent::set(
     blockstate state
 ) {
     set_block(chunks, x, y, z, id, state);
+}
+
+template <class Storage>
+static inline voxel* raycast_blocks(
+    const Storage& chunks,
+    const glm::vec3& start,
+    const glm::vec3& dir,
+    float maxDist,
+    glm::vec3& end,
+    glm::ivec3& norm,
+    glm::ivec3& iend,
+    std::set<blockid_t> filter
+) {
+    const auto& blocks = chunks.getContentIndices().blocks;
+    float px = start.x;
+    float py = start.y;
+    float pz = start.z;
+
+    float dx = dir.x;
+    float dy = dir.y;
+    float dz = dir.z;
+
+    float t = 0.0f;
+    int ix = std::floor(px);
+    int iy = std::floor(py);
+    int iz = std::floor(pz);
+
+    int stepx = (dx > 0.0f) ? 1 : -1;
+    int stepy = (dy > 0.0f) ? 1 : -1;
+    int stepz = (dz > 0.0f) ? 1 : -1;
+
+    constexpr float infinity = std::numeric_limits<float>::infinity();
+    constexpr float epsilon = 1e-6f;  // 0.000001
+    float txDelta = (std::fabs(dx) < epsilon) ? infinity : std::fabs(1.0f / dx);
+    float tyDelta = (std::fabs(dy) < epsilon) ? infinity : std::fabs(1.0f / dy);
+    float tzDelta = (std::fabs(dz) < epsilon) ? infinity : std::fabs(1.0f / dz);
+
+    float xdist = (stepx > 0) ? (ix + 1 - px) : (px - ix);
+    float ydist = (stepy > 0) ? (iy + 1 - py) : (py - iy);
+    float zdist = (stepz > 0) ? (iz + 1 - pz) : (pz - iz);
+
+    float txMax = (txDelta < infinity) ? txDelta * xdist : infinity;
+    float tyMax = (tyDelta < infinity) ? tyDelta * ydist : infinity;
+    float tzMax = (tzDelta < infinity) ? tzDelta * zdist : infinity;
+
+    int steppedIndex = -1;
+
+    while (t <= maxDist) {
+        voxel* voxel = get(chunks, ix, iy, iz);
+        if (voxel == nullptr) {
+            return nullptr;
+        }
+
+        const auto& def = blocks.require(voxel->id);
+        if ((filter.empty() && def.selectable) ||
+            (!filter.empty() && filter.find(def.rt.id) == filter.end())) {
+            end.x = px + t * dx;
+            end.y = py + t * dy;
+            end.z = pz + t * dz;
+            iend.x = ix;
+            iend.y = iy;
+            iend.z = iz;
+
+            if (!def.rt.solid) {
+                const std::vector<AABB>& hitboxes =
+                    def.rotatable ? def.rt.hitboxes[voxel->state.rotation]
+                                  : def.hitboxes;
+
+                scalar_t distance = maxDist;
+                Ray ray(start, dir);
+
+                bool hit = false;
+
+                glm::vec3 offset {};
+                if (voxel->state.segment) {
+                    offset = seek_origin(chunks, iend, def, voxel->state) - iend;
+                }
+
+                for (auto box : hitboxes) {
+                    box.a += offset;
+                    box.b += offset;
+                    scalar_t boxDistance;
+                    glm::ivec3 boxNorm;
+                    if (ray.intersectAABB(
+                            iend, box, maxDist, boxNorm, boxDistance
+                        ) > RayRelation::None &&
+                        boxDistance < distance) {
+                        hit = true;
+                        distance = boxDistance;
+                        norm = boxNorm;
+                        end = start + (dir * glm::vec3(distance));
+                    }
+                }
+
+                if (hit) return voxel;
+            } else {
+                iend.x = ix;
+                iend.y = iy;
+                iend.z = iz;
+
+                norm.x = norm.y = norm.z = 0;
+                if (steppedIndex == 0) norm.x = -stepx;
+                if (steppedIndex == 1) norm.y = -stepy;
+                if (steppedIndex == 2) norm.z = -stepz;
+                return voxel;
+            }
+        }
+        if (txMax < tyMax) {
+            if (txMax < tzMax) {
+                ix += stepx;
+                t = txMax;
+                txMax += txDelta;
+                steppedIndex = 0;
+            } else {
+                iz += stepz;
+                t = tzMax;
+                tzMax += tzDelta;
+                steppedIndex = 2;
+            }
+        } else {
+            if (tyMax < tzMax) {
+                iy += stepy;
+                t = tyMax;
+                tyMax += tyDelta;
+                steppedIndex = 1;
+            } else {
+                iz += stepz;
+                t = tzMax;
+                tzMax += tzDelta;
+                steppedIndex = 2;
+            }
+        }
+    }
+    iend.x = ix;
+    iend.y = iy;
+    iend.z = iz;
+
+    end.x = px + t * dx;
+    end.y = py + t * dy;
+    end.z = pz + t * dz;
+    norm.x = norm.y = norm.z = 0;
+    return nullptr;
+}
+
+voxel* blocks_agent::raycast(
+    const Chunks& chunks,
+    const glm::vec3& start,
+    const glm::vec3& dir,
+    float maxDist,
+    glm::vec3& end,
+    glm::ivec3& norm,
+    glm::ivec3& iend,
+    std::set<blockid_t> filter
+) {
+    return raycast_blocks(chunks, start, dir, maxDist, end, norm, iend, filter);
+}
+
+voxel* blocks_agent::raycast(
+    const GlobalChunks& chunks,
+    const glm::vec3& start,
+    const glm::vec3& dir,
+    float maxDist,
+    glm::vec3& end,
+    glm::ivec3& norm,
+    glm::ivec3& iend,
+    std::set<blockid_t> filter
+) {
+    return raycast_blocks(chunks, start, dir, maxDist, end, norm, iend, filter);
 }

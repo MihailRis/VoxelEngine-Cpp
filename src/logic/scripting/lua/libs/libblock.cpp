@@ -98,7 +98,9 @@ static int l_set(lua::State* L) {
     if (static_cast<size_t>(id) >= indices->blocks.count()) {
         return 0;
     }
-    if (!level->chunks->get(x, y, z)) {
+    int cx = floordiv<CHUNK_W>(x);
+    int cz = floordiv<CHUNK_D>(z);
+    if (!blocks_agent::get_chunk(*level->chunksStorage, cx, cz)) {
         return 0;
     }
     blocks_agent::set(*level->chunksStorage, x, y, z, id, int2blockstate(state));
@@ -183,7 +185,7 @@ static int l_set_rotation(lua::State* L) {
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
     auto value = lua::tointeger(L, 4);
-    level->chunks->setRotation(x, y, z, value);
+    blocks_agent::set_rotation(*level->chunksStorage, x, y, z, value);
     return 0;
 }
 
@@ -234,7 +236,9 @@ static int l_get_user_bits(lua::State* L) {
         auto origin = blocks_agent::seek_origin(
             *level->chunksStorage, {x, y, z}, def, vox->state
         );
-        vox = level->chunks->get(origin.x, origin.y, origin.z);
+        vox = blocks_agent::get(
+            *level->chunksStorage, origin.x, origin.y, origin.z
+        );
         if (vox == nullptr) {
             return lua::pushinteger(L, 0);
         }
@@ -245,6 +249,7 @@ static int l_get_user_bits(lua::State* L) {
 }
 
 static int l_set_user_bits(lua::State* L) {
+    auto& chunks = *level->chunksStorage;
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
@@ -254,18 +259,19 @@ static int l_set_user_bits(lua::State* L) {
     size_t mask = ((1 << bits) - 1) << offset;
     auto value = (lua::tointeger(L, 6) << offset) & mask;
 
-    auto chunk = level->chunks->getChunkByVoxel(x, y, z);
-    if (chunk == nullptr) {
+    int cx = floordiv<CHUNK_W>(x);
+    int cz = floordiv<CHUNK_D>(z);
+    auto chunk = blocks_agent::get_chunk(chunks, cx, cz);
+    if (chunk == nullptr || y < 0 || y >= CHUNK_H) {
         return 0;
     }
-    auto vox = level->chunks->get(x, y, z);
-    if (vox == nullptr) {
-        return 0;
-    }
+    int lx = x - cx * CHUNK_W;
+    int lz = z - cz * CHUNK_D;
+    auto vox = &chunk->voxels[vox_index(lx, y, lz)];
     const auto& def = content->getIndices()->blocks.require(vox->id);
     if (def.rt.extended) {
-        auto origin = level->chunks->seekOrigin({x, y, z}, def, vox->state);
-        vox = level->chunks->get(origin);
+        auto origin = blocks_agent::seek_origin(chunks, {x, y, z}, def, vox->state);
+        vox = blocks_agent::get(chunks, origin.x, origin.y, origin.z);
         if (vox == nullptr) {
             return 0;
         }
@@ -410,8 +416,15 @@ static int l_raycast(lua::State* L) {
     glm::vec3 end;
     glm::ivec3 normal;
     glm::ivec3 iend;
-    if (auto voxel = level->chunks->rayCast(
-            start, dir, maxDistance, end, normal, iend, filteredBlocks
+    if (auto voxel = blocks_agent::raycast(
+            *level->chunksStorage,
+            start,
+            dir,
+            maxDistance,
+            end,
+            normal,
+            iend,
+            filteredBlocks
         )) {
         if (lua::gettop(L) >= 4 && !lua::isnil(L, 4)) {
             lua::pushvalue(L, 4);
