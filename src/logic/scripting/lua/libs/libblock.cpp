@@ -120,6 +120,15 @@ static int l_get(lua::State* L) {
     return lua::pushinteger(L, id);
 }
 
+static int l_get_fast(lua::State* L) {
+    auto x = lua::tointeger(L, 1);
+    auto y = lua::tointeger(L, 2);
+    auto z = lua::tointeger(L, 3);
+    auto vox = blocks_agent::get(*level->chunks, x, y, z);
+    int id = vox == nullptr ? -1 : vox->id;
+    return lua::pushinteger(L, id);
+}
+
 static int l_get_x(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
@@ -629,6 +638,7 @@ const luaL_Reg blocklib[] = {
     {"is_solid_at", lua::wrap<l_is_solid_at>},
     {"is_replaceable_at", lua::wrap<l_is_replaceable_at>},
     {"set", lua::wrap<l_set>},
+    {"get_fast", lua::wrap<l_get_fast>},
     {"get", lua::wrap<l_get>},
     {"get_X", lua::wrap<l_get_x>},
     {"get_Y", lua::wrap<l_get_y>},
