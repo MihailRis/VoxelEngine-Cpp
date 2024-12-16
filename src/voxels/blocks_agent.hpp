@@ -138,6 +138,14 @@ inline void repair_segments(
     }
 }
 
+/// @brief Get origin position for specified extended block. Returns srcpos
+/// if block is not extended.
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param srcpos block segment position
+/// @param def definition of the block at srcpos
+/// @param state state of the block at srcpos
+/// @return origin block position
 template <class Storage>
 inline glm::ivec3 seek_origin(
     Storage& chunks, const glm::ivec3& srcpos, const Block& def, blockstate state
@@ -161,6 +169,14 @@ inline glm::ivec3 seek_origin(
     }
 }
 
+/// @brief Check blocks replaceability with specified block
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param def block definition
+/// @param state target block state
+/// @param origin target block origin
+/// @param ignore ignored block id
+/// @return true if specified area may be replaced with the block/extended block
 template <class Storage>
 inline bool check_replaceability(
     const Storage& chunks,
@@ -194,7 +210,8 @@ inline bool check_replaceability(
 }
 
 /// @brief Set rotation to an extended block
-/// @tparam Storage chunks storage
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
 /// @param def block definition
 /// @param state current block state
 /// @param origin extended block origin
@@ -264,6 +281,13 @@ inline void set_rotation_extended(
     }
 }
 
+/// @brief Set block rotation
+/// @tparam Storage chunks storage class
+/// @param chunks chunks storage
+/// @param x block X position
+/// @param y block Y position
+/// @param z block Z position
+/// @param index target rotation index
 template <class Storage>
 inline void set_rotation(
     Storage& chunks, int32_t x, int32_t y, int32_t z, uint8_t index
