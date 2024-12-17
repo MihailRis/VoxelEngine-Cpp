@@ -27,7 +27,7 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
     if (crop) {
         VoxelsVolume volume(size.x, size.y, size.z);
         volume.setPosition(start.x, start.y, start.z);
-        blocks_agent::get_voxels(*level.chunksStorage, &volume);
+        blocks_agent::get_voxels(*level.chunks, &volume);
 
         auto end = start + size;
 
@@ -52,7 +52,7 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
 
     VoxelsVolume volume(size.x, size.y, size.z);
     volume.setPosition(start.x, start.y, start.z);
-    blocks_agent::get_voxels(*level.chunksStorage, &volume);
+    blocks_agent::get_voxels(*level.chunks, &volume);
 
     auto volVoxels = volume.getVoxels();
     std::vector<voxel> voxels(size.x * size.y * size.z);

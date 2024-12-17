@@ -21,7 +21,7 @@
 
 BlocksController::BlocksController(const Level& level, Lighting* lighting, uint padding)
     : level(level),
-      chunks(*level.chunksStorage),
+      chunks(*level.chunks),
       lighting(lighting),
       randTickClock(20, 3),
       blocksTickClock(20, 1),

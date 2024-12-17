@@ -24,7 +24,7 @@ Level::Level(
     : settings(settings),
       world(std::move(worldPtr)),
       content(content),
-      chunksStorage(std::make_unique<GlobalChunks>(this)),
+      chunks(std::make_unique<GlobalChunks>(this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),
@@ -53,10 +53,10 @@ Level::Level(
     }
 
     events->listen(LevelEventType::EVT_CHUNK_SHOWN, [this](LevelEventType, Chunk* chunk) {
-        chunksStorage->incref(chunk);
+        chunks->incref(chunk);
     });
     events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
-        chunksStorage->decref(chunk);
+        chunks->decref(chunk);
     });
     inventories = std::make_unique<Inventories>(*this);
 }

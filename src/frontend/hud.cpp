@@ -296,7 +296,7 @@ void Hud::updateWorldGenDebugVisualization() {
             data[(flippedZ * width + x) * 4 + 1] = 
                 chunks.getChunk(ax + ox, az + oz) ? 255 : 0;
             data[(flippedZ * width + x) * 4 + 0] = 
-                level.chunksStorage->fetch(ax + ox, az + oz) ? 255 : 0;
+                level.chunks->fetch(ax + ox, az + oz) ? 255 : 0;
 
             if (ax < 0 || az < 0 || 
                 ax >= areaWidth || az >= areaHeight) {

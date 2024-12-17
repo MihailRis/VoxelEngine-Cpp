@@ -124,7 +124,7 @@ bool ChunksController::buildLights(const Player& player, const std::shared_ptr<C
 }
 
 void ChunksController::createChunk(const Player& player, int x, int z) const {
-    auto chunk = level.chunksStorage->create(x, z);
+    auto chunk = level.chunks->create(x, z);
     player.chunks->putChunk(chunk);
     auto& chunkFlags = chunk->flags;
 

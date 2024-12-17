@@ -125,7 +125,7 @@ static int l_get_generator(lua::State* L) {
 static int l_get_chunk_data(lua::State* L) {
     int x = (int)lua::tointeger(L, 1);
     int y = (int)lua::tointeger(L, 2);
-    const auto& chunk = level->chunksStorage->getChunk(x, y);
+    const auto& chunk = level->chunks->getChunk(x, y);
     if (chunk == nullptr) {
         lua::pushnil(L);
         return 0;
@@ -181,7 +181,7 @@ static int l_set_chunk_data(lua::State* L) {
     if (lua::gettop(L) >= 4) {
         is_compressed = lua::toboolean(L, 4);
     }
-    auto chunk = level->chunksStorage->getChunk(x, y);
+    auto chunk = level->chunks->getChunk(x, y);
     if (chunk == nullptr) {
         return 0;
     }
@@ -217,22 +217,22 @@ static int l_set_chunk_data(lua::State* L) {
     chunk->flags.modified = true;
     lighting.onChunkLoaded(x, y, true);
 
-    chunk = level->chunksStorage->getChunk(x - 1, y);
+    chunk = level->chunks->getChunk(x - 1, y);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
         lighting.onChunkLoaded(x - 1, y, true);
     }
-    chunk = level->chunksStorage->getChunk(x + 1, y);
+    chunk = level->chunks->getChunk(x + 1, y);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
         lighting.onChunkLoaded(x + 1, y, true);
     }
-    chunk = level->chunksStorage->getChunk(x, y - 1);
+    chunk = level->chunks->getChunk(x, y - 1);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
         lighting.onChunkLoaded(x, y - 1, true);
     }
-    chunk = level->chunksStorage->getChunk(x, y + 1);
+    chunk = level->chunks->getChunk(x, y + 1);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
         lighting.onChunkLoaded(x, y + 1, true);
@@ -245,7 +245,7 @@ static int l_count_chunks(lua::State* L) {
     if (level == nullptr) {
         return 0;
     }
-    return lua::pushinteger(L, level->chunksStorage->size());
+    return lua::pushinteger(L, level->chunks->size());
 }
 
 const luaL_Reg worldlib[] = {

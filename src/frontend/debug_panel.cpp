@@ -96,7 +96,7 @@ std::shared_ptr<UINode> create_debug_panel(
                std::to_wstring(ParticlesRenderer::aliveEmitters);
     }));
     panel->add(create_label([&]() {
-        return L"chunks: "+std::to_wstring(level.chunksStorage->size())+
+        return L"chunks: "+std::to_wstring(level.chunks->size())+
                L" visible: "+std::to_wstring(ChunksRenderer::visibleChunks);
     }));
     panel->add(create_label([&]() {

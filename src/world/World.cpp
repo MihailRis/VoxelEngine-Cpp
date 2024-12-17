@@ -66,7 +66,7 @@ void World::writeResources(const Content* content) {
 
 void World::write(Level* level) {
     const Content* content = level->content;
-    level->chunksStorage->saveAll();
+    level->chunks->saveAll();
     info.nextEntityId = level->entities->peekNextID();
     wfile->write(this, content);
 
