@@ -36,7 +36,7 @@
 #include "window/Window.hpp"
 #include "world/Level.hpp"
 #include "Mainloop.hpp"
-#include "TestMainloop.hpp"
+#include "ServerMainloop.hpp"
 
 #include <iostream>
 #include <assert.h>
@@ -173,7 +173,7 @@ void Engine::saveScreenshot() {
 
 void Engine::run() {
     if (params.headless) {
-        TestMainloop(*this).run();
+        ServerMainloop(*this).run();
     } else {
         Mainloop(*this).run();
     }

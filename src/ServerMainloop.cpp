@@ -1,4 +1,4 @@
-#include "TestMainloop.hpp"
+#include "ServerMainloop.hpp"
 
 #include "logic/scripting/scripting.hpp"
 #include "logic/LevelController.hpp"
@@ -6,22 +6,27 @@
 #include "debug/Logger.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "util/platform.hpp"
 #include "engine.hpp"
+
+#include <chrono>
+
+using namespace std::chrono;
 
 static debug::Logger logger("mainloop");
 
 inline constexpr int TPS = 20;
 
-TestMainloop::TestMainloop(Engine& engine) : engine(engine) {
+ServerMainloop::ServerMainloop(Engine& engine) : engine(engine) {
 }
 
-TestMainloop::~TestMainloop() = default;
+ServerMainloop::~ServerMainloop() = default;
 
-void TestMainloop::run() {
+void ServerMainloop::run() {
     const auto& coreParams = engine.getCoreParameters();
     auto& time = engine.getTime();
 
-    if (coreParams.testFile.empty()) {
+    if (coreParams.scriptFile.empty()) {
         logger.info() << "nothing to do";
         return;
     }
@@ -29,21 +34,34 @@ void TestMainloop::run() {
         setLevel(std::move(level));
     });
 
-    logger.info() << "starting test " << coreParams.testFile;
-    auto process = scripting::start_coroutine(coreParams.testFile);
+    logger.info() << "starting test " << coreParams.scriptFile;
+    auto process = scripting::start_coroutine(coreParams.scriptFile);
+
+    double targetDelta = 1.0f / static_cast<float>(TPS);
+    double delta = targetDelta;
+    auto begin = steady_clock::now();
     while (process->isActive()) {
-        time.step(1.0f / static_cast<float>(TPS));
+        time.step(delta);
         process->update();
         if (controller) {
             float delta = time.getDelta();
             controller->getLevel()->getWorld()->updateTimers(delta);
             controller->update(glm::min(delta, 0.2f), false);
         }
+
+        if (!coreParams.testMode) {
+            auto end = steady_clock::now();
+            platform::sleep(targetDelta * 1000 - 
+                duration_cast<microseconds>(end - begin).count() / 1000);
+            end = steady_clock::now();
+            delta = duration_cast<microseconds>(end - begin).count() / 1e6;
+            begin = end;
+        }
     }
     logger.info() << "test finished";
 }
 
-void TestMainloop::setLevel(std::unique_ptr<Level> level) {
+void ServerMainloop::setLevel(std::unique_ptr<Level> level) {
     if (level == nullptr) {
         controller->onWorldQuit();
         engine.getPaths()->setCurrentWorldFolder(fs::path());

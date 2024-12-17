@@ -48,9 +48,10 @@ public:
 
 struct CoreParameters {
     bool headless = false;
+    bool testMode = false;
     std::filesystem::path resFolder {"res"};
     std::filesystem::path userFolder {"."};
-    std::filesystem::path testFile;
+    std::filesystem::path scriptFile;
 };
 
 class Engine : public util::ObjectsKeeper {

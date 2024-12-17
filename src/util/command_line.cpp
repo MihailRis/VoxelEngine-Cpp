@@ -19,19 +19,30 @@ static bool perform_keyword(
         auto token = reader.next();
         params.userFolder = fs::u8path(token);
     } else if (keyword == "--help" || keyword == "-h") {
-        std::cout << "VoxelEngine command-line arguments:\n";
+        std::cout << "VoxelCore v" << ENGINE_VERSION_STRING << "\n\n";
+        std::cout << "command-line arguments:\n";
         std::cout << " --help - show help\n";
+        std::cout << " --version - print engine version\n";
         std::cout << " --res <path> - set resources directory\n";
         std::cout << " --dir <path> - set userfiles directory\n";
         std::cout << " --headless - run in headless mode\n";
         std::cout << " --test <path> - test script file\n";
+        std::cout << " --script <path> - main script file\n";
         std::cout << std::endl;
+        return false;
+    } else if (keyword == "--version") {
+        std::cout << ENGINE_VERSION_STRING << std::endl;
         return false;
     } else if (keyword == "--headless") {
         params.headless = true;
     } else if (keyword == "--test") {
         auto token = reader.next();
-        params.testFile = fs::u8path(token);
+        params.testMode = true;
+        params.scriptFile = fs::u8path(token);
+    } else if (keyword == "--script") {
+        auto token = reader.next();
+        params.testMode = false;
+        params.scriptFile = fs::u8path(token);
     } else {
         throw std::runtime_error("unknown argument " + keyword);
     }

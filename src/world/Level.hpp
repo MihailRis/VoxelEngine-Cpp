@@ -27,7 +27,6 @@ public:
     
     std::unique_ptr<GlobalChunks> chunks;
     std::unique_ptr<Inventories> inventories;
-
     std::unique_ptr<PhysicsSolver> physics;
     std::unique_ptr<LevelEvents> events;
     std::unique_ptr<Entities> entities;
