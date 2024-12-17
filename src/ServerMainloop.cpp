@@ -41,6 +41,11 @@ void ServerMainloop::run() {
     double delta = targetDelta;
     auto begin = steady_clock::now();
     while (process->isActive()) {
+        if (engine.isQuitSignal()) {
+            process->terminate();
+            logger.info() << "script has been terminated due to quit signal";
+            break;
+        }
         time.step(delta);
         process->update();
         if (controller) {

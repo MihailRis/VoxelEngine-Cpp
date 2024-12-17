@@ -461,6 +461,17 @@ void Engine::onWorldClosed() {
     levelConsumer(nullptr);
 }
 
+void Engine::quit() {
+    quitSignal = true;
+    if (!isHeadless()) {
+        Window::setShouldClose(true);
+    }
+}
+
+bool Engine::isQuitSignal() const {
+    return quitSignal;
+}
+
 gui::GUI* Engine::getGUI() {
     return gui.get();
 }
