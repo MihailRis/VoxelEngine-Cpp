@@ -10,6 +10,7 @@
 #include "lighting/Lightmap.hpp"
 #include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
+#include "voxels/blocks_agent.hpp"
 #include "typedefs.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
@@ -197,4 +198,8 @@ void GlobalChunks::saveAll() {
 
 void GlobalChunks::putChunk(std::shared_ptr<Chunk> chunk) {
     chunksMap[keyfrom(chunk->x, chunk->z)] = std::move(chunk);
+}
+
+const AABB* GlobalChunks::isObstacleAt(float x, float y, float z) const {
+    return blocks_agent::is_obstacle_at(*this, x, y, z);
 }

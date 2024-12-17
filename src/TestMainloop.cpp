@@ -49,6 +49,8 @@ void TestMainloop::setLevel(std::unique_ptr<Level> level) {
         engine.getPaths()->setCurrentWorldFolder(fs::path());
         controller = nullptr;
     } else {
-        controller = std::make_unique<LevelController>(&engine, std::move(level));
+        controller = std::make_unique<LevelController>(
+            &engine, std::move(level), nullptr
+        );
     }
 }

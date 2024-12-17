@@ -9,11 +9,9 @@
 
 class Content;
 class World;
-class Chunks;
 class Entities;
 class Inventories;
 class LevelEvents;
-class Lighting;
 class PhysicsSolver;
 class GlobalChunks;
 class Camera;
@@ -27,7 +25,6 @@ class Level {
 public:
     const Content* const content;
     
-    std::unique_ptr<Chunks> chunks;
     std::unique_ptr<GlobalChunks> chunksStorage;
     std::unique_ptr<Inventories> inventories;
 
@@ -43,8 +40,6 @@ public:
         EngineSettings& settings
     );
     ~Level();
-
-    void loadMatrix(int32_t x, int32_t z, uint32_t radius);
 
     World* getWorld();
 

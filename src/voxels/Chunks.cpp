@@ -38,6 +38,14 @@ Chunks::Chunks(
     });
 }
 
+void Chunks::configure(int32_t x, int32_t z, uint32_t radius) {
+    setCenter(x, z);
+    uint32_t diameter = radius * 2LL;
+    if (getWidth() != diameter) {
+        resize(diameter, diameter);
+    }
+}
+
 voxel* Chunks::get(int32_t x, int32_t y, int32_t z) const {
     return blocks_agent::get(*this, x, y, z);
 }

@@ -85,7 +85,7 @@ void Decorator::update(
     int index = currentIndex;
     currentIndex = (currentIndex + BIG_PRIME) % UPDATE_BLOCKS;
 
-    const auto& chunks = *level.chunks;
+    const auto& chunks = *player.chunks;
     const auto& indices = *level.content->getIndices();
 
     int lx = index % UPDATE_AREA_DIAMETER;
@@ -108,7 +108,7 @@ void Decorator::update(float delta, const Camera& camera) {
     for (int i = 0; i < ITERATIONS; i++) {
         update(delta, pos, camera.position);
     }
-    const auto& chunks = *level.chunks;
+    const auto& chunks = *player.chunks;
     const auto& indices = *level.content->getIndices();
     auto iter = blockEmitters.begin();
     while (iter != blockEmitters.end()) {

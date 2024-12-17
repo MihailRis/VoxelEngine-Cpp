@@ -5,10 +5,8 @@ test.reconfig_packs({"base"}, {})
 test.new_world("demo", "2019", "core:default")
 local pid = player.create("Xerxes")
 assert(player.get_name(pid) == "Xerxes")
-test.sleep_until(function() return world.count_chunks() >= 9 end, 1000)
+test.sleep_until(function() return block.get(0, 0, 0) >= 0 end, 1000)
 print(world.count_chunks())
-
-timeit(10000000, block.get, 0, 0, 0)
 
 block.destruct(0, 0, 0, pid)
 assert(block.get(0, 0, 0) == 0)

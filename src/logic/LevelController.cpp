@@ -10,21 +10,33 @@
 #include "objects/Players.hpp"
 #include "objects/Player.hpp"
 #include "physics/Hitbox.hpp"
+#include "voxels/Chunks.hpp"
 #include "scripting/scripting.hpp"
+#include "lighting/Lighting.hpp"
 #include "settings.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
 static debug::Logger logger("level-control");
 
-LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr)
+LevelController::LevelController(
+    Engine* engine, std::unique_ptr<Level> levelPtr, Player* clientPlayer
+)
     : settings(engine->getSettings()),
       level(std::move(levelPtr)),
       chunks(std::make_unique<ChunksController>(
           *level, settings.chunks.padding.get()
       )) {
+    
+    if (clientPlayer) {
+        chunks->lighting = std::make_unique<Lighting>(
+            level->content, clientPlayer->chunks.get()
+        );
+    }
     blocks = std::make_unique<BlocksController>(
-        *level, *chunks->lighting, settings.chunks.padding.get()
+        *level,
+        chunks ? chunks->lighting.get() : nullptr,
+        settings.chunks.padding.get()
     );
     scripting::on_world_load(this);
 }
@@ -32,14 +44,15 @@ LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr
 void LevelController::update(float delta, bool pause) {
     for (const auto& [uid, player] : *level->players) {
         glm::vec3 position = player->getPosition();
-        level->loadMatrix(
+        player->chunks->configure(
             position.x,
             position.z,
-            settings.chunks.loadDistance.get() + settings.chunks.padding.get() * 2
+            settings.chunks.loadDistance.get() + settings.chunks.padding.get()
         );
         chunks->update(
-            settings.chunks.loadSpeed.get(), settings.chunks.loadDistance.get(),
-            floordiv(position.x, CHUNK_W), floordiv(position.z, CHUNK_D)
+            settings.chunks.loadSpeed.get(),
+            settings.chunks.loadDistance.get(),
+            *player
         );
     }
     if (!pause) {

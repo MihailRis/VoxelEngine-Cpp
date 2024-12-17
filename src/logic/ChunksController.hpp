@@ -7,6 +7,7 @@
 class Level;
 class Chunk;
 class Chunks;
+class Player;
 class Lighting;
 class WorldGenerator;
 
@@ -14,14 +15,13 @@ class WorldGenerator;
 class ChunksController {
 private:
     Level& level;
-    Chunks& chunks;
     uint padding;
     std::unique_ptr<WorldGenerator> generator;
 
     /// @brief Process one chunk: load it or calculate lights for it
-    bool loadVisible();
-    bool buildLights(const std::shared_ptr<Chunk>& chunk);
-    void createChunk(int x, int y);
+    bool loadVisible(const Player& player) const;
+    bool buildLights(const Player& player, const std::shared_ptr<Chunk>& chunk) const;
+    void createChunk(const Player& player, int x, int y) const;
 public:
     std::unique_ptr<Lighting> lighting;
 
@@ -29,11 +29,7 @@ public:
     ~ChunksController();
 
     /// @param maxDuration milliseconds reserved for chunks loading
-    void update(
-        int64_t maxDuration,
-        int loadDistance,
-        int centerX,
-        int centerY);
+    void update(int64_t maxDuration, int loadDistance, Player& player) const;
 
     const WorldGenerator* getGenerator() const {
         return generator.get();

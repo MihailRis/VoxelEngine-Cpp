@@ -18,7 +18,7 @@ class LevelController {
     std::unique_ptr<BlocksController> blocks;
     std::unique_ptr<ChunksController> chunks;
 public:
-    LevelController(Engine* engine, std::unique_ptr<Level> level);
+    LevelController(Engine* engine, std::unique_ptr<Level> level, Player* clientPlayer);
 
     /// @param delta time elapsed since the last update
     /// @param pause is world and player simulation paused

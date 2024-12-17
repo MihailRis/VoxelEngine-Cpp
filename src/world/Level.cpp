@@ -4,7 +4,6 @@
 #include "data/dv_util.hpp"
 #include "items/Inventories.hpp"
 #include "items/Inventory.hpp"
-#include "lighting/Lighting.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
@@ -12,7 +11,6 @@
 #include "physics/PhysicsSolver.hpp"
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
-#include "voxels/Chunks.hpp"
 #include "voxels/GlobalChunks.hpp"
 #include "window/Camera.hpp"
 #include "LevelEvents.hpp"
@@ -60,30 +58,10 @@ Level::Level(
     events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
         chunksStorage->decref(chunk);
     });
-
-    uint matrixSize =
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
-        2;
-    chunks = std::make_unique<Chunks>(
-        matrixSize, matrixSize, 0, 0, events.get(), content->getIndices()
-    );
-
     inventories = std::make_unique<Inventories>(*this);
 }
 
 Level::~Level() = default;
-
-void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
-    chunks->setCenter(x, z);
-    uint32_t diameter = std::min(
-        radius * 2LL,
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
-            2LL
-    );
-    if (chunks->getWidth() != diameter) {
-        chunks->resize(diameter, diameter);
-    }
-}
 
 World* Level::getWorld() {
     return world.get();

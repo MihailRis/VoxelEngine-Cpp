@@ -50,6 +50,8 @@ public:
     );
     ~Chunks() = default;
 
+    void configure(int32_t x, int32_t z, uint32_t radius);
+
     bool putChunk(const std::shared_ptr<Chunk>& chunk);
 
     Chunk* getChunk(int32_t x, int32_t z) const;

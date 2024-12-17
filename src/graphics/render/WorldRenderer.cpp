@@ -68,21 +68,24 @@ WorldRenderer::WorldRenderer(
       lineBatch(std::make_unique<LineBatch>()),
       batch3d(std::make_unique<Batch3D>(BATCH3D_CAPACITY)),
       modelBatch(std::make_unique<ModelBatch>(
-          MODEL_BATCH_CAPACITY, assets, *level.chunks, engine->getSettings()
+          MODEL_BATCH_CAPACITY, assets, *player->chunks, engine->getSettings()
       )),
       particles(std::make_unique<ParticlesRenderer>(
-          assets, level, &engine->getSettings().graphics
+          assets, level, *player->chunks, &engine->getSettings().graphics
       )),
       texts(std::make_unique<TextsRenderer>(*batch3d, assets, *frustumCulling)),
       guides(std::make_unique<GuidesRenderer>()),
       chunks(std::make_unique<ChunksRenderer>(
           &level,
+          *player->chunks,
           assets,
           *frustumCulling,
           frontend.getContentGfxCache(),
           engine->getSettings()
       )),
-      blockWraps(std::make_unique<BlockWrapsRenderer>(assets, level)) {
+      blockWraps(
+          std::make_unique<BlockWrapsRenderer>(assets, level, *player->chunks)
+      ) {
     auto& settings = engine->getSettings();
     level.events->listen(
         EVT_CHUNK_HIDDEN,
@@ -362,7 +365,7 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
     int x = std::floor(player->currentCamera->position.x);
     int y = std::floor(player->currentCamera->position.y);
     int z = std::floor(player->currentCamera->position.z);
-    auto block = level.chunks->get(x, y, z);
+    auto block = player->chunks->get(x, y, z);
     if (block && block->id) {
         const auto& def =
             level.content->getIndices()->blocks.require(block->id);
@@ -381,7 +384,7 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
         batch3d->begin();
         shader.uniformMatrix("u_projview", glm::mat4(1.0f));
         shader.uniformMatrix("u_apply", glm::mat4(1.0f));
-        auto light = level.chunks->getLight(x, y, z);
+        auto light = player->chunks->getLight(x, y, z);
         float s = Lightmap::extract(light, 3) / 15.0f;
         glm::vec4 tint(
             glm::min(1.0f, Lightmap::extract(light, 0) / 15.0f + s),

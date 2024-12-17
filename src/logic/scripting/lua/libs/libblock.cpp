@@ -40,7 +40,9 @@ static int l_is_solid_at(lua::State* L) {
     auto x = lua::tointeger(L, 1);
     auto y = lua::tointeger(L, 2);
     auto z = lua::tointeger(L, 3);
-    return lua::pushboolean(L, blocks_agent::is_solid_at(*level->chunks, x, y, z));
+    return lua::pushboolean(
+        L, blocks_agent::is_solid_at(*level->chunksStorage, x, y, z)
+    );
 }
 
 static int l_count(lua::State* L) {

@@ -265,3 +265,105 @@ voxel* blocks_agent::raycast(
 ) {
     return raycast_blocks(chunks, start, dir, maxDist, end, norm, iend, filter);
 }
+
+// reduce nesting on next modification
+// 25.06.2024: not now
+// 11.11.2024: not now
+template <class Storage>
+inline void get_voxels_impl(
+    const Storage& chunks, VoxelsVolume* volume, bool backlight
+) {
+    const auto& blocks = chunks.getContentIndices().blocks;
+    voxel* voxels = volume->getVoxels();
+    light_t* lights = volume->getLights();
+    int x = volume->getX();
+    int y = volume->getY();
+    int z = volume->getZ();
+
+    int w = volume->getW();
+    int h = volume->getH();
+    int d = volume->getD();
+
+    int scx = floordiv<CHUNK_W>(x);
+    int scz = floordiv<CHUNK_D>(z);
+
+    int ecx = floordiv<CHUNK_W>(x + w);
+    int ecz = floordiv<CHUNK_D>(z + d);
+
+    int cw = ecx - scx + 1;
+    int cd = ecz - scz + 1;
+
+    // cw*cd chunks will be scanned
+    for (int cz = scz; cz < scz + cd; cz++) {
+        for (int cx = scx; cx < scx + cw; cx++) {
+            const auto chunk = get_chunk(chunks, cx, cz);
+            if (chunk == nullptr) {
+                // no chunk loaded -> filling with BLOCK_VOID
+                for (int ly = y; ly < y + h; ly++) {
+                    for (int lz = std::max(z, cz * CHUNK_D);
+                             lz < std::min(z + d, (cz + 1) * CHUNK_D);
+                             lz++) {
+                        for (int lx = std::max(x, cx * CHUNK_W);
+                                 lx < std::min(x + w, (cx + 1) * CHUNK_W);
+                                 lx++) {
+                            uint idx = vox_index(lx - x, ly - y, lz - z, w, d);
+                            voxels[idx].id = BLOCK_VOID;
+                            lights[idx] = 0;
+                        }
+                    }
+                }
+            } else {
+                const voxel* cvoxels = chunk->voxels;
+                const light_t* clights = chunk->lightmap.getLights();
+                for (int ly = y; ly < y + h; ly++) {
+                    for (int lz = std::max(z, cz * CHUNK_D);
+                             lz < std::min(z + d, (cz + 1) * CHUNK_D);
+                             lz++) {
+                        for (int lx = std::max(x, cx * CHUNK_W);
+                                 lx < std::min(x + w, (cx + 1) * CHUNK_W);
+                                 lx++) {
+                            uint vidx = vox_index(lx - x, ly - y, lz - z, w, d);
+                            uint cidx = vox_index(
+                                lx - cx * CHUNK_W,
+                                ly,
+                                lz - cz * CHUNK_D,
+                                CHUNK_W,
+                                CHUNK_D
+                            );
+                            voxels[vidx] = cvoxels[cidx];
+                            light_t light = clights[cidx];
+                            if (backlight) {
+                                const auto block = blocks.get(voxels[vidx].id);
+                                if (block && block->lightPassing) {
+                                    light = Lightmap::combine(
+                                        std::min(15,
+                                            Lightmap::extract(light, 0) + 1),
+                                        std::min(15,
+                                            Lightmap::extract(light, 1) + 1),
+                                        std::min(15,
+                                            Lightmap::extract(light, 2) + 1),
+                                        std::min(15, 
+                                            static_cast<int>(Lightmap::extract(light, 3)))
+                                    );
+                                }
+                            }
+                            lights[vidx] = light;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void blocks_agent::get_voxels(
+    const Chunks& chunks, VoxelsVolume* volume, bool backlight
+) {
+    get_voxels_impl(chunks, volume, backlight);
+}
+
+void blocks_agent::get_voxels(
+    const GlobalChunks& chunks, VoxelsVolume* volume, bool backlight
+) {
+    get_voxels_impl(chunks, volume, backlight);
+}
