@@ -23,14 +23,14 @@ Level::Level(
     const Content* content,
     EngineSettings& settings
 )
-    : world(std::move(worldPtr)),
+    : settings(settings),
+      world(std::move(worldPtr)),
       content(content),
       chunksStorage(std::make_unique<GlobalChunks>(this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),
-      players(std::make_unique<Players>(this)),
-      settings(settings) {
+      players(std::make_unique<Players>(this)) {
     const auto& worldInfo = world->getInfo();
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
@@ -65,10 +65,8 @@ Level::Level(
         (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
         2;
     chunks = std::make_unique<Chunks>(
-        matrixSize, matrixSize, 0, 0, world->wfile.get(), this
+        matrixSize, matrixSize, 0, 0, events.get(), content->getIndices()
     );
-
-    lighting = std::make_unique<Lighting>(content, chunks.get());
 
     inventories = std::make_unique<Inventories>(*this);
 }

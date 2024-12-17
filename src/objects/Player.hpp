@@ -8,6 +8,7 @@
 #include "settings.hpp"
 #include "voxels/voxel.hpp"
 
+class Chunks;
 class Camera;
 class Inventory;
 class ContentReport;
@@ -55,6 +56,7 @@ class Player : public Serializable {
     entityid_t eid;
     entityid_t selectedEid = 0;
 public:
+    std::unique_ptr<Chunks> chunks; // not in use yet
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
     bool debug = false;

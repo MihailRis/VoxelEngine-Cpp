@@ -15,7 +15,6 @@ class ChunksController {
 private:
     Level& level;
     Chunks& chunks;
-    Lighting& lighting;
     uint padding;
     std::unique_ptr<WorldGenerator> generator;
 
@@ -24,6 +23,8 @@ private:
     bool buildLights(const std::shared_ptr<Chunk>& chunk);
     void createChunk(int x, int y);
 public:
+    std::unique_ptr<Lighting> lighting;
+
     ChunksController(Level& level, uint padding);
     ~ChunksController();
 

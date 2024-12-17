@@ -20,12 +20,12 @@ static debug::Logger logger("level-control");
 LevelController::LevelController(Engine* engine, std::unique_ptr<Level> levelPtr)
     : settings(engine->getSettings()),
       level(std::move(levelPtr)),
-      blocks(std::make_unique<BlocksController>(
-          *level, settings.chunks.padding.get()
-      )),
       chunks(std::make_unique<ChunksController>(
           *level, settings.chunks.padding.get()
       )) {
+    blocks = std::make_unique<BlocksController>(
+        *level, *chunks->lighting, settings.chunks.padding.get()
+    );
     scripting::on_world_load(this);
 }
 

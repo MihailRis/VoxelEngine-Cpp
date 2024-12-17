@@ -14,10 +14,10 @@
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
-BlocksController::BlocksController(const Level& level, uint padding)
+BlocksController::BlocksController(const Level& level, Lighting& lighting, uint padding)
     : level(level),
       chunks(*level.chunks),
-      lighting(*level.lighting),
+      lighting(lighting),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
       worldTickClock(20, 1),

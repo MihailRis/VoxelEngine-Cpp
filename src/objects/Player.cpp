@@ -44,6 +44,9 @@ Player::Player(
       position(position),
       inventory(std::move(inv)),
       eid(eid),
+      chunks(std::make_unique<Chunks>(
+          3, 3, 0, 0, level->events.get(), level->content->getIndices()
+      )),
       fpCamera(level->getCamera("core:first-person")),
       spCamera(level->getCamera("core:third-person-front")),
       tpCamera(level->getCamera("core:third-person-back")),

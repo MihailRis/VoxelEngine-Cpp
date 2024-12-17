@@ -16,6 +16,8 @@
 #include "voxels/GlobalChunks.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "logic/LevelController.hpp"
+#include "logic/ChunksController.hpp"
 
 using namespace scripting;
 namespace fs = std::filesystem;
@@ -203,30 +205,37 @@ static int l_set_chunk_data(lua::State* L) {
     } else {
         chunk->decode(buffer->data().data());
     }
+
+    auto chunksController = controller->getChunksController();
+    if (chunksController == nullptr) {
+        return 1;
+    }
+
+    Lighting& lighting = *chunksController->lighting;
     chunk->updateHeights();
-    level->lighting->buildSkyLight(x, y);
+    lighting.buildSkyLight(x, y);
     chunk->flags.modified = true;
-    level->lighting->onChunkLoaded(x, y, true);
+    lighting.onChunkLoaded(x, y, true);
 
     chunk = level->chunks->getChunk(x - 1, y);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x - 1, y, true);
+        lighting.onChunkLoaded(x - 1, y, true);
     }
     chunk = level->chunks->getChunk(x + 1, y);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x + 1, y, true);
+        lighting.onChunkLoaded(x + 1, y, true);
     }
     chunk = level->chunks->getChunk(x, y - 1);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x, y - 1, true);
+        lighting.onChunkLoaded(x, y - 1, true);
     }
     chunk = level->chunks->getChunk(x, y + 1);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x, y + 1, true);
+        lighting.onChunkLoaded(x, y + 1, true);
     }
 
     return 1;

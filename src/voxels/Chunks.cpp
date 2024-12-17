@@ -1,6 +1,5 @@
 #include "Chunks.hpp"
 
-#include <limits.h>
 #include <math.h>
 
 #include <algorithm>
@@ -20,9 +19,6 @@
 #include "world/Level.hpp"
 #include "world/LevelEvents.hpp"
 #include "VoxelsVolume.hpp"
-#include "Block.hpp"
-#include "Chunk.hpp"
-#include "voxel.hpp"
 #include "blocks_agent.hpp"
 
 Chunks::Chunks(
@@ -30,16 +26,15 @@ Chunks::Chunks(
     int32_t d,
     int32_t ox,
     int32_t oz,
-    WorldFiles* wfile,
-    Level* level
+    LevelEvents* events,
+    const ContentIndices* indices
 )
-    : level(level),
-      indices(level ? level->content->getIndices() : nullptr),
-      areaMap(w, d),
-      worldFiles(wfile) {
+    : events(events),
+      indices(indices),
+      areaMap(w, d) {
     areaMap.setCenter(ox-w/2, oz-d/2);
     areaMap.setOutCallback([this](int, int, const auto& chunk) {
-        this->level->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
+        this->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
     });
 }
 
@@ -319,8 +314,9 @@ void Chunks::resize(uint32_t newW, uint32_t newD) {
 
 bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     if (areaMap.set(chunk->x, chunk->z, chunk)) {
-        if (level)
-        level->events->trigger(LevelEventType::EVT_CHUNK_SHOWN, chunk.get());
+        if (events) {
+            events->trigger(LevelEventType::EVT_CHUNK_SHOWN, chunk.get());
+        }
         return true;
     }
     return false;
@@ -330,8 +326,6 @@ bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
 // 25.06.2024: not now
 // 11.11.2024: not now
 void Chunks::getVoxels(VoxelsVolume* volume, bool backlight) const {
-    const Content* content = level->content;
-    auto indices = content->getIndices();
     voxel* voxels = volume->getVoxels();
     light_t* lights = volume->getLights();
     int x = volume->getX();

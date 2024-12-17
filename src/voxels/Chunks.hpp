@@ -20,12 +20,11 @@ class Chunk;
 class WorldFiles;
 class LevelEvents;
 class Block;
-class Level;
 class VoxelsVolume;
 
 /// Player-centred chunks matrix
 class Chunks {
-    Level* level;
+    LevelEvents* events;
     const ContentIndices* const indices;
 
     void eraseSegments(const Block& def, blockstate state, int x, int y, int z);
@@ -40,15 +39,14 @@ class Chunks {
     );
 
     util::AreaMap2D<std::shared_ptr<Chunk>, int32_t> areaMap;
-    WorldFiles* worldFiles;
 public:
     Chunks(
         int32_t w,
         int32_t d,
         int32_t ox,
         int32_t oz,
-        WorldFiles* worldFiles,
-        Level* level
+        LevelEvents* events,
+        const ContentIndices* indices
     );
     ~Chunks() = default;
 
@@ -155,5 +153,9 @@ public:
 
     const ContentIndices& getContentIndices() const {
         return *indices;
+    }
+
+    static inline constexpr unsigned matrixSize(int loadDistance, int padding) {
+        return (loadDistance + padding) * 2;
     }
 };

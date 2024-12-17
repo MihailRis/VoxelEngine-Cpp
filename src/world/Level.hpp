@@ -22,6 +22,7 @@ struct EngineSettings;
 
 /// @brief A level, contains chunks and objects
 class Level {
+    const EngineSettings& settings;
     std::unique_ptr<World> world;
 public:
     const Content* const content;
@@ -31,13 +32,10 @@ public:
     std::unique_ptr<Inventories> inventories;
 
     std::unique_ptr<PhysicsSolver> physics;
-    std::unique_ptr<Lighting> lighting;
     std::unique_ptr<LevelEvents> events;
     std::unique_ptr<Entities> entities;
     std::unique_ptr<Players> players;
     std::vector<std::shared_ptr<Camera>> cameras;  // move somewhere?
-
-    const EngineSettings& settings;
 
     Level(
         std::unique_ptr<World> world,

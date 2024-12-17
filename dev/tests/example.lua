@@ -8,11 +8,7 @@ assert(player.get_name(pid) == "Xerxes")
 test.sleep_until(function() return world.count_chunks() >= 9 end, 1000)
 print(world.count_chunks())
 
-for i=1,10 do
-    print("--------------------")
-    timeit(10000000, block.get_fast, 0, 0, 0)
-    timeit(10000000, block.get, 0, 0, 0)
-end
+timeit(10000000, block.get, 0, 0, 0)
 
 block.destruct(0, 0, 0, pid)
 assert(block.get(0, 0, 0) == 0)
