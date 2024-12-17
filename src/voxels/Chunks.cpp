@@ -40,7 +40,7 @@ Chunks::Chunks(
 
 void Chunks::configure(int32_t x, int32_t z, uint32_t radius) {
     setCenter(x, z);
-    uint32_t diameter = radius * 2LL + 1;
+    uint32_t diameter = radius * 2LL;
     if (getWidth() != diameter) {
         resize(diameter, diameter);
     }
