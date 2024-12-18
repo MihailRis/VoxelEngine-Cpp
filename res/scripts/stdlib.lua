@@ -29,6 +29,7 @@ if test then
     test.open_world = core.open_world
     test.close_world = core.close_world
     test.reopen_world = core.reopen_world
+    test.delete_world = core.delete_world
     test.reconfig_packs = core.reconfig_packs
     test.set_setting = core.set_setting
     test.tick = coroutine.yield

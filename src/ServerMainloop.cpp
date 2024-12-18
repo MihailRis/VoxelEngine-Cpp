@@ -37,9 +37,9 @@ void ServerMainloop::run() {
     logger.info() << "starting test " << coreParams.scriptFile;
     auto process = scripting::start_coroutine(coreParams.scriptFile);
 
-    double targetDelta = 1.0f / static_cast<float>(TPS);
+    double targetDelta = 1.0 / static_cast<double>(TPS);
     double delta = targetDelta;
-    auto begin = steady_clock::now();
+    auto begin = system_clock::now();
     while (process->isActive()) {
         if (engine.isQuitSignal()) {
             process->terminate();
@@ -49,16 +49,15 @@ void ServerMainloop::run() {
         time.step(delta);
         process->update();
         if (controller) {
-            float delta = time.getDelta();
             controller->getLevel()->getWorld()->updateTimers(delta);
-            controller->update(glm::min(delta, 0.2f), false);
+            controller->update(glm::min(delta, 0.2), false);
         }
 
         if (!coreParams.testMode) {
-            auto end = steady_clock::now();
+            auto end = system_clock::now();
             platform::sleep(targetDelta * 1000 - 
                 duration_cast<microseconds>(end - begin).count() / 1000);
-            end = steady_clock::now();
+            end = system_clock::now();
             delta = duration_cast<microseconds>(end - begin).count() / 1e6;
             begin = end;
         }
