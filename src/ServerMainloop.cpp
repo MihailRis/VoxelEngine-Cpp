@@ -41,6 +41,7 @@ void ServerMainloop::run() {
     double delta = targetDelta;
     auto begin = system_clock::now();
     auto startupTime = begin;
+
     while (process->isActive()) {
         if (engine.isQuitSignal()) {
             process->terminate();
@@ -65,7 +66,7 @@ void ServerMainloop::run() {
             auto end = system_clock::now();
             platform::sleep(targetDelta * 1000 - 
                 duration_cast<microseconds>(end - begin).count() / 1000);
-            begin = end;
+            begin = system_clock::now();
         }
     }
     logger.info() << "test finished";
