@@ -108,17 +108,28 @@ cmake --build .
 >[!NOTE]
 > Requirement:
 >
-> vcpkg, CMake
+> vcpkg, CMake, Git
+If you want use vcpkg, install vcpkg from git to you system:
+```PowerShell
+cd C:/
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+```
+After installing vcpkg, setup env variable VCPKG_ROOT and add it to PATH:
+```PowerShell
+$env:VCPKG_ROOT = "C:\path\to\vcpkg"
+$env:PATH = "$env:VCPKG_ROOT;$env:PATH"
+```
+For troubleshooting you can read full [documentation](https://learn.microsoft.com/ru-ru/vcpkg/get_started/get-started?pivots=shell-powershell) for vcpkg
 
-```sh
+After installing vcpkg you can build project:
+```PowerShell
 git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
-del CMakeCache.txt
-rmdir /s /q CMakeFiles
-cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build . --config Release
 ```
 
@@ -128,7 +139,7 @@ cmake --build . --config Release
 > [!WARNING]
 > If you have issues during the vcpkg integration, try navigate to ```vcpkg\downloads```
 > and extract PowerShell-[version]-win-x86 to ```vcpkg\downloads\tools``` as powershell-core-[version]-windows.
-> Then rerun ```cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..```
+> Then rerun ```cmake -DCMAKE_BUILD_TYPE=Release ..```
 
 ## Build using Docker
 
