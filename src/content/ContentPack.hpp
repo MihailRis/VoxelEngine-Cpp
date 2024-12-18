@@ -71,7 +71,7 @@ struct ContentPack {
         const std::string& name
     );
 
-    static ContentPack createCore(const EnginePaths*);
+    static ContentPack createCore(const EnginePaths&);
 
     static inline fs::path getFolderFor(ContentType type) {
         switch (type) {

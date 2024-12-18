@@ -44,6 +44,9 @@ Player::Player(
       position(position),
       inventory(std::move(inv)),
       eid(eid),
+      chunks(std::make_unique<Chunks>(
+          3, 3, 0, 0, level->events.get(), level->content->getIndices()
+      )),
       fpCamera(level->getCamera("core:first-person")),
       spCamera(level->getCamera("core:third-person-front")),
       tpCamera(level->getCamera("core:third-person-back")),
@@ -202,12 +205,12 @@ void Player::attemptToFindSpawnpoint() {
         position.z + (rand() % 200 - 100)
     );
     while (newpos.y > 0 &&
-           !level->chunks->isObstacleBlock(newpos.x, newpos.y - 2, newpos.z)) {
+           !chunks->isObstacleBlock(newpos.x, newpos.y - 2, newpos.z)) {
         newpos.y--;
     }
 
-    voxel* headvox = level->chunks->get(newpos.x, newpos.y + 1, newpos.z);
-    if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
+    voxel* headvox = chunks->get(newpos.x, newpos.y + 1, newpos.z);
+    if (chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0) {
         return;
     }

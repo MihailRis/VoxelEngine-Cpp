@@ -3,7 +3,7 @@
 
 #include "maths/aabb.hpp"
 #include "voxels/Block.hpp"
-#include "voxels/Chunks.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "voxels/voxel.hpp"
 
 #include <iostream>
@@ -18,7 +18,7 @@ PhysicsSolver::PhysicsSolver(glm::vec3 gravity) : gravity(gravity) {
 }
 
 void PhysicsSolver::step(
-    Chunks* chunks, 
+    const GlobalChunks& chunks, 
     Hitbox* hitbox, 
     float delta, 
     uint substeps, 
@@ -63,7 +63,7 @@ void PhysicsSolver::step(
                 float x = (px-half.x+E) + ix * s;
                 for (int iz = 0; iz <= (half.z-E)*2/s; iz++){
                     float z = (pos.z-half.z+E) + iz * s;
-                    if (chunks->isObstacleAt(x,y,z)){
+                    if (chunks.isObstacleAt(x,y,z)){
                         hitbox->grounded = true;
                         break;
                     }
@@ -77,7 +77,7 @@ void PhysicsSolver::step(
                 float x = (pos.x-half.x+E) + ix * s;
                 for (int iz = 0; iz <= (half.z-E)*2/s; iz++){
                     float z = (pz-half.z+E) + iz * s;
-                    if (chunks->isObstacleAt(x,y,z)){
+                    if (chunks.isObstacleAt(x,y,z)){
                         hitbox->grounded = true;
                         break;
                     }
@@ -119,8 +119,8 @@ void PhysicsSolver::step(
 }
 
 static float calc_step_height(
-    Chunks* chunks, 
-    glm::vec3& pos, 
+    const GlobalChunks& chunks, 
+    const glm::vec3& pos, 
     const glm::vec3& half,
     float stepHeight,
     float s
@@ -130,7 +130,7 @@ static float calc_step_height(
             float x = (pos.x-half.x+E) + ix * s;
             for (int iz = 0; iz <= (half.z-E)*2/s; iz++) {
                 float z = (pos.z-half.z+E) + iz * s;
-                if (chunks->isObstacleAt(x, pos.y+half.y+stepHeight, z)) {
+                if (chunks.isObstacleAt(x, pos.y+half.y+stepHeight, z)) {
                     return 0.0f;
                 }
             }
@@ -141,7 +141,7 @@ static float calc_step_height(
 
 template <int nx, int ny, int nz>
 static bool calc_collision_neg(
-    Chunks* chunks,
+    const GlobalChunks& chunks,
     glm::vec3& pos,
     glm::vec3& vel,
     const glm::vec3& half,
@@ -159,7 +159,7 @@ static bool calc_collision_neg(
             coord[nz] = (pos[nz]-half[nz]+E) + iz * s;
             coord[nx] = (pos[nx]-half[nx]-E);
 
-            if (const auto aabb = chunks->isObstacleAt(coord.x, coord.y, coord.z)) {
+            if (const auto aabb = chunks.isObstacleAt(coord.x, coord.y, coord.z)) {
                 vel[nx] = 0.0f;
                 float newx = std::floor(coord[nx]) + aabb->max()[nx] + half[nx] + E;
                 if (std::abs(newx-pos[nx]) <= MAX_FIX) {
@@ -174,7 +174,7 @@ static bool calc_collision_neg(
 
 template <int nx, int ny, int nz>
 static void calc_collision_pos(
-    Chunks* chunks,
+    const GlobalChunks& chunks,
     glm::vec3& pos,
     glm::vec3& vel,
     const glm::vec3& half,
@@ -191,7 +191,7 @@ static void calc_collision_pos(
         for (int iz = 0; iz <= (half[nz]-E)*2/s; iz++) {
             coord[nz] = (pos[nz]-half[nz]+E) + iz * s;
             coord[nx] = (pos[nx]+half[nx]+E);
-            if (const auto aabb = chunks->isObstacleAt(coord.x, coord.y, coord.z)) {
+            if (const auto aabb = chunks.isObstacleAt(coord.x, coord.y, coord.z)) {
                 vel[nx] = 0.0f;
                 float newx = std::floor(coord[nx]) - half[nx] + aabb->min()[nx] - E;
                 if (std::abs(newx-pos[nx]) <= MAX_FIX) {
@@ -204,7 +204,7 @@ static void calc_collision_pos(
 }
 
 void PhysicsSolver::colisionCalc(
-    Chunks* chunks, 
+    const GlobalChunks& chunks, 
     Hitbox* hitbox, 
     glm::vec3& vel, 
     glm::vec3& pos, 
@@ -234,7 +234,7 @@ void PhysicsSolver::colisionCalc(
             for (int iz = 0; iz <= (half.z-E)*2/s; iz++) {
                 float z = (pos.z-half.z+E) + iz * s;
                 float y = (pos.y-half.y+E);
-                if ((aabb = chunks->isObstacleAt(x,y,z))){
+                if ((aabb = chunks.isObstacleAt(x,y,z))){
                     vel.y = 0.0f;
                     float newy = std::floor(y) + aabb->max().y + half.y;
                     if (std::abs(newy-pos.y) <= MAX_FIX+stepHeight) {
@@ -251,7 +251,7 @@ void PhysicsSolver::colisionCalc(
             for (int iz = 0; iz <= (half.z-E)*2/s; iz++) {
                 float z = (pos.z-half.z+E) + iz * s;
                 float y = (pos.y+half.y+E);
-                if ((aabb = chunks->isObstacleAt(x,y,z))){
+                if ((aabb = chunks.isObstacleAt(x,y,z))){
                     vel.y = 0.0f;
                     float newy = std::floor(y) - half.y + aabb->min().y - E;
                     if (std::abs(newy-pos.y) <= MAX_FIX) {

@@ -10,10 +10,10 @@
 #include "window/Camera.hpp"
 #include "engine.hpp"
 
-MenuScreen::MenuScreen(Engine* engine) : Screen(engine) {
-    engine->resetContent();
+MenuScreen::MenuScreen(Engine& engine) : Screen(engine) {
+    engine.resetContent();
     
-    auto menu = engine->getGUI()->getMenu();
+    auto menu = engine.getGUI()->getMenu();
     menu->reset();
     menu->setPage("main");
 
@@ -29,7 +29,7 @@ void MenuScreen::update(float delta) {
 }
 
 void MenuScreen::draw(float delta) {
-    auto assets = engine->getAssets();
+    auto assets = engine.getAssets();
 
     Window::clear();
     Window::setBgColor(glm::vec3(0.2f));

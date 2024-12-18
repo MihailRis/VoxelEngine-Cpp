@@ -7,7 +7,7 @@
 
 Players::Players(Level* level) : level(level) {}
 
-void Players::addPlayer(std::unique_ptr<Player> player) {
+void Players::add(std::unique_ptr<Player> player) {
     players[player->getId()] = std::move(player);
 }
 
@@ -30,7 +30,7 @@ Player* Players::create() {
         0
     );
     auto player = playerPtr.get();
-    addPlayer(std::move(playerPtr));
+    add(std::move(playerPtr));
 
     level->inventories->store(player->getInventory());
     return player;
@@ -62,7 +62,7 @@ void Players::deserialize(const dv::value& src) {
         );
         auto player = playerPtr.get();
         player->deserialize(playerMap);
-        addPlayer(std::move(playerPtr));
+        add(std::move(playerPtr));
         auto& inventory = player->getInventory();
         // invalid inventory id pre 0.25
         if (inventory->getId() == 0) {

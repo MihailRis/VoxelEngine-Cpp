@@ -39,7 +39,8 @@ public:
         Engine& engine,
         LevelController& level,
         WorldRenderer& renderer,
-        const Assets& assets
+        const Assets& assets,
+        Player& player
     );
 
     void update(float delta, const Camera& camera);

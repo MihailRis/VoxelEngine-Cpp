@@ -92,6 +92,9 @@ DrawContext DrawContext::sub(Flushable* flushable) const {
     ctx.parent = this;
     ctx.flushable = flushable;
     ctx.scissorsCount = 0;
+    if (auto batch2D = dynamic_cast<Batch2D*>(flushable)) {
+        ctx.g2d = batch2D;
+    }
     return ctx;
 }
 

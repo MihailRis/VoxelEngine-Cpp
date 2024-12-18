@@ -14,15 +14,18 @@
 #include "window/Window.hpp"
 #include "world/Level.hpp"
 
-BlockWrapsRenderer::BlockWrapsRenderer(const Assets& assets, const Level& level)
-    : assets(assets), level(level), batch(std::make_unique<MainBatch>(1024)) {
+BlockWrapsRenderer::BlockWrapsRenderer(
+    const Assets& assets, const Level& level, const Chunks& chunks
+)
+    : assets(assets),
+      level(level),
+      chunks(chunks),
+      batch(std::make_unique<MainBatch>(1024)) {
 }
 
 BlockWrapsRenderer::~BlockWrapsRenderer() = default;
 
 void BlockWrapsRenderer::draw(const BlockWrapper& wrapper) {
-    const auto& chunks = *level.chunks;
-
     auto textureRegion = util::get_texture_region(assets, wrapper.texture, "");
 
     auto& shader = assets.require<Shader>("entity");

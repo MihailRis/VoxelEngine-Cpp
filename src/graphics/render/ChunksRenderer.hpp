@@ -20,6 +20,7 @@ class Level;
 class Camera;
 class Shader;
 class Assets;
+class Chunks;
 class Frustum;
 class BlocksRenderer;
 class ContentGfxCache;
@@ -42,6 +43,7 @@ struct RendererResult {
 
 class ChunksRenderer {
     const Level& level;
+    const Chunks& chunks;
     const Assets& assets;
     const Frustum& frustum;
     const EngineSettings& settings;
@@ -57,6 +59,7 @@ class ChunksRenderer {
 public:
     ChunksRenderer(
         const Level* level,
+        const Chunks& chunks,
         const Assets& assets,
         const Frustum& frustum,
         const ContentGfxCache& cache, 

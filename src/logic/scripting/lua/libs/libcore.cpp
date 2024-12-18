@@ -16,6 +16,7 @@
 #include "logic/EngineController.hpp"
 #include "logic/LevelController.hpp"
 #include "util/listutil.hpp"
+#include "util/platform.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
@@ -55,6 +56,9 @@ static int l_open_world(lua::State* L) {
 /// @brief Reopen world
 static int l_reopen_world(lua::State*) {
     auto controller = engine->getController();
+    if (level == nullptr) {
+        throw std::runtime_error("no world open");
+    }
     controller->reopenWorld(level->getWorld());
     return 0;
 }
@@ -69,10 +73,7 @@ static int l_close_world(lua::State* L) {
     if (save_world) {
         controller->saveWorld();
     }
-    // destroy LevelScreen and run quit callbacks
-    engine->setScreen(nullptr);
-    // create and go to menu screen
-    engine->setScreen(std::make_shared<MenuScreen>(engine));
+    engine->onWorldClosed();
     return 0;
 }
 
@@ -118,8 +119,8 @@ static int l_reconfig_packs(lua::State* L) {
         remPacks.emplace_back(lua::tostring(L, -1));
         lua::pop(L);
     }
-    auto engine_controller = engine->getController();
-    engine_controller->reconfigPacks(controller, addPacks, remPacks);
+    auto engineController = engine->getController();
+    engineController->reconfigPacks(controller, addPacks, remPacks);
     return 0;
 }
 
@@ -223,21 +224,24 @@ static int l_load_texture(lua::State* L) {
     return 0;
 }
 
-#include "util/platform.hpp"
-
 static int l_open_folder(lua::State* L) {
-    auto path = engine->getPaths()->resolve(lua::require_string(L, 1));
+    auto path = engine->getPaths().resolve(lua::require_string(L, 1));
     platform::open_folder(path);
     return 0;
 }
 
 /// @brief Quit the game
 static int l_quit(lua::State*) {
-    Window::setShouldClose(true);
+    engine->quit();
+    return 0;
+}
+
+static int l_blank(lua::State*) {
     return 0;
 }
 
 const luaL_Reg corelib[] = {
+    {"blank", lua::wrap<l_blank>},
     {"get_version", lua::wrap<l_get_version>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
