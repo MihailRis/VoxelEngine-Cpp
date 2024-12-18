@@ -132,7 +132,7 @@ std::filesystem::path EnginePaths::getSettingsFile() const {
     return userFilesFolder / SETTINGS_FILE;
 }
 
-std::vector<std::filesystem::path> EnginePaths::scanForWorlds() {
+std::vector<std::filesystem::path> EnginePaths::scanForWorlds() const {
     std::vector<std::filesystem::path> folders;
 
     auto folder = getWorldsFolder();
@@ -189,7 +189,7 @@ std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view pat
 
 std::filesystem::path EnginePaths::resolve(
     const std::string& path, bool throwErr
-) {
+) const {
     auto [prefix, filename] = EnginePaths::parsePath(path);
     if (prefix.empty()) {
         throw files_access_error("no entry point specified");

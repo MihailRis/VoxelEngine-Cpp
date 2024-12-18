@@ -12,9 +12,9 @@
 using namespace scripting;
 
 static int l_save_fragment(lua::State* L) {
-    auto paths = engine->getPaths();
+    const auto& paths = engine->getPaths();
     auto fragment = lua::touserdata<lua::LuaVoxelFragment>(L, 1);
-    auto file = paths->resolve(lua::require_string(L, 2), true);
+    auto file = paths.resolve(lua::require_string(L, 2), true);
     auto map = fragment->getFragment()->serialize();
     auto bytes = json::to_binary(map, true);
     files::write_bytes(file, bytes.data(), bytes.size());
@@ -35,9 +35,9 @@ static int l_create_fragment(lua::State* L) {
 }
 
 static int l_load_fragment(lua::State* L) {
-    auto paths = engine->getPaths();
+    const auto& paths = engine->getPaths();
     auto filename = lua::require_string(L, 1);
-    auto path = paths->resolve(filename);
+    auto path = paths.resolve(filename);
     if (!std::filesystem::exists(path)) {
         throw std::runtime_error("file "+path.u8string()+" does not exist");
     }

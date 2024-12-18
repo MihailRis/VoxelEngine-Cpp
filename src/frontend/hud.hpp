@@ -70,8 +70,8 @@ public:
 };
 
 class Hud : public util::ObjectsKeeper {
-    Engine* engine;
-    Assets* assets;
+    Engine& engine;
+    Assets& assets;
     std::unique_ptr<Camera> uicamera;
     gui::GUI* gui;
     LevelFrontend& frontend;
@@ -131,7 +131,7 @@ class Hud : public util::ObjectsKeeper {
     void showExchangeSlot();
     void updateWorldGenDebugVisualization();
 public:
-    Hud(Engine* engine, LevelFrontend& frontend, Player& player);
+    Hud(Engine& engine, LevelFrontend& frontend, Player& player);
     ~Hud();
 
     void update(bool hudVisible);

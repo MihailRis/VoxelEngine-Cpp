@@ -87,7 +87,7 @@ Engine::Engine(CoreParameters coreParameters)
 
     auto resdir = paths.getResourcesFolder();
 
-    controller = std::make_unique<EngineController>(this);
+    controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
         if (Window::initialize(&settings.display)){
             throw initialize_error("could not initialize window");
@@ -101,7 +101,7 @@ Engine::Engine(CoreParameters coreParameters)
 
         gui = std::make_unique<gui::GUI>();
         if (ENGINE_DEBUG_BUILD) {
-            menus::create_version_label(this);
+            menus::create_version_label(*this);
         }
     }
     audio::initialize(settings.audio.enabled.get() && !params.headless);
@@ -118,7 +118,7 @@ Engine::Engine(CoreParameters coreParameters)
             paths.getResourcesFolder()
         ));
     }
-    keepAlive(settings.ui.language.observe([=](auto lang) {
+    keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
     
@@ -447,7 +447,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
     if (gui) {
-        gui->getMenu()->setPageLoader(menus::create_page_loader(this));
+        gui->getMenu()->setPageLoader(menus::create_page_loader(*this));
     }
 }
 
@@ -502,8 +502,8 @@ std::vector<std::string>& Engine::getBasePacks() {
     return basePacks;
 }
 
-EnginePaths* Engine::getPaths() {
-    return &paths;
+EnginePaths& Engine::getPaths() {
+    return paths;
 }
 
 ResPaths* Engine::getResPaths() {

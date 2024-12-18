@@ -59,8 +59,8 @@ using namespace gui;
 bool Hud::showGeneratorMinimap = false;
 
 // implemented in debug_panel.cpp
-extern std::shared_ptr<UINode> create_debug_panel(
-    Engine* engine,
+std::shared_ptr<UINode> create_debug_panel(
+    Engine& engine,
     Level& level,
     Player& player,
     bool allowDebugCheats
@@ -148,10 +148,10 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
 
 static constexpr uint WORLDGEN_IMG_SIZE = 128U;
 
-Hud::Hud(Engine* engine, LevelFrontend& frontend, Player& player)
+Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
     : engine(engine),
-      assets(engine->getAssets()),
-      gui(engine->getGUI()),
+      assets(*engine.getAssets()),
+      gui(engine.getGUI()),
       frontend(frontend),
       player(player),
       debugImgWorldGen(std::make_unique<ImageData>(
@@ -191,7 +191,7 @@ Hud::Hud(Engine* engine, LevelFrontend& frontend, Player& player)
     dplotter->setInteractive(false);
     add(HudElement(hud_element_mode::permanent, nullptr, dplotter, true));
 
-    assets->store(Texture::from(debugImgWorldGen.get()), DEBUG_WORLDGEN_IMAGE);
+    assets.store(Texture::from(debugImgWorldGen.get()), DEBUG_WORLDGEN_IMAGE);
 
     debugMinimap = guiutil::create(
             "<image src='"+DEBUG_WORLDGEN_IMAGE+
@@ -312,8 +312,8 @@ void Hud::updateWorldGenDebugVisualization() {
             data[(flippedZ * width + x) * 4 + 3] = 150;
         }
     }
-    auto texture = assets->get<Texture>(DEBUG_WORLDGEN_IMAGE);
-    texture->reload(*debugImgWorldGen);
+    auto& texture = assets.require<Texture>(DEBUG_WORLDGEN_IMAGE);
+    texture.reload(*debugImgWorldGen);
 }
 
 void Hud::update(bool visible) {
@@ -377,7 +377,7 @@ void Hud::openInventory() {
 
     inventoryOpen = true;
     auto inventory = player.getInventory();
-    auto inventoryDocument = assets->get<UiDocument>("core:inventory");
+    auto inventoryDocument = assets.get<UiDocument>("core:inventory");
     inventoryView = std::dynamic_pointer_cast<InventoryView>(inventoryDocument->getRoot());
     inventoryView->bind(inventory, content);
     add(HudElement(hud_element_mode::inventory_bound, inventoryDocument, inventoryView, false));
@@ -569,15 +569,15 @@ void Hud::draw(const DrawContext& ctx){
     auto batch = ctx.getBatch2D();
     batch->begin();
 
-    auto uishader = assets->get<Shader>("ui");
-    uishader->use();
-    uishader->uniformMatrix("u_projview", uicamera->getProjView());
+    auto& uishader = assets.require<Shader>("ui");
+    uishader.use();
+    uishader.uniformMatrix("u_projview", uicamera->getProjView());
 
     // Crosshair
     if (!pause && !inventoryOpen && !player.debug) {
         DrawContext chctx = ctx.sub(batch);
         chctx.setBlendMode(BlendMode::inversion);
-        auto texture = assets->get<Texture>("gui/crosshair");
+        auto texture = assets.get<Texture>("gui/crosshair");
         batch->texture(texture);
         int chsizex = texture != nullptr ? texture->getWidth() : 16;
         int chsizey = texture != nullptr ? texture->getHeight() : 16;

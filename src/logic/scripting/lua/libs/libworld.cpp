@@ -34,8 +34,8 @@ static int l_is_open(lua::State* L) {
 }
 
 static int l_get_list(lua::State* L) {
-    auto paths = engine->getPaths();
-    auto worlds = paths->scanForWorlds();
+    const auto& paths = engine->getPaths();
+    auto worlds = paths.scanForWorlds();
 
     lua::createtable(L, worlds.size(), 0);
     for (size_t i = 0; i < worlds.size(); i++) {
@@ -104,7 +104,7 @@ static int l_get_seed(lua::State* L) {
 
 static int l_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
-    auto worldsDir = engine->getPaths()->getWorldFolderByName(name);
+    auto worldsDir = engine->getPaths().getWorldFolderByName(name);
     return lua::pushboolean(L, fs::is_directory(worldsDir));
 }
 

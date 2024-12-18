@@ -39,9 +39,9 @@ public:
 
     void setContentPacks(std::vector<ContentPack>* contentPacks);
 
-    std::vector<std::filesystem::path> scanForWorlds();
+    std::vector<std::filesystem::path> scanForWorlds() const;
 
-    std::filesystem::path resolve(const std::string& path, bool throwErr = true);
+    std::filesystem::path resolve(const std::string& path, bool throwErr = true) const;
 
     static std::tuple<std::string, std::string> parsePath(std::string_view view);
 

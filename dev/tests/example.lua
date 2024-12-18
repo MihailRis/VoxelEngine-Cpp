@@ -1,8 +1,6 @@
 test.set_setting("chunks.load-distance", 3)
 test.set_setting("chunks.load-speed", 1)
 
-test.quit()
-
 test.reconfig_packs({"base"}, {})
 test.new_world("demo", "2019", "core:default")
 local pid1 = player.create("Xerxes")

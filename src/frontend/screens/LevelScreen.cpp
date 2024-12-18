@@ -34,19 +34,19 @@
 
 static debug::Logger logger("level-screen");
 
-LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> levelPtr)
+LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
  : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) 
 {
     Level* level = levelPtr.get();
 
-    auto& settings = engine->getSettings();
-    auto& assets = *engine->getAssets();
-    auto menu = engine->getGUI()->getMenu();
+    auto& settings = engine.getSettings();
+    auto& assets = *engine.getAssets();
+    auto menu = engine.getGUI()->getMenu();
     menu->reset();
 
     auto player = level->players->get(0);
     controller =
-        std::make_unique<LevelController>(engine, std::move(levelPtr), player);
+        std::make_unique<LevelController>(&engine, std::move(levelPtr), player);
     playerController = std::make_unique<PlayerController>(
         settings,
         level,
@@ -58,12 +58,12 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> levelPtr)
         player, controller.get(), assets
     );
     worldRenderer = std::make_unique<WorldRenderer>(
-        engine, *frontend, player
+        engine, *frontend, *player
     );
     hud = std::make_unique<Hud>(engine, *frontend, *player);
 
     decorator = std::make_unique<Decorator>(
-        *engine, *controller, *worldRenderer, assets, *player
+        engine, *controller, *worldRenderer, assets, *player
     );
 
     keepAlive(settings.graphics.backlight.observe([=](bool) {
@@ -111,15 +111,15 @@ LevelScreen::~LevelScreen() {
     // unblock all bindings
     Events::enableBindings();
     controller->onWorldQuit();
-    engine->getPaths()->setCurrentWorldFolder(fs::path());
+    engine.getPaths().setCurrentWorldFolder(fs::path());
 }
 
 void LevelScreen::saveWorldPreview() {
     try {
         logger.info() << "saving world preview";
-        auto paths = engine->getPaths();
+        const auto& paths = engine.getPaths();
         auto player = playerController->getPlayer();
-        auto& settings = engine->getSettings();
+        auto& settings = engine.getSettings();
         int previewSize = settings.ui.worldPreviewSize.get();
 
         // camera special copy for world preview
@@ -134,7 +134,7 @@ void LevelScreen::saveWorldPreview() {
         worldRenderer->draw(ctx, camera, false, true, 0.0f, postProcessing.get());
         auto image = postProcessing->toImage();
         image->flipY();
-        imageio::write(paths->resolve("world:preview.png").u8string(), image.get());
+        imageio::write(paths.resolve("world:preview.png").u8string(), image.get());
     } catch (const std::exception& err) {
         logger.error() << err.what();
     }
@@ -142,7 +142,7 @@ void LevelScreen::saveWorldPreview() {
 
 void LevelScreen::updateHotkeys() {
     auto player = playerController->getPlayer();
-    auto& settings = engine->getSettings();
+    auto& settings = engine.getSettings();
     if (Events::jpressed(keycode::O)) {
         settings.graphics.frustumCulling.toggle();
     }
@@ -155,7 +155,7 @@ void LevelScreen::updateHotkeys() {
 }
 
 void LevelScreen::update(float delta) {
-    gui::GUI* gui = engine->getGUI();
+    gui::GUI* gui = engine.getGUI();
     
     bool inputLocked = hud->isPause() || 
                        hud->isInventoryOpen() || 
@@ -181,7 +181,7 @@ void LevelScreen::update(float delta) {
         glm::vec3(0, 1, 0)
     );
     auto level = controller->getLevel();
-    const auto& settings = engine->getSettings();
+    const auto& settings = engine.getSettings();
 
     if (!hud->isPause()) {
         level->getWorld()->updateTimers(delta);
@@ -204,7 +204,7 @@ void LevelScreen::draw(float delta) {
     DrawContext ctx(nullptr, viewport, batch.get());
 
     if (!hud->isPause()) {
-        scripting::on_entities_render(engine->getTime().getDelta());
+        scripting::on_entities_render(engine.getTime().getDelta());
     }
     worldRenderer->draw(
         ctx, *camera, hudVisible, hud->isPause(), delta, postProcessing.get()

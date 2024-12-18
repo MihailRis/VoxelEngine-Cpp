@@ -131,7 +131,7 @@ public:
     EngineSettings& getSettings();
 
     /// @brief Get engine filesystem paths source
-    EnginePaths* getPaths();
+    EnginePaths& getPaths();
 
     /// @brief Get engine resource paths controller
     ResPaths* getResPaths();
