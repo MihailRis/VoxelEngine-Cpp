@@ -60,7 +60,7 @@ Library **audio** contains available Audio API in Lua scripts.
 
 ```lua
 audio.play_stream(
-    -- audio file location
+    -- audio file location (without entry point, but with extension included)
     name: string, 
     -- audio source world position
     x: number, y: number, z: number,
@@ -79,7 +79,7 @@ Plays streaming audio from the specified file at the specified world position. R
 
 ```lua
 audio.play_stream_2d(
-    -- audio file location
+    -- audio file location (without entry point, but with extension included)
     name: string, 
     -- audio gain (0.0 - 1.0)
     volume: number
