@@ -150,7 +150,9 @@ void CameraControl::switchCamera() {
     }
 }
 
-void CameraControl::update(PlayerInput input, float delta, Chunks& chunks) {
+void CameraControl::update(
+    PlayerInput input, float delta, const Chunks& chunks
+) {
     offset = glm::vec3(0.0f, 0.0f, 0.0f);
 
     if (auto hitbox = player.getHitbox()) {

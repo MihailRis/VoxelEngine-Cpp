@@ -40,13 +40,21 @@ void ServerMainloop::run() {
     double targetDelta = 1.0 / static_cast<double>(TPS);
     double delta = targetDelta;
     auto begin = system_clock::now();
+    auto startupTime = begin;
     while (process->isActive()) {
         if (engine.isQuitSignal()) {
             process->terminate();
             logger.info() << "script has been terminated due to quit signal";
             break;
         }
-        time.step(delta);
+        if (coreParams.testMode) {
+            time.step(delta);
+        } else {
+            auto now = system_clock::now();
+            time.update(
+                duration_cast<microseconds>(now - startupTime).count() / 1e6);
+            delta = time.getDelta();
+        }
         process->update();
         if (controller) {
             controller->getLevel()->getWorld()->updateTimers(delta);
@@ -57,8 +65,6 @@ void ServerMainloop::run() {
             auto end = system_clock::now();
             platform::sleep(targetDelta * 1000 - 
                 duration_cast<microseconds>(end - begin).count() / 1000);
-            end = system_clock::now();
-            delta = duration_cast<microseconds>(end - begin).count() / 1e6;
             begin = end;
         }
     }

@@ -41,7 +41,7 @@ class CameraControl {
 public:
     CameraControl(Player& player, const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
-    void update(PlayerInput input, float delta, Chunks& chunks);
+    void update(PlayerInput input, float delta, const Chunks& chunks);
     void refresh();
 };
 
