@@ -52,6 +52,7 @@ The main properties described in the configuration file:
 - **biomes-bpd** - number of blocks per point of the biome selection parameter map. Default: 4.
 - **heights-bpd** - number of blocks per point of the height map. Default: 4.
 - **wide-structs-chunks-radius** - maximum radius for placing 'wide' structures, measured in chunks.
+- **heightmap-inputs** - an array of parameter map numbers that will be passed by the inputs table to the height map generation function.
 
 ## Global variables
 
