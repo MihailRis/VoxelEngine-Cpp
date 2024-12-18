@@ -19,14 +19,13 @@
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
 
-BlocksController::BlocksController(const Level& level, Lighting* lighting, uint padding)
+BlocksController::BlocksController(const Level& level, Lighting* lighting)
     : level(level),
       chunks(*level.chunks),
       lighting(lighting),
       randTickClock(20, 3),
       blocksTickClock(20, 1),
-      worldTickClock(20, 1),
-      padding(padding) {
+      worldTickClock(20, 1) {
 }
 
 void BlocksController::updateSides(int x, int y, int z) {
@@ -120,9 +119,9 @@ void BlocksController::updateBlock(int x, int y, int z) {
     }
 }
 
-void BlocksController::update(float delta) {
+void BlocksController::update(float delta, uint padding) {
     if (randTickClock.update(delta)) {
-        randomTick(randTickClock.getPart(), randTickClock.getParts());
+        randomTick(randTickClock.getPart(), randTickClock.getParts(), padding);
     }
     if (blocksTickClock.update(delta)) {
         onBlocksTick(blocksTickClock.getPart(), blocksTickClock.getParts());
@@ -169,7 +168,7 @@ void BlocksController::randomTick(
     }
 }
 
-void BlocksController::randomTick(int tickid, int parts) {
+void BlocksController::randomTick(int tickid, int parts, uint padding) {
     auto indices = level.content->getIndices();
 
     std::set<uint64_t> chunksIterated;

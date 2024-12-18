@@ -202,8 +202,7 @@ PlayerController::PlayerController(
       level(level),
       player(player),
       camControl(player, settings.camera),
-      blocksController(blocksController),
-      playerTickClock(20, 3) {
+      blocksController(blocksController) {
 }
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
@@ -256,13 +255,6 @@ void PlayerController::update(float delta, bool input) {
         resetKeyboard();
     }
     updatePlayer(delta);
-
-    if (playerTickClock.update(delta)) {
-        if (player->getId() % playerTickClock.getParts() ==
-            playerTickClock.getPart()) {
-            scripting::on_player_tick(player, playerTickClock.getTickRate());
-        }
-    }
 }
 
 void PlayerController::postUpdate(float delta, bool input, bool pause) {

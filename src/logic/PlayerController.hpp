@@ -54,9 +54,8 @@ class PlayerController {
     PlayerInput input {};
     CameraControl camControl;
     BlocksController* blocksController;
-    util::Clock playerTickClock;
-
     float interactionTimer = 0.0f;
+    
     void updateKeyboard();
     void resetKeyboard();
     void updatePlayer(float delta);

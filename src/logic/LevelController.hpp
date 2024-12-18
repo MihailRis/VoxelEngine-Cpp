@@ -4,6 +4,7 @@
 
 #include "BlocksController.hpp"
 #include "ChunksController.hpp"
+#include "util/Clock.hpp"
 
 class Engine;
 class Level;
@@ -17,6 +18,8 @@ class LevelController {
     // Sub-controllers
     std::unique_ptr<BlocksController> blocks;
     std::unique_ptr<ChunksController> chunks;
+
+    util::Clock playerTickClock;
 public:
     LevelController(Engine* engine, std::unique_ptr<Level> level, Player* clientPlayer);
 

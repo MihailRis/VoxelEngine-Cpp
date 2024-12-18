@@ -31,11 +31,10 @@ class BlocksController {
     util::Clock randTickClock;
     util::Clock blocksTickClock;
     util::Clock worldTickClock;
-    uint padding;
     FastRandom random {};
     std::vector<on_block_interaction> blockInteractionCallbacks;
 public:
-    BlocksController(const Level& level, Lighting* lighting, uint padding);
+    BlocksController(const Level& level, Lighting* lighting);
 
     void updateSides(int x, int y, int z);
     void updateSides(int x, int y, int z, int w, int h, int d);
@@ -46,11 +45,11 @@ public:
         Player* player, const Block& def, blockstate state, int x, int y, int z
     );
 
-    void update(float delta);
+    void update(float delta, uint padding);
     void randomTick(
         const Chunk& chunk, int segments, const ContentIndices* indices
     );
-    void randomTick(int tickid, int parts);
+    void randomTick(int tickid, int parts, uint padding);
     void onBlocksTick(int tickid, int parts);
     int64_t createBlockInventory(int x, int y, int z);
     void bindInventory(int64_t invid, int x, int y, int z);

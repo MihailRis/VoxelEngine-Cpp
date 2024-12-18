@@ -24,25 +24,41 @@ LevelController::LevelController(
 )
     : settings(engine->getSettings()),
       level(std::move(levelPtr)),
-      chunks(std::make_unique<ChunksController>(
-          *level, settings.chunks.padding.get()
-      )) {
-    
+      chunks(std::make_unique<ChunksController>(*level)),
+      playerTickClock(20, 3) {
     if (clientPlayer) {
         chunks->lighting = std::make_unique<Lighting>(
             level->content, clientPlayer->chunks.get()
         );
     }
     blocks = std::make_unique<BlocksController>(
-        *level,
-        chunks ? chunks->lighting.get() : nullptr,
-        settings.chunks.padding.get()
+        *level, chunks ? chunks->lighting.get() : nullptr
     );
     scripting::on_world_load(this);
+
+    // TODO: do something to players added later
+    int confirmed;
+    do {
+        confirmed = 0;
+        for (const auto& [_, player] : *level->players) {
+            glm::vec3 position = player->getPosition();
+            player->chunks->configure(
+                std::floor(position.x), std::floor(position.z), 1
+            );
+            chunks->update(16, 1, 0, *player);
+            if (player->chunks->get(
+                    std::floor(position.x),
+                    std::floor(position.y),
+                    std::floor(position.z)
+                )) {
+                confirmed++;
+            }
+        }
+    } while (confirmed < level->players->size());
 }
 
 void LevelController::update(float delta, bool pause) {
-    for (const auto& [uid, player] : *level->players) {
+    for (const auto& [_, player] : *level->players) {
         glm::vec3 position = player->getPosition();
         player->chunks->configure(
             position.x,
@@ -52,14 +68,33 @@ void LevelController::update(float delta, bool pause) {
         chunks->update(
             settings.chunks.loadSpeed.get(),
             settings.chunks.loadDistance.get(),
+            settings.chunks.padding.get(),
             *player
         );
     }
     if (!pause) {
         // update all objects that needed
-        blocks->update(delta);
+        blocks->update(delta, settings.chunks.padding.get());
         level->entities->updatePhysics(delta);
         level->entities->update(delta);
+        for (const auto& [_, player] : *level->players) {
+            if (playerTickClock.update(delta)) {
+                if (player->getId() % playerTickClock.getParts() ==
+                    playerTickClock.getPart()) {
+                    
+                    const auto& position = player->getPosition();
+                    if (!player->chunks->get(
+                        std::floor(position.x),
+                        std::floor(position.y),
+                        std::floor(position.z)
+                    )){
+                        scripting::on_player_tick(
+                            player.get(), playerTickClock.getTickRate()
+                        );
+                    }
+                }
+            }
+        }
     }
     level->entities->clean();
 }

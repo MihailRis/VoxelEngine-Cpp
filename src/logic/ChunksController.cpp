@@ -1,8 +1,6 @@
 #include "ChunksController.hpp"
 
 #include <limits.h>
-
-#include <iostream>
 #include <memory>
 
 #include "content/Content.hpp"
@@ -23,9 +21,8 @@
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;
 
-ChunksController::ChunksController(Level& level, uint padding)
+ChunksController::ChunksController(Level& level)
     : level(level),
-      padding(padding),
       generator(std::make_unique<WorldGenerator>(
           level.content->generators.require(level.getWorld()->getGenerator()),
           level.content,
@@ -35,7 +32,7 @@ ChunksController::ChunksController(Level& level, uint padding)
 ChunksController::~ChunksController() = default;
 
 void ChunksController::update(
-    int64_t maxDuration, int loadDistance, Player& player
+    int64_t maxDuration, int loadDistance, uint padding, Player& player
 ) const {
     const auto& position = player.getPosition();
     int centerX = floordiv<CHUNK_W>(position.x);
@@ -47,7 +44,7 @@ void ChunksController::update(
 
     for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {
         timeutil::Timer timer;
-        if (loadVisible(player)) {
+        if (loadVisible(player, padding)) {
             int64_t mcs = timer.stop();
             if (mcstotal + mcs < maxDuration * 1000) {
                 mcstotal += mcs;
@@ -58,7 +55,7 @@ void ChunksController::update(
     }
 }
 
-bool ChunksController::loadVisible(const Player& player) const {
+bool ChunksController::loadVisible(const Player& player, uint padding) const {
     const auto& chunks = *player.chunks;
     int sizeX = chunks.getWidth();
     int sizeY = chunks.getHeight();
