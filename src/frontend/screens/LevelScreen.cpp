@@ -49,9 +49,9 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
         std::make_unique<LevelController>(&engine, std::move(levelPtr), player);
     playerController = std::make_unique<PlayerController>(
         settings,
-        level,
-        player,
-        controller->getBlocksController()
+        *level,
+        *player,
+        *controller->getBlocksController()
     );
 
     frontend = std::make_unique<LevelFrontend>(
