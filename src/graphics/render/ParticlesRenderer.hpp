@@ -10,12 +10,14 @@
 class Texture;
 class Assets;
 class Camera;
+class Chunks;
 class MainBatch;
 class Level;
 struct GraphicsSettings;
 
 class ParticlesRenderer {
     const Level& level;
+    const Chunks& chunks;
     const Assets& assets;
     const GraphicsSettings* settings;
     std::unordered_map<const Texture*, std::vector<Particle>> particles;
@@ -29,6 +31,7 @@ public:
     ParticlesRenderer(
         const Assets& assets,
         const Level& level,
+        const Chunks& chunks,
         const GraphicsSettings* settings
     );
     ~ParticlesRenderer();

@@ -8,10 +8,10 @@ class Batch2D;
 /// @brief Screen is a mainloop state
 class Screen : public util::ObjectsKeeper {
 protected:
-    Engine* engine;
+    Engine& engine;
     std::unique_ptr<Batch2D> batch;
 public:
-    Screen(Engine* engine);
+    Screen(Engine& engine);
     virtual ~Screen();
     virtual void update(float delta) = 0;
     virtual void draw(float delta) = 0;

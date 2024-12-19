@@ -3,9 +3,8 @@
 #include "delegates.hpp"
 #include "logic/scripting/scripting.hpp"
 
-#ifdef __linux__
+#if (defined __linux__) || (defined __MINGW32__)
 #include <luajit-2.1/luaconf.h>
-
 #include <luajit-2.1/lua.hpp>
 #else
 #include <lua.hpp>

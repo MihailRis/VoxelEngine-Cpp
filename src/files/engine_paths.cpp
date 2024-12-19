@@ -48,6 +48,18 @@ static std::filesystem::path toCanonic(std::filesystem::path path) {
 }
 
 void EnginePaths::prepare() {
+    if (!fs::is_directory(resourcesFolder)) {
+        throw std::runtime_error(
+            resourcesFolder.u8string() + " is not a directory"
+        );
+    }
+    if (!fs::is_directory(userFilesFolder)) {
+        fs::create_directories(userFilesFolder);
+    }
+
+    logger.info() << "resources folder: " << fs::canonical(resourcesFolder).u8string();
+    logger.info() << "user files folder: " << fs::canonical(userFilesFolder).u8string();
+    
     auto contentFolder = userFilesFolder / CONTENT_FOLDER;
     if (!fs::is_directory(contentFolder)) {
         fs::create_directories(contentFolder);
@@ -120,7 +132,7 @@ std::filesystem::path EnginePaths::getSettingsFile() const {
     return userFilesFolder / SETTINGS_FILE;
 }
 
-std::vector<std::filesystem::path> EnginePaths::scanForWorlds() {
+std::vector<std::filesystem::path> EnginePaths::scanForWorlds() const {
     std::vector<std::filesystem::path> folders;
 
     auto folder = getWorldsFolder();
@@ -177,7 +189,7 @@ std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view pat
 
 std::filesystem::path EnginePaths::resolve(
     const std::string& path, bool throwErr
-) {
+) const {
     auto [prefix, filename] = EnginePaths::parsePath(path);
     if (prefix.empty()) {
         throw files_access_error("no entry point specified");

@@ -34,11 +34,11 @@ end
 
 
 function timeit(iters, func, ...)
-    local tm = time.uptime()
+    local tm = os.clock()
     for i=1,iters do
         func(...)
     end
-    print("[time mcs]", (time.uptime()-tm) * 1000000)
+    print("[time mcs]", (os.clock()-tm) * 1000000)
 end
 
 ----------------------------------------------

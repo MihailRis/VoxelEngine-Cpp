@@ -25,6 +25,7 @@
 #include "util/timeutil.hpp"
 #include "voxels/Block.hpp"
 #include "world/Level.hpp"
+#include "interfaces/Process.hpp"
 
 using namespace scripting;
 
@@ -40,8 +41,8 @@ BlocksController* scripting::blocks = nullptr;
 LevelController* scripting::controller = nullptr;
 
 void scripting::load_script(const fs::path& name, bool throwable) {
-    auto paths = scripting::engine->getPaths();
-    fs::path file = paths->getResourcesFolder() / fs::path("scripts") / name;
+    const auto& paths = scripting::engine->getPaths();
+    fs::path file = paths.getResourcesFolder() / fs::path("scripts") / name;
     std::string src = files::read_string(file);
     auto L = lua::get_main_state();
     lua::loadbuffer(L, 0, src, "core:scripts/"+name.u8string());
@@ -65,10 +66,63 @@ int scripting::load_script(
 
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
-    lua::initialize(*engine->getPaths());
+    lua::initialize(engine->getPaths(), engine->getCoreParameters());
 
     load_script(fs::path("stdlib.lua"), true);
     load_script(fs::path("classes.lua"), true);
+}
+
+class LuaCoroutine : public Process {
+    lua::State* L;
+    int id;
+    bool alive = true;
+public:
+    LuaCoroutine(lua::State* L, int id) : L(L), id(id) {
+    }
+
+    bool isActive() const override {
+        return alive;
+    }
+    
+    void update() override {
+        if (lua::getglobal(L, "__vc_resume_coroutine")) {
+            lua::pushinteger(L, id);
+            if (lua::call(L, 1)) {
+                alive = lua::toboolean(L, -1);
+                lua::pop(L);
+            }
+        }
+    }
+
+    void waitForEnd() override {
+        while (isActive()) {
+            update();
+        }
+    }
+    
+    void terminate() override {
+        if (lua::getglobal(L, "__vc_stop_coroutine")) {
+            lua::pushinteger(L, id);
+            lua::pop(L, lua::call(L, 1));
+        }
+    }
+};
+
+std::unique_ptr<Process> scripting::start_coroutine(
+    const std::filesystem::path& script
+) {
+    auto L = lua::get_main_state();
+    if (lua::getglobal(L, "__vc_start_coroutine")) {
+        auto source = files::read_string(script);
+        lua::loadbuffer(L, 0, source, script.filename().u8string());
+        if (lua::call(L, 1)) {
+            int id = lua::tointeger(L, -1);
+            lua::pop(L, 2);
+            return std::make_unique<LuaCoroutine>(L, id);
+        }
+        lua::pop(L);
+    }
+    return nullptr;
 }
 
 [[nodiscard]] scriptenv scripting::get_root_environment() {
@@ -368,7 +422,7 @@ bool scripting::on_block_interact(
     Player* player, const Block& block, const glm::ivec3& pos
 ) {
     std::string name = block.name + ".interact";
-    return lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
+    auto result = lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
         lua::pushivec_stack(L, pos);
         lua::pushinteger(L, player->getId());
         return 4;
@@ -386,6 +440,7 @@ bool scripting::on_block_interact(
             );
         }
     }
+    return result;
 }
 
 void scripting::on_player_tick(Player* player, int tps) {

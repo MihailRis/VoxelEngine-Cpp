@@ -70,12 +70,12 @@ public:
 };
 
 class Hud : public util::ObjectsKeeper {
-    Engine* engine;
-    Assets* assets;
+    Engine& engine;
+    Assets& assets;
     std::unique_ptr<Camera> uicamera;
     gui::GUI* gui;
     LevelFrontend& frontend;
-    Player* player;
+    Player& player;
 
     /// @brief Is any overlay/inventory open
     bool inventoryOpen = false;
@@ -134,7 +134,7 @@ class Hud : public util::ObjectsKeeper {
     void showExchangeSlot();
     void updateWorldGenDebugVisualization();
 public:
-    Hud(Engine* engine, LevelFrontend& frontend, Player* player);
+    Hud(Engine& engine, LevelFrontend& frontend, Player& player);
     ~Hud();
 
     void update(bool hudVisible);
