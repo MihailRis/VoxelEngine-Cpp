@@ -128,6 +128,9 @@ class Hud : public util::ObjectsKeeper {
     void updateHotbarControl();
     void cleanup();
 
+    /// @brief Perform exchange slot removal when it's not empty.
+    void dropExchangeSlot();
+
     void showExchangeSlot();
     void updateWorldGenDebugVisualization();
 public:

@@ -47,6 +47,7 @@
 #include "window/Window.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "debug/Logger.hpp"
 
 #include <assert.h>
 #include <memory>
@@ -55,6 +56,8 @@
 #include <utility>
 
 using namespace gui;
+
+static debug::Logger logger("hud");
 
 bool Hud::showGeneratorMinimap = false;
 
@@ -485,7 +488,32 @@ void Hud::openPermanent(UiDocument* doc) {
     add(HudElement(hud_element_mode::permanent, doc, doc->getRoot(), false));
 }
 
+void Hud::dropExchangeSlot() {
+    auto slotView = std::dynamic_pointer_cast<SlotView>(
+        gui->get(SlotView::EXCHANGE_SLOT_NAME)
+    );
+    if (slotView == nullptr) {
+        return;
+    }
+    ItemStack& stack = slotView->getStack();
+    
+    auto indices = frontend.getLevel().content->getIndices();
+    if (auto invView = std::dynamic_pointer_cast<InventoryView>(blockUI)) {
+        invView->getInventory()->move(stack, indices);
+    }
+    if (stack.isEmpty()) {
+        return;
+    }
+    player->getInventory()->move(stack, indices);
+    if (!stack.isEmpty()) {
+        logger.warning() << "discard item [" << stack.getItemId() << ":"
+                         << stack.getCount();
+        stack.clear();
+    }
+}
+
 void Hud::closeInventory() {
+    dropExchangeSlot();
     gui->remove(SlotView::EXCHANGE_SLOT_NAME);
     exchangeSlot = nullptr;
     exchangeSlotInv = nullptr;
