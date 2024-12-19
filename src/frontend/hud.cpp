@@ -508,7 +508,7 @@ void Hud::dropExchangeSlot() {
     if (stack.isEmpty()) {
         return;
     }
-    player->getInventory()->move(stack, indices);
+    player.getInventory()->move(stack, indices);
     if (!stack.isEmpty()) {
         logger.warning() << "discard item [" << stack.getItemId() << ":"
                          << stack.getCount();
