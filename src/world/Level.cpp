@@ -4,7 +4,6 @@
 #include "data/dv_util.hpp"
 #include "items/Inventories.hpp"
 #include "items/Inventory.hpp"
-#include "lighting/Lighting.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
@@ -12,7 +11,6 @@
 #include "physics/PhysicsSolver.hpp"
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
-#include "voxels/Chunks.hpp"
 #include "voxels/GlobalChunks.hpp"
 #include "window/Camera.hpp"
 #include "LevelEvents.hpp"
@@ -23,14 +21,14 @@ Level::Level(
     const Content* content,
     EngineSettings& settings
 )
-    : world(std::move(worldPtr)),
+    : settings(settings),
+      world(std::move(worldPtr)),
       content(content),
-      chunksStorage(std::make_unique<GlobalChunks>(this)),
+      chunks(std::make_unique<GlobalChunks>(this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
       entities(std::make_unique<Entities>(this)),
-      players(std::make_unique<Players>(this)),
-      settings(settings) {
+      players(std::make_unique<Players>(this)) {
     const auto& worldInfo = world->getInfo();
     auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
@@ -55,37 +53,15 @@ Level::Level(
     }
 
     events->listen(LevelEventType::EVT_CHUNK_SHOWN, [this](LevelEventType, Chunk* chunk) {
-        chunksStorage->incref(chunk);
+        chunks->incref(chunk);
     });
     events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
-        chunksStorage->decref(chunk);
+        chunks->decref(chunk);
     });
-
-    uint matrixSize =
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
-        2;
-    chunks = std::make_unique<Chunks>(
-        matrixSize, matrixSize, 0, 0, world->wfile.get(), this
-    );
-
-    lighting = std::make_unique<Lighting>(content, chunks.get());
-
     inventories = std::make_unique<Inventories>(*this);
 }
 
 Level::~Level() = default;
-
-void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
-    chunks->setCenter(x, z);
-    uint32_t diameter = std::min(
-        radius * 2LL,
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
-            2LL
-    );
-    if (chunks->getWidth() != diameter) {
-        chunks->resize(diameter, diameter);
-    }
-}
 
 World* Level::getWorld() {
     return world.get();

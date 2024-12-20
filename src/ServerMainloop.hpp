@@ -6,12 +6,12 @@ class Level;
 class LevelController;
 class Engine;
 
-class TestMainloop {
+class ServerMainloop {
     Engine& engine;
     std::unique_ptr<LevelController> controller;
 public:
-    TestMainloop(Engine& engine);
-    ~TestMainloop();
+    ServerMainloop(Engine& engine);
+    ~ServerMainloop();
 
     void run();
 

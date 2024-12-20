@@ -41,20 +41,20 @@ const float C_ZOOM = 0.1f;
 const float CROUCH_SHIFT_Y = -0.2f;
 
 CameraControl::CameraControl(
-    Player* player, const CameraSettings& settings
+    Player& player, const CameraSettings& settings
 )
     : player(player),
-      camera(player->fpCamera),
+      camera(player.fpCamera),
       settings(settings),
       offset(0.0f, 0.7f, 0.0f) {
 }
 
 void CameraControl::refresh() {
-    camera->position = player->getPosition() + offset;
+    camera->position = player.getPosition() + offset;
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
-    glm::vec3& cam = player->cam;
+    glm::vec3& cam = player.cam;
 
     float sensitivity =
         (input.zoom ? settings.sensitivity.get() / 4.f
@@ -131,28 +131,31 @@ void CameraControl::updateFovEffects(
 // more extensible but uglier
 void CameraControl::switchCamera() {
     const std::vector<std::shared_ptr<Camera>> playerCameras {
-        camera, player->tpCamera, player->spCamera};
+        camera, player.tpCamera, player.spCamera
+    };
 
     auto index = std::distance(
         playerCameras.begin(),
         std::find_if(
             playerCameras.begin(),
             playerCameras.end(),
-            [=](auto ptr) { return ptr.get() == player->currentCamera.get(); }
+            [this](auto& ptr) { return ptr.get() == player.currentCamera.get(); }
         )
     );
     if (static_cast<size_t>(index) != playerCameras.size()) {
         index = (index + 1) % playerCameras.size();
-        player->currentCamera = playerCameras.at(index);
+        player.currentCamera = playerCameras.at(index);
     } else {
-        player->currentCamera = camera;
+        player.currentCamera = camera;
     }
 }
 
-void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
+void CameraControl::update(
+    PlayerInput input, float delta, const Chunks& chunks
+) {
     offset = glm::vec3(0.0f, 0.0f, 0.0f);
 
-    if (auto hitbox = player->getHitbox()) {
+    if (auto hitbox = player.getHitbox()) {
         offset.y += hitbox->halfsize.y * (0.7f / 0.9f);
         if (settings.shaking.get() && !input.cheat) {
             offset += updateCameraShaking(*hitbox, delta);
@@ -165,45 +168,44 @@ void CameraControl::update(PlayerInput input, float delta, Chunks* chunks) {
         switchCamera();
     }
 
-    auto spCamera = player->spCamera;
-    auto tpCamera = player->tpCamera;
+    auto& spCamera = player.spCamera;
+    auto& tpCamera = player.tpCamera;
 
     refresh();
 
     camera->updateVectors();
-    if (player->currentCamera == spCamera) {
+    if (player.currentCamera == spCamera) {
         spCamera->position =
-            chunks->rayCastToObstacle(camera->position, camera->front, 3.0f) -
+            chunks.rayCastToObstacle(camera->position, camera->front, 3.0f) -
             0.4f * camera->front;
         spCamera->dir = -camera->dir;
         spCamera->front = -camera->front;
         spCamera->right = -camera->right;
-    } else if (player->currentCamera == tpCamera) {
+    } else if (player.currentCamera == tpCamera) {
         tpCamera->position =
-            chunks->rayCastToObstacle(camera->position, -camera->front, 3.0f) +
+            chunks.rayCastToObstacle(camera->position, -camera->front, 3.0f) +
             0.4f * camera->front;
         tpCamera->dir = camera->dir;
         tpCamera->front = camera->front;
         tpCamera->right = camera->right;
     }
-    if (player->currentCamera == spCamera ||
-        player->currentCamera == tpCamera || player->currentCamera == camera) {
-        player->currentCamera->setFov(glm::radians(settings.fov.get()));
+    if (player.currentCamera == spCamera ||
+        player.currentCamera == tpCamera || player.currentCamera == camera) {
+        player.currentCamera->setFov(glm::radians(settings.fov.get()));
     }
 }
 
 PlayerController::PlayerController(
     const EngineSettings& settings,
-    Level* level,
-    Player* player,
-    BlocksController* blocksController
+    Level& level,
+    Player& player,
+    BlocksController& blocksController
 )
     : settings(settings),
       level(level),
       player(player),
       camControl(player, settings.camera),
-      blocksController(blocksController),
-      playerTickClock(20, 3) {
+      blocksController(blocksController) {
 }
 
 void PlayerController::onFootstep(const Hitbox& hitbox) {
@@ -215,14 +217,14 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
             int x = std::floor(pos.x + half.x * offsetX);
             int y = std::floor(pos.y - half.y * 1.1f);
             int z = std::floor(pos.z + half.z * offsetZ);
-            auto vox = level->chunks->get(x, y, z);
+            auto vox = player.chunks->get(x, y, z);
             if (vox) {
-                auto& def = level->content->getIndices()->blocks.require(vox->id);
+                auto& def = level.content->getIndices()->blocks.require(vox->id);
                 if (!def.obstacle) {
                     continue;
                 }
-                blocksController->onBlockInteraction(
-                    player,
+                blocksController.onBlockInteraction(
+                    &player,
                     glm::ivec3(x, y, z),
                     def,
                     BlockInteraction::step
@@ -234,7 +236,7 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
 }
 
 void PlayerController::updateFootsteps(float delta) {
-    auto hitbox = player->getHitbox();
+    auto hitbox = player.getHitbox();
     if (hitbox && hitbox->grounded) {
         const glm::vec3& vel = hitbox->velocity;
         float f = glm::length(glm::vec2(vel.x, vel.z));
@@ -251,18 +253,11 @@ void PlayerController::updateFootsteps(float delta) {
 void PlayerController::update(float delta, bool input) {
     if (input) {
         updateKeyboard();
-        player->updateSelectedEntity();
+        player.updateSelectedEntity();
     } else {
         resetKeyboard();
     }
     updatePlayer(delta);
-
-    if (playerTickClock.update(delta)) {
-        if (player->getId() % playerTickClock.getParts() ==
-            playerTickClock.getPart()) {
-            scripting::on_player_tick(player, playerTickClock.getTickRate());
-        }
-    }
 }
 
 void PlayerController::postUpdate(float delta, bool input, bool pause) {
@@ -273,12 +268,12 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause && input) {
         camControl.updateMouse(this->input);
     }
-    player->postUpdate();
-    camControl.update(this->input, pause ? 0.0f : delta, level->chunks.get());
+    player.postUpdate();
+    camControl.update(this->input, pause ? 0.0f : delta, *player.chunks);
     if (input) {
         updateInteraction(delta);
     } else {
-        player->selection = {};
+        player.selection = {};
     }
 }
 
@@ -310,8 +305,8 @@ void PlayerController::resetKeyboard() {
 }
 
 void PlayerController::updatePlayer(float delta) {
-    player->updateEntity();
-    player->updateInput(input, delta);
+    player.updateEntity();
+    player.updateInput(input, delta);
 }
 
 static int determine_rotation(
@@ -347,16 +342,20 @@ static int determine_rotation(
 }
 
 static void pick_block(
-    ContentIndices* indices, Chunks* chunks, Player* player, int x, int y, int z
+    ContentIndices* indices,
+    const Block& block,
+    Player& player,
+    int x,
+    int y,
+    int z
 ) {
-    auto& block = indices->blocks.require(chunks->get(x, y, z)->id);
     itemid_t id = block.rt.pickingItem;
-    auto inventory = player->getInventory();
+    auto inventory = player.getInventory();
     size_t slotid = inventory->findSlotByItem(id, 0, 10);
     if (slotid == Inventory::npos) {
-        slotid = player->getChosenSlot();
+        slotid = player.getChosenSlot();
     } else {
-        player->setChosenSlot(slotid);
+        player.setChosenSlot(slotid);
     }
     ItemStack& stack = inventory->getSlot(slotid);
     if (stack.getItemId() != id) {
@@ -365,15 +364,15 @@ static void pick_block(
 }
 
 voxel* PlayerController::updateSelection(float maxDistance) {
-    auto indices = level->content->getIndices();
-    auto chunks = level->chunks.get();
-    auto camera = player->fpCamera.get();
-    auto& selection = player->selection;
+    auto indices = level.content->getIndices();
+    auto& chunks = *player.chunks;
+    auto camera = player.fpCamera.get();
+    auto& selection = player.selection;
 
     glm::vec3 end;
     glm::ivec3 iend;
     glm::ivec3 norm;
-    voxel* vox = chunks->rayCast(
+    voxel* vox = chunks.rayCast(
         camera->position, camera->front, maxDistance, end, norm, iend
     );
     if (vox) {
@@ -382,8 +381,8 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     auto prevEntity = selection.entity;
     selection.entity = ENTITY_NONE;
     selection.actualPosition = iend;
-    if (auto result = level->entities->rayCast(
-            camera->position, camera->front, maxDistance, player->getEntity()
+    if (auto result = level.entities->rayCast(
+            camera->position, camera->front, maxDistance, player.getEntity()
         )) {
         selection.entity = result->entity;
         selection.hitPosition =
@@ -394,13 +393,13 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     }
     if (selection.entity != prevEntity) {
         if (prevEntity != ENTITY_NONE) {
-            if (auto pentity = level->entities->get(prevEntity)) {
-                scripting::on_aim_off(*pentity, player);
+            if (auto pentity = level.entities->get(prevEntity)) {
+                scripting::on_aim_off(*pentity, &player);
             }
         }
         if (selection.entity != ENTITY_NONE) {
-            if (auto pentity = level->entities->get(selection.entity)) {
-                scripting::on_aim_on(*pentity, player);
+            if (auto pentity = level.entities->get(selection.entity)) {
+                scripting::on_aim_on(*pentity, &player);
             }
         }
     }
@@ -411,12 +410,12 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     blockstate selectedState = vox->state;
     selection.vox = *vox;
     if (selectedState.segment) {
-        selection.position = chunks->seekOrigin(
+        selection.position = chunks.seekOrigin(
             iend, indices->blocks.require(selection.vox.id), selectedState
         );
-        auto origin = chunks->get(selection.position);
+        auto origin = chunks.get(selection.position);
         if (origin && origin->id != vox->id) {
-            chunks->set(iend.x, iend.y, iend.z, 0, {});
+            chunks.set(iend.x, iend.y, iend.z, 0, {});
             return updateSelection(maxDistance);
         }
     } else {
@@ -428,16 +427,16 @@ voxel* PlayerController::updateSelection(float maxDistance) {
 }
 
 void PlayerController::processRightClick(const Block& def, const Block& target) {
-    const auto& selection = player->selection;
-    auto chunks = level->chunks.get();
-    auto camera = player->fpCamera.get();
+    const auto& selection = player.selection;
+    auto& chunks = *player.chunks;
+    auto camera = player.fpCamera.get();
 
     blockstate state {};
     state.rotation = determine_rotation(&def, selection.normal, camera->dir);
 
     if (!input.shift && target.rt.funcsset.oninteract) {
         if (scripting::on_block_interact(
-            player, target, selection.actualPosition
+            &player, target, selection.actualPosition
         )) {
             return;
         }
@@ -453,33 +452,33 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
     if (def.obstacle) {
         const auto& hitboxes = def.rt.hitboxes[state.rotation];
         for (const AABB& blockAABB : hitboxes) {
-            if (level->entities->hasBlockingInside(blockAABB.translated(coord))) {
+            if (level.entities->hasBlockingInside(blockAABB.translated(coord))) {
                 return;
             }
         }
     }
-    auto vox = chunks->get(coord);
+    auto vox = chunks.get(coord);
     if (vox == nullptr) {
         return;
     }
-    if (!chunks->checkReplaceability(def, state, coord)) {
+    if (!chunks.checkReplaceability(def, state, coord)) {
         return;
     }
     if (def.grounded) {
         const auto& vec = get_ground_direction(def, state.rotation);
-        if (!chunks->isSolidBlock(
+        if (!chunks.isSolidBlock(
                 coord.x + vec.x, coord.y + vec.y, coord.z + vec.z
             )) {
             return;
         }
     }
     if (chosenBlock != vox->id && chosenBlock) {
-        if (!player->isInfiniteItems()) {
-            auto& slot = player->getInventory()->getSlot(player->getChosenSlot());
+        if (!player.isInfiniteItems()) {
+            auto& slot = player.getInventory()->getSlot(player.getChosenSlot());
             slot.setCount(slot.getCount()-1);
         }
-        blocksController->placeBlock(
-            player, def, state, coord.x, coord.y, coord.z
+        blocksController.placeBlock(
+            &player, def, state, coord.x, coord.y, coord.z
         );
     }
 }
@@ -487,23 +486,23 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
 void PlayerController::updateEntityInteraction(
     entityid_t eid, bool lclick, bool rclick
 ) {
-    auto entityOpt = level->entities->get(eid);
+    auto entityOpt = level.entities->get(eid);
     if (!entityOpt.has_value()) {
         return;
     }
     auto entity = *entityOpt;
     if (lclick) {
-        scripting::on_attacked(entity, player, player->getEntity());
+        scripting::on_attacked(entity, &player, player.getEntity());
     }
     if (rclick) {
-        scripting::on_entity_used(entity, player);
+        scripting::on_entity_used(entity, &player);
     }
 }
 
 void PlayerController::updateInteraction(float delta) {
-    auto indices = level->content->getIndices();
-    auto chunks = level->chunks.get();
-    const auto& selection = player->selection;
+    auto indices = level.content->getIndices();
+    auto chunks = player.chunks.get();
+    const auto& selection = player.selection;
     
     if (interactionTimer > 0.0f) {
         interactionTimer -= delta;
@@ -520,14 +519,14 @@ void PlayerController::updateInteraction(float delta) {
         interactionTimer = INTERACTION_RELOAD;
     }
 
-    auto inventory = player->getInventory();
-    const ItemStack& stack = inventory->getSlot(player->getChosenSlot());
+    auto inventory = player.getInventory();
+    const ItemStack& stack = inventory->getSlot(player.getChosenSlot());
     auto& item = indices->items.require(stack.getItemId());
 
     auto vox = updateSelection(maxDistance);
     if (vox == nullptr) {
         if (rclick && item.rt.funcsset.on_use) {
-            scripting::on_item_use(player, item);
+            scripting::on_item_use(&player, item);
         }
         if (selection.entity) {
             updateEntityInteraction(selection.entity, lattack, rclick);
@@ -538,16 +537,16 @@ void PlayerController::updateInteraction(float delta) {
     auto iend = selection.position;
     if (lclick && !input.shift && item.rt.funcsset.on_block_break_by) {
         if (scripting::on_item_break_block(
-            player, item, iend.x, iend.y, iend.z
+            &player, item, iend.x, iend.y, iend.z
         )) {
             return;
         }
     }
     auto& target = indices->blocks.require(vox->id);
     if (lclick) {
-        if (player->isInstantDestruction() && target.breakable) {
-            blocksController->breakBlock(
-                player, target, iend.x, iend.y, iend.z
+        if (player.isInstantDestruction() && target.breakable) {
+            blocksController.breakBlock(
+                &player, target, iend.x, iend.y, iend.z
             );
         }
     }
@@ -555,10 +554,10 @@ void PlayerController::updateInteraction(float delta) {
         bool preventDefault = false;
         if (item.rt.funcsset.on_use_on_block) {
             preventDefault = scripting::on_item_use_on_block(
-                player, item, iend, selection.normal
+                &player, item, iend, selection.normal
             );
         } else if (item.rt.funcsset.on_use) {
-            preventDefault = scripting::on_item_use(player, item);
+            preventDefault = scripting::on_item_use(&player, item);
         }
         if (preventDefault) {
             return;
@@ -570,10 +569,10 @@ void PlayerController::updateInteraction(float delta) {
     }
     if (Events::jactive(BIND_PLAYER_PICK)) {
         auto coord = selection.actualPosition;
-        pick_block(indices, chunks, player, coord.x, coord.y, coord.z);
+        pick_block(indices, target, player, coord.x, coord.y, coord.z);
     }
 }
 
 Player* PlayerController::getPlayer() {
-    return player;
+    return &player;
 }

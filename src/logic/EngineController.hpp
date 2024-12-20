@@ -8,9 +8,9 @@ class World;
 class LevelController;
 
 class EngineController {
-    Engine* engine;
+    Engine& engine;
 public:
-    EngineController(Engine* engine);
+    EngineController(Engine& engine);
 
     /// @brief Load world, convert if required and set to LevelScreen.
     /// @param name world name

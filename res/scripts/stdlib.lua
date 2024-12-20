@@ -9,15 +9,41 @@ function sleep(timesec)
     end
 end
 
+function tb_frame_tostring(frame)
+    local s = frame.short_src
+    if frame.what ~= "C" then
+        s = s .. ":" .. tostring(frame.currentline)
+    end
+    if frame.what == "main" then
+        s = s .. ": in main chunk"
+    elseif frame.name then
+        s = s .. ": in function " .. utf8.escape(frame.name)
+    end
+    return s
+end
+
 if test then
     test.sleep = sleep
     test.name = __VC_TEST_NAME
     test.new_world = core.new_world
     test.open_world = core.open_world
     test.close_world = core.close_world
+    test.reopen_world = core.reopen_world
+    test.delete_world = core.delete_world
     test.reconfig_packs = core.reconfig_packs
     test.set_setting = core.set_setting
     test.tick = coroutine.yield
+
+    function test.quit()
+        local tb = debug.get_traceback(1)
+        local s = "test.quit() traceback:"
+        for i, frame in ipairs(tb) do
+            s = s .. "\n\t"..tb_frame_tostring(frame)
+        end
+        debug.log(s)
+        core.quit()
+        coroutine.yield()
+    end
 
     function test.sleep_until(predicate, max_ticks)
         max_ticks = max_ticks or 1e9
@@ -382,7 +408,9 @@ end
 function __vc_stop_coroutine(id)
     local co = __vc_coroutines[id]
     if co then
-        coroutine.close(co)
+        if coroutine.close then
+            coroutine.close(co)
+        end
         __vc_coroutines[id] = nil
     end
 end

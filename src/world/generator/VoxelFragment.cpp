@@ -10,11 +10,12 @@
 #include "voxels/Block.hpp"
 #include "voxels/GlobalChunks.hpp"
 #include "voxels/VoxelsVolume.hpp"
+#include "voxels/blocks_agent.hpp"
 #include "world/Level.hpp"
 #include "core_defs.hpp"
 
 std::unique_ptr<VoxelFragment> VoxelFragment::create(
-    Level* level,
+    const Level& level,
     const glm::ivec3& a,
     const glm::ivec3& b,
     bool crop,
@@ -26,7 +27,7 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
     if (crop) {
         VoxelsVolume volume(size.x, size.y, size.z);
         volume.setPosition(start.x, start.y, start.z);
-        level->chunks->getVoxels(&volume);
+        blocks_agent::get_voxels(*level.chunks, &volume);
 
         auto end = start + size;
 
@@ -51,14 +52,14 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
 
     VoxelsVolume volume(size.x, size.y, size.z);
     volume.setPosition(start.x, start.y, start.z);
-    level->chunks->getVoxels(&volume);
+    blocks_agent::get_voxels(*level.chunks, &volume);
 
     auto volVoxels = volume.getVoxels();
     std::vector<voxel> voxels(size.x * size.y * size.z);
 
     std::vector<std::string> blockNames {CORE_AIR};
     std::unordered_map<blockid_t, blockid_t> blocksRegistered {{0, 0}};
-    auto contentIndices = level->content->getIndices();
+    auto contentIndices = level.content->getIndices();
     for (size_t i = 0 ; i < voxels.size(); i++) {
         blockid_t id = volVoxels[i].id;
         blockid_t index;
@@ -170,7 +171,7 @@ void VoxelFragment::prepare(const Content& content) {
 }
 
 void VoxelFragment::place(
-    Chunks& chunks, const glm::ivec3& offset, ubyte rotation
+    GlobalChunks& chunks, const glm::ivec3& offset, ubyte rotation
 ) {
     auto& structVoxels = getRuntimeVoxels();
     for (int y = 0; y < size.y; y++) {
@@ -185,7 +186,9 @@ void VoxelFragment::place(
                 const auto& structVoxel = 
                     structVoxels[vox_index(x, y, z, size.x, size.z)];
                 if (structVoxel.id) {
-                    chunks.set(sx, sy, sz, structVoxel.id, structVoxel.state);
+                    blocks_agent::set(
+                        chunks, sx, sy, sz, structVoxel.id, structVoxel.state
+                    );
                 }
             }
         }

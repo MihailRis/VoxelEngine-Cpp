@@ -48,9 +48,10 @@ public:
 
 struct CoreParameters {
     bool headless = false;
+    bool testMode = false;
     std::filesystem::path resFolder {"res"};
     std::filesystem::path userFolder {"."};
-    std::filesystem::path testFile;
+    std::filesystem::path scriptFile;
 };
 
 class Engine : public util::ObjectsKeeper {
@@ -73,6 +74,7 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<gui::GUI> gui;
     Time time;
     consumer<std::unique_ptr<Level>> levelConsumer;
+    bool quitSignal = false;
     
     void loadControls();
     void loadSettings();
@@ -129,13 +131,17 @@ public:
     EngineSettings& getSettings();
 
     /// @brief Get engine filesystem paths source
-    EnginePaths* getPaths();
+    EnginePaths& getPaths();
 
     /// @brief Get engine resource paths controller
     ResPaths* getResPaths();
 
     void onWorldOpen(std::unique_ptr<Level> level);
     void onWorldClosed();
+
+    void quit();
+
+    bool isQuitSignal() const;
 
     /// @brief Get current Content instance
     const Content* getContent() const;

@@ -11,10 +11,23 @@
 
 class Chunk;
 class Level;
+struct AABB;
+class ContentIndices;
 
 class GlobalChunks {
+    static inline uint64_t keyfrom(int32_t x, int32_t z) {
+        union {
+            int32_t pos[2];
+            uint64_t key;
+        } ekey;
+        ekey.pos[0] = x;
+        ekey.pos[1] = z;
+        return ekey.key;
+    }
+
     Level* level;
-    std::unordered_map<long long, std::shared_ptr<Chunk>> chunksMap;
+    const ContentIndices* indices;
+    std::unordered_map<uint64_t, std::shared_ptr<Chunk>> chunksMap;
     std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> pinnedChunks;
     std::unordered_map<ptrdiff_t, int> refCounters;
 public:
@@ -27,8 +40,6 @@ public:
     void pinChunk(std::shared_ptr<Chunk> chunk);
     void unpinChunk(int x, int z);
 
-    voxel* get(int x, int y, int z) const;
-
     size_t size() const;
 
     void incref(Chunk* chunk);
@@ -38,4 +49,20 @@ public:
 
     void save(Chunk* chunk);
     void saveAll();
+
+    void putChunk(std::shared_ptr<Chunk> chunk);
+
+    const AABB* isObstacleAt(float x, float y, float z) const;
+
+    inline Chunk* getChunk(int cx, int cz) const {
+        const auto& found = chunksMap.find(keyfrom(cx, cz));
+        if (found == chunksMap.end()) {
+            return nullptr;
+        }
+        return found->second.get();
+    }
+
+    const ContentIndices& getContentIndices() const {
+        return *indices;
+    }
 };

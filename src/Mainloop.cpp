@@ -20,14 +20,14 @@ void Mainloop::run() {
             // destroy LevelScreen and run quit callbacks
             engine.setScreen(nullptr);
             // create and go to menu screen
-            engine.setScreen(std::make_shared<MenuScreen>(&engine));
+            engine.setScreen(std::make_shared<MenuScreen>(engine));
         } else {
-            engine.setScreen(std::make_shared<LevelScreen>(&engine, std::move(level)));
+            engine.setScreen(std::make_shared<LevelScreen>(engine, std::move(level)));
         }
     });
 
     logger.info() << "starting menu screen";
-    engine.setScreen(std::make_shared<MenuScreen>(&engine));
+    engine.setScreen(std::make_shared<MenuScreen>(engine));
     
     logger.info() << "main loop started";
     while (!Window::isShouldClose()){

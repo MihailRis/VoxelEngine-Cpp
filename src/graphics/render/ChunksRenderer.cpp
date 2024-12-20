@@ -20,19 +20,22 @@ size_t ChunksRenderer::visibleChunks = 0;
 
 class RendererWorker : public util::Worker<std::shared_ptr<Chunk>, RendererResult> {
     const Level& level;
+    const Chunks& chunks;
     BlocksRenderer renderer;
 public:
     RendererWorker(
         const Level& level, 
+        const Chunks& chunks,
         const ContentGfxCache& cache,
         const EngineSettings& settings
-    ) : level(level), 
+    ) : level(level),
+        chunks(chunks),
         renderer(settings.graphics.chunkMaxVertices.get(),
                  *level.content, cache, settings)
     {}
 
     RendererResult operator()(const std::shared_ptr<Chunk>& chunk) override {
-        renderer.build(chunk.get(), level.chunks.get());
+        renderer.build(chunk.get(), &chunks);
         if (renderer.isCancelled()) {
             return RendererResult {
                 glm::ivec2(chunk->x, chunk->z), true, MeshData()};
@@ -44,29 +47,36 @@ public:
 };
 
 ChunksRenderer::ChunksRenderer(
-    const Level* level, 
+    const Level* level,
+    const Chunks& chunks,
     const Assets& assets,
     const Frustum& frustum,
-    const ContentGfxCache& cache, 
+    const ContentGfxCache& cache,
     const EngineSettings& settings
-) : level(*level),
-    assets(assets),
-    frustum(frustum),
-    settings(settings),
-    threadPool(
-        "chunks-render-pool",
-        [&](){return std::make_shared<RendererWorker>(*level, cache, settings);}, 
-        [&](RendererResult& result){
-            if (!result.cancelled) {
-                auto meshData = std::move(result.meshData);
-                meshes[result.key] = ChunkMesh {
-                    std::make_unique<Mesh>(meshData.mesh),
-                    std::move(meshData.sortingMesh)
-                };
-            }
-            inwork.erase(result.key);
-        }, settings.graphics.chunkMaxRenderers.get())
-{
+)
+    : level(*level),
+      chunks(chunks),
+      assets(assets),
+      frustum(frustum),
+      settings(settings),
+      threadPool(
+          "chunks-render-pool",
+          [&]() {
+              return std::make_shared<RendererWorker>(
+                  *level, chunks, cache, settings
+              );
+          },
+          [&](RendererResult& result) {
+              if (!result.cancelled) {
+                  auto meshData = std::move(result.meshData);
+                  meshes[result.key] = ChunkMesh {
+                      std::make_unique<Mesh>(meshData.mesh),
+                      std::move(meshData.sortingMesh)};
+              }
+              inwork.erase(result.key);
+          },
+          settings.graphics.chunkMaxRenderers.get()
+      ) {
     threadPool.setStopOnFail(false);
     renderer = std::make_unique<BlocksRenderer>(
         settings.graphics.chunkMaxVertices.get(), 
@@ -83,7 +93,7 @@ const Mesh* ChunksRenderer::render(
 ) {
     chunk->flags.modified = false;
     if (important) {
-        auto mesh = renderer->render(chunk.get(), level.chunks.get());
+        auto mesh = renderer->render(chunk.get(), &chunks);
         meshes[glm::ivec2(chunk->x, chunk->z)] = ChunkMesh {
             std::move(mesh.mesh), std::move(mesh.sortingMeshData)
         };
@@ -131,7 +141,7 @@ void ChunksRenderer::update() {
 const Mesh* ChunksRenderer::retrieveChunk(
     size_t index, const Camera& camera, Shader& shader, bool culling
 ) {
-    auto chunk = level.chunks->getChunks()[index];
+    auto chunk = chunks.getChunks()[index];
     if (chunk == nullptr || !chunk->flags.lighted) {
         return nullptr;
     }
@@ -163,7 +173,6 @@ const Mesh* ChunksRenderer::retrieveChunk(
 void ChunksRenderer::drawChunks(
     const Camera& camera, Shader& shader
 ) {
-    const auto& chunks = *level.chunks;
     const auto& atlas = assets.require<Atlas>("blocks");
 
     atlas.getTexture()->bind();
@@ -232,7 +241,7 @@ void ChunksRenderer::drawSortedMeshes(const Camera& camera, Shader& shader) {
     frameid++;
 
     bool culling = settings.graphics.frustumCulling.get();
-    const auto& chunks = level.chunks->getChunks();
+    const auto& chunks = this->chunks.getChunks();
     const auto& cameraPos = camera.position;
     const auto& atlas = assets.require<Atlas>("blocks");
 

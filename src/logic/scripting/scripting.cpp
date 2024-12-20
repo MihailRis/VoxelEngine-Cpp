@@ -41,8 +41,8 @@ BlocksController* scripting::blocks = nullptr;
 LevelController* scripting::controller = nullptr;
 
 void scripting::load_script(const fs::path& name, bool throwable) {
-    auto paths = scripting::engine->getPaths();
-    fs::path file = paths->getResourcesFolder() / fs::path("scripts") / name;
+    const auto& paths = scripting::engine->getPaths();
+    fs::path file = paths.getResourcesFolder() / fs::path("scripts") / name;
     std::string src = files::read_string(file);
     auto L = lua::get_main_state();
     lua::loadbuffer(L, 0, src, "core:scripts/"+name.u8string());
@@ -66,7 +66,7 @@ int scripting::load_script(
 
 void scripting::initialize(Engine* engine) {
     scripting::engine = engine;
-    lua::initialize(*engine->getPaths(), engine->getCoreParameters());
+    lua::initialize(engine->getPaths(), engine->getCoreParameters());
 
     load_script(fs::path("stdlib.lua"), true);
     load_script(fs::path("classes.lua"), true);

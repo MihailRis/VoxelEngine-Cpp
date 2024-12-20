@@ -14,14 +14,14 @@ namespace fs = std::filesystem;
 using namespace scripting;
 
 static fs::path resolve_path(const std::string& path) {
-    return engine->getPaths()->resolve(path);
+    return engine->getPaths().resolve(path);
 }
 
 static fs::path resolve_path_soft(const std::string& path) {
     if (path.find(':') == std::string::npos) {
         return fs::u8path("");
     }
-    return engine->getPaths()->resolve(path, false);
+    return engine->getPaths().resolve(path, false);
 }
 
 static int l_find(lua::State* L) {

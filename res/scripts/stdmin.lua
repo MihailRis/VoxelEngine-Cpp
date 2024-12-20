@@ -74,7 +74,7 @@ function table.deep_copy(t)
         end
     end
 
-    return copied
+    return setmetatable(copied, getmetatable(t))
 end
 
 function table.count_pairs(t)

@@ -1,8 +1,6 @@
 #include "ChunksController.hpp"
 
 #include <limits.h>
-
-#include <iostream>
 #include <memory>
 
 #include "content/Content.hpp"
@@ -11,6 +9,7 @@
 #include "lighting/Lighting.hpp"
 #include "maths/voxmaths.hpp"
 #include "util/timeutil.hpp"
+#include "objects/Player.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
@@ -22,11 +21,8 @@
 const uint MAX_WORK_PER_FRAME = 128;
 const uint MIN_SURROUNDING = 9;
 
-ChunksController::ChunksController(Level& level, uint padding)
+ChunksController::ChunksController(Level& level)
     : level(level),
-      chunks(*level.chunks),
-      lighting(*level.lighting),
-      padding(padding),
       generator(std::make_unique<WorldGenerator>(
           level.content->generators.require(level.getWorld()->getGenerator()),
           level.content,
@@ -36,15 +32,19 @@ ChunksController::ChunksController(Level& level, uint padding)
 ChunksController::~ChunksController() = default;
 
 void ChunksController::update(
-    int64_t maxDuration, int loadDistance, int centerX, int centerY
-) {
+    int64_t maxDuration, int loadDistance, uint padding, Player& player
+) const {
+    const auto& position = player.getPosition();
+    int centerX = floordiv<CHUNK_W>(position.x);
+    int centerY = floordiv<CHUNK_D>(position.z);
+    
     generator->update(centerX, centerY, loadDistance);
 
     int64_t mcstotal = 0;
 
     for (uint i = 0; i < MAX_WORK_PER_FRAME; i++) {
         timeutil::Timer timer;
-        if (loadVisible()) {
+        if (loadVisible(player, padding)) {
             int64_t mcs = timer.stop();
             if (mcstotal + mcs < maxDuration * 1000) {
                 mcstotal += mcs;
@@ -55,7 +55,8 @@ void ChunksController::update(
     }
 }
 
-bool ChunksController::loadVisible() {
+bool ChunksController::loadVisible(const Player& player, uint padding) const {
+    const auto& chunks = *player.chunks;
     int sizeX = chunks.getWidth();
     int sizeY = chunks.getHeight();
 
@@ -69,7 +70,7 @@ bool ChunksController::loadVisible() {
             auto& chunk = chunks.getChunks()[index];
             if (chunk != nullptr) {
                 if (chunk->flags.loaded && !chunk->flags.lighted) {
-                    if (buildLights(chunk)) {
+                    if (buildLights(player, chunk)) {
                         return true;
                     }
                 }
@@ -93,32 +94,35 @@ bool ChunksController::loadVisible() {
     }
     int offsetX = chunks.getOffsetX();
     int offsetY = chunks.getOffsetY();
-    createChunk(nearX + offsetX, nearZ + offsetY);
+    createChunk(player, nearX + offsetX, nearZ + offsetY);
     return true;
 }
 
-bool ChunksController::buildLights(const std::shared_ptr<Chunk>& chunk) {
+bool ChunksController::buildLights(const Player& player, const std::shared_ptr<Chunk>& chunk) const {
     int surrounding = 0;
     for (int oz = -1; oz <= 1; oz++) {
         for (int ox = -1; ox <= 1; ox++) {
-            if (chunks.getChunk(chunk->x + ox, chunk->z + oz)) surrounding++;
+            if (player.chunks->getChunk(chunk->x + ox, chunk->z + oz))
+                surrounding++;
         }
     }
     if (surrounding == MIN_SURROUNDING) {
-        bool lightsCache = chunk->flags.loadedLights;
-        if (!lightsCache) {
-            lighting.buildSkyLight(chunk->x, chunk->z);
+        if (lighting) {
+            bool lightsCache = chunk->flags.loadedLights;
+            if (!lightsCache) {
+                lighting->buildSkyLight(chunk->x, chunk->z);
+            }
+            lighting->onChunkLoaded(chunk->x, chunk->z, !lightsCache);
         }
-        lighting.onChunkLoaded(chunk->x, chunk->z, !lightsCache);
         chunk->flags.lighted = true;
         return true;
     }
     return false;
 }
 
-void ChunksController::createChunk(int x, int z) {
-    auto chunk = level.chunksStorage->create(x, z);
-    chunks.putChunk(chunk);
+void ChunksController::createChunk(const Player& player, int x, int z) const {
+    auto chunk = level.chunks->create(x, z);
+    player.chunks->putChunk(chunk);
     auto& chunkFlags = chunk->flags;
 
     if (!chunkFlags.loaded) {

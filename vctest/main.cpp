@@ -117,8 +117,10 @@ static void setup_working_dir(const fs::path& workingDir) {
     fs::create_directories(dir);
 }
 
-static void display_test_output(const fs::path& path, std::ostream& stream) {
-    stream << "[OUTPUT]" << std::endl;
+static void display_test_output(
+    const fs::path& path, const fs::path& name, std::ostream& stream
+) {
+    stream << "[OUTPUT] " << name << std::endl;
     if (fs::exists(path)) {
         std::ifstream t(path);
         stream << t.rdbuf();
@@ -160,13 +162,13 @@ static bool run_test(const Config& config, const fs::path& path) {
             .count();
 
     if (code) {
-        display_test_output(outputFile, std::cerr);
+        display_test_output(outputFile, name, std::cerr);
         std::cerr << "[FAILED] " << name << " in " << testTime << " ms" << std::endl;
         fs::remove(outputFile);
         return false;
     } else {
         if (config.outputAlways) {
-            display_test_output(outputFile, std::cout);
+            display_test_output(outputFile, name, std::cout);
         }
         std::cout << "[PASSED] " << name << " in " << testTime << " ms" << std::endl;
         fs::remove(outputFile);
