@@ -181,7 +181,7 @@ public:
     bool translucent = false;
 
     /// @brief Set of block physical hitboxes
-    std::vector<AABB> hitboxes;
+    std::vector<AABB> hitboxes {AABB()};
 
     /// @brief Set of available block rotations (coord-systems)
     BlockRotProfile rotations = BlockRotProfile::NONE;
