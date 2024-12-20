@@ -1,5 +1,7 @@
 {
     "texture": "leaves",
     "material": "base:grass",
-    "base:durability": 0.7
+    "base:durability": 0.7,
+    "culling": "optional",
+    "model": "aabb"
 }
