@@ -35,13 +35,13 @@ jobs:
         shell: msys2 {0}
         run: |
           git clone https://github.com/microsoft/vcpkg.git
-          ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
-          ${{ github.workspace }}/vcpkg/vcpkg integrate install
+          ./vcpkg/bootstrap-vcpkg.bat
+          ./vcpkg/vcpkg integrate install
 
       - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
         env:
-          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+          VCPKG_ROOT: ./vcpkg
         run: |
             cmake --preset default-ninja-clang-windows
             cmake --build --preset default-ninja-clang-windows --config Release
