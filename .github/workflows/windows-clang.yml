@@ -32,8 +32,11 @@ jobs:
                 mingw-w64-clang-x86_64-ninja
                 git
       - name: Bootstrap vcpkg
-        shell: msys2
-        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+        shell: msys2 {0}
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+          ${{ github.workspace }}/vcpkg/vcpkg integrate install
 
       - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
