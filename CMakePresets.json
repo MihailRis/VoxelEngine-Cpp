@@ -2,16 +2,44 @@
     "version": 6,
     "configurePresets": [
         {
-            "name": "default-windows",
+            "name": "default-vs-msvc-windows",
             "condition": {
                 "type": "equals",
                 "rhs": "${hostSystemName}",
                 "lhs": "Windows"
             },
+            "generator": "Visual Studio 17 2022",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
             }
+        },
+        {
+            "name": "default-ninja-clang-windows",
+            "condition": {
+                "type": "equals",
+                "rhs": "${hostSystemName}",
+                "lhs": "Windows"
+            },
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "configuration": "Debug"
+        },
+        {
+            "name": "default-ninja-clang-windows",
+            "configurePreset": "default-ninja-clang-windows",
+            "configuration": "Debug"
         }
     ]
 }

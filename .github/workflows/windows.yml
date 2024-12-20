@@ -21,19 +21,16 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Set up vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          .\bootstrap-vcpkg.bat
-          .\vcpkg integrate install
-          cd ..
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+
       - name: Configure and build project with CMake and vcpkg
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
-          cmake --build . --config Release
+          cmake --preset default-vs-msvc-windows
+          cmake --build --preset default-vs-msvc-windows --config Release
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
       - name: Run engine tests

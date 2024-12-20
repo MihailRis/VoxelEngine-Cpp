@@ -49,6 +49,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME} VoxelEngineSrc ${CMAKE_DL_LIBS})
 
+# Deploy res to build dir
 add_custom_command(
   TARGET ${PROJECT_NAME} 
   POST_BUILD 

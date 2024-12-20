@@ -27,37 +27,29 @@ jobs:
         with:
             msystem: clang64
             install: >-
-                mingw-w64-clang-x86_64-toolchain 
-                mingw-w64-clang-x86_64-cmake 
-                mingw-w64-clang-x86_64-make 
-                mingw-w64-clang-x86_64-luajit 
+                mingw-w64-clang-x86_64-toolchain
+                mingw-w64-clang-x86_64-cmake
+                mingw-w64-clang-x86_64-ninja
                 git
-      - name: Set up vcpkg
-        shell: msys2 {0}
-        run: |
-            git clone https://github.com/microsoft/vcpkg.git
-            cd vcpkg
-            ./bootstrap-vcpkg.bat
-            ./vcpkg integrate install
-            cd ..
+      - name: Bootstrap vcpkg
+        shell: msys2
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+
       - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
-            export VCPKG_ROOT=./vcpkg
-            export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
-            export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
-            mkdir build
-            cd build
-            cmake --preset default-windows -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release ..
-            cmake --build . --config Release
+            cmake --preset default-ninja-clang-windows
+            cmake --build --preset default-ninja-clang-windows --config Release
       - name: Package for Windows
         run: |
           mkdir packaged
           mkdir packaged/res
-          cp build/VoxelEngine.exe packaged/
-          cp build/vctest/vctest.exe packaged/
+          cp build/Release/VoxelEngine.exe packaged/
+          cp build/vctest/Release/vctest.exe packaged/
           cp build/*.dll packaged/
-          cp -r build/res/* packaged/res/
+          cp -r build/Release/res/* packaged/res/
           mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
       - env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
