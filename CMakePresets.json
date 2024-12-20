@@ -41,5 +41,21 @@
             "configurePreset": "default-ninja-clang-windows",
             "configuration": "Debug"
         }
+    ],
+    "testPresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "default-ninja-clang-windows",
+            "configurePreset": "default-ninja-clang-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
     ]
 }
