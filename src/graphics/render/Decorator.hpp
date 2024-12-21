@@ -14,7 +14,7 @@ class Chunks;
 class Camera;
 class Assets;
 class Player;
-struct Block;
+class Block;
 class Engine;
 class LevelController;
 class WorldRenderer;

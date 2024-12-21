@@ -239,8 +239,16 @@ void ContentLoader::loadBlock(
         }
         def.model = *model;
     } else if (!modelTypeName.empty()) {
-        logger.error() << "unknown model " << modelTypeName;
+        logger.error() << "unknown model: " << modelTypeName;
         def.model = BlockModel::none;
+    }
+
+    std::string cullingModeName = to_string(def.culling);
+    root.at("culling").get(cullingModeName);
+    if (auto mode = CullingMode_from(cullingModeName)) {
+        def.culling = *mode;
+    } else {
+        logger.error() << "unknown culling mode: " << cullingModeName;
     }
 
     root.at("material").get(def.material);

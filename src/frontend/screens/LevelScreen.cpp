@@ -17,6 +17,7 @@
 #include "graphics/render/Decorator.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 #include "graphics/ui/GUI.hpp"
+#include "frontend/ContentGfxCache.hpp"
 #include "logic/LevelController.hpp"
 #include "logic/scripting/scripting_hud.hpp"
 #include "util/stringutil.hpp"
@@ -42,7 +43,7 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> levelPtr)
 
     controller = std::make_unique<LevelController>(engine, std::move(levelPtr));
     frontend = std::make_unique<LevelFrontend>(
-        controller->getPlayer(), controller.get(), assets
+        controller->getPlayer(), controller.get(), assets, settings
     );
     worldRenderer = std::make_unique<WorldRenderer>(
         engine, *frontend, controller->getPlayer()
@@ -56,6 +57,11 @@ LevelScreen::LevelScreen(Engine* engine, std::unique_ptr<Level> levelPtr)
     keepAlive(settings.graphics.backlight.observe([=](bool) {
         controller->getLevel()->chunks->saveAndClear();
         worldRenderer->clear();
+    }));
+    keepAlive(settings.graphics.denseRender.observe([=](bool) {
+        controller->getLevel()->chunks->saveAndClear();
+        worldRenderer->clear();
+        frontend->getContentGfxCache().refresh();
     }));
     keepAlive(settings.camera.fov.observe([=](double value) {
         controller->getPlayer()->fpCamera->setFov(glm::radians(value));
