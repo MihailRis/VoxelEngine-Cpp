@@ -21,10 +21,13 @@ endif()
 set(LIBS "")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # Use directly linking to lib instead PkgConfig (why? idk) TODO: Do it with find_package/PkgConfig
-    set(LUA_LIBRARIES "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib")
-    set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
-   
+    if (MSVC)
+        # Use directly linking to lib instead PkgConfig (why? idk) TODO: Do it with find_package/PkgConfig
+        set(LUA_LIBRARIES "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.$<IF:$<CXX_COMPILER_ID:MSVC>,lib,a>")
+        set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
+    else()
+
+    endif()
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
     find_package(vorbis REQUIRED)
