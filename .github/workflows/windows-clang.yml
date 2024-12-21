@@ -42,6 +42,8 @@ jobs:
         shell: msys2 {0}
         env:
           VCPKG_ROOT: ./vcpkg
+          VCPKG_DEFAULT_TRIPLET: x64-mingw-static
+          VCPKG_DEFAULT_HOST_TRIPLET: x64-mingw-static
         run: |
             cmake --preset default-ninja-clang-windows -DVCPKG_TARGET_TRIPLET=x64-mingw-static
             cmake --build --preset default-ninja-clang-windows --config Release
