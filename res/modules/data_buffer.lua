@@ -77,7 +77,7 @@ function data_buffer:put_bytes(bytes)
             self:put_byte(bytes[i])
         end
     else
-        self.bytes:append(bytes)
+        self.bytes:insert(self.pos, bytes)
         self.pos = self.pos + #bytes
     end
 end
