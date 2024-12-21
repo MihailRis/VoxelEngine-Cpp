@@ -73,7 +73,7 @@ class Hud : public util::ObjectsKeeper {
     Engine& engine;
     Assets& assets;
     std::unique_ptr<Camera> uicamera;
-    gui::GUI* gui;
+    gui::GUI& gui;
     LevelFrontend& frontend;
     Player& player;
 

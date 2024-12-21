@@ -154,7 +154,7 @@ static constexpr uint WORLDGEN_IMG_SIZE = 128U;
 Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
     : engine(engine),
       assets(*engine.getAssets()),
-      gui(engine.getGUI()),
+      gui(*engine.getGUI()),
       frontend(frontend),
       player(player),
       debugImgWorldGen(std::make_unique<ImageData>(
@@ -183,11 +183,11 @@ Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
         engine, frontend.getLevel(), player, allowDebugCheats
     );
     debugPanel->setZIndex(2);
-    gui->add(debugPanel);
+    gui.add(debugPanel);
     
-    gui->add(darkOverlay);
-    gui->add(hotbarView);
-    gui->add(contentAccessPanel);
+    gui.add(darkOverlay);
+    gui.add(hotbarView);
+    gui.add(contentAccessPanel);
 
     auto dplotter = std::make_shared<Plotter>(350, 250, 2000, 16);
     dplotter->setGravity(Gravity::bottom_right);
@@ -208,10 +208,10 @@ Hud::~Hud() {
     for (auto& element : elements) {
         onRemove(element);
     }
-    gui->remove(hotbarView);
-    gui->remove(darkOverlay);
-    gui->remove(contentAccessPanel);
-    gui->remove(debugPanel);
+    gui.remove(hotbarView);
+    gui.remove(darkOverlay);
+    gui.remove(contentAccessPanel);
+    gui.remove(debugPanel);
 }
 
 /// @brief Remove all elements marked as removed
@@ -322,7 +322,7 @@ void Hud::updateWorldGenDebugVisualization() {
 void Hud::update(bool visible) {
     const auto& level = frontend.getLevel();
     const auto& chunks = *player.chunks;
-    auto menu = gui->getMenu();
+    const auto& menu = gui.getMenu();
 
     debugPanel->setVisible(player.debug && visible);
 
@@ -333,7 +333,7 @@ void Hud::update(bool visible) {
         setPause(false);
     }
 
-    if (!gui->isFocusCaught()) {
+    if (!gui.isFocusCaught()) {
         processInput(visible);
     }
     if ((pause || inventoryOpen) == Events::_cursor_locked) {
@@ -460,7 +460,7 @@ void Hud::showExchangeSlot() {
     exchangeSlot->setColor(glm::vec4());
     exchangeSlot->setInteractive(false);
     exchangeSlot->setZIndex(1);
-    gui->store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
+    gui.store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
 
 }
 
@@ -494,7 +494,7 @@ void Hud::openPermanent(UiDocument* doc) {
 
 void Hud::dropExchangeSlot() {
     auto slotView = std::dynamic_pointer_cast<SlotView>(
-        gui->get(SlotView::EXCHANGE_SLOT_NAME)
+        gui.get(SlotView::EXCHANGE_SLOT_NAME)
     );
     if (slotView == nullptr) {
         return;
@@ -518,7 +518,7 @@ void Hud::dropExchangeSlot() {
 
 void Hud::closeInventory() {
     dropExchangeSlot();
-    gui->remove(SlotView::EXCHANGE_SLOT_NAME);
+    gui.remove(SlotView::EXCHANGE_SLOT_NAME);
     exchangeSlot = nullptr;
     exchangeSlotInv = nullptr;
     inventoryOpen = false;
@@ -536,7 +536,7 @@ void Hud::closeInventory() {
 }
 
 void Hud::add(const HudElement& element, const dv::value& argsArray) {
-    gui->add(element.getNode());
+    gui.add(element.getNode());
     auto document = element.getDocument();
     if (document) {
         auto invview = std::dynamic_pointer_cast<InventoryView>(element.getNode());
@@ -572,7 +572,7 @@ void Hud::onRemove(const HudElement& element) {
             invview->unbind();
         }
     }
-    gui->remove(element.getNode());
+    gui.remove(element.getNode());
 }
 
 void Hud::remove(const std::shared_ptr<UINode>& node) {
@@ -681,7 +681,7 @@ void Hud::setPause(bool pause) {
         closeInventory();
     }
     
-    auto menu = gui->getMenu();
+    const auto& menu = gui.getMenu();
     if (pause) {
         menu->setPage("pause");
     } else {
@@ -713,10 +713,10 @@ void Hud::setContentAccess(bool flag) {
 void Hud::setDebugCheats(bool flag) {
     allowDebugCheats = flag;
     
-    gui->remove(debugPanel);
+    gui.remove(debugPanel);
     debugPanel = create_debug_panel(
         engine, frontend.getLevel(), player, allowDebugCheats
     );
     debugPanel->setZIndex(2);
-    gui->add(debugPanel);
+    gui.add(debugPanel);
 }
