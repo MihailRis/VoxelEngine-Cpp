@@ -1,6 +1,6 @@
 -- Check if given table is an array
 function is_array(x)
-    if #t > 0 then
+    if #x > 0 then
         return true
     end
     for k, v in pairs(x) do
