@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "util/listutil.hpp"
 #include "../lua_util.hpp"
 
 using namespace lua;
@@ -18,8 +19,16 @@ LuaBytearray::~LuaBytearray() {
 
 static int l_append(lua::State* L) {
     if (auto buffer = touserdata<LuaBytearray>(L, 1)) {
-        auto value = tointeger(L, 2);
-        buffer->data().push_back(static_cast<ubyte>(value));
+        if (lua::isnumber(L, 2)) {
+            auto value = tointeger(L, 2);
+            buffer->data().push_back(static_cast<ubyte>(value));
+        } else if (lua::istable(L, 2)) {
+            lua::read_bytes_from_table(L, 2, buffer->data());
+        } else if (auto extension = lua::touserdata<LuaBytearray>(L, 2)) {
+            util::concat(buffer->data(), extension->data());
+        } else {
+            throw std::runtime_error("integer/table/Bytearray expected");
+        }
     }
     return 0;
 }
