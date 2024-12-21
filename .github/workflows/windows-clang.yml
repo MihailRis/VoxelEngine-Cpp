@@ -43,7 +43,7 @@ jobs:
         env:
           VCPKG_ROOT: ./vcpkg
         run: |
-            cmake --preset default-ninja-clang-windows
+            cmake --preset default-ninja-clang-windows -DVCPKG_TARGET_TRIPLET=x64-mingw-static
             cmake --build --preset default-ninja-clang-windows --config Release
       - name: Package for Windows
         run: |
