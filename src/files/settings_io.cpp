@@ -68,6 +68,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.section("graphics");
     builder.add("fog-curve", &settings.graphics.fogCurve);
     builder.add("backlight", &settings.graphics.backlight);
+    builder.add("dense-render", &settings.graphics.denseRender);
     builder.add("gamma", &settings.graphics.gamma);
     builder.add("frustum-culling", &settings.graphics.frustumCulling);
     builder.add("skybox-resolution", &settings.graphics.skyboxResolution);

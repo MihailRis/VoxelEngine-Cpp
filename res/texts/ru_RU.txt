@@ -28,6 +28,7 @@ pack.remove-confirm=Удалить весь поставляемый паком/
 # Подсказки
 graphics.gamma.tooltip=Кривая яркости освещения
 graphics.backlight.tooltip=Подсветка, предотвращающая полную темноту
+graphics.dense-render.tooltip=Включает прозрачность блоков, таких как листья.
 
 # Меню
 menu.Apply=Применить
@@ -67,6 +68,7 @@ world.delete-confirm=Удалить мир безвозвратно?
 # Настройки
 settings.Ambient=Фон
 settings.Backlight=Подсветка
+settings.Dense blocks render=Плотный рендер блоков
 settings.Camera Shaking=Тряска Камеры
 settings.Camera Inertia=Инерция Камеры
 settings.Camera FOV Effects=Эффекты поля зрения

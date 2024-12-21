@@ -14,12 +14,17 @@
 #include "world/Level.hpp"
 
 LevelFrontend::LevelFrontend(
-    Player* currentPlayer, LevelController* controller, Assets& assets
-) : level(*controller->getLevel()),
-    controller(controller),
-    assets(assets),
-    contentCache(std::make_unique<ContentGfxCache>(level.content, assets)) 
-{
+    Player* currentPlayer,
+    LevelController* controller,
+    Assets& assets,
+    const EngineSettings& settings
+)
+    : level(*controller->getLevel()),
+      controller(controller),
+      assets(assets),
+      contentCache(std::make_unique<ContentGfxCache>(
+          *level.content, assets, settings.graphics
+      )) {
     assets.store(
         BlocksPreview::build(
             *contentCache, assets, *level.content->getIndices()
@@ -96,6 +101,10 @@ const Level& LevelFrontend::getLevel() const {
 
 const Assets& LevelFrontend::getAssets() const {
     return assets;
+}
+
+ContentGfxCache& LevelFrontend::getContentGfxCache() {
+    return *contentCache;
 }
 
 const ContentGfxCache& LevelFrontend::getContentGfxCache() const {

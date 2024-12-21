@@ -8,9 +8,6 @@
 #include "voxels/Chunks.hpp"
 #include "lighting/Lightmap.hpp"
 #include "frontend/ContentGfxCache.hpp"
-#include "settings.hpp"
-
-#include <glm/glm.hpp>
 
 const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
 

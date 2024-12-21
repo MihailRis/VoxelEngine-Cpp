@@ -13,6 +13,7 @@
 #include "graphics/core/MeshData.hpp"
 #include "maths/util.hpp"
 #include "commons.hpp"
+#include "settings.hpp"
 
 class Content;
 class Mesh;
@@ -22,7 +23,6 @@ class Chunks;
 class VoxelsVolume;
 class Chunks;
 class ContentGfxCache;
-struct EngineSettings;
 struct UVRegion;
 
 class BlocksRenderer {
@@ -129,8 +129,10 @@ class BlocksRenderer {
         if (((block.drawGroup != def.drawGroup) && block.drawGroup) || !block.rt.solid) {
             return true;
         }
-        if (def.culling == CullingMode::DISABLED ||
-            (def.culling == CullingMode::OPTIONAL && id == def.rt.id)) {
+        if ((def.culling == CullingMode::DISABLED ||
+             (def.culling == CullingMode::OPTIONAL &&
+              settings.graphics.denseRender.get())) &&
+            id == def.rt.id) {
             return true;
         }
         return !id;

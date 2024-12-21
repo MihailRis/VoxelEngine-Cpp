@@ -41,4 +41,5 @@ function on_open()
     create_setting("graphics.fog-curve", "Fog Curve", 0.1)
     create_setting("graphics.gamma", "Gamma", 0.05, "", "graphics.gamma.tooltip")
     create_checkbox("graphics.backlight", "Backlight", "graphics.backlight.tooltip")
+    create_checkbox("graphics.dense-render", "Dense blocks render", "graphics.dense-render.tooltip")
 end
