@@ -52,7 +52,7 @@ function math.rand(low, high)
 end
 
 function math.normalize(num, conf)
-    conf = conf or 10
+    conf = conf or 1
 
     return (num / conf) % 1
 end
