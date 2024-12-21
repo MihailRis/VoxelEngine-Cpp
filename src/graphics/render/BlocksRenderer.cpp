@@ -342,41 +342,41 @@ void BlocksRenderer::blockCube(
     }
     
     if (ao) {
-        if (isOpen(coord + Z, group)) {
+        if (isOpen(coord + Z, block)) {
             faceAO(coord, X, Y, Z, texfaces[5], lights);
         }
-        if (isOpen(coord - Z, group)) {
+        if (isOpen(coord - Z, block)) {
             faceAO(coord, -X, Y, -Z, texfaces[4], lights);
         }
-        if (isOpen(coord + Y, group)) {
+        if (isOpen(coord + Y, block)) {
             faceAO(coord, X, -Z, Y, texfaces[3], lights);
         }
-        if (isOpen(coord - Y, group)) {
+        if (isOpen(coord - Y, block)) {
             faceAO(coord, X, Z, -Y, texfaces[2], lights);
         }
-        if (isOpen(coord + X, group)) {
+        if (isOpen(coord + X, block)) {
             faceAO(coord, -Z, Y, X, texfaces[1], lights);
         }
-        if (isOpen(coord - X, group)) {
+        if (isOpen(coord - X, block)) {
             faceAO(coord, Z, Y, -X, texfaces[0], lights);
         }
     } else {
-        if (isOpen(coord + Z, group)) {
+        if (isOpen(coord + Z, block)) {
             face(coord, X, Y, Z, texfaces[5], pickLight(coord + Z), lights);
         }
-        if (isOpen(coord - Z, group)) {
+        if (isOpen(coord - Z, block)) {
             face(coord, -X, Y, -Z, texfaces[4], pickLight(coord - Z), lights);
         }
-        if (isOpen(coord + Y, group)) {
+        if (isOpen(coord + Y, block)) {
             face(coord, X, -Z, Y, texfaces[3], pickLight(coord + Y), lights);
         }
-        if (isOpen(coord - Y, group)) {
+        if (isOpen(coord - Y, block)) {
             face(coord, X, Z, -Y, texfaces[2], pickLight(coord - Y), lights);
         }
-        if (isOpen(coord + X, group)) {
+        if (isOpen(coord + X, block)) {
             face(coord, -Z, Y, X, texfaces[1], pickLight(coord + X), lights);
         }
-        if (isOpen(coord - X, group)) {
+        if (isOpen(coord - X, block)) {
             face(coord, Z, Y, -X, texfaces[0], pickLight(coord - X), lights);
         }
     }

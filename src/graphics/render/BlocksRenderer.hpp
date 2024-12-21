@@ -118,7 +118,7 @@ class BlocksRenderer {
     bool isOpenForLight(int x, int y, int z) const;
 
     // Does block allow to see other blocks sides (is it transparent)
-    inline bool isOpen(const glm::ivec3& pos, ubyte group) const {
+    inline bool isOpen(const glm::ivec3& pos, const Block& def) const {
         auto id = voxelsBuffer->pickBlockId(
             chunk->x * CHUNK_W + pos.x, pos.y, chunk->z * CHUNK_D + pos.z
         );
@@ -126,7 +126,11 @@ class BlocksRenderer {
             return false;
         }
         const auto& block = *blockDefsCache[id];
-        if ((block.drawGroup != group && block.lightPassing) || !block.rt.solid) {
+        if (((block.drawGroup != def.drawGroup) && block.drawGroup) || !block.rt.solid) {
+            return true;
+        }
+        if (def.culling == CullingMode::DISABLED ||
+            (def.culling == CullingMode::OPTIONAL && id == def.rt.id)) {
             return true;
         }
         return !id;
