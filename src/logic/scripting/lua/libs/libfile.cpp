@@ -149,27 +149,6 @@ static int l_read_bytes(lua::State* L) {
     );
 }
 
-static void read_bytes_from_table(
-    lua::State* L, int tableIndex, std::vector<ubyte>& bytes
-) {
-    if (!lua::istable(L, tableIndex)) {
-        throw std::runtime_error("table expected");
-    } else {
-        size_t size = lua::objlen(L, tableIndex);
-        for (size_t i = 0; i < size; i++) {
-            lua::rawgeti(L, i + 1, tableIndex);
-            const int byte = lua::tointeger(L, -1);
-            lua::pop(L);
-            if (byte < 0 || byte > 255) {
-                throw std::runtime_error(
-                    "invalid byte '" + std::to_string(byte) + "'"
-                );
-            }
-            bytes.push_back(byte);
-        }
-    }
-}
-
 static int l_write_bytes(lua::State* L) {
     fs::path path = get_writeable_path(L);
 
@@ -181,7 +160,7 @@ static int l_write_bytes(lua::State* L) {
     }
 
     std::vector<ubyte> bytes;
-    read_bytes_from_table(L, 2, bytes);
+    lua::read_bytes_from_table(L, 2, bytes);
     return lua::pushboolean(
         L, files::write_bytes(path, bytes.data(), bytes.size())
     );
@@ -223,7 +202,7 @@ static int l_list(lua::State* L) {
 static int l_gzip_compress(lua::State* L) {
     std::vector<ubyte> bytes;
 
-    read_bytes_from_table(L, 1, bytes);
+    lua::read_bytes_from_table(L, 1, bytes);
     auto compressed_bytes = gzip::compress(bytes.data(), bytes.size());
     int newTable = lua::gettop(L);
 
@@ -237,7 +216,7 @@ static int l_gzip_compress(lua::State* L) {
 static int l_gzip_decompress(lua::State* L) {
     std::vector<ubyte> bytes;
 
-    read_bytes_from_table(L, 1, bytes);
+    lua::read_bytes_from_table(L, 1, bytes);
     auto decompressed_bytes = gzip::decompress(bytes.data(), bytes.size());
     int newTable = lua::gettop(L);
 
