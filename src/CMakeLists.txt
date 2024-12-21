@@ -21,8 +21,9 @@ endif()
 set(LIBS "")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(LUA_LIBRARIES "$ENV{VCPKG_ROOT}/packages/luajit_x64-windows/lib/lua51.lib")
-    set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_x64-windows/include/luajit")
+    # Use directly linking to lib instead PkgConfig (why? idk) TODO: Do it with find_package/PkgConfig
+    set(LUA_LIBRARIES "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib")
+    set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
    
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
