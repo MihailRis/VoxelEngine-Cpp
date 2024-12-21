@@ -47,6 +47,13 @@ table.remove_value(t: table, x: object)
 Удаляет элемент **x** из **t**.
 
 ```lua
+table.shuffle(t: table) -> table
+```
+
+Перемешивает значения в таблице.
+
+
+```lua
 table.tostring(t: table) -> string
 ```
 
@@ -145,6 +152,18 @@ math.rand(low, high)
 ```
 
 Возвращает случайное дробное число в диапазоне от **low** до **high**.
+
+```lua
+math.normalize(num: number, [опционально] conf: num) -> number
+```
+
+Возвращает нормализованное значение num относительно conf.
+
+```lua
+math.round(num: number, [опционально] places: num) -> number
+```
+
+Возвращает округлённое значение num до указанного количества знаков после запятой places.
 
 ## Дополнительные глобальные функции
 
