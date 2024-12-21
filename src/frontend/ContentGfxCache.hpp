@@ -11,7 +11,7 @@
 class Content;
 class Assets;
 class Atlas;
-struct Block;
+class Block;
 struct UVRegion;
 struct GraphicsSettings;
 
