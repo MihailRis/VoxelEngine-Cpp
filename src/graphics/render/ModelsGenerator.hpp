@@ -7,7 +7,7 @@
 struct ItemDef;
 class Assets;
 class Content;
-struct Block;
+class Block;
 
 class ModelsGenerator {
 public:
