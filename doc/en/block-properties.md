@@ -81,6 +81,13 @@ Turns off block model shading
 
 Determines the presence of the vertex AO effect. Turned-on by default.
 
+### *culling*
+
+Face culling mode:
+- **default** - normal face culling
+- **optional** - face culling among blocks of the same rendering group can be disabled via the `graphics.dense-render` setting.
+- **disabled** - face culling among blocks of the same rendering group disabled.
+
 ## Physics
 
 ### *obstacle*
