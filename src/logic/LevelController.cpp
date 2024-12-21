@@ -83,7 +83,7 @@ void LevelController::update(float delta, bool pause) {
                     playerTickClock.getPart()) {
                     
                     const auto& position = player->getPosition();
-                    if (!player->chunks->get(
+                    if (player->chunks->get(
                         std::floor(position.x),
                         std::floor(position.y),
                         std::floor(position.z)
