@@ -6,7 +6,7 @@
 #include "data/dv.hpp"
 #include "typedefs.hpp"
 
-struct item_funcs_set {
+struct ItemFuncsSet {
     bool init : 1;
     bool on_use : 1;
     bool on_use_on_block : 1;
@@ -43,7 +43,7 @@ struct ItemDef {
     struct {
         itemid_t id;
         blockid_t placingBlock;
-        item_funcs_set funcsset {};
+        ItemFuncsSet funcsset {};
         bool emissive = false;
     } rt {};
 

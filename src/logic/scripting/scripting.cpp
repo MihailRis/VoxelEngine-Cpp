@@ -599,7 +599,7 @@ static void process_entity_callback(
 static void process_entity_callback(
     const Entity& entity,
     const std::string& name,
-    bool entity_funcs_set::*flag,
+    bool EntityFuncsSet::*flag,
     std::function<int(lua::State*)> args
 ) {
     const auto& script = entity.getScripting();
@@ -612,7 +612,7 @@ static void process_entity_callback(
 
 void scripting::on_entity_despawn(const Entity& entity) {
     process_entity_callback(
-        entity, "on_despawn", &entity_funcs_set::on_despawn, nullptr
+        entity, "on_despawn", &EntityFuncsSet::on_despawn, nullptr
     );
     auto L = lua::get_main_state();
     lua::get_from(L, "stdcomp", "remove_Entity", true);
@@ -624,20 +624,20 @@ void scripting::on_entity_grounded(const Entity& entity, float force) {
     process_entity_callback(
         entity,
         "on_grounded",
-        &entity_funcs_set::on_grounded,
+        &EntityFuncsSet::on_grounded,
         [force](auto L) { return lua::pushnumber(L, force); }
     );
 }
 
 void scripting::on_entity_fall(const Entity& entity) {
     process_entity_callback(
-        entity, "on_fall", &entity_funcs_set::on_fall, nullptr
+        entity, "on_fall", &EntityFuncsSet::on_fall, nullptr
     );
 }
 
 void scripting::on_entity_save(const Entity& entity) {
     process_entity_callback(
-        entity, "on_save", &entity_funcs_set::on_save, nullptr
+        entity, "on_save", &EntityFuncsSet::on_save, nullptr
     );
 }
 
@@ -647,7 +647,7 @@ void scripting::on_sensor_enter(
     process_entity_callback(
         entity,
         "on_sensor_enter",
-        &entity_funcs_set::on_sensor_enter,
+        &EntityFuncsSet::on_sensor_enter,
         [index, oid](auto L) {
             lua::pushinteger(L, index);
             lua::pushinteger(L, oid);
@@ -662,7 +662,7 @@ void scripting::on_sensor_exit(
     process_entity_callback(
         entity,
         "on_sensor_exit",
-        &entity_funcs_set::on_sensor_exit,
+        &EntityFuncsSet::on_sensor_exit,
         [index, oid](auto L) {
             lua::pushinteger(L, index);
             lua::pushinteger(L, oid);
@@ -675,7 +675,7 @@ void scripting::on_aim_on(const Entity& entity, Player* player) {
     process_entity_callback(
         entity,
         "on_aim_on",
-        &entity_funcs_set::on_aim_on,
+        &EntityFuncsSet::on_aim_on,
         [player](auto L) { return lua::pushinteger(L, player->getId()); }
     );
 }
@@ -684,7 +684,7 @@ void scripting::on_aim_off(const Entity& entity, Player* player) {
     process_entity_callback(
         entity,
         "on_aim_off",
-        &entity_funcs_set::on_aim_off,
+        &EntityFuncsSet::on_aim_off,
         [player](auto L) { return lua::pushinteger(L, player->getId()); }
     );
 }
@@ -695,7 +695,7 @@ void scripting::on_attacked(
     process_entity_callback(
         entity,
         "on_attacked",
-        &entity_funcs_set::on_attacked,
+        &EntityFuncsSet::on_attacked,
         [player, attacker](auto L) {
             lua::pushinteger(L, attacker);
             lua::pushinteger(L, player->getId());
@@ -708,7 +708,7 @@ void scripting::on_entity_used(const Entity& entity, Player* player) {
     process_entity_callback(
         entity,
         "on_used",
-        &entity_funcs_set::on_used,
+        &EntityFuncsSet::on_used,
         [player](auto L) { return lua::pushinteger(L, player->getId()); }
     );
 }
@@ -796,7 +796,7 @@ void scripting::load_content_script(
     const std::string& prefix,
     const fs::path& file,
     const std::string& fileName,
-    block_funcs_set& funcsset
+    BlockFuncsSet& funcsset
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "block", file, fileName));
@@ -819,7 +819,7 @@ void scripting::load_content_script(
     const std::string& prefix,
     const fs::path& file,
     const std::string& fileName,
-    item_funcs_set& funcsset
+    ItemFuncsSet& funcsset
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "item", file, fileName));
@@ -846,7 +846,7 @@ void scripting::load_world_script(
     const std::string& prefix,
     const fs::path& file,
     const std::string& fileName,
-    world_funcs_set& funcsset
+    WorldFuncsSet& funcsset
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "world", file, fileName));

@@ -95,7 +95,7 @@ struct ContentPackStats {
     }
 };
 
-struct world_funcs_set {
+struct WorldFuncsSet {
     bool onblockplaced : 1;
     bool onblockreplaced : 1;
     bool onblockbroken : 1;
@@ -108,7 +108,7 @@ class ContentPackRuntime {
     ContentPackStats stats {};
     scriptenv env;
 public:
-    world_funcs_set worldfuncsset {};
+    WorldFuncsSet worldfuncsset {};
 
     ContentPackRuntime(ContentPack info, scriptenv env);
     ~ContentPackRuntime();
