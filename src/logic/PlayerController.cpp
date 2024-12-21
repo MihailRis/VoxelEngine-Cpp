@@ -544,6 +544,7 @@ void PlayerController::updateInteraction(float delta) {
     }
     auto& target = indices->blocks.require(vox->id);
     if (lclick) {
+        scripting::on_block_breaking(&player, target, iend);
         if (player.isInstantDestruction() && target.breakable) {
             blocksController.breakBlock(
                 &player, target, iend.x, iend.y, iend.z

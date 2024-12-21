@@ -77,6 +77,9 @@ namespace scripting {
     void on_block_replaced(
         Player* player, const Block& block, const glm::ivec3& pos
     );
+    void on_block_breaking(
+        Player* player, const Block& block, const glm::ivec3& pos
+    );
     void on_block_broken(
         Player* player, const Block& block, const glm::ivec3& pos
     );
