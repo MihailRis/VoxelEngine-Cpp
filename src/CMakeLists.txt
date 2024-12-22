@@ -22,13 +22,10 @@ set(LIBS "")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Use directly linking to lib instead PkgConfig (because pkg-config dont install on windows as default) 
-    # TODO: Do it with findLua
+    # TODO: Do it with findLua. I think, also we can use pwsh for build clang on agents instead MSYS2.
     set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
-    if (MSVC)
-        set(LUA_LIBRARIES "$ENV{VCPKG_ROOT}/packages/luajit_x64-windows/lib/lua51.lib")
-    else()
-        find_package(Lua REQUIRED)
-    endif()
+    find_package(Lua REQUIRED)
+
     message(STATUS "LUA Libraries: ${LUA_LIBRARIES}")
     message(STATUS "LUA Include Dir: ${LUA_INCLUDE_DIR}")
     find_package(glfw3 REQUIRED)

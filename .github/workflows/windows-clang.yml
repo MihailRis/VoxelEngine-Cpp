@@ -21,54 +21,37 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'true'
-      - uses: msys2/setup-msys2@v2
-        id: msys2
-        name: Setup MSYS2
-        with:
-            msystem: clang64
-            install: >-
-                mingw-w64-clang-x86_64-toolchain
-                mingw-w64-clang-x86_64-cmake
-                mingw-w64-clang-x86_64-ninja
-                mingw-w64-clang-x86_64-luajit 
-                git
+
+      - name: Get latest CMake and Ninja
+        uses: lukka/get-cmake@latest
+
       - name: Bootstrap vcpkg
-        shell: msys2 {0}
+        shell: pwsh
         run: |
           git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.bat
-          ./vcpkg/vcpkg integrate install
+          ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
 
       - name: Configure project with CMake and vcpkg
-        shell: msys2 {0}
+        shell: pwsh
         env:
-          VCPKG_ROOT: ./vcpkg
-          VCPKG_DEFAULT_TRIPLET: x64-mingw-static
-          VCPKG_DEFAULT_HOST_TRIPLET: x64-mingw-static
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
-            cmake --preset default-ninja-clang-windows -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+            cmake --preset default-ninja-clang-windows
             cmake --build --preset default-ninja-clang-windows --config Release
+      - name: Run tests
+        run: ctest --preset default-vs-msvc-windows
+      - name: Run engine tests
+        run: |
+            build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build --output-always
+        timeout-minutes: 1
       - name: Package for Windows
         run: |
           mkdir packaged
-          mkdir packaged/res
-          cp build/Release/VoxelEngine.exe packaged/
-          cp build/vctest/Release/vctest.exe packaged/
-          cp build/*.dll packaged/
-          cp -r build/Release/res/* packaged/res/
-          mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
-      - env:
-          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
-        name: Add lua51.dll to the package
-        run: |
-          cp $env:MSYS2_LOCATION/clang64/bin/lua51.dll ${{ github.workspace }}/packaged/
+          cp -r build/* packaged/
+          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
+          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
         working-directory: ${{ github.workspace }}
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-Build
-          path: 'packaged/*'
-      - name: Run engine tests
-        shell: msys2 {0}
-        working-directory: ${{ github.workspace }}
-        run: |
-          packaged/vctest.exe -e packaged/VoxelCore.exe -d dev/tests -u build --output-always
+          path: 'build/Release/*'
