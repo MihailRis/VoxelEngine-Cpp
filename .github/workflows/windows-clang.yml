@@ -22,6 +22,9 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Install latest cmake and ninja
+        uses: lukka/get-cmake@latest
+
       - name: Bootstrap vcpkg
         shell: pwsh
         run: |
