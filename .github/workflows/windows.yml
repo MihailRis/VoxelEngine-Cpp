@@ -42,11 +42,12 @@ jobs:
       - name: Package for Windows
         run: |
           mkdir packaged
-          cp -r build/* packaged/
-          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
-          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
+          cp build/Release/* packaged/
+          cp build/vctest/Release/vctest.exe packaged/
+          cp C:/Windows/System32/msvcp140.dll packaged/msvcp140.dll
+          mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
         working-directory: ${{ github.workspace }}
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-Build
-          path: 'build/Release/*'
+          path: 'packaged/*'
