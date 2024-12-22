@@ -28,8 +28,7 @@ jobs:
           git clone https://github.com/microsoft/vcpkg.git
           ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
 
-      - name: Configure project with CMake and vcpkg
-        shell: pwsh
+      - name: Configure and build project with CMake and vcpkg
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
