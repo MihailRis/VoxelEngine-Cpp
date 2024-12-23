@@ -23,30 +23,4 @@ function on_hud_open()
         local velocity = vec3.add(throw_force, vec3.add(pvel, DROP_INIT_VEL))
         drop.rigidbody:set_vel(velocity)
     end)
-    input.add_callback("player.pick", function ()
-        if hud.is_paused() or hud.is_inventory_open() then
-            return
-        end
-        local pid = hud.get_player()
-        local x, y, z = player.get_selected_block(pid)
-        if x == nil then
-            return
-        end
-        local id = block.get_picking_item(block.get(x, y, z))
-        local inv, cur_slot = player.get_inventory(pid)
-        local slot = inventory.find_by_item(inv, id, 0, 9)
-        if slot then
-            player.set_selected_slot(pid, slot)
-            return
-        end
-        if not rules.get("allow-content-access") then
-            return
-        end
-        slot = inventory.find_by_item(inv, 0, 0, 9)
-        if slot then
-            cur_slot = slot
-        end
-        player.set_selected_slot(pid, cur_slot)
-        inventory.set(inv, cur_slot, id, 1)
-    end)
 end

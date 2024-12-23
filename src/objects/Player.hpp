@@ -27,8 +27,6 @@ struct PlayerInput {
     bool shift : 1;
     bool cheat : 1;
     bool jump : 1;
-    bool noclip : 1;
-    bool flight : 1;
 };
 
 struct CursorSelection {

@@ -288,8 +288,6 @@ void PlayerController::updateKeyboard() {
     input.jump = Events::active(BIND_MOVE_JUMP);
     input.zoom = Events::active(BIND_CAM_ZOOM);
     input.cameraMode = Events::jactive(BIND_CAM_MODE);
-    input.noclip = Events::jactive(BIND_PLAYER_NOCLIP);
-    input.flight = Events::jactive(BIND_PLAYER_FLIGHT);
 }
 
 void PlayerController::resetKeyboard() {
