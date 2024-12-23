@@ -27,6 +27,8 @@ struct Particle {
     float lifetime;
     /// @brief UV region
     UVRegion region;
+    /// @brief Current rotation angle
+    float angle;
 };
 
 class Texture;
@@ -39,7 +41,7 @@ class Emitter {
     EmitterOrigin origin;
     /// @brief Particle prototype
     Particle prototype;
-    /// @brief Particle
+    /// @brief Particle texture
     const Texture* texture;
     /// @brief Number of particles should be spawned before emitter deactivation.
     /// -1 is infinite.

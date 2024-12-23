@@ -43,6 +43,7 @@ dv::value ParticlesPreset::serialize() const {
     root["explosion"] = dv::to_value(explosion);
     root["size"] = dv::to_value(size);
     root["size_spread"] = sizeSpread;
+    root["angle_spread"] = angleSpread;
     root["spawn_spread"] = dv::to_value(size);
     root["spawn_shape"] = to_string(spawnShape);
     root["random_sub_uv"] = randomSubUV;
@@ -58,6 +59,7 @@ void ParticlesPreset::deserialize(const dv::value& src) {
     src.at("spawn_interval").get(spawnInterval);
     src.at("lifetime").get(lifetime);
     src.at("lifetime_spread").get(lifetimeSpread);
+    src.at("angle_spread").get(angleSpread);
     src.at("random_sub_uv").get(randomSubUV);
     if (src.has("velocity")) {
         dv::get_vec(src["velocity"], velocity);

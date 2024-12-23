@@ -91,10 +91,23 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
             }
             float scale = 1.0f + ((particle.random ^ 2628172) % 1000) *
                                      0.001f * preset.sizeSpread;
+
+            glm::vec3 localRight = right;
+            glm::vec3 localUp = preset.globalUpVector ? glm::vec3(0, 1, 0) : up;
+            float angle = particle.angle;
+            if (glm::abs(angle) >= 0.005f) {
+                glm::vec3 rotatedRight(glm::cos(angle), -glm::sin(angle), 0.0f);
+                glm::vec3 rotatedUp(glm::sin(angle), glm::cos(angle), 0.0f);
+
+                localRight = right * rotatedRight.x + localUp * rotatedRight.y +
+                            camera.front * rotatedRight.z;
+                localUp = right * rotatedUp.x + localUp * rotatedUp.y +
+                        camera.front * rotatedUp.z;
+            }
             batch->quad(
                 particle.position,
-                right,
-                preset.globalUpVector ? glm::vec3(0, 1, 0) : up,
+                localRight,
+                localUp,
                 preset.size * scale,
                 light,
                 glm::vec3(1.0f),
