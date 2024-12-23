@@ -47,9 +47,7 @@ LevelController::LevelController(
             );
             chunks->update(16, 1, 0, *player);
             if (player->chunks->get(
-                    std::floor(position.x),
-                    std::floor(position.y),
-                    std::floor(position.z)
+                    std::floor(position.x), 0, std::floor(position.z)
                 )) {
                 confirmed++;
             }
