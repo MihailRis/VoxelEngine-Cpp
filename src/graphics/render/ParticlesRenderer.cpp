@@ -31,12 +31,14 @@ static inline void update_particle(
     const auto& preset = particle.emitter->preset;
     auto& pos = particle.position;
     auto& vel = particle.velocity;
+    auto& angle = particle.angle;
 
     vel += delta * preset.acceleration;
     if (preset.collision && chunks.isObstacleAt(pos + vel * delta)) {
         vel *= 0.0f;
     }
     pos += vel * delta;
+    angle += particle.angularVelocity * delta;
     particle.lifetime -= delta;
 }
 

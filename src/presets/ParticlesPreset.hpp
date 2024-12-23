@@ -46,6 +46,10 @@ struct ParticlesPreset : public Serializable {
     float sizeSpread = 0.2f;
     /// @brief Random initial angle spread
     float angleSpread = 0.0f;
+    /// @brief Minimum angular velocity
+    float minAngularVelocity = 0.0f;
+    /// @brief Maximum angular velocity
+    float maxAngularVelocity = 0.0f;
     /// @brief Spawn spread shape
     ParticleSpawnShape spawnShape = BALL;
     /// @brief Spawn spread

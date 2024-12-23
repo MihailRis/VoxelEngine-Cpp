@@ -88,6 +88,11 @@ void Emitter::update(
             particle.angle =
                 random.randFloat() * preset.angleSpread * glm::pi<float>() * 2;
         }
+        particle.angularVelocity =
+            (preset.minAngularVelocity +
+            random.randFloat() *
+                (preset.maxAngularVelocity - preset.minAngularVelocity)) *
+                ((random.rand() % 2) * 2 - 1);
 
         glm::vec3 spawnOffset = generate_coord(preset.spawnShape);
         spawnOffset *= preset.spawnSpread;

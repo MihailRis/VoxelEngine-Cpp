@@ -29,6 +29,8 @@ struct Particle {
     UVRegion region;
     /// @brief Current rotation angle
     float angle;
+    /// @brief Angular velocity
+    float angularVelocity;
 };
 
 class Texture;
