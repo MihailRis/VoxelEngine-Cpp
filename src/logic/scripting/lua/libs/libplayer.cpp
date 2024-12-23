@@ -101,6 +101,13 @@ static int l_get_inv(lua::State* L) {
     return 2;
 }
 
+static int l_set_selected_slot(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        player->setChosenSlot(lua::tointeger(L, 2) % 10);
+    }
+    return 0;
+}
+
 static int l_is_flight(lua::State* L) {
     if (auto player = get_player(L, 1)) {
         return lua::pushboolean(L, player->isFlight());
@@ -275,6 +282,7 @@ const luaL_Reg playerlib[] = {
     {"set_infinite_items", lua::wrap<l_set_infinite_items>},
     {"is_instant_destruction", lua::wrap<l_is_instant_destruction>},
     {"set_instant_destruction", lua::wrap<l_set_instant_destruction>},
+    {"set_selected_slot", lua::wrap<l_set_selected_slot>},
     {"get_selected_block", lua::wrap<l_get_selected_block>},
     {"get_selected_entity", lua::wrap<l_get_selected_entity>},
     {"set_spawnpoint", lua::wrap<l_set_spawnpoint>},

@@ -85,6 +85,12 @@ player.get_name(playerid: int) -> str
 Player name setter and getter
 
 ```lua
+player.set_selected_slot(playerid: int, slotid: int)
+```
+
+Sets the selected slot index
+
+```lua
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 

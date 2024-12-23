@@ -85,6 +85,12 @@ player.get_name(playerid: int) -> str
 Сеттер и геттер имени игрока
 
 ```lua
+player.set_selected_slot(playerid: int, slotid: int)
+```
+
+Устанавливает индекс выбранного слота
+
+```lua
 player.get_selected_block(playerid: int) -> x,y,z
 ```
 
