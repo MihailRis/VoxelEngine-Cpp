@@ -82,15 +82,34 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
             }
             update_particle(particle, delta, chunks);
 
+            float scale = 1.0f + ((particle.random ^ 2628172) % 1000) *
+                0.001f * preset.sizeSpread;
+
             glm::vec4 light(1, 1, 1, 0);
             if (preset.lighting) {
                 light = MainBatch::sampleLight(
-                    particle.position, chunks, backlight
+                    particle.position,
+                    chunks,
+                    backlight
                 );
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        for (int z = -1; z <= 1; z++) {
+                            light = glm::max(
+                                light,
+                                MainBatch::sampleLight(
+                                    particle.position - preset.size * scale *
+                                                            glm::vec3(x, y, z),
+                                    chunks,
+                                    backlight
+                                )
+                            );
+                        }
+                    }
+                }
                 light *= 0.9f + (particle.random % 100) * 0.001f;
             }
-            float scale = 1.0f + ((particle.random ^ 2628172) % 1000) *
-                                     0.001f * preset.sizeSpread;
+
 
             glm::vec3 localRight = right;
             glm::vec3 localUp = preset.globalUpVector ? glm::vec3(0, 1, 0) : up;
