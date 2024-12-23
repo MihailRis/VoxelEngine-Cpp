@@ -19,7 +19,7 @@ Emitter::Emitter(
 )
     : level(level),
       origin(std::move(origin)),
-      prototype({this, 0, glm::vec3(), preset.velocity, preset.lifetime, region}),
+      prototype({this, 0, {}, preset.velocity, preset.lifetime, region}),
       texture(texture),
       count(count),
       preset(std::move(preset)) {
@@ -113,6 +113,7 @@ void Emitter::update(
         if (count > 0) {
             count--;
         }
+        refCount++;
     }
 }
 
@@ -122,6 +123,10 @@ void Emitter::stop() {
 
 bool Emitter::isDead() const {
     return count == 0;
+}
+
+bool Emitter::isReferred() const {
+    return refCount > 0;
 }
 
 const EmitterOrigin& Emitter::getOrigin() const {

@@ -54,6 +54,9 @@ class Emitter {
 
     util::PseudoRandom random;
 public:
+    /// @brief Number of references (alive particles)
+    int refCount = 0;
+    /// @brief Particle settings
     ParticlesPreset preset;
 
     Emitter(
@@ -85,6 +88,9 @@ public:
 
     /// @return true if the emitter has spawned all particles
     bool isDead() const;
+
+    /// @return true if there is at least one alive referring particle left
+    bool isReferred() const;
 
     const EmitterOrigin& getOrigin() const;
 
