@@ -92,14 +92,15 @@ void ParticlesRenderer::renderParticles(const Camera& camera, float delta) {
                     chunks,
                     backlight
                 );
+                auto size = glm::max(glm::vec3(0.5f), preset.size * scale);
                 for (int x = -1; x <= 1; x++) {
                     for (int y = -1; y <= 1; y++) {
                         for (int z = -1; z <= 1; z++) {
                             light = glm::max(
                                 light,
                                 MainBatch::sampleLight(
-                                    particle.position - preset.size * scale *
-                                                            glm::vec3(x, y, z),
+                                    particle.position -
+                                        size * glm::vec3(x, y, z),
                                     chunks,
                                     backlight
                                 )
