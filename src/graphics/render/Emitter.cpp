@@ -23,7 +23,7 @@ Emitter::Emitter(
       texture(texture),
       count(count),
       preset(std::move(preset)) {
-    random.setSeed(rand());
+    random.setSeed(reinterpret_cast<ptrdiff_t>(this));
     this->prototype.emitter = this;
     timer = preset.spawnInterval * random.randFloat();
 }
