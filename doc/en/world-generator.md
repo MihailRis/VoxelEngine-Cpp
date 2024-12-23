@@ -27,6 +27,7 @@
    * [Small structures placement](#small-structures-placement)
    * [Wide structures placement](#wide-structures-placement)
 - [Structural air](#structural-air)
+- [Generator 'Demo' (base:demo)](#generator-demo-basedemo)
 
 ## Basic concepts
 
@@ -473,3 +474,24 @@ function place_structures_wide(
 `core:struct_air` - a block that should be used in chunks to mark empty space that should not be filled with blocks when generated in the world.
 
 <image src="../../res/textures/blocks/struct_air.png" width="128px" height="128px" style="image-rendering: pixelated">
+
+# Generator 'Demo' (base:demo)
+
+## Adding new ore
+
+To add a new ore in your pack:
+1. In the `generators` folder, create a `demo.files` folder (you don't need to create demo.toml).
+
+2. In the created folder, create a fragments folder and place the ore fragment file in it.
+3. In `demo.files`, create a structures.toml file:
+```toml
+fragment_name = {}
+```
+4. Also in `demo.files`, create an ores.json file:
+```json
+[
+    {"struct": "fragment_name", "rarity": rarity}
+]
+```
+The higher the rarity value, the less ore generation chance.
+You can rely on the rarity of coal ore: 4400.
