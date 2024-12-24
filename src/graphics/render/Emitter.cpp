@@ -19,12 +19,13 @@ Emitter::Emitter(
 )
     : level(level),
       origin(std::move(origin)),
-      prototype({this, 0, glm::vec3(), preset.velocity, preset.lifetime, region}),
+      prototype({this, 0, {}, preset.velocity, preset.lifetime, region}),
       texture(texture),
       count(count),
       preset(std::move(preset)) {
+    random.setSeed(reinterpret_cast<ptrdiff_t>(this));
     this->prototype.emitter = this;
-    timer = preset.spawnInterval;
+    timer = preset.spawnInterval * random.randFloat();
 }
 
 const Texture* Emitter::getTexture() const {
@@ -76,6 +77,10 @@ void Emitter::update(
             count = std::max(0, count - skipped);
             timer -= skipped * spawnInterval;
         }
+        if (count < 0) {
+            int skipped = timer / spawnInterval;
+            timer -= skipped * spawnInterval;
+        }
         return;
     }
     while (count && timer > spawnInterval) {
@@ -83,6 +88,15 @@ void Emitter::update(
         Particle particle = prototype;
         particle.emitter = this;
         particle.random = random.rand32();
+        if (glm::abs(preset.angleSpread) >= 0.005f) {
+            particle.angle =
+                random.randFloat() * preset.angleSpread * glm::pi<float>() * 2;
+        }
+        particle.angularVelocity =
+            (preset.minAngularVelocity +
+            random.randFloat() *
+                (preset.maxAngularVelocity - preset.minAngularVelocity)) *
+                ((random.rand() % 2) * 2 - 1);
 
         glm::vec3 spawnOffset = generate_coord(preset.spawnShape);
         spawnOffset *= preset.spawnSpread;
@@ -103,6 +117,7 @@ void Emitter::update(
         if (count > 0) {
             count--;
         }
+        refCount++;
     }
 }
 
@@ -112,6 +127,10 @@ void Emitter::stop() {
 
 bool Emitter::isDead() const {
     return count == 0;
+}
+
+bool Emitter::isReferred() const {
+    return refCount > 0;
 }
 
 const EmitterOrigin& Emitter::getOrigin() const {

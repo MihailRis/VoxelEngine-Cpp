@@ -27,6 +27,10 @@ struct Particle {
     float lifetime;
     /// @brief UV region
     UVRegion region;
+    /// @brief Current rotation angle
+    float angle;
+    /// @brief Angular velocity
+    float angularVelocity;
 };
 
 class Texture;
@@ -39,7 +43,7 @@ class Emitter {
     EmitterOrigin origin;
     /// @brief Particle prototype
     Particle prototype;
-    /// @brief Particle
+    /// @brief Particle texture
     const Texture* texture;
     /// @brief Number of particles should be spawned before emitter deactivation.
     /// -1 is infinite.
@@ -50,6 +54,9 @@ class Emitter {
 
     util::PseudoRandom random;
 public:
+    /// @brief Number of references (alive particles)
+    int refCount = 0;
+    /// @brief Particle settings
     ParticlesPreset preset;
 
     Emitter(
@@ -81,6 +88,9 @@ public:
 
     /// @return true if the emitter has spawned all particles
     bool isDead() const;
+
+    /// @return true if there is at least one alive referring particle left
+    bool isReferred() const;
 
     const EmitterOrigin& getOrigin() const;
 
