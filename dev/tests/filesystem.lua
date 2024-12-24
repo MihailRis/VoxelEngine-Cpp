@@ -42,3 +42,9 @@ end
 debug.log("delete file")
 file.remove("config:binary")
 assert(not file.exists("config:binary"))
+
+debug.log("checking entry points for writeability")
+assert(file.is_writeable("config:"))
+assert(file.is_writeable("export:"))
+assert(not file.is_writeable("user:"))
+assert(not file.is_writeable("res:"))

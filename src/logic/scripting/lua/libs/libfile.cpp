@@ -243,6 +243,16 @@ static int l_read_combined_object(lua::State* L) {
     return lua::pushvalue(L, engine->getResPaths()->readCombinedObject(path));
 }
 
+static int l_is_writeable(lua::State* L) {
+    std::string rawpath = lua::require_string(L, 1);
+    fs::path path = resolve_path(rawpath);
+    auto entryPoint = rawpath.substr(0, rawpath.find(':'));
+    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
+        return lua::pushboolean(L, false);
+    }
+    return lua::pushboolean(L, true);
+}
+
 const luaL_Reg filelib[] = {
     {"exists", lua::wrap<l_exists>},
     {"find", lua::wrap<l_find>},
@@ -263,4 +273,5 @@ const luaL_Reg filelib[] = {
     {"gzip_decompress", lua::wrap<l_gzip_decompress>},
     {"read_combined_list", lua::wrap<l_read_combined_list>},
     {"read_combined_object", lua::wrap<l_read_combined_object>},
+    {"is_writeable", lua::wrap<l_is_writeable>},
     {NULL, NULL}};
