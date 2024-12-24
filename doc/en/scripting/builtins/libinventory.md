@@ -32,6 +32,21 @@ inventory.size(invid: int) -> int
 -- Returns remaining count if could not to add fully.
 inventory.add(invid: int, itemid: int, count: int) -> int
 
+-- Returns the index of the first matching slot in the given range.
+-- If no matching slot was found, returns nil
+inventory.find_by_item(
+    -- inventory id
+    invid: int,
+    -- item id
+    itemid: int,
+    -- [optional] index of the slot range start (from 0)
+    range_begin: int,
+    -- [optional] index of the slot range end (from 0)
+    range_end: int,
+    -- [optional] minimum item count in the slot
+    min_count: int = 1
+) -> int
+
 -- Returns block inventory ID or 0.
 inventory.get_block(x: int, y: int, z: int) -> int
 

@@ -9,6 +9,54 @@ function sleep(timesec)
     end
 end
 
+function tb_frame_tostring(frame)
+    local s = frame.short_src
+    if frame.what ~= "C" then
+        s = s .. ":" .. tostring(frame.currentline)
+    end
+    if frame.what == "main" then
+        s = s .. ": in main chunk"
+    elseif frame.name then
+        s = s .. ": in function " .. utf8.escape(frame.name)
+    end
+    return s
+end
+
+if test then
+    test.sleep = sleep
+    test.name = __VC_TEST_NAME
+    test.new_world = core.new_world
+    test.open_world = core.open_world
+    test.close_world = core.close_world
+    test.reopen_world = core.reopen_world
+    test.delete_world = core.delete_world
+    test.reconfig_packs = core.reconfig_packs
+    test.set_setting = core.set_setting
+    test.tick = coroutine.yield
+
+    function test.quit()
+        local tb = debug.get_traceback(1)
+        local s = "test.quit() traceback:"
+        for i, frame in ipairs(tb) do
+            s = s .. "\n\t"..tb_frame_tostring(frame)
+        end
+        debug.log(s)
+        core.quit()
+        coroutine.yield()
+    end
+
+    function test.sleep_until(predicate, max_ticks)
+        max_ticks = max_ticks or 1e9
+        local ticks = 0
+        while ticks < max_ticks and not predicate() do
+            test.tick()
+        end
+        if ticks == max_ticks then
+            error("max ticks exceed")
+        end
+    end
+end
+
 ------------------------------------------------
 ------------------- Events ---------------------
 ------------------------------------------------
@@ -272,7 +320,6 @@ function __vc_on_hud_open()
 
     _rules.create("allow-content-access", hud._is_content_access(), function(value)
         hud._set_content_access(value)
-        input.set_enabled("player.pick", value)
     end)
     _rules.create("allow-flight", true, function(value)
         input.set_enabled("player.flight", value)
@@ -326,6 +373,45 @@ end
 
 function __vc_on_world_quit()
     _rules.clear()
+end
+
+local __vc_coroutines = {}
+local __vc_next_coroutine = 1
+local __vc_coroutine_error = nil
+
+function __vc_start_coroutine(chunk)
+    local co = coroutine.create(function()
+        local status, err = pcall(chunk)
+        if not status then
+            __vc_coroutine_error = err
+        end
+    end)
+    local id = __vc_next_coroutine
+    __vc_next_coroutine = __vc_next_coroutine + 1
+    __vc_coroutines[id] = co
+    return id
+end
+
+function __vc_resume_coroutine(id)
+    local co = __vc_coroutines[id]
+    if co then
+        coroutine.resume(co)
+        if __vc_coroutine_error then
+            error(__vc_coroutine_error)
+        end
+        return coroutine.status(co) ~= "dead"
+    end
+    return false
+end
+
+function __vc_stop_coroutine(id)
+    local co = __vc_coroutines[id]
+    if co then
+        if coroutine.close then
+            coroutine.close(co)
+        end
+        __vc_coroutines[id] = nil
+    end
 end
 
 assets = {}

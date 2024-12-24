@@ -162,7 +162,7 @@ entityid_t Entities::spawn(
 
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
-            componentName, entity_funcs_set {}, nullptr
+            componentName, EntityFuncsSet {}, nullptr
         );
         scripting.components.emplace_back(std::move(component));
     }
@@ -459,7 +459,7 @@ void Entities::updatePhysics(float delta) {
         float vel = glm::length(prevVel);
         int substeps = static_cast<int>(delta * vel * 20);
         substeps = std::min(100, std::max(2, substeps));
-        physics->step(level->chunks.get(), &hitbox, delta, substeps, eid.uid);
+        physics->step(*level->chunks, &hitbox, delta, substeps, eid.uid);
         hitbox.linearDamping = hitbox.grounded * 24;
         transform.setPos(hitbox.position);
         if (hitbox.grounded && !grounded) {
@@ -556,10 +556,6 @@ void Entities::render(
     float delta,
     bool pause
 ) {
-    if (!pause) {
-        scripting::on_entities_render(delta);
-    }
-
     auto view = registry.view<Transform, rigging::Skeleton>();
     for (auto [entity, transform, skeleton] : view.each()) {
         if (transform.dirty) {

@@ -15,7 +15,7 @@
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "world/generator/WorldGenerator.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "Level.hpp"
@@ -95,9 +95,9 @@ std::unique_ptr<Level> World::create(
         content,
         packs
     );
-    auto level = std::make_unique<Level>(std::move(world), content, settings);
-    level->players->create();
-    return level;
+    logger.info() << "created world '" << name << "' (" << directory.u8string() << ")";
+    logger.info() << "world seed: " << seed << " generator: " << generator;
+    return std::make_unique<Level>(std::move(world), content, settings);
 }
 
 std::unique_ptr<Level> World::load(
@@ -133,8 +133,10 @@ std::unique_ptr<Level> World::load(
         auto playerRoot = files::read_json(file);
         level->players->deserialize(playerRoot);
 
-        if (!playerRoot["players"][0].has("id")) {
-            level->getWorld()->getInfo().nextPlayerId++;
+        if (!playerRoot["players"].empty()) {
+            if (!playerRoot["players"][0].has("id")) {
+                level->getWorld()->getInfo().nextPlayerId++;
+            }
         }
     }
     return level;

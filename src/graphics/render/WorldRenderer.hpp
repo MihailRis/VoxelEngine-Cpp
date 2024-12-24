@@ -32,9 +32,9 @@ class Assets;
 struct EngineSettings;
 
 class WorldRenderer {
-    Engine* engine;
+    Engine& engine;
     const Level& level;
-    Player* player;
+    Player& player;
     const Assets& assets;
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
@@ -45,6 +45,7 @@ class WorldRenderer {
     std::unique_ptr<ModelBatch> modelBatch;
     
     float timer = 0.0f;
+    bool debug = false;
 
     /// @brief Render block selection lines
     void renderBlockSelection();
@@ -74,7 +75,7 @@ public:
     static bool showChunkBorders;
     static bool showEntitiesDebug;
 
-    WorldRenderer(Engine* engine, LevelFrontend& frontend, Player* player);
+    WorldRenderer(Engine& engine, LevelFrontend& frontend, Player& player);
     ~WorldRenderer();
 
     void draw(
@@ -100,4 +101,6 @@ public:
     );
 
     void clear();
+
+    void setDebug(bool flag);
 };

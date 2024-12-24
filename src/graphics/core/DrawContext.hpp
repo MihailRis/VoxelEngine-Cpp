@@ -10,7 +10,7 @@ class Framebuffer;
 class DrawContext {
     const DrawContext* parent;
     Viewport viewport;
-    Batch2D* const g2d;
+    Batch2D* g2d;
     Flushable* flushable = nullptr;
     Framebuffer* fbo = nullptr;
     bool depthMask = true;

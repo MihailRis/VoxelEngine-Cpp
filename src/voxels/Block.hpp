@@ -34,10 +34,11 @@ inline constexpr size_t MAX_USER_BLOCK_FIELDS_SIZE = 240;
 
 inline std::string DEFAULT_MATERIAL = "base:stone";
 
-struct block_funcs_set {
+struct BlockFuncsSet {
     bool init : 1;
     bool update : 1;
     bool onplaced : 1;
+    bool onbreaking : 1;
     bool onbroken : 1;
     bool onreplaced : 1;
     bool oninteract : 1;
@@ -241,7 +242,7 @@ public:
         std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];
 
         /// @brief set of block callbacks flags
-        block_funcs_set funcsset {};
+        BlockFuncsSet funcsset {};
 
         /// @brief picking item integer id
         itemid_t pickingItem = 0;

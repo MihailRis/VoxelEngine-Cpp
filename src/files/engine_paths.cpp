@@ -48,6 +48,18 @@ static std::filesystem::path toCanonic(std::filesystem::path path) {
 }
 
 void EnginePaths::prepare() {
+    if (!fs::is_directory(resourcesFolder)) {
+        throw std::runtime_error(
+            resourcesFolder.u8string() + " is not a directory"
+        );
+    }
+    if (!fs::is_directory(userFilesFolder)) {
+        fs::create_directories(userFilesFolder);
+    }
+
+    logger.info() << "resources folder: " << fs::canonical(resourcesFolder).u8string();
+    logger.info() << "user files folder: " << fs::canonical(userFilesFolder).u8string();
+    
     auto contentFolder = userFilesFolder / CONTENT_FOLDER;
     if (!fs::is_directory(contentFolder)) {
         fs::create_directories(contentFolder);
@@ -120,7 +132,7 @@ std::filesystem::path EnginePaths::getSettingsFile() const {
     return userFilesFolder / SETTINGS_FILE;
 }
 
-std::vector<std::filesystem::path> EnginePaths::scanForWorlds() {
+std::vector<std::filesystem::path> EnginePaths::scanForWorlds() const {
     std::vector<std::filesystem::path> folders;
 
     auto folder = getWorldsFolder();
@@ -157,6 +169,10 @@ void EnginePaths::setResourcesFolder(std::filesystem::path folder) {
     this->resourcesFolder = std::move(folder);
 }
 
+void EnginePaths::setScriptFolder(std::filesystem::path folder) {
+    this->scriptFolder = std::move(folder);
+}
+
 void EnginePaths::setCurrentWorldFolder(std::filesystem::path folder) {
     this->currentWorldFolder = std::move(folder);
 }
@@ -177,7 +193,7 @@ std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view pat
 
 std::filesystem::path EnginePaths::resolve(
     const std::string& path, bool throwErr
-) {
+) const {
     auto [prefix, filename] = EnginePaths::parsePath(path);
     if (prefix.empty()) {
         throw files_access_error("no entry point specified");
@@ -199,7 +215,9 @@ std::filesystem::path EnginePaths::resolve(
     if (prefix == "export") {
         return userFilesFolder / EXPORT_FOLDER / fs::u8path(filename);
     }
-
+    if (prefix == "script" && scriptFolder) {
+        return scriptFolder.value() / fs::u8path(filename);
+    }
     if (contentPacks) {
         for (auto& pack : *contentPacks) {
             if (pack.id == prefix) {

@@ -189,10 +189,10 @@ void WorldGenerator::placeLine(const LinePlacement& line, int priority) {
     aabb.fix();
     aabb.a -= line.radius;
     aabb.b += line.radius;
-    int cxa = floordiv(aabb.a.x, CHUNK_W);
-    int cza = floordiv(aabb.a.z, CHUNK_D);
-    int cxb = floordiv(aabb.b.x, CHUNK_W);
-    int czb = floordiv(aabb.b.z, CHUNK_D);
+    int cxa = floordiv<CHUNK_W>(aabb.a.x);
+    int cza = floordiv<CHUNK_D>(aabb.a.z);
+    int cxb = floordiv<CHUNK_W>(aabb.b.x);
+    int czb = floordiv<CHUNK_D>(aabb.b.z);
     for (int cz = cza; cz <= czb; cz++) {
         for (int cx = cxa; cx <= cxb; cx++) {
             const auto& found = prototypes.find({cx, cz});
@@ -354,8 +354,8 @@ void WorldGenerator::generateHeightmap(
 
 void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
-    // 1 is safety padding preventing ChunksController rounding problem
-    surroundMap.resize(loadDistance + 1);
+    // 2 is safety padding preventing ChunksController rounding problem
+    surroundMap.resize(loadDistance + 2);
     surroundMap.setCenter(centerX, centerY);
 }
 

@@ -35,6 +35,11 @@ inline constexpr int CHUNK_D = 16;
 inline constexpr uint VOXEL_USER_BITS = 8;
 inline constexpr uint VOXEL_USER_BITS_OFFSET = sizeof(blockstate_t)*8-VOXEL_USER_BITS;
 
+/// @brief % unordered map max average buckets load factor.
+/// Low value gives significant performance impact by minimizing collisions and
+/// lookup latency. Default value (1.0) shows x2 slower work.
+inline constexpr float CHUNKS_MAP_MAX_LOAD_FACTOR = 0.1f;
+
 /// @brief chunk volume (count of voxels per Chunk)
 inline constexpr int CHUNK_VOL = (CHUNK_W * CHUNK_H * CHUNK_D);
 

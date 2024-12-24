@@ -125,7 +125,7 @@ static void resetPackBindings(fs::path& packFolder) {
 }
 
 static int l_reset_bindings(lua::State*) {
-    auto resFolder = engine->getPaths()->getResourcesFolder();
+    auto resFolder = engine->getPaths().getResourcesFolder();
     resetPackBindings(resFolder);
     for (auto& pack : engine->getContentPacks()) {
         resetPackBindings(pack.folder);

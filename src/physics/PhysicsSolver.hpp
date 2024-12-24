@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 
 class Block;
-class Chunks;
+class GlobalChunks;
 struct Sensor;
 
 class PhysicsSolver {
@@ -18,14 +18,14 @@ class PhysicsSolver {
 public:
     PhysicsSolver(glm::vec3 gravity);
     void step(
-        Chunks* chunks,
+        const GlobalChunks& chunks,
         Hitbox* hitbox,
         float delta,
         uint substeps,
         entityid_t entity
     );
     void colisionCalc(
-        Chunks* chunks,
+        const GlobalChunks& chunks,
         Hitbox* hitbox,
         glm::vec3& vel,
         glm::vec3& pos,

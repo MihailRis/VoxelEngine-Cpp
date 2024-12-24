@@ -22,7 +22,9 @@ public:
 
     ItemStack& getSlot(size_t index);
     size_t findEmptySlot(size_t begin = 0, size_t end = -1) const;
-    size_t findSlotByItem(itemid_t id, size_t begin = 0, size_t end = -1);
+    size_t findSlotByItem(
+        itemid_t id, size_t begin = 0, size_t end = -1, size_t minCount = 1
+    );
 
     inline size_t size() const {
         return slots.size();

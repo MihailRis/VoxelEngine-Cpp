@@ -44,6 +44,9 @@ Player::Player(
       position(position),
       inventory(std::move(inv)),
       eid(eid),
+      chunks(std::make_unique<Chunks>(
+          3, 3, 0, 0, level->events.get(), level->content->getIndices()
+      )),
       fpCamera(level->getCamera("core:first-person")),
       spCamera(level->getCamera("core:third-person-front")),
       tpCamera(level->getCamera("core:third-person-back")),
@@ -132,18 +135,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
         hitbox->velocity.y = JUMP_FORCE;
     }
 
-    if ((input.flight && !noclip) || (input.noclip && flight == noclip)) {
-        flight = !flight;
-        if (flight) {
-            hitbox->velocity.y += 1.0f;
-        }
-    }
     hitbox->type = noclip ? BodyType::KINEMATIC : BodyType::DYNAMIC;
-    if (input.noclip) {
-        noclip = !noclip;
-    }
-    input.noclip = false;
-    input.flight = false;
 }
 
 void Player::updateSelectedEntity() {
@@ -202,12 +194,12 @@ void Player::attemptToFindSpawnpoint() {
         position.z + (rand() % 200 - 100)
     );
     while (newpos.y > 0 &&
-           !level->chunks->isObstacleBlock(newpos.x, newpos.y - 2, newpos.z)) {
+           !chunks->isObstacleBlock(newpos.x, newpos.y - 2, newpos.z)) {
         newpos.y--;
     }
 
-    voxel* headvox = level->chunks->get(newpos.x, newpos.y + 1, newpos.z);
-    if (level->chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
+    voxel* headvox = chunks->get(newpos.x, newpos.y + 1, newpos.z);
+    if (chunks->isObstacleBlock(newpos.x, newpos.y, newpos.z) ||
         headvox == nullptr || headvox->id != 0) {
         return;
     }
@@ -259,6 +251,14 @@ void Player::setInstantDestruction(bool flag) {
     instantDestruction = flag;
 }
 
+bool Player::isLoadingChunks() const {
+    return loadingChunks;
+}
+
+void Player::setLoadingChunks(bool flag) {
+    loadingChunks = flag;
+}
+
 entityid_t Player::getEntity() const {
     return eid;
 }
@@ -305,6 +305,7 @@ dv::value Player::serialize() const {
     root["noclip"] = noclip;
     root["infinite-items"] = infiniteItems;
     root["instant-destruction"] = instantDestruction;
+    root["loading-chunks"] = loadingChunks;
     root["chosen-slot"] = chosenSlot;
     root["entity"] = eid;
     root["inventory"] = inventory->serialize();
@@ -337,7 +338,8 @@ void Player::deserialize(const dv::value& src) {
     noclip = src["noclip"].asBoolean();
     src.at("infinite-items").get(infiniteItems);
     src.at("instant-destruction").get(instantDestruction);
-    
+    src.at("loading-chunks").get(loadingChunks);
+
     setChosenSlot(src["chosen-slot"].asInteger());
     eid = src["entity"].asNumber();
 

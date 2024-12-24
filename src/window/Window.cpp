@@ -199,7 +199,7 @@ int Window::initialize(DisplaySettings* settings) {
 
     observers_keeper = util::ObjectsKeeper();
     observers_keeper.keepAlive(settings->fullscreen.observe(
-        [=](bool value) {
+        [](bool value) {
             if (value != isFullscreen()) {
                 toggleFullscreen();
             }
