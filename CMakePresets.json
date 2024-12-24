@@ -24,8 +24,13 @@
             },
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/build",
+            "environment": {
+                "VCPKG_DEFAULT_TRIPLET": "x64-mingw-static",
+                "VCPKG_DEFAULT_HOST_TRIPLET": "x64-mingw-static"
+            },
             "cacheVariables": {
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_TARGET_TRIPLET": "x64-mingw-static",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang",
                 "VOXELENGINE_BUILD_TESTS": "ON"
