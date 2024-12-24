@@ -57,12 +57,7 @@ static fs::path get_writeable_path(lua::State* L) {
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
-        if (lua::getglobal(L, "__vc_warning")) {
-            lua::pushstring(L, "writing to read-only entry point");
-            lua::pushstring(L, entryPoint);
-            lua::pushinteger(L, 1);
-            lua::call_nothrow(L, 3);
-        }
+        throw std::runtime_error("access denied");
     }
     return path;
 }
