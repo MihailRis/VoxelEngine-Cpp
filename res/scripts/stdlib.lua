@@ -320,7 +320,6 @@ function __vc_on_hud_open()
 
     _rules.create("allow-content-access", hud._is_content_access(), function(value)
         hud._set_content_access(value)
-        input.set_enabled("player.pick", value)
     end)
     _rules.create("allow-flight", true, function(value)
         input.set_enabled("player.flight", value)

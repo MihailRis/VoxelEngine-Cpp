@@ -17,6 +17,8 @@
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "graphics/ui/elements/Menu.hpp"
+#include "graphics/ui/GUI.hpp"
+#include "frontend/ContentGfxCache.hpp"
 #include "logic/LevelController.hpp"
 #include "logic/PlayerController.hpp"
 #include "logic/scripting/scripting.hpp"
@@ -55,7 +57,7 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
     );
 
     frontend = std::make_unique<LevelFrontend>(
-        player, controller.get(), assets
+        player, controller.get(), assets, settings
     );
     worldRenderer = std::make_unique<WorldRenderer>(
         engine, *frontend, *player
@@ -69,6 +71,11 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
     keepAlive(settings.graphics.backlight.observe([=](bool) {
         player->chunks->saveAndClear();
         worldRenderer->clear();
+    }));
+    keepAlive(settings.graphics.denseRender.observe([=](bool) {
+        player->chunks->saveAndClear();
+        worldRenderer->clear();
+        frontend->getContentGfxCache().refresh();
     }));
     keepAlive(settings.camera.fov.observe([=](double value) {
         player->fpCamera->setFov(glm::radians(value));
@@ -150,7 +157,9 @@ void LevelScreen::updateHotkeys() {
         hudVisible = !hudVisible;
     }
     if (Events::jpressed(keycode::F3)) {
-        player->debug = !player->debug;
+        debug = !debug;
+        hud->setDebug(debug);
+        worldRenderer->setDebug(debug);
     }
 }
 

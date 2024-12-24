@@ -162,7 +162,7 @@ entityid_t Entities::spawn(
 
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
-            componentName, entity_funcs_set {}, nullptr
+            componentName, EntityFuncsSet {}, nullptr
         );
         scripting.components.emplace_back(std::move(component));
     }

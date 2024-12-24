@@ -57,12 +57,7 @@ static fs::path get_writeable_path(lua::State* L) {
     fs::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
-        if (lua::getglobal(L, "__vc_warning")) {
-            lua::pushstring(L, "writing to read-only entry point");
-            lua::pushstring(L, entryPoint);
-            lua::pushinteger(L, 1);
-            lua::call_nothrow(L, 3);
-        }
+        throw std::runtime_error("access denied");
     }
     return path;
 }
@@ -149,27 +144,6 @@ static int l_read_bytes(lua::State* L) {
     );
 }
 
-static void read_bytes_from_table(
-    lua::State* L, int tableIndex, std::vector<ubyte>& bytes
-) {
-    if (!lua::istable(L, tableIndex)) {
-        throw std::runtime_error("table expected");
-    } else {
-        size_t size = lua::objlen(L, tableIndex);
-        for (size_t i = 0; i < size; i++) {
-            lua::rawgeti(L, i + 1, tableIndex);
-            const int byte = lua::tointeger(L, -1);
-            lua::pop(L);
-            if (byte < 0 || byte > 255) {
-                throw std::runtime_error(
-                    "invalid byte '" + std::to_string(byte) + "'"
-                );
-            }
-            bytes.push_back(byte);
-        }
-    }
-}
-
 static int l_write_bytes(lua::State* L) {
     fs::path path = get_writeable_path(L);
 
@@ -181,7 +155,7 @@ static int l_write_bytes(lua::State* L) {
     }
 
     std::vector<ubyte> bytes;
-    read_bytes_from_table(L, 2, bytes);
+    lua::read_bytes_from_table(L, 2, bytes);
     return lua::pushboolean(
         L, files::write_bytes(path, bytes.data(), bytes.size())
     );
@@ -223,7 +197,7 @@ static int l_list(lua::State* L) {
 static int l_gzip_compress(lua::State* L) {
     std::vector<ubyte> bytes;
 
-    read_bytes_from_table(L, 1, bytes);
+    lua::read_bytes_from_table(L, 1, bytes);
     auto compressed_bytes = gzip::compress(bytes.data(), bytes.size());
     int newTable = lua::gettop(L);
 
@@ -237,7 +211,7 @@ static int l_gzip_compress(lua::State* L) {
 static int l_gzip_decompress(lua::State* L) {
     std::vector<ubyte> bytes;
 
-    read_bytes_from_table(L, 1, bytes);
+    lua::read_bytes_from_table(L, 1, bytes);
     auto decompressed_bytes = gzip::decompress(bytes.data(), bytes.size());
     int newTable = lua::gettop(L);
 
@@ -264,6 +238,16 @@ static int l_read_combined_object(lua::State* L) {
     return lua::pushvalue(L, engine->getResPaths()->readCombinedObject(path));
 }
 
+static int l_is_writeable(lua::State* L) {
+    std::string rawpath = lua::require_string(L, 1);
+    fs::path path = resolve_path(rawpath);
+    auto entryPoint = rawpath.substr(0, rawpath.find(':'));
+    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
+        return lua::pushboolean(L, false);
+    }
+    return lua::pushboolean(L, true);
+}
+
 const luaL_Reg filelib[] = {
     {"exists", lua::wrap<l_exists>},
     {"find", lua::wrap<l_find>},
@@ -284,4 +268,5 @@ const luaL_Reg filelib[] = {
     {"gzip_decompress", lua::wrap<l_gzip_decompress>},
     {"read_combined_list", lua::wrap<l_read_combined_list>},
     {"read_combined_object", lua::wrap<l_read_combined_object>},
+    {"is_writeable", lua::wrap<l_is_writeable>},
     {NULL, NULL}};

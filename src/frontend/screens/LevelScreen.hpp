@@ -29,6 +29,7 @@ class LevelScreen : public Screen {
     void saveWorldPreview();
 
     bool hudVisible = true;
+    bool debug = false;
     void updateHotkeys();
     void initializeContent();
     void initializePack(ContentPackRuntime* pack);

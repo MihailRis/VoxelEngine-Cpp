@@ -38,7 +38,10 @@ void ChunksController::update(
     int centerX = floordiv<CHUNK_W>(position.x);
     int centerY = floordiv<CHUNK_D>(position.z);
     
-    generator->update(centerX, centerY, loadDistance);
+    if (player.isLoadingChunks()) {
+        /// FIXME: one generator for multiple players
+        generator->update(centerX, centerY, loadDistance);
+    }
 
     int64_t mcstotal = 0;
 
@@ -121,6 +124,12 @@ bool ChunksController::buildLights(const Player& player, const std::shared_ptr<C
 }
 
 void ChunksController::createChunk(const Player& player, int x, int z) const {
+    if (!player.isLoadingChunks()) {
+        if (auto chunk = level.chunks->fetch(x, z)) {
+            player.chunks->putChunk(chunk);
+        }
+        return;
+    }
     auto chunk = level.chunks->create(x, z);
     player.chunks->putChunk(chunk);
     auto& chunkFlags = chunk->flags;

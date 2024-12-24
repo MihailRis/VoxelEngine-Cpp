@@ -72,9 +72,14 @@ function data_buffer:put_byte(byte)
 end
 
 function data_buffer:put_bytes(bytes)
-	for i = 1, #bytes do
-		self:put_byte(bytes[i])
-	end
+    if type(self.bytes) == 'table' then
+        for i = 1, #bytes do
+            self:put_byte(bytes[i])
+        end
+    else
+        self.bytes:insert(self.pos, bytes)
+        self.pos = self.pos + #bytes
+    end
 end
 
 function data_buffer:put_single(single)

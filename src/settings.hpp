@@ -63,16 +63,24 @@ struct GraphicsSettings {
     NumberSetting gamma {1.0f, 0.4f, 1.0f};
     /// @brief Enable blocks backlight to prevent complete darkness
     FlagSetting backlight {true};
+    /// @brief Disable culling with 'optional' mode
+    FlagSetting denseRender {true};
     /// @brief Enable chunks frustum culling
     FlagSetting frustumCulling {true};
+    /// @brief Skybox texture face resolution
     IntegerSetting skyboxResolution {64 + 32, 64, 128};
+    /// @brief Chunk renderer vertices buffer capacity
     IntegerSetting chunkMaxVertices {200'000, 0, 4'000'000};
+    /// @brief Chunk renderer vertices buffer capacity in dense render mode
+    IntegerSetting chunkMaxVerticesDense {800'000, 0, 8'000'000};
+    /// @brief Limit of chunk renderers count
     IntegerSetting chunkMaxRenderers {6, -4, 32};
 };
 
 struct DebugSettings {
     /// @brief Turns off chunks saving/loading
     FlagSetting generatorTestMode {false};
+    /// @brief Write lights cache
     FlagSetting doWriteLights {true};
 };
 

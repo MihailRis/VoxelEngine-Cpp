@@ -336,16 +336,24 @@ void scripting::random_update_block(const Block& block, const glm::ivec3& pos) {
     });
 }
 
-void scripting::on_block_placed(
-    Player* player, const Block& block, const glm::ivec3& pos
+/// TODO: replace template with index
+template<bool WorldFuncsSet::*worldfunc>
+static bool on_block_common(
+    const std::string& suffix,
+    bool blockfunc,
+    Player* player,
+    const Block& block,
+    const glm::ivec3& pos
 ) {
-    if (block.rt.funcsset.onplaced) {
-        std::string name = block.name + ".placed";
-        lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
-            lua::pushivec_stack(L, pos);
-            lua::pushinteger(L, player ? player->getId() : -1);
-            return 4;
-        });
+    bool result = false;
+    if (blockfunc) {
+        std::string name = block.name + "." + suffix;
+        result =
+            lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
+                lua::pushivec_stack(L, pos);
+                lua::pushinteger(L, player->getId());
+                return 4;
+            });
     }
     auto args = [&](lua::State* L) {
         lua::pushinteger(L, block.rt.id);
@@ -354,93 +362,53 @@ void scripting::on_block_placed(
         return 5;
     };
     for (auto& [packid, pack] : content->getPacks()) {
-        if (pack->worldfuncsset.onblockplaced) {
+        if (pack->worldfuncsset.*worldfunc) {
             lua::emit_event(
-                lua::get_main_state(), packid + ":.blockplaced", args
+                lua::get_main_state(), packid + ":.block" + suffix, args
             );
         }
     }
+    return result;
+}
+
+void scripting::on_block_placed(
+    Player* player, const Block& block, const glm::ivec3& pos
+) {
+    on_block_common<&WorldFuncsSet::onblockplaced>(
+        "placed", block.rt.funcsset.onplaced, player, block, pos
+    );
 }
 
 void scripting::on_block_replaced(
     Player* player, const Block& block, const glm::ivec3& pos
 ) {
-    if (block.rt.funcsset.onreplaced) {
-        std::string name = block.name + ".replaced";
-        lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
-            lua::pushivec_stack(L, pos);
-            lua::pushinteger(L, player ? player->getId() : -1);
-            return 4;
-        });
-    }
-    auto args = [&](lua::State* L) {
-        lua::pushinteger(L, block.rt.id);
-        lua::pushivec_stack(L, pos);
-        lua::pushinteger(L, player ? player->getId() : -1);
-        return 5;
-    };
-    for (auto& [packid, pack] : content->getPacks()) {
-        if (pack->worldfuncsset.onblockreplaced) {
-            lua::emit_event(
-                lua::get_main_state(), packid + ":.blockreplaced", args
-            );
-        }
-    }
+    on_block_common<&WorldFuncsSet::onblockreplaced>(
+        "replaced", block.rt.funcsset.onreplaced, player, block, pos
+    );
+}
+
+void scripting::on_block_breaking(
+    Player* player, const Block& block, const glm::ivec3& pos
+) {
+    on_block_common<&WorldFuncsSet::onblockbreaking>(
+        "breaking", block.rt.funcsset.onbreaking, player, block, pos
+    );
 }
 
 void scripting::on_block_broken(
     Player* player, const Block& block, const glm::ivec3& pos
 ) {
-    if (block.rt.funcsset.onbroken) {
-        std::string name = block.name + ".broken";
-        lua::emit_event(
-            lua::get_main_state(),
-            name,
-            [pos, player](auto L) {
-                lua::pushivec_stack(L, pos);
-                lua::pushinteger(L, player ? player->getId() : -1);
-                return 4;
-            }
-        );
-    }
-    auto args = [&](lua::State* L) {
-        lua::pushinteger(L, block.rt.id);
-        lua::pushivec_stack(L, pos);
-        lua::pushinteger(L, player ? player->getId() : -1);
-        return 5;
-    };
-    for (auto& [packid, pack] : content->getPacks()) {
-        if (pack->worldfuncsset.onblockbroken) {
-            lua::emit_event(
-                lua::get_main_state(), packid + ":.blockbroken", args
-            );
-        }
-    }
+    on_block_common<&WorldFuncsSet::onblockbroken>(
+        "broken", block.rt.funcsset.onbroken, player, block, pos
+    );
 }
 
 bool scripting::on_block_interact(
     Player* player, const Block& block, const glm::ivec3& pos
 ) {
-    std::string name = block.name + ".interact";
-    auto result = lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
-        lua::pushivec_stack(L, pos);
-        lua::pushinteger(L, player->getId());
-        return 4;
-    });
-    auto args = [&](lua::State* L) {
-        lua::pushinteger(L, block.rt.id);
-        lua::pushivec_stack(L, pos);
-        lua::pushinteger(L, player ? player->getId() : -1);
-        return 5;
-    };
-    for (auto& [packid, pack] : content->getPacks()) {
-        if (pack->worldfuncsset.onblockinteract) {
-            lua::emit_event(
-                lua::get_main_state(), packid + ":.blockinteract", args
-            );
-        }
-    }
-    return result;
+    return on_block_common<&WorldFuncsSet::onblockinteract>(
+        "interact", block.rt.funcsset.oninteract, player, block, pos
+    );
 }
 
 void scripting::on_player_tick(Player* player, int tps) {
@@ -599,7 +567,7 @@ static void process_entity_callback(
 static void process_entity_callback(
     const Entity& entity,
     const std::string& name,
-    bool entity_funcs_set::*flag,
+    bool EntityFuncsSet::*flag,
     std::function<int(lua::State*)> args
 ) {
     const auto& script = entity.getScripting();
@@ -612,7 +580,7 @@ static void process_entity_callback(
 
 void scripting::on_entity_despawn(const Entity& entity) {
     process_entity_callback(
-        entity, "on_despawn", &entity_funcs_set::on_despawn, nullptr
+        entity, "on_despawn", &EntityFuncsSet::on_despawn, nullptr
     );
     auto L = lua::get_main_state();
     lua::get_from(L, "stdcomp", "remove_Entity", true);
@@ -624,20 +592,20 @@ void scripting::on_entity_grounded(const Entity& entity, float force) {
     process_entity_callback(
         entity,
         "on_grounded",
-        &entity_funcs_set::on_grounded,
+        &EntityFuncsSet::on_grounded,
         [force](auto L) { return lua::pushnumber(L, force); }
     );
 }
 
 void scripting::on_entity_fall(const Entity& entity) {
     process_entity_callback(
-        entity, "on_fall", &entity_funcs_set::on_fall, nullptr
+        entity, "on_fall", &EntityFuncsSet::on_fall, nullptr
     );
 }
 
 void scripting::on_entity_save(const Entity& entity) {
     process_entity_callback(
-        entity, "on_save", &entity_funcs_set::on_save, nullptr
+        entity, "on_save", &EntityFuncsSet::on_save, nullptr
     );
 }
 
@@ -647,7 +615,7 @@ void scripting::on_sensor_enter(
     process_entity_callback(
         entity,
         "on_sensor_enter",
-        &entity_funcs_set::on_sensor_enter,
+        &EntityFuncsSet::on_sensor_enter,
         [index, oid](auto L) {
             lua::pushinteger(L, index);
             lua::pushinteger(L, oid);
@@ -662,7 +630,7 @@ void scripting::on_sensor_exit(
     process_entity_callback(
         entity,
         "on_sensor_exit",
-        &entity_funcs_set::on_sensor_exit,
+        &EntityFuncsSet::on_sensor_exit,
         [index, oid](auto L) {
             lua::pushinteger(L, index);
             lua::pushinteger(L, oid);
@@ -675,7 +643,7 @@ void scripting::on_aim_on(const Entity& entity, Player* player) {
     process_entity_callback(
         entity,
         "on_aim_on",
-        &entity_funcs_set::on_aim_on,
+        &EntityFuncsSet::on_aim_on,
         [player](auto L) { return lua::pushinteger(L, player->getId()); }
     );
 }
@@ -684,7 +652,7 @@ void scripting::on_aim_off(const Entity& entity, Player* player) {
     process_entity_callback(
         entity,
         "on_aim_off",
-        &entity_funcs_set::on_aim_off,
+        &EntityFuncsSet::on_aim_off,
         [player](auto L) { return lua::pushinteger(L, player->getId()); }
     );
 }
@@ -695,7 +663,7 @@ void scripting::on_attacked(
     process_entity_callback(
         entity,
         "on_attacked",
-        &entity_funcs_set::on_attacked,
+        &EntityFuncsSet::on_attacked,
         [player, attacker](auto L) {
             lua::pushinteger(L, attacker);
             lua::pushinteger(L, player->getId());
@@ -708,7 +676,7 @@ void scripting::on_entity_used(const Entity& entity, Player* player) {
     process_entity_callback(
         entity,
         "on_used",
-        &entity_funcs_set::on_used,
+        &EntityFuncsSet::on_used,
         [player](auto L) { return lua::pushinteger(L, player->getId()); }
     );
 }
@@ -796,7 +764,7 @@ void scripting::load_content_script(
     const std::string& prefix,
     const fs::path& file,
     const std::string& fileName,
-    block_funcs_set& funcsset
+    BlockFuncsSet& funcsset
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "block", file, fileName));
@@ -804,6 +772,8 @@ void scripting::load_content_script(
     funcsset.update = register_event(env, "on_update", prefix + ".update");
     funcsset.randupdate =
         register_event(env, "on_random_update", prefix + ".randupdate");
+    funcsset.onbreaking =
+        register_event(env, "on_breaking", prefix + ".breaking");
     funcsset.onbroken = register_event(env, "on_broken", prefix + ".broken");
     funcsset.onplaced = register_event(env, "on_placed", prefix + ".placed");
     funcsset.onreplaced =
@@ -819,7 +789,7 @@ void scripting::load_content_script(
     const std::string& prefix,
     const fs::path& file,
     const std::string& fileName,
-    item_funcs_set& funcsset
+    ItemFuncsSet& funcsset
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "item", file, fileName));
@@ -846,7 +816,7 @@ void scripting::load_world_script(
     const std::string& prefix,
     const fs::path& file,
     const std::string& fileName,
-    world_funcs_set& funcsset
+    WorldFuncsSet& funcsset
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "world", file, fileName));
@@ -857,6 +827,8 @@ void scripting::load_world_script(
     register_event(env, "on_world_quit", prefix + ":.worldquit");
     funcsset.onblockplaced =
         register_event(env, "on_block_placed", prefix + ":.blockplaced");
+    funcsset.onblockbreaking =
+        register_event(env, "on_block_breaking", prefix + ":.blockbreaking");
     funcsset.onblockbroken =
         register_event(env, "on_block_broken", prefix + ":.blockbroken");
     funcsset.onblockreplaced =

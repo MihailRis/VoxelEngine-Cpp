@@ -288,8 +288,6 @@ void PlayerController::updateKeyboard() {
     input.jump = Events::active(BIND_MOVE_JUMP);
     input.zoom = Events::active(BIND_CAM_ZOOM);
     input.cameraMode = Events::jactive(BIND_CAM_MODE);
-    input.noclip = Events::jactive(BIND_PLAYER_NOCLIP);
-    input.flight = Events::jactive(BIND_PLAYER_FLIGHT);
 }
 
 void PlayerController::resetKeyboard() {
@@ -339,28 +337,6 @@ static int determine_rotation(
         }
     }
     return 0;
-}
-
-static void pick_block(
-    ContentIndices* indices,
-    const Block& block,
-    Player& player,
-    int x,
-    int y,
-    int z
-) {
-    itemid_t id = block.rt.pickingItem;
-    auto inventory = player.getInventory();
-    size_t slotid = inventory->findSlotByItem(id, 0, 10);
-    if (slotid == Inventory::npos) {
-        slotid = player.getChosenSlot();
-    } else {
-        player.setChosenSlot(slotid);
-    }
-    ItemStack& stack = inventory->getSlot(slotid);
-    if (stack.getItemId() != id) {
-        stack.set(ItemStack(id, 1));
-    }
 }
 
 voxel* PlayerController::updateSelection(float maxDistance) {
@@ -544,6 +520,7 @@ void PlayerController::updateInteraction(float delta) {
     }
     auto& target = indices->blocks.require(vox->id);
     if (lclick) {
+        scripting::on_block_breaking(&player, target, iend);
         if (player.isInstantDestruction() && target.breakable) {
             blocksController.breakBlock(
                 &player, target, iend.x, iend.y, iend.z
@@ -566,10 +543,6 @@ void PlayerController::updateInteraction(float delta) {
     auto def = indices->blocks.get(item.rt.placingBlock);
     if (def && rclick) {
         processRightClick(*def, target);
-    }
-    if (Events::jactive(BIND_PLAYER_PICK)) {
-        auto coord = selection.actualPosition;
-        pick_block(indices, target, player, coord.x, coord.y, coord.z);
     }
 }
 

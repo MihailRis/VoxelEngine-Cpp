@@ -34,10 +34,11 @@ inline constexpr size_t MAX_USER_BLOCK_FIELDS_SIZE = 240;
 
 inline std::string DEFAULT_MATERIAL = "base:stone";
 
-struct block_funcs_set {
+struct BlockFuncsSet {
     bool init : 1;
     bool update : 1;
     bool onplaced : 1;
+    bool onbreaking : 1;
     bool onbroken : 1;
     bool onreplaced : 1;
     bool oninteract : 1;
@@ -97,6 +98,15 @@ enum class BlockModel {
 std::string to_string(BlockModel model);
 std::optional<BlockModel> BlockModel_from(std::string_view str);
 
+enum class CullingMode {
+    DEFAULT,
+    OPTIONAL,
+    DISABLED,
+};
+
+std::string to_string(CullingMode mode);
+std::optional<CullingMode> CullingMode_from(std::string_view str);
+
 using BoxModel = AABB;
 
 /// @brief Common kit of block properties applied to groups of blocks
@@ -141,6 +151,9 @@ public:
     dv::value customModelRaw = nullptr;
 
     std::string modelName = "";
+
+    /// @brief Culling mode
+    CullingMode culling = CullingMode::DEFAULT;
 
     /// @brief Does the block passing lights into itself
     bool lightPassing = false;
@@ -229,7 +242,7 @@ public:
         std::vector<AABB> hitboxes[BlockRotProfile::MAX_COUNT];
 
         /// @brief set of block callbacks flags
-        block_funcs_set funcsset {};
+        BlockFuncsSet funcsset {};
 
         /// @brief picking item integer id
         itemid_t pickingItem = 0;

@@ -27,8 +27,6 @@ struct PlayerInput {
     bool shift : 1;
     bool cheat : 1;
     bool jump : 1;
-    bool noclip : 1;
-    bool flight : 1;
 };
 
 struct CursorSelection {
@@ -53,13 +51,13 @@ class Player : public Serializable {
     bool noclip = false;
     bool infiniteItems = true;
     bool instantDestruction = true;
+    bool loadingChunks = true;
     entityid_t eid;
     entityid_t selectedEid = 0;
 public:
-    std::unique_ptr<Chunks> chunks; // not in use yet
+    std::unique_ptr<Chunks> chunks;
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
-    std::shared_ptr<Camera> currentCamera;
-    bool debug = false;
+    std::shared_ptr<Camera> currentCamera;;
     glm::vec3 cam {};
     CursorSelection selection {};
 
@@ -98,6 +96,9 @@ public:
 
     bool isInstantDestruction() const;
     void setInstantDestruction(bool flag);
+
+    bool isLoadingChunks() const;
+    void setLoadingChunks(bool flag);
 
     entityid_t getEntity() const;
     void setEntity(entityid_t eid);

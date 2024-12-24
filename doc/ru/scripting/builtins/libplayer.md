@@ -71,6 +71,13 @@ player.set_instant_destruction(playerid: int, bool)
 Геттер и сеттер мнгновенного разрушения блоков при активации привязки `player.destroy`.
 
 ```lua
+player.is_loading_chunks(playerid: int) -> bool
+player.set_loading_chunks(playerid: int, bool)
+```
+
+Геттер и сеттер свойства, определяющего, прогружает ли игрок чанки вокруг.
+
+```lua
 player.set_spawnpoint(playerid: int, x: number, y: number, z: number) 
 player.get_spawnpoint(playerid: int) -> number, number, number
 ```
@@ -83,6 +90,12 @@ player.get_name(playerid: int) -> str
 ```
 
 Сеттер и геттер имени игрока
+
+```lua
+player.set_selected_slot(playerid: int, slotid: int)
+```
+
+Устанавливает индекс выбранного слота
 
 ```lua
 player.get_selected_block(playerid: int) -> x,y,z

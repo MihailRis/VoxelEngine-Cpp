@@ -169,6 +169,10 @@ void EnginePaths::setResourcesFolder(std::filesystem::path folder) {
     this->resourcesFolder = std::move(folder);
 }
 
+void EnginePaths::setScriptFolder(std::filesystem::path folder) {
+    this->scriptFolder = std::move(folder);
+}
+
 void EnginePaths::setCurrentWorldFolder(std::filesystem::path folder) {
     this->currentWorldFolder = std::move(folder);
 }
@@ -211,7 +215,9 @@ std::filesystem::path EnginePaths::resolve(
     if (prefix == "export") {
         return userFilesFolder / EXPORT_FOLDER / fs::u8path(filename);
     }
-
+    if (prefix == "script" && scriptFolder) {
+        return scriptFolder.value() / fs::u8path(filename);
+    }
     if (contentPacks) {
         for (auto& pack : *contentPacks) {
             if (pack.id == prefix) {

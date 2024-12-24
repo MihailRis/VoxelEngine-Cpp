@@ -95,12 +95,13 @@ struct ContentPackStats {
     }
 };
 
-struct world_funcs_set {
-    bool onblockplaced : 1;
-    bool onblockreplaced : 1;
-    bool onblockbroken : 1;
-    bool onblockinteract : 1;
-    bool onplayertick : 1;
+struct WorldFuncsSet {
+    bool onblockplaced;
+    bool onblockreplaced;
+    bool onblockbreaking;
+    bool onblockbroken;
+    bool onblockinteract;
+    bool onplayertick;
 };
 
 class ContentPackRuntime {
@@ -108,7 +109,7 @@ class ContentPackRuntime {
     ContentPackStats stats {};
     scriptenv env;
 public:
-    world_funcs_set worldfuncsset {};
+    WorldFuncsSet worldfuncsset {};
 
     ContentPackRuntime(ContentPack info, scriptenv env);
     ~ContentPackRuntime();

@@ -1,6 +1,6 @@
 -- Check if given table is an array
 function is_array(x)
-    if #t > 0 then
+    if #x > 0 then
         return true
     end
     for k, v in pairs(x) do
@@ -51,6 +51,19 @@ function math.rand(low, high)
     return low + (high - low) * math.random()
 end
 
+function math.normalize(num, conf)
+    conf = conf or 1
+
+    return (num / conf) % 1
+end
+
+function math.round(num, places)
+    places = places or 0
+
+    local mult = 10 ^ places
+    return math.floor(num * mult + 0.5) / mult
+end
+
 ----------------------------------------------
 
 function table.copy(t)
@@ -89,6 +102,15 @@ end
 
 function table.random(t)
     return t[math.random(1, #t)]
+end
+
+function table.shuffle(t)
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+    end
+
+    return t
 end
 
 ----------------------------------------------

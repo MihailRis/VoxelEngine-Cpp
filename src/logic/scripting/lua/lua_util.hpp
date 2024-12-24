@@ -2,6 +2,7 @@
 
 #include <typeindex>
 #include <typeinfo>
+#include <stdexcept>
 #include <unordered_map>
 
 #include "data/dv.hpp"
@@ -697,5 +698,26 @@ namespace lua {
             return value;
         }
         return def;
+    }
+
+    inline void read_bytes_from_table(
+        lua::State* L, int tableIndex, std::vector<ubyte>& bytes
+    ) {
+        if (!lua::istable(L, tableIndex)) {
+            throw std::runtime_error("table expected");
+        } else {
+            size_t size = lua::objlen(L, tableIndex);
+            for (size_t i = 0; i < size; i++) {
+                lua::rawgeti(L, i + 1, tableIndex);
+                const int byte = lua::tointeger(L, -1);
+                lua::pop(L);
+                if (byte < 0 || byte > 255) {
+                    throw std::runtime_error(
+                        "invalid byte '" + std::to_string(byte) + "'"
+                    );
+                }
+                bytes.push_back(byte);
+            }
+        }
     }
 }

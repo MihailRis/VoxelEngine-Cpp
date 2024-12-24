@@ -21,9 +21,9 @@ class Player;
 struct ItemDef;
 class Inventory;
 class UiDocument;
-struct block_funcs_set;
-struct item_funcs_set;
-struct world_funcs_set;
+struct BlockFuncsSet;
+struct ItemFuncsSet;
+struct WorldFuncsSet;
 struct UserComponent;
 struct uidocscript;
 class BlocksController;
@@ -75,6 +75,9 @@ namespace scripting {
         Player* player, const Block& block, const glm::ivec3& pos
     );
     void on_block_replaced(
+        Player* player, const Block& block, const glm::ivec3& pos
+    );
+    void on_block_breaking(
         Player* player, const Block& block, const glm::ivec3& pos
     );
     void on_block_broken(
@@ -141,7 +144,7 @@ namespace scripting {
         const std::string& prefix,
         const std::filesystem::path& file,
         const std::string& fileName,
-        block_funcs_set& funcsset
+        BlockFuncsSet& funcsset
     );
 
     /// @brief Load script associated with an Item
@@ -155,7 +158,7 @@ namespace scripting {
         const std::string& prefix,
         const std::filesystem::path& file,
         const std::string& fileName,
-        item_funcs_set& funcsset
+        ItemFuncsSet& funcsset
     );
 
     /// @brief Load component script
@@ -184,7 +187,7 @@ namespace scripting {
         const std::string& packid,
         const std::filesystem::path& file,
         const std::string& fileName,
-        world_funcs_set& funcsset
+        WorldFuncsSet& funcsset
     );
 
     /// @brief Load script associated with an UiDocument
