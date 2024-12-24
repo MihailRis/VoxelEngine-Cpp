@@ -70,6 +70,13 @@ player.set_instant_destruction(playerid: int, bool)
 
 Getter and setter for instant destruction of blocks when the `player.destroy` binding is activated.
 
+```lua
+player.is_loading_chunks(playerid: int) -> bool
+player.set_loading_chunks(playerid: int, bool)
+```
+
+Getter and setter of the property that determines whether the player is loading chunks.
+
 ``` lua
 player.set_spawnpoint(playerid: int, x: number, y: number, z: number)
 player.get_spawnpoint(playerid: int) -> number, number, number
