@@ -9,6 +9,12 @@
 #include <glm/gtx/norm.hpp>
 
 namespace util {
+    inline uint64_t shuffle_bits_step(uint64_t x, uint64_t m, unsigned shift) {
+        uint64_t t = ((x >> shift) ^ x) & m;
+        x = (x ^ t) ^ (t << shift);
+        return x;
+    }
+
     constexpr inline float EPSILON = 1e-6f;
 
     class PseudoRandom {
@@ -57,15 +63,18 @@ namespace util {
             return randU64() / static_cast<double>(UINT64_MAX);
         }
 
-        void setSeed(int number) {
-            seed = (static_cast<unsigned short>(number * 23729) ^ 
-                    static_cast<unsigned short>(number + 16786));
-            rand();
-        }
         void setSeed(int number1, int number2) {
             seed = ((static_cast<unsigned short>(number1 * 23729) |
                     static_cast<unsigned short>(number2 % 16786)) ^
                     static_cast<unsigned short>(number2 * number1));
+            rand();
+        }
+
+        void setSeed(long number) {
+            number = shuffle_bits_step(number, 0x2222222222222222ull, 1);
+            number = shuffle_bits_step(number, 0x0c0c0c0c0c0c0c0cull, 2);
+            number = shuffle_bits_step(number, 0x00f000f000f000f0ull, 4);
+            seed = number;
             rand();
         }
     };
