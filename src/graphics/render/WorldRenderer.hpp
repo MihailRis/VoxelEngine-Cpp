@@ -45,6 +45,7 @@ class WorldRenderer {
     std::unique_ptr<ModelBatch> modelBatch;
     
     float timer = 0.0f;
+    bool debug = false;
 
     /// @brief Render block selection lines
     void renderBlockSelection();
@@ -100,4 +101,6 @@ public:
     );
 
     void clear();
+
+    void setDebug(bool flag);
 };

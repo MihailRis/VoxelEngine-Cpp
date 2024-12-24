@@ -324,7 +324,7 @@ void Hud::update(bool visible) {
     const auto& chunks = *player.chunks;
     const auto& menu = gui.getMenu();
 
-    debugPanel->setVisible(player.debug && visible);
+    debugPanel->setVisible(debug && visible);
 
     if (!visible && inventoryOpen) {
         closeInventory();
@@ -359,7 +359,7 @@ void Hud::update(bool visible) {
 
     if (visible) {
         for (auto& element : elements) {
-            element.update(pause, inventoryOpen, player.debug);
+            element.update(pause, inventoryOpen, debug);
             if (element.isRemoved()) {
                 onRemove(element);
             }
@@ -367,8 +367,8 @@ void Hud::update(bool visible) {
     }
     cleanup();
 
-    debugMinimap->setVisible(player.debug && showGeneratorMinimap);
-    if (player.debug && showGeneratorMinimap) {
+    debugMinimap->setVisible(debug && showGeneratorMinimap);
+    if (debug && showGeneratorMinimap) {
         updateWorldGenDebugVisualization();
     }
 }
@@ -585,6 +585,10 @@ void Hud::remove(const std::shared_ptr<UINode>& node) {
     cleanup();
 }
 
+void Hud::setDebug(bool flag) {
+    debug = flag;
+}
+
 void Hud::draw(const DrawContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
@@ -602,7 +606,7 @@ void Hud::draw(const DrawContext& ctx){
     uishader.uniformMatrix("u_projview", uicamera->getProjView());
 
     // Crosshair
-    if (!pause && !inventoryOpen && !player.debug) {
+    if (!pause && !inventoryOpen && !debug) {
         DrawContext chctx = ctx.sub(batch);
         chctx.setBlendMode(BlendMode::inversion);
         auto texture = assets.get<Texture>("gui/crosshair");

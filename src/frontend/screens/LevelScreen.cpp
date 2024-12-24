@@ -157,7 +157,9 @@ void LevelScreen::updateHotkeys() {
         hudVisible = !hudVisible;
     }
     if (Events::jpressed(keycode::F3)) {
-        player->debug = !player->debug;
+        debug = !debug;
+        hud->setDebug(debug);
+        worldRenderer->setDebug(debug);
     }
 }
 

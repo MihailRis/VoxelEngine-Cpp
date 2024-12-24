@@ -113,6 +113,7 @@ class Hud : public util::ObjectsKeeper {
     bool showContentPanel = true;
     /// @brief Provide cheat controllers to the debug panel
     bool allowDebugCheats = true;
+    bool debug = false;
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI;
 
@@ -192,6 +193,8 @@ public:
     void add(const HudElement& element, const dv::value& arg=nullptr);
     void onRemove(const HudElement& element);
     void remove(const std::shared_ptr<gui::UINode>& node);
+
+    void setDebug(bool flag);
 
     Player* getPlayer() const;
 

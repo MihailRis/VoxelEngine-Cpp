@@ -39,6 +39,7 @@ void ChunksController::update(
     int centerY = floordiv<CHUNK_D>(position.z);
     
     if (player.isLoadingChunks()) {
+        /// FIXME: one generator for multiple players
         generator->update(centerX, centerY, loadDistance);
     }
 

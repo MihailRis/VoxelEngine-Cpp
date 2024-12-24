@@ -55,10 +55,9 @@ class Player : public Serializable {
     entityid_t eid;
     entityid_t selectedEid = 0;
 public:
-    std::unique_ptr<Chunks> chunks; // not in use yet
+    std::unique_ptr<Chunks> chunks;
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
-    std::shared_ptr<Camera> currentCamera;
-    bool debug = false;
+    std::shared_ptr<Camera> currentCamera;;
     glm::vec3 cam {};
     CursorSelection selection {};
 
