@@ -27,7 +27,7 @@ struct ParticlesPreset : public Serializable {
     /// @brief Use global up vector instead of camera-dependent one
     bool globalUpVector = false;
     /// @brief Max distance of actually spawning particles.
-    float maxDistance = 16.0f;
+    float maxDistance = 32.0f;
     /// @brief Particles spawn interval
     float spawnInterval = 0.1f;
     /// @brief Particle life time
@@ -44,6 +44,12 @@ struct ParticlesPreset : public Serializable {
     glm::vec3 size {0.1f};
     /// @brief Particles size spread
     float sizeSpread = 0.2f;
+    /// @brief Random initial angle spread
+    float angleSpread = 0.0f;
+    /// @brief Minimum angular velocity
+    float minAngularVelocity = 0.0f;
+    /// @brief Maximum angular velocity
+    float maxAngularVelocity = 0.0f;
     /// @brief Spawn spread shape
     ParticleSpawnShape spawnShape = BALL;
     /// @brief Spawn spread
