@@ -77,6 +77,10 @@ void Emitter::update(
             count = std::max(0, count - skipped);
             timer -= skipped * spawnInterval;
         }
+        if (count < 0) {
+            int skipped = timer / spawnInterval;
+            timer -= skipped * spawnInterval;
+        }
         return;
     }
     while (count && timer > spawnInterval) {
