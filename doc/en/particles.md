@@ -16,6 +16,10 @@ Particles are a table, all fields of which are optional.
 | acceleration    | Particles acceleration.                                               | {0, -16, 0}     |
 | explosion       | Force of particles explosion on spawn.                                | {2, 2, 2}       |
 | size            | Size of particles.                                                    | {0.1, 0.1, 0.1} |
+| size_spread     | Maximum particle size spread over time.                               | 0.2             |
+| angle_spread    | Maximum initial rotation angle spread (0 to 1)                        | 0.0             |
+| min_angular_vel | Minimum angular velocity (radians per sec). Non-negative.             | 0.0             |
+| max_angular_vel | Maximum angular velocity (radians per sec). Non-negative.             | 0.0             |
 | spawn_shape     | Shape of particle spawn area. (ball/sphere/box)                       | ball            |
 | spawn_spread    | Size of particle spawn area.                                          | {0, 0, 0}       |
 | random_sub_uv   | Size of random texture subregion (1 - entire texture will be used).   | 1.0             |
