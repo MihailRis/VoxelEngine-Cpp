@@ -84,6 +84,12 @@ app.reopen_world()
 Переоткрывает мир.
 
 ```lua
+app.save_world()
+```
+
+Сохраняет мир.
+
+```lua
 app.close_world(
     -- сохранить мир перед закрытием
     [опционально] save_world: bool=false

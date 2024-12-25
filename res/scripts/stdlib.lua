@@ -27,6 +27,7 @@ if app then
     app.script = __VC_SCRIPT_NAME
     app.new_world = core.new_world
     app.open_world = core.open_world
+    app.save_world = core.save_world
     app.close_world = core.close_world
     app.reopen_world = core.reopen_world
     app.delete_world = core.delete_world

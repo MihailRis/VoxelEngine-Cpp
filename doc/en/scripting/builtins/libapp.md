@@ -84,6 +84,12 @@ app.reopen_world()
 Reopens the world.
 
 ```lua
+app.save_world()
+```
+
+Saves the world.
+
+```lua
 app.close_world(
     -- save the world before closing
     [optional] save_world: bool=false

@@ -58,6 +58,10 @@ Level::Level(
     events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
         chunks->decref(chunk);
     });
+    chunks->setOnUnload([this](const Chunk& chunk) {
+        AABB aabb = chunk.getAABB();
+        entities->despawn(entities->getAllInside(aabb));
+    });
     inventories = std::make_unique<Inventories>(*this);
 }
 
