@@ -8,7 +8,7 @@
 #include "maths/UVRegion.hpp"
 #include "window/Window.hpp"
 #include "window/Camera.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 
 MenuScreen::MenuScreen(Engine& engine) : Screen(engine) {
     engine.resetContent();

@@ -1,7 +1,7 @@
 #include "scripting_hud.hpp"
 
 #include "debug/Logger.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/files.hpp"
 #include "frontend/hud.hpp"
 #include "graphics/render/WorldRenderer.hpp"

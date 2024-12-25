@@ -1,6 +1,6 @@
 #include "api_lua.hpp"
 
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "network/Network.hpp"
 
 using namespace scripting;

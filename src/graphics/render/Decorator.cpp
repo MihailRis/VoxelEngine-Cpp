@@ -14,7 +14,7 @@
 #include "objects/Players.hpp"
 #include "logic/LevelController.hpp"
 #include "util/stringutil.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/files.hpp"
 
 namespace fs = std::filesystem;

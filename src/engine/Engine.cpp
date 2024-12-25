@@ -1,4 +1,4 @@
-#include "engine.hpp"
+#include "Engine.hpp"
 
 #define GLEW_STATIC
 
@@ -285,13 +285,8 @@ void Engine::loadAssets() {
         auto task = loader.startTask([=](){});
         task->waitForEnd();
     } else {
-        try {
-            while (loader.hasNext()) {
-                loader.loadNext();
-            }
-        } catch (const assetload::error& err) {
-            new_assets.reset();
-            throw;
+        while (loader.hasNext()) {
+            loader.loadNext();
         }
     }
     assets = std::move(new_assets);

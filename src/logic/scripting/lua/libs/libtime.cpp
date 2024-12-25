@@ -1,4 +1,4 @@
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "api_lua.hpp"
 
 using namespace scripting;

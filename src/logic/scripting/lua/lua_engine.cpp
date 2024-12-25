@@ -9,7 +9,7 @@
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
 #include "lua_custom_types.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 
 static debug::Logger logger("lua-state");
 static lua::State* main_thread = nullptr;

@@ -6,7 +6,7 @@
 #include "world/Level.hpp"
 #include "world/generator/VoxelFragment.hpp"
 #include "content/ContentLoader.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "../lua_custom_types.hpp"
 
 using namespace scripting;

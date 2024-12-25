@@ -1,5 +1,6 @@
 #include "ServerMainloop.hpp"
 
+#include "Engine.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "logic/LevelController.hpp"
 #include "interfaces/Process.hpp"
@@ -7,7 +8,6 @@
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "util/platform.hpp"
-#include "engine.hpp"
 
 #include <chrono>
 

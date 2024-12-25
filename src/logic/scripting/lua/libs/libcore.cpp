@@ -6,7 +6,7 @@
 #include "constants.hpp"
 #include "content/Content.hpp"
 #include "debug/Logger.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "files/settings_io.hpp"

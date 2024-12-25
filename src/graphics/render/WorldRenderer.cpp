@@ -11,7 +11,7 @@
 #include "assets/Assets.hpp"
 #include "assets/assets_util.hpp"
 #include "content/Content.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "frontend/ContentGfxCache.hpp"
 #include "items/Inventory.hpp"

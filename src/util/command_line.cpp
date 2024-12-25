@@ -5,7 +5,7 @@
 
 #include "files/engine_paths.hpp"
 #include "util/ArgsReader.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 
 namespace fs = std::filesystem;
 

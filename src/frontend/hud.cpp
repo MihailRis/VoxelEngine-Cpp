@@ -8,7 +8,7 @@
 #include "content/Content.hpp"
 #include "core_defs.hpp"
 #include "delegates.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/Batch3D.hpp"

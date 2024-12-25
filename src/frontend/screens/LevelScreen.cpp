@@ -5,7 +5,7 @@
 #include "content/Content.hpp"
 #include "core_defs.hpp"
 #include "debug/Logger.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/files.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "frontend/hud.hpp"

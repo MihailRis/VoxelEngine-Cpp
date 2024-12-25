@@ -5,7 +5,7 @@
 #include "graphics/render/ParticlesRenderer.hpp"
 #include "graphics/render/Emitter.hpp"
 #include "assets/assets_util.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 
 using namespace scripting;
 
