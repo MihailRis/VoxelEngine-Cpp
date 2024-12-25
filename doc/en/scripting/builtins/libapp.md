@@ -1,8 +1,8 @@
 # *app* library
 
-A library for high-level engine control, available only in script/test mode.
+A library for high-level engine control, available only in script or test mode.
 
-The script/test name without path and extension is available as `app.script`. The file path can be obtained as:
+The script/test name without the path and extension is available as `app.script`. The file path can be obtained as:
 ```lua
 local filename = "script:"..app.script..".lua"
 ```
@@ -13,31 +13,31 @@ local filename = "script:"..app.script..".lua"
 app.tick()
 ```
 
-Executes one tick of the engine main loop.
+Performs one tick of the main engine loop.
 
 ```lua
 app.sleep(time: number)
 ```
 
-Waits for the specified time in seconds, executing the engine main loop.
+Waits for the specified time in seconds, performing the main engine loop.
 
 ```lua
 app.sleep_until(
-    -- function that checks the wait finishing condition
+    -- function that checks the condition for ending the wait
     predicate: function() -> bool,
-    -- maximum number of engine cycle ticks, after which
-    -- an exception "max ticks exceed" will be thrown
+    -- the maximum number of engine loop ticks after which
+    -- a "max ticks exceed" exception will be thrown
     [optional] max_ticks = 1e9
 )
 ```
 
-Waits for the condition checked by the function to be true, executing the engine main loop.
+Waits for the condition checked by the function to be true, performing the main engine loop.
 
 ```lua
 app.quit()
 ```
 
-Quits the engine, printing the call stack to track where the function was called.
+Terminates the engine, printing the call stack to trace the function call location.
 
 ```lua
 app.reconfig_packs(
@@ -48,7 +48,7 @@ app.reconfig_packs(
 )
 ```
 
-Updates the packs configuration, checking its correctness (dependencies and packs existence).
+Updates the pack configuration, checking its correctness (dependencies and availability of packs).
 
 To remove all packs from the configuration, you can use `pack.get_installed()`:
 
@@ -62,9 +62,9 @@ In this case, `base` will also be removed from the configuration.
 app.new_world(
     -- world name
     name: str,
-    -- seed of generation
+    -- generation seed
     seed: str,
-    -- name of generator
+    -- generator name
     generator: str
 )
 ```
@@ -102,7 +102,7 @@ Deletes a world by name.
 app.get_version() -> int, int
 ```
 
-Returns the major and minor engine versions.
+Returns the major and minor versions of the engine.
 
 ```lua
 app.get_setting(name: str) -> value
@@ -119,12 +119,12 @@ Sets the value of a setting. Throws an exception if the setting does not exist.
 ```lua
 app.get_setting_info(name: str) -> {
     -- default value
-    def: value
+    def: value,
     -- minimum value
-    [numeric settings only] min: number,
+    [only for numeric settings] min: number,
     -- maximum value
-    [numeric settings only] max: number
+    [only for numeric settings] max: number
 }
 ```
 
-Returns a table with information about the setting. Throws an exception if the setting does not exist.
+Returns a table with information about a setting. Throws an exception if the setting does not exist.
