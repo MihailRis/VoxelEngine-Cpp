@@ -27,6 +27,7 @@ public:
     static std::vector<uint> codepoints;
     static std::vector<keycode> pressedKeys;
     static std::unordered_map<std::string, Binding> bindings;
+    static std::unordered_map<keycode, util::RunnablesList> keyCallbacks;
 
     static void pollEvents();
 
@@ -49,6 +50,8 @@ public:
     static void rebind(const std::string& name, inputtype type, int code);
     static bool active(const std::string& name);
     static bool jactive(const std::string& name);
+
+    static observer_handler addKeyCallback(keycode key, runnable callback);
 
     static void setKey(int key, bool b);
     static void setButton(int button, bool b);

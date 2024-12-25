@@ -30,7 +30,21 @@ static int l_mousecode(lua::State* L) {
 }
 
 static int l_add_callback(lua::State* L) {
-    auto bindname = lua::require_string(L, 1);
+    std::string bindname = lua::require_string(L, 1);
+    size_t pos = bindname.find(':');
+    if (pos != std::string::npos) {
+        std::string prefix = bindname.substr(0, pos);
+        if (prefix == "key") {
+            if (hud == nullptr) {
+                throw std::runtime_error("on_hud_open is not called yet");
+            }
+            auto key = input_util::keycode_from(bindname.substr(pos + 1));
+            auto callback = lua::create_runnable(L);
+            hud->keepAlive(Events::keyCallbacks[key].add(callback));
+            return 0;
+        }
+    }
+
     const auto& bind = Events::bindings.find(bindname);
     if (bind == Events::bindings.end()) {
         throw std::runtime_error("unknown binding " + util::quote(bindname));
