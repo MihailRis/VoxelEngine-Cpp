@@ -63,6 +63,15 @@ static int l_reopen_world(lua::State*) {
     return 0;
 }
 
+/// @brief Save world
+static int l_save_world(lua::State* L) {
+    if (controller == nullptr) {
+        throw std::runtime_error("no world open");
+    }
+    controller->saveWorld();
+    return 0;
+}
+
 /// @brief Close world
 /// @param flag Save world (bool)
 static int l_close_world(lua::State* L) {
@@ -246,6 +255,7 @@ const luaL_Reg corelib[] = {
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
+    {"save_world", lua::wrap<l_save_world>},
     {"close_world", lua::wrap<l_close_world>},
     {"delete_world", lua::wrap<l_delete_world>},
     {"reconfig_packs", lua::wrap<l_reconfig_packs>},

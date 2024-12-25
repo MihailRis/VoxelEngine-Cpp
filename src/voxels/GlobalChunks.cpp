@@ -24,6 +24,10 @@ GlobalChunks::GlobalChunks(Level* level)
     chunksMap.max_load_factor(CHUNKS_MAP_MAX_LOAD_FACTOR);
 }
 
+void GlobalChunks::setOnUnload(consumer<Chunk&> onUnload) {
+    this->onUnload = std::move(onUnload);
+}
+
 std::shared_ptr<Chunk> GlobalChunks::fetch(int x, int z) {
     const auto& found = chunksMap.find(keyfrom(x, z));
     if (found == chunksMap.end()) {
@@ -160,6 +164,9 @@ void GlobalChunks::decref(Chunk* chunk) {
         ekey.pos[0] = chunk->x;
         ekey.pos[1] = chunk->z;
 
+        if (onUnload) {
+            onUnload(*chunk);
+        }
         save(chunk);
         chunksMap.erase(ekey.key);
         refCounters.erase(found);
@@ -170,17 +177,11 @@ void GlobalChunks::save(Chunk* chunk) {
     if (chunk == nullptr) {
         return;
     }
-    AABB aabb(
-        glm::vec3(chunk->x * CHUNK_W, -INFINITY, chunk->z * CHUNK_D),
-        glm::vec3(
-            (chunk->x + 1) * CHUNK_W, INFINITY, (chunk->z + 1) * CHUNK_D
-        )
-    );
+    AABB aabb = chunk->getAABB();
     auto entities = level->entities->getAllInside(aabb);
     auto root = dv::object();
     root["data"] = level->entities->serialize(entities);
     if (!entities.empty()) {
-        level->entities->despawn(std::move(entities));
         chunk->flags.entities = true;
     }
     level->getWorld()->wfile->getRegions().put(

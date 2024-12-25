@@ -8,6 +8,7 @@
 #include <glm/gtx/hash.hpp>
 
 #include "voxel.hpp"
+#include "delegates.hpp"
 
 class Chunk;
 class Level;
@@ -30,9 +31,13 @@ class GlobalChunks {
     std::unordered_map<uint64_t, std::shared_ptr<Chunk>> chunksMap;
     std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> pinnedChunks;
     std::unordered_map<ptrdiff_t, int> refCounters;
+
+    consumer<Chunk&> onUnload;
 public:
     GlobalChunks(Level* level);
     ~GlobalChunks() = default;
+
+    void setOnUnload(consumer<Chunk&> onUnload);
 
     std::shared_ptr<Chunk> fetch(int x, int z);
     std::shared_ptr<Chunk> create(int x, int z);
