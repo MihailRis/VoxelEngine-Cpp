@@ -29,7 +29,7 @@ jobs:
             install: >-
                 mingw-w64-clang-x86_64-toolchain 
                 mingw-w64-clang-x86_64-cmake 
-                mingw-w64-clang-x86_64-make 
+                mingw-w64-clang-x86_64-ninja 
                 mingw-w64-clang-x86_64-luajit 
                 git
       - name: Set up vcpkg
@@ -42,22 +42,17 @@ jobs:
             cd ..
       - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
-            export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
-            export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
             export VCPKG_ROOT=./vcpkg
-            mkdir build
-            cd build
-            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+            cmake --preset=default-ninja-clang-windows
             cmake --build . --config Release
       - name: Package for Windows
         run: |
           mkdir packaged
-          mkdir packaged/res
-          cp build/VoxelEngine.exe packaged/
-          cp build/vctest/vctest.exe packaged/
-          cp build/*.dll packaged/
-          cp -r build/res/* packaged/res/
+          cp -r build/Release/ packaged/
+          cp build/vctest/Release/vctest.exe packaged/
           mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
       - env:
           MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
