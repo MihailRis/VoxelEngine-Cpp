@@ -32,6 +32,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
         find_package(Lua REQUIRED)
     else()
+        # Used for mingw-clang cross compiling from msys2
         set(LIBS ${LIBS} luajit-5.1)
     endif()
     find_package(glfw3 REQUIRED)
