@@ -33,6 +33,8 @@ if app then
     app.reconfig_packs = core.reconfig_packs
     app.set_setting = core.set_setting
     app.tick = coroutine.yield
+    app.get_version = core.get_version
+    app.get_setting_info = core.get_setting_info
 
     function app.quit()
         local tb = debug.get_traceback(1)
