@@ -8,7 +8,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  # We use two types linking: for clang build is static (vcpkg triplet x64-windows-static)
+  # and for msvc build is dynamic linking (vcpkg triplet x64-windows)
+  # By default CMAKE_MSVC_RUNTIME_LIBRARY set by MultiThreaded$<$<CONFIG:Debug>:Debug>DLL
+  if (VCPKG_TARGET_TRIPLET MATCHES "static")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  endif()
 endif()
 
 add_subdirectory(src)
