@@ -1,0 +1,68 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "condition": {
+                "type": "equals",
+                "rhs": "${hostSystemName}",
+                "lhs": "Windows"
+            },
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VOXELENGINE_BUILD_TESTS": "ON"
+            }
+        },
+        {
+            "name": "default-ninja-clang-windows",
+            "condition": {
+                "type": "equals",
+                "rhs": "${hostSystemName}",
+                "lhs": "Windows"
+            },
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "environment": {
+                "VCPKG_DEFAULT_TRIPLET": "x64-windows-static",
+                "VCPKG_DEFAULT_HOST_TRIPLET": "x64-windows-static"
+            },
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang",
+                "VOXELENGINE_BUILD_TESTS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "configuration": "Debug"
+        },
+        {
+            "name": "default-ninja-clang-windows",
+            "configurePreset": "default-ninja-clang-windows",
+            "configuration": "Debug"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "default-ninja-clang-windows",
+            "configurePreset": "default-ninja-clang-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}
