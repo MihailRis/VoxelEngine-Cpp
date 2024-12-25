@@ -42,9 +42,18 @@ input.add_callback(bindname: str, callback: function)
 ```
 
 Add binding activation callback. Example:
+
 ```lua
 input.add_callback("hud.inventory", function ()
 	print("Inventory open key pressed")
+end)
+```
+
+Callback may be added to a key.
+
+```lua
+input.add_callback("key:space", function ()
+    print("Space pressed")
 end)
 ```
 
