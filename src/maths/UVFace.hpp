@@ -16,7 +16,7 @@ struct UVFace {
     }
 
     template<int n>
-    inline void rotate(int times) {
+    inline void rotate() {
         int times = n % 4;
         if (times < 0) {
             times += 4;
