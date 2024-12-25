@@ -1,4 +1,4 @@
-#include "engine.hpp"
+#include "Engine.hpp"
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -186,7 +186,7 @@ void Engine::run() {
 
 void Engine::postUpdate() {
     network->update();
-    processPostRunnables();
+    postRunnables.run();
 }
 
 void Engine::updateFrontend() {
@@ -213,15 +213,6 @@ void Engine::renderFrame() {
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, nullptr);
     gui->draw(ctx, *assets);
-}
-
-void Engine::processPostRunnables() {
-    std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
-    while (!postRunnables.empty()) {
-        postRunnables.front()();
-        postRunnables.pop();
-    }
-    scripting::process_post_runnables();
 }
 
 void Engine::saveSettings() {
@@ -296,13 +287,8 @@ void Engine::loadAssets() {
         auto task = loader.startTask([=](){});
         task->waitForEnd();
     } else {
-        try {
-            while (loader.hasNext()) {
-                loader.loadNext();
-            }
-        } catch (const assetload::error& err) {
-            new_assets.reset();
-            throw;
+        while (loader.hasNext()) {
+            loader.loadNext();
         }
     }
     assets = std::move(new_assets);
@@ -517,11 +503,6 @@ ResPaths* Engine::getResPaths() {
 
 std::shared_ptr<Screen> Engine::getScreen() {
     return screen;
-}
-
-void Engine::postRunnable(const runnable& callback) {
-    std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
-    postRunnables.push(callback);
 }
 
 SettingsHandler& Engine::getSettingsHandler() {

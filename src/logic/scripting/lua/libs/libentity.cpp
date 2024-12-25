@@ -1,7 +1,7 @@
 #include "libentity.hpp"
 
 #include "content/Content.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "objects/Entities.hpp"
 #include "objects/EntityDef.hpp"
 #include "objects/Player.hpp"

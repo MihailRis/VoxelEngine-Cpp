@@ -11,15 +11,14 @@
 #include "files/engine_paths.hpp"
 #include "files/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
+#include "PostRunnables.hpp"
 #include "Time.hpp"
 
 #include <filesystem>
 #include <memory>
-#include <queue>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <mutex>
 
 class Level;
 class Screen;
@@ -65,13 +64,12 @@ class Engine : public util::ObjectsKeeper {
     std::vector<ContentPack> contentPacks;
     std::unique_ptr<Content> content;
     std::unique_ptr<ResPaths> resPaths;
-    std::queue<runnable> postRunnables;
-    std::recursive_mutex postRunnablesMutex;
     std::unique_ptr<EngineController> controller;
     std::unique_ptr<cmd::CommandsInterpreter> interpreter;
     std::unique_ptr<network::Network> network;
     std::vector<std::string> basePacks;
     std::unique_ptr<gui::GUI> gui;
+    PostRunnables postRunnables;
     Time time;
     consumer<std::unique_ptr<Level>> levelConsumer;
     bool quitSignal = false;
@@ -80,7 +78,6 @@ class Engine : public util::ObjectsKeeper {
     void loadSettings();
     void saveSettings();
     void updateHotkeys();
-    void processPostRunnables();
     void loadAssets();
 public:
     Engine(CoreParameters coreParameters);
@@ -157,7 +154,9 @@ public:
     std::shared_ptr<Screen> getScreen();
 
     /// @brief Enqueue function call to the end of current frame in draw thread
-    void postRunnable(const runnable& callback);
+    void postRunnable(const runnable& callback) {
+        postRunnables.postRunnable(callback);
+    }
 
     void saveScreenshot();
 

@@ -14,7 +14,7 @@
 #include "world/generator/GeneratorDef.hpp"
 #include "util/timeutil.hpp"
 #include "files/files.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "debug/Logger.hpp"
 
 using namespace lua;

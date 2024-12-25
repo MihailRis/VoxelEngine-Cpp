@@ -3,7 +3,7 @@
 #include <set>
 
 #include "coders/gzip.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "util/stringutil.hpp"

@@ -9,7 +9,7 @@
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
 #include "lua_custom_types.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 
 static debug::Logger logger("lua-state");
 static lua::State* main_thread = nullptr;
@@ -58,10 +58,10 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "vec3", vec3lib);
     openlib(L, "vec4", vec4lib);
 
-    if (stateType == StateType::TEST) {
-        openlib(L, "test", testlib);
+    if (stateType == StateType::SCRIPT) {
+        openlib(L, "app", applib);
     }
-    if (stateType == StateType::BASE || stateType == StateType::TEST) {
+    if (stateType == StateType::BASE || stateType == StateType::SCRIPT) {
         openlib(L, "gui", guilib);
         openlib(L, "input", inputlib);
         openlib(L, "inventory", inventorylib);
@@ -119,10 +119,10 @@ void lua::initialize(const EnginePaths& paths, const CoreParameters& params) {
     logger.info() << LUAJIT_VERSION;
 
     main_thread = create_state(
-        paths, params.headless ? StateType::TEST : StateType::BASE
+        paths, params.headless ? StateType::SCRIPT : StateType::BASE
     );
     lua::pushstring(main_thread, params.scriptFile.stem().u8string());
-    lua::setglobal(main_thread, "__VC_TEST_NAME");
+    lua::setglobal(main_thread, "__VC_SCRIPT_NAME");
 }
 
 void lua::finalize() {

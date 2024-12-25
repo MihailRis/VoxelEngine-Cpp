@@ -12,7 +12,7 @@
 #include "files/util.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "maths/Heightmap.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "../lua_util.hpp"
 
 using namespace lua;
