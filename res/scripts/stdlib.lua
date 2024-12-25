@@ -31,6 +31,7 @@ if app then
     app.reopen_world = core.reopen_world
     app.delete_world = core.delete_world
     app.reconfig_packs = core.reconfig_packs
+    app.get_setting = core.get_setting
     app.set_setting = core.set_setting
     app.tick = coroutine.yield
     app.get_version = core.get_version
