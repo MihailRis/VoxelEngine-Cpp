@@ -1,8 +1,8 @@
-test.set_setting("chunks.load-distance", 3)
-test.set_setting("chunks.load-speed", 1)
+app.set_setting("chunks.load-distance", 3)
+app.set_setting("chunks.load-speed", 1)
 
-test.reconfig_packs({"base"}, {})
-test.new_world("demo", "2019", "core:default")
+app.reconfig_packs({"base"}, {})
+app.new_world("demo", "2019", "core:default")
 
 local pid1 = player.create("Xerxes")
 assert(player.get_name(pid1) == "Xerxes")
@@ -21,7 +21,7 @@ for i=1,25 do
     end
     player.set_pos(pid1, math.random() * 100 - 50, 100, math.random() * 100 - 50)
     player.set_pos(pid2, math.random() * 200 - 100, 100, math.random() * 200 - 100)
-    test.tick()
+    app.tick()
 end
 
-test.close_world(true)
+app.close_world(true)

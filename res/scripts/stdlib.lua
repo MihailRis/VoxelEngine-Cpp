@@ -22,21 +22,21 @@ function tb_frame_tostring(frame)
     return s
 end
 
-if test then
-    test.sleep = sleep
-    test.name = __VC_TEST_NAME
-    test.new_world = core.new_world
-    test.open_world = core.open_world
-    test.close_world = core.close_world
-    test.reopen_world = core.reopen_world
-    test.delete_world = core.delete_world
-    test.reconfig_packs = core.reconfig_packs
-    test.set_setting = core.set_setting
-    test.tick = coroutine.yield
+if app then
+    app.sleep = sleep
+    app.script = __VC_SCRIPT_NAME
+    app.new_world = core.new_world
+    app.open_world = core.open_world
+    app.close_world = core.close_world
+    app.reopen_world = core.reopen_world
+    app.delete_world = core.delete_world
+    app.reconfig_packs = core.reconfig_packs
+    app.set_setting = core.set_setting
+    app.tick = coroutine.yield
 
-    function test.quit()
+    function app.quit()
         local tb = debug.get_traceback(1)
-        local s = "test.quit() traceback:"
+        local s = "app.quit() traceback:"
         for i, frame in ipairs(tb) do
             s = s .. "\n\t"..tb_frame_tostring(frame)
         end
@@ -45,11 +45,11 @@ if test then
         coroutine.yield()
     end
 
-    function test.sleep_until(predicate, max_ticks)
+    function app.sleep_until(predicate, max_ticks)
         max_ticks = max_ticks or 1e9
         local ticks = 0
         while ticks < max_ticks and not predicate() do
-            test.tick()
+            app.tick()
         end
         if ticks == max_ticks then
             error("max ticks exceed")
