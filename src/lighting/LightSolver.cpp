@@ -9,8 +9,8 @@
 #include "voxels/voxel.hpp"
 #include "voxels/Block.hpp"
 
-LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int channel) 
-    : blockDefs(contentIds->blocks.getDefs()),
+LightSolver::LightSolver(const ContentIndices& contentIds, Chunks& chunks, int channel) 
+    : blockDefs(contentIds.blocks.getDefs()),
       chunks(chunks), 
       channel(channel) {
 }
@@ -18,7 +18,7 @@ LightSolver::LightSolver(const ContentIndices* contentIds, Chunks* chunks, int c
 void LightSolver::add(int x, int y, int z, int emission) {
     if (emission <= 1)
         return;
-    Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
+    Chunk* chunk = chunks.getChunkByVoxel(x, y, z);
     if (chunk == nullptr)
         return;
     ubyte light = chunk->lightmap.get(x-chunk->x*CHUNK_W, y, z-chunk->z*CHUNK_D, channel);
@@ -32,11 +32,11 @@ void LightSolver::add(int x, int y, int z, int emission) {
 
 void LightSolver::add(int x, int y, int z) {
     assert (chunks != nullptr);
-    add(x,y,z, chunks->getLight(x,y,z, channel));
+    add(x,y,z, chunks.getLight(x,y,z, channel));
 }
 
 void LightSolver::remove(int x, int y, int z) {
-    Chunk* chunk = chunks->getChunkByVoxel(x, y, z);
+    Chunk* chunk = chunks.getChunkByVoxel(x, y, z);
     if (chunk == nullptr)
         return;
 
@@ -68,7 +68,7 @@ void LightSolver::solve(){
             int y = entry.y+coords[imul3+1];
             int z = entry.z+coords[imul3+2];
             
-            Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
+            Chunk* chunk = chunks.getChunkByVoxel(x,y,z);
             if (chunk) {
                 int lx = x - chunk->x * CHUNK_W;
                 int lz = z - chunk->z * CHUNK_D;
@@ -76,7 +76,7 @@ void LightSolver::solve(){
 
                 ubyte light = chunk->lightmap.get(lx,y,lz, channel);
                 if (light != 0 && light == entry.light-1){
-                    voxel* vox = chunks->get(x, y, z);
+                    voxel* vox = chunks.get(x, y, z);
                     if (vox && vox->id != 0) {
                         const Block* block = blockDefs[vox->id];
                         if (uint8_t emission = block->emission[channel]) {
@@ -105,7 +105,7 @@ void LightSolver::solve(){
             int y = entry.y+coords[imul3+1];
             int z = entry.z+coords[imul3+2];
 
-            Chunk* chunk = chunks->getChunkByVoxel(x,y,z);
+            Chunk* chunk = chunks.getChunkByVoxel(x,y,z);
             if (chunk) {
                 int lx = x - chunk->x * CHUNK_W;
                 int lz = z - chunk->z * CHUNK_D;

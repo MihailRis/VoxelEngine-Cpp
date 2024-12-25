@@ -608,7 +608,7 @@ void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
     voxelsBuffer->setPosition(
         chunk->x * CHUNK_W - voxelBufferPadding, 0,
         chunk->z * CHUNK_D - voxelBufferPadding);
-    chunks->getVoxels(voxelsBuffer.get(), settings.graphics.backlight.get());
+    chunks->getVoxels(*voxelsBuffer, settings.graphics.backlight.get());
 
     if (voxelsBuffer->pickBlockId(
         chunk->x * CHUNK_W, 0, chunk->z * CHUNK_D

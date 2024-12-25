@@ -19,79 +19,79 @@ PhysicsSolver::PhysicsSolver(glm::vec3 gravity) : gravity(gravity) {
 
 void PhysicsSolver::step(
     const GlobalChunks& chunks, 
-    Hitbox* hitbox, 
+    Hitbox& hitbox, 
     float delta, 
     uint substeps, 
     entityid_t entity
 ) {
     float dt = delta / static_cast<float>(substeps);
-    float linearDamping = hitbox->linearDamping;
+    float linearDamping = hitbox.linearDamping;
     float s = 2.0f/BLOCK_AABB_GRID;
 
-    const glm::vec3& half = hitbox->halfsize;
-    glm::vec3& pos = hitbox->position;
-    glm::vec3& vel = hitbox->velocity;
-    float gravityScale = hitbox->gravityScale;
+    const glm::vec3& half = hitbox.halfsize;
+    glm::vec3& pos = hitbox.position;
+    glm::vec3& vel = hitbox.velocity;
+    float gravityScale = hitbox.gravityScale;
     
-    bool prevGrounded = hitbox->grounded;
-    hitbox->grounded = false;
+    bool prevGrounded = hitbox.grounded;
+    hitbox.grounded = false;
     for (uint i = 0; i < substeps; i++) {
         float px = pos.x;
         float py = pos.y;
         float pz = pos.z;
         
         vel += gravity * dt * gravityScale;
-        if (hitbox->type == BodyType::DYNAMIC) {
+        if (hitbox.type == BodyType::DYNAMIC) {
             colisionCalc(chunks, hitbox, vel, pos, half, 
                          (prevGrounded && gravityScale > 0.0f) ? 0.5f : 0.0f);
         }
         vel.x *= glm::max(0.0f, 1.0f - dt * linearDamping);
-        if (hitbox->verticalDamping) {
+        if (hitbox.verticalDamping) {
             vel.y *= glm::max(0.0f, 1.0f - dt * linearDamping);
         }
         vel.z *= glm::max(0.0f, 1.0f - dt * linearDamping);
 
         pos += vel * dt + gravity * gravityScale * dt * dt * 0.5f;
-        if (hitbox->grounded && pos.y < py) {
+        if (hitbox.grounded && pos.y < py) {
             pos.y = py;
         }
 
-        if (hitbox->crouching && hitbox->grounded){
+        if (hitbox.crouching && hitbox.grounded){
             float y = (pos.y-half.y-E);
-            hitbox->grounded = false;
+            hitbox.grounded = false;
             for (int ix = 0; ix <= (half.x-E)*2/s; ix++) {
                 float x = (px-half.x+E) + ix * s;
                 for (int iz = 0; iz <= (half.z-E)*2/s; iz++){
                     float z = (pos.z-half.z+E) + iz * s;
                     if (chunks.isObstacleAt(x,y,z)){
-                        hitbox->grounded = true;
+                        hitbox.grounded = true;
                         break;
                     }
                 }
             }
-            if (!hitbox->grounded) {
+            if (!hitbox.grounded) {
                 pos.z = pz;
             }
-            hitbox->grounded = false;
+            hitbox.grounded = false;
             for (int ix = 0; ix <= (half.x-E)*2/s; ix++) {
                 float x = (pos.x-half.x+E) + ix * s;
                 for (int iz = 0; iz <= (half.z-E)*2/s; iz++){
                     float z = (pz-half.z+E) + iz * s;
                     if (chunks.isObstacleAt(x,y,z)){
-                        hitbox->grounded = true;
+                        hitbox.grounded = true;
                         break;
                     }
                 }
             }
-            if (!hitbox->grounded) {
+            if (!hitbox.grounded) {
                 pos.x = px;
             }
-            hitbox->grounded = true;
+            hitbox.grounded = true;
         }
     }
     AABB aabb;
-    aabb.a = hitbox->position - hitbox->halfsize;
-    aabb.b = hitbox->position + hitbox->halfsize;
+    aabb.a = hitbox.position - hitbox.halfsize;
+    aabb.b = hitbox.position + hitbox.halfsize;
     for (size_t i = 0; i < sensors.size(); i++) {
         auto& sensor = *sensors[i];
         if (sensor.entity == entity) {
@@ -105,7 +105,7 @@ void PhysicsSolver::step(
                 break;
             case SensorType::RADIUS:
                 triggered = glm::distance2(
-                    hitbox->position, glm::vec3(sensor.calculated.radial))
+                    hitbox.position, glm::vec3(sensor.calculated.radial))
                      < sensor.calculated.radial.w;
                 break;
         }
@@ -205,7 +205,7 @@ static void calc_collision_pos(
 
 void PhysicsSolver::colisionCalc(
     const GlobalChunks& chunks, 
-    Hitbox* hitbox, 
+    Hitbox& hitbox, 
     glm::vec3& vel, 
     glm::vec3& pos, 
     const glm::vec3 half,
@@ -225,7 +225,7 @@ void PhysicsSolver::colisionCalc(
     calc_collision_pos<2, 1, 0>(chunks, pos, vel, half, stepHeight, s);
 
     if (calc_collision_neg<1, 0, 2>(chunks, pos, vel, half, stepHeight, s)) {
-        hitbox->grounded = true;
+        hitbox.grounded = true;
     }
 
     if (stepHeight > 0.0 && vel.y <= 0.0f){
@@ -273,7 +273,7 @@ bool PhysicsSolver::isBlockInside(int x, int y, int z, Hitbox* hitbox) {
 }
 
 bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate state, Hitbox* hitbox) {
-    const float E = 0.001f; // inaccuracy
+    const float e = 0.001f; // inaccuracy
     const glm::vec3& pos = hitbox->position;
     const glm::vec3& half = hitbox->halfsize;
     const auto& boxes = def->rotatable 
@@ -282,9 +282,9 @@ bool PhysicsSolver::isBlockInside(int x, int y, int z, Block* def, blockstate st
     for (const auto& block_hitbox : boxes) {
         glm::vec3 min = block_hitbox.min();
         glm::vec3 max = block_hitbox.max();
-        if (min.x < pos.x+half.x-x-E && max.x > pos.x-half.x-x+E &&
-            min.z < pos.z+half.z-z-E && max.z > pos.z-half.z-z+E &&
-            min.y < pos.y+half.y-y-E && max.y > pos.y-half.y-y+E)
+        if (min.x < pos.x+half.x-x-e && max.x > pos.x-half.x-x+e &&
+            min.z < pos.z+half.z-z-e && max.z > pos.z-half.z-z+e &&
+            min.y < pos.y+half.y-y-e && max.y > pos.y-half.y-y+e)
             return true;
     }
     return false;

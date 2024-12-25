@@ -27,7 +27,7 @@ Chunks::Chunks(
     int32_t ox,
     int32_t oz,
     LevelEvents* events,
-    const ContentIndices* indices
+    const ContentIndices& indices
 )
     : events(events),
       indices(indices),
@@ -67,7 +67,7 @@ const AABB* Chunks::isObstacleAt(float x, float y, float z) const {
             return &empty;
         }
     }
-    const auto& def = indices->blocks.require(v->id);
+    const auto& def = indices.blocks.require(v->id);
     if (def.obstacle) {
         glm::ivec3 offset {};
         if (v->state.segment) {
@@ -98,7 +98,7 @@ bool Chunks::isReplaceableBlock(int32_t x, int32_t y, int32_t z) {
 bool Chunks::isObstacleBlock(int32_t x, int32_t y, int32_t z) {
     voxel* v = get(x, y, z);
     if (v == nullptr) return false;
-    return indices->blocks.require(v->id).obstacle;
+    return indices.blocks.require(v->id).obstacle;
 }
 
 ubyte Chunks::getLight(int32_t x, int32_t y, int32_t z, int channel) const {
@@ -254,7 +254,7 @@ glm::vec3 Chunks::rayCastToObstacle(
     while (t <= maxDist) {
         voxel* voxel = get(ix, iy, iz);
         if (voxel) {
-            const auto& def = indices->blocks.require(voxel->id);
+            const auto& def = indices.blocks.require(voxel->id);
             if (def.obstacle) {
                 if (!def.rt.solid) {
                     const std::vector<AABB>& hitboxes =
@@ -333,16 +333,16 @@ bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
 // reduce nesting on next modification
 // 25.06.2024: not now
 // 11.11.2024: not now
-void Chunks::getVoxels(VoxelsVolume* volume, bool backlight) const {
-    voxel* voxels = volume->getVoxels();
-    light_t* lights = volume->getLights();
-    int x = volume->getX();
-    int y = volume->getY();
-    int z = volume->getZ();
+void Chunks::getVoxels(VoxelsVolume& volume, bool backlight) const {
+    voxel* voxels = volume.getVoxels();
+    light_t* lights = volume.getLights();
+    int x = volume.getX();
+    int y = volume.getY();
+    int z = volume.getZ();
 
-    int w = volume->getW();
-    int h = volume->getH();
-    int d = volume->getD();
+    int w = volume.getW();
+    int h = volume.getH();
+    int d = volume.getD();
 
     int scx = floordiv<CHUNK_W>(x);
     int scz = floordiv<CHUNK_D>(z);
@@ -394,7 +394,7 @@ void Chunks::getVoxels(VoxelsVolume* volume, bool backlight) const {
                             light_t light = clights[cidx];
                             if (backlight) {
                                 const auto block =
-                                    indices->blocks.get(voxels[vidx].id);
+                                    indices.blocks.get(voxels[vidx].id);
                                 if (block && block->lightPassing) {
                                     light = Lightmap::combine(
                                         std::min(15,

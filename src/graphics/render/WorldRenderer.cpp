@@ -120,7 +120,7 @@ void WorldRenderer::setupWorldShader(
     shader.uniform3f("u_cameraPos", camera.position);
     shader.uniform1i("u_cubemap", 1);
 
-    auto indices = level.content->getIndices();
+    auto indices = level.content.getIndices();
     // Light emission when an emissive item is chosen
     {
         auto inventory = player.getInventory();
@@ -193,7 +193,7 @@ void WorldRenderer::renderLevel(
 
 void WorldRenderer::renderBlockSelection() {
     const auto& selection = player.selection;
-    auto indices = level.content->getIndices();
+    auto indices = level.content.getIndices();
     blockid_t id = selection.vox.id;
     auto& block = indices->blocks.require(id);
     const glm::ivec3 pos = player.selection.position;
@@ -241,7 +241,7 @@ void WorldRenderer::renderHands(
     const Camera& camera, float delta
 ) {
     auto& entityShader = assets.require<Shader>("entity");
-    auto indices = level.content->getIndices();
+    auto indices = level.content.getIndices();
 
     // get current chosen item
     const auto& inventory = player.getInventory();
@@ -275,7 +275,7 @@ void WorldRenderer::renderHands(
              );
     prevRotation = rotation;
     auto offset = -(camera.position - player.getPosition());
-    float angle = glm::radians(player.cam.x - 90);
+    float angle = glm::radians(player.rotation.x - 90);
     float cos = glm::cos(angle);
     float sin = glm::sin(angle);
 
@@ -368,8 +368,7 @@ void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
     int z = std::floor(player.currentCamera->position.z);
     auto block = player.chunks->get(x, y, z);
     if (block && block->id) {
-        const auto& def =
-            level.content->getIndices()->blocks.require(block->id);
+        const auto& def = level.content.getIndices()->blocks.require(block->id);
         if (def.overlayTexture.empty()) {
             return;
         }

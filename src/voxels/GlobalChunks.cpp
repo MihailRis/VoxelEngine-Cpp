@@ -19,8 +19,8 @@
 
 static debug::Logger logger("chunks-storage");
 
-GlobalChunks::GlobalChunks(Level* level)
-    : level(level), indices(level ? level->content->getIndices() : nullptr) {
+GlobalChunks::GlobalChunks(Level& level)
+    : level(level), indices(*level.content.getIndices()) {
     chunksMap.max_load_factor(CHUNKS_MAP_MAX_LOAD_FACTOR);
 }
 
@@ -96,11 +96,11 @@ std::shared_ptr<Chunk> GlobalChunks::create(int x, int z) {
     auto chunk = std::make_shared<Chunk>(x, z);
     chunksMap[keyfrom(x, z)] = chunk;
 
-    World* world = level->getWorld();
-    auto& regions = world->wfile.get()->getRegions();
+    World& world = *level.getWorld();
+    auto& regions = world.wfile.get()->getRegions();
 
     if (auto data = regions.getVoxels(chunk->x, chunk->z)) {
-        const auto& indices = *level->content->getIndices();
+        const auto& indices = *level.content.getIndices();
 
         chunk->decode(data.get());
         check_voxels(indices, *chunk);
@@ -111,13 +111,13 @@ std::shared_ptr<Chunk> GlobalChunks::create(int x, int z) {
 
         auto entitiesData = regions.fetchEntities(chunk->x, chunk->z);
         if (entitiesData.getType() == dv::value_type::object) {
-            level->entities->loadEntities(std::move(entitiesData));
+            level.entities->loadEntities(std::move(entitiesData));
             chunk->flags.entities = true;
         }
 
         chunk->flags.loaded = true;
         for (auto& entry : chunk->inventories) {
-            level->inventories->store(entry.second);
+            level.inventories->store(entry.second);
         }
     }
     if (auto lights = regions.getLights(chunk->x, chunk->z)) {
@@ -178,13 +178,13 @@ void GlobalChunks::save(Chunk* chunk) {
         return;
     }
     AABB aabb = chunk->getAABB();
-    auto entities = level->entities->getAllInside(aabb);
+    auto entities = level.entities->getAllInside(aabb);
     auto root = dv::object();
-    root["data"] = level->entities->serialize(entities);
+    root["data"] = level.entities->serialize(entities);
     if (!entities.empty()) {
         chunk->flags.entities = true;
     }
-    level->getWorld()->wfile->getRegions().put(
+    level.getWorld()->wfile->getRegions().put(
         chunk,
         chunk->flags.entities ? json::to_binary(root, true)
                                 : std::vector<ubyte>()

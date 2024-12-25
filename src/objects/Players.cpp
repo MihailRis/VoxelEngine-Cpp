@@ -5,7 +5,7 @@
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
-Players::Players(Level* level) : level(level) {}
+Players::Players(Level& level) : level(level) {}
 
 void Players::add(std::unique_ptr<Player> player) {
     players[player->getId()] = std::move(player);
@@ -22,17 +22,17 @@ Player* Players::get(int64_t id) const {
 Player* Players::create() {
     auto playerPtr = std::make_unique<Player>(
         level,
-        level->getWorld()->getInfo().nextPlayerId++,
+        level.getWorld()->getInfo().nextPlayerId++,
         "",
         glm::vec3(0, DEF_PLAYER_Y, 0),
         DEF_PLAYER_SPEED,
-        level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
+        level.inventories->create(DEF_PLAYER_INVENTORY_SIZE),
         0
     );
     auto player = playerPtr.get();
     add(std::move(playerPtr));
 
-    level->inventories->store(player->getInventory());
+    level.inventories->store(player->getInventory());
     return player;
 }
 
@@ -57,7 +57,7 @@ void Players::deserialize(const dv::value& src) {
             "",
             glm::vec3(0, DEF_PLAYER_Y, 0),
             DEF_PLAYER_SPEED,
-            level->inventories->create(DEF_PLAYER_INVENTORY_SIZE),
+            level.inventories->create(DEF_PLAYER_INVENTORY_SIZE),
             0
         );
         auto player = playerPtr.get();
@@ -66,8 +66,8 @@ void Players::deserialize(const dv::value& src) {
         auto& inventory = player->getInventory();
         // invalid inventory id pre 0.25
         if (inventory->getId() == 0) {
-            inventory->setId(level->getWorld()->getNextInventoryId());
+            inventory->setId(level.getWorld()->getNextInventoryId());
         }
-        level->inventories->store(player->getInventory());
+        level.inventories->store(player->getInventory());
     }
 }

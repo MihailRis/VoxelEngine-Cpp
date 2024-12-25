@@ -30,7 +30,7 @@ world_load_error::world_load_error(const std::string& message)
 World::World(
     WorldInfo info,
     const std::shared_ptr<WorldFiles>& worldFiles,
-    const Content* content,
+    const Content& content,
     const std::vector<ContentPack>& packs
 ) : info(std::move(info)),
     content(content),
@@ -46,12 +46,12 @@ void World::updateTimers(float delta) {
     info.totalTime += delta;
 }
 
-void World::writeResources(const Content* content) {
+void World::writeResources(const Content& content) {
     auto root = dv::object();
     for (size_t typeIndex = 0; typeIndex < RESOURCE_TYPES_COUNT; typeIndex++) {
         auto typeName = to_string(static_cast<ResourceType>(typeIndex));
         auto& list = root.list(typeName);
-        auto& indices = content->resourceIndices[typeIndex];
+        auto& indices = content.resourceIndices[typeIndex];
         for (size_t i = 0; i < indices.size(); i++) {
             auto& map = list.object();
             map["name"] = indices.getName(i);
@@ -65,10 +65,9 @@ void World::writeResources(const Content* content) {
 }
 
 void World::write(Level* level) {
-    const Content* content = level->content;
     level->chunks->saveAll();
     info.nextEntityId = level->entities->peekNextID();
-    wfile->write(this, content);
+    wfile->write(this, &content);
 
     auto playerFile = level->players->serialize();
     files::write_json(wfile->getPlayerFile(), playerFile);
@@ -82,7 +81,7 @@ std::unique_ptr<Level> World::create(
     const fs::path& directory,
     uint64_t seed,
     EngineSettings& settings,
-    const Content* content,
+    const Content& content,
     const std::vector<ContentPack>& packs
 ) {
     WorldInfo info {};
@@ -103,7 +102,7 @@ std::unique_ptr<Level> World::create(
 std::unique_ptr<Level> World::load(
     const std::shared_ptr<WorldFiles>& worldFilesPtr,
     EngineSettings& settings,
-    const Content* content,
+    const Content& content,
     const std::vector<ContentPack>& packs
 ) {
     auto worldFiles = worldFilesPtr.get();

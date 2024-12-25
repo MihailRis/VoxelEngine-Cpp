@@ -28,7 +28,7 @@ LevelController::LevelController(
       playerTickClock(20, 3) {
     if (clientPlayer) {
         chunks->lighting = std::make_unique<Lighting>(
-            level->content, clientPlayer->chunks.get()
+            level->content, *clientPlayer->chunks
         );
     }
     blocks = std::make_unique<BlocksController>(

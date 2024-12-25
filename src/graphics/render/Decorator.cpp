@@ -86,7 +86,7 @@ void Decorator::update(
     currentIndex = (currentIndex + BIG_PRIME) % UPDATE_BLOCKS;
 
     const auto& chunks = *player.chunks;
-    const auto& indices = *level.content->getIndices();
+    const auto& indices = *level.content.getIndices();
 
     int lx = index % UPDATE_AREA_DIAMETER;
     int lz = (index / UPDATE_AREA_DIAMETER) % UPDATE_AREA_DIAMETER;
@@ -108,7 +108,7 @@ void Decorator::update(float delta, const Camera& camera) {
         update(delta, pos - glm::ivec3(UPDATE_AREA_DIAMETER / 2), pos);
     }
     const auto& chunks = *player.chunks;
-    const auto& indices = *level.content->getIndices();
+    const auto& indices = *level.content.getIndices();
     auto iter = blockEmitters.begin();
     while (iter != blockEmitters.end()) {
         auto emitter = renderer.particles->getEmitter(iter->second);

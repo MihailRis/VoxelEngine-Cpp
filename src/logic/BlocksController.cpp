@@ -39,7 +39,7 @@ void BlocksController::updateSides(int x, int y, int z) {
 
 void BlocksController::updateSides(int x, int y, int z, int w, int h, int d) {
     voxel* vox = blocks_agent::get(chunks, x, y, z);
-    const auto& def = level.content->getIndices()->blocks.require(vox->id);
+    const auto& def = level.content.getIndices()->blocks.require(vox->id);
     const auto& rot = def.rotations.variants[vox->state.rotation];
     const auto& xaxis = rot.axisX;
     const auto& yaxis = rot.axisY;
@@ -85,7 +85,7 @@ void BlocksController::placeBlock(
     if (voxel == nullptr) {
         return;
     }
-    const auto& prevDef = level.content->getIndices()->blocks.require(voxel->id);
+    const auto& prevDef = level.content.getIndices()->blocks.require(voxel->id);
     scripting::on_block_replaced(player, prevDef, {x, y, z});
 
     onBlockInteraction(
@@ -106,7 +106,7 @@ void BlocksController::placeBlock(
 void BlocksController::updateBlock(int x, int y, int z) {
     voxel* vox = blocks_agent::get(chunks, x, y, z);
     if (vox == nullptr) return;
-    const auto& def = level.content->getIndices()->blocks.require(vox->id);
+    const auto& def = level.content.getIndices()->blocks.require(vox->id);
     if (def.grounded) {
         const auto& vec = get_ground_direction(def, vox->state.rotation);
         if (!blocks_agent::is_solid_at(chunks, x + vec.x, y + vec.y, z + vec.z)) {
@@ -132,7 +132,7 @@ void BlocksController::update(float delta, uint padding) {
 }
 
 void BlocksController::onBlocksTick(int tickid, int parts) {
-    const auto& indices = level.content->getIndices()->blocks;
+    const auto& indices = level.content.getIndices()->blocks;
     int tickRate = blocksTickClock.getTickRate();
     for (size_t id = 0; id < indices.count(); id++) {
         if ((id + tickid) % parts != 0) continue;
@@ -169,7 +169,7 @@ void BlocksController::randomTick(
 }
 
 void BlocksController::randomTick(int tickid, int parts, uint padding) {
-    auto indices = level.content->getIndices();
+    auto indices = level.content.getIndices();
 
     std::set<uint64_t> chunksIterated;
 
@@ -218,7 +218,7 @@ int64_t BlocksController::createBlockInventory(int x, int y, int z) {
     int lz = z - chunk->z * CHUNK_D;
     auto inv = chunk->getBlockInventory(lx, y, lz);
     if (inv == nullptr) {
-        const auto& indices = level.content->getIndices()->blocks;
+        const auto& indices = level.content.getIndices()->blocks;
         auto& def = indices.require(chunk->voxels[vox_index(lx, y, lz)].id);
         int invsize = def.inventorySize;
         if (invsize == 0) {

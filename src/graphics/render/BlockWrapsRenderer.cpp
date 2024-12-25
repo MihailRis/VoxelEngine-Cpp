@@ -44,8 +44,7 @@ void BlockWrapsRenderer::draw(const BlockWrapper& wrapper) {
         return;
     }
     if (vox->id != BLOCK_VOID) {
-        const auto& def =
-            level.content->getIndices()->blocks.require(vox->id);
+        const auto& def = level.content.getIndices()->blocks.require(vox->id);
         switch (def.model) {
             case BlockModel::block:
                 batch->cube(

@@ -18,19 +18,19 @@
 
 Level::Level(
     std::unique_ptr<World> worldPtr,
-    const Content* content,
+    const Content& content,
     EngineSettings& settings
 )
     : settings(settings),
       world(std::move(worldPtr)),
       content(content),
-      chunks(std::make_unique<GlobalChunks>(this)),
+      chunks(std::make_unique<GlobalChunks>(*this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
-      entities(std::make_unique<Entities>(this)),
-      players(std::make_unique<Players>(this)) {
+      entities(std::make_unique<Entities>(*this)),
+      players(std::make_unique<Players>(*this)) {
     const auto& worldInfo = world->getInfo();
-    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    auto& cameraIndices = content.getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto camera = std::make_shared<Camera>();
         auto map = cameraIndices.getSavedData(i);
@@ -76,7 +76,7 @@ const World* Level::getWorld() const {
 }
 
 void Level::onSave() {
-    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    auto& cameraIndices = content.getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto& camera = *cameras.at(i);
         auto map = dv::object();
@@ -91,7 +91,7 @@ void Level::onSave() {
 }
 
 std::shared_ptr<Camera> Level::getCamera(const std::string& name) {
-    size_t index = content->getIndices(ResourceType::CAMERA).indexOf(name);
+    size_t index = content.getIndices(ResourceType::CAMERA).indexOf(name);
     if (index == ResourceIndices::MISSING) {
         return nullptr;
     }

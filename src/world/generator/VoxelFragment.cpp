@@ -59,7 +59,7 @@ std::unique_ptr<VoxelFragment> VoxelFragment::create(
 
     std::vector<std::string> blockNames {CORE_AIR};
     std::unordered_map<blockid_t, blockid_t> blocksRegistered {{0, 0}};
-    auto contentIndices = level.content->getIndices();
+    auto contentIndices = level.content.getIndices();
     for (size_t i = 0 ; i < voxels.size(); i++) {
         blockid_t id = volVoxels[i].id;
         blockid_t index;

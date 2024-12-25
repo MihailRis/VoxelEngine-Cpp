@@ -54,30 +54,32 @@ void CameraControl::refresh() {
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
-    glm::vec3& cam = player.cam;
+    glm::vec3& rotation = player.rotation;
 
     float sensitivity =
         (input.zoom ? settings.sensitivity.get() / 4.f
                     : settings.sensitivity.get());
 
     auto d = glm::degrees(Events::delta / (float)Window::height * sensitivity);
-    cam.x -= d.x;
-    cam.y -= d.y;
+    rotation.x -= d.x;
+    rotation.y -= d.y;
 
-    if (cam.y < -89.9f) {
-        cam.y = -89.9f;
-    } else if (cam.y > 89.9f) {
-        cam.y = 89.9f;
+    if (rotation.y < -89.9f) {
+        rotation.y = -89.9f;
+    } else if (rotation.y > 89.9f) {
+        rotation.y = 89.9f;
     }
-    if (cam.x > 180.f) {
-        cam.x -= 360.f;
-    } else if (cam.x < -180.f) {
-        cam.x += 360.f;
+    if (rotation.x > 180.f) {
+        rotation.x -= 360.f;
+    } else if (rotation.x < -180.f) {
+        rotation.x += 360.f;
     }
 
     camera->rotation = glm::mat4(1.0f);
     camera->rotate(
-        glm::radians(cam.y), glm::radians(cam.x), glm::radians(cam.z)
+        glm::radians(rotation.y),
+        glm::radians(rotation.x),
+        glm::radians(rotation.z)
     );
 }
 
@@ -219,7 +221,7 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
             int z = std::floor(pos.z + half.z * offsetZ);
             auto vox = player.chunks->get(x, y, z);
             if (vox) {
-                auto& def = level.content->getIndices()->blocks.require(vox->id);
+                auto& def = level.content.getIndices()->blocks.require(vox->id);
                 if (!def.obstacle) {
                     continue;
                 }
@@ -340,7 +342,7 @@ static int determine_rotation(
 }
 
 voxel* PlayerController::updateSelection(float maxDistance) {
-    auto indices = level.content->getIndices();
+    auto indices = level.content.getIndices();
     auto& chunks = *player.chunks;
     auto camera = player.fpCamera.get();
     auto& selection = player.selection;
@@ -476,7 +478,7 @@ void PlayerController::updateEntityInteraction(
 }
 
 void PlayerController::updateInteraction(float delta) {
-    auto indices = level.content->getIndices();
+    auto indices = level.content.getIndices();
     auto chunks = player.chunks.get();
     const auto& selection = player.selection;
     

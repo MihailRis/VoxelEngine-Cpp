@@ -24,7 +24,7 @@ const uint MIN_SURROUNDING = 9;
 ChunksController::ChunksController(Level& level)
     : level(level),
       generator(std::make_unique<WorldGenerator>(
-          level.content->generators.require(level.getWorld()->getGenerator()),
+          level.content.generators.require(level.getWorld()->getGenerator()),
           level.content,
           level.getWorld()->getSeed()
       )) {}
@@ -141,7 +141,7 @@ void ChunksController::createChunk(const Player& player, int x, int z) const {
     chunk->updateHeights();
 
     if (!chunkFlags.loadedLights) {
-        Lighting::prebuildSkyLight(chunk.get(), level.content->getIndices());
+        Lighting::prebuildSkyLight(*chunk, *level.content.getIndices());
     }
     chunkFlags.loaded = true;
     chunkFlags.ready = true;

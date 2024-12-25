@@ -25,7 +25,7 @@ class VoxelsVolume;
 /// Player-centred chunks matrix
 class Chunks {
     LevelEvents* events;
-    const ContentIndices* const indices;
+    const ContentIndices& indices;
 
     void eraseSegments(const Block& def, blockstate state, int x, int y, int z);
     void repairSegments(
@@ -46,7 +46,7 @@ public:
         int32_t ox,
         int32_t oz,
         LevelEvents* events,
-        const ContentIndices* indices
+        const ContentIndices& indices
     );
     ~Chunks() = default;
 
@@ -56,6 +56,14 @@ public:
 
     Chunk* getChunk(int32_t x, int32_t z) const;
     Chunk* getChunkByVoxel(int32_t x, int32_t y, int32_t z) const;
+
+    template <typename T>
+    Chunk* getChunkByVoxel(const glm::vec<3, T>& pos) const {
+        return getChunkByVoxel(
+            glm::floor(pos.x), glm::floor(pos.y), glm::floor(pos.z)
+        );
+    }
+
     voxel* get(int32_t x, int32_t y, int32_t z) const;
     voxel& require(int32_t x, int32_t y, int32_t z) const;
 
@@ -118,7 +126,7 @@ public:
     bool isReplaceableBlock(int32_t x, int32_t y, int32_t z);
     bool isObstacleBlock(int32_t x, int32_t y, int32_t z);
 
-    void getVoxels(VoxelsVolume* volume, bool backlight = false) const;
+    void getVoxels(VoxelsVolume& volume, bool backlight = false) const;
 
     void setCenter(int32_t x, int32_t z);
     void resize(uint32_t newW, uint32_t newD);
@@ -154,7 +162,7 @@ public:
     }
 
     const ContentIndices& getContentIndices() const {
-        return *indices;
+        return indices;
     }
 
     static inline constexpr unsigned matrixSize(int loadDistance, int padding) {

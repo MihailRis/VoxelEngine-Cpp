@@ -26,15 +26,15 @@ class GlobalChunks {
         return ekey.key;
     }
 
-    Level* level;
-    const ContentIndices* indices;
+    Level& level;
+    const ContentIndices& indices;
     std::unordered_map<uint64_t, std::shared_ptr<Chunk>> chunksMap;
     std::unordered_map<glm::ivec2, std::shared_ptr<Chunk>> pinnedChunks;
     std::unordered_map<ptrdiff_t, int> refCounters;
 
     consumer<Chunk&> onUnload;
 public:
-    GlobalChunks(Level* level);
+    GlobalChunks(Level& level);
     ~GlobalChunks() = default;
 
     void setOnUnload(consumer<Chunk&> onUnload);
@@ -68,6 +68,6 @@ public:
     }
 
     const ContentIndices& getContentIndices() const {
-        return *indices;
+        return indices;
     }
 };

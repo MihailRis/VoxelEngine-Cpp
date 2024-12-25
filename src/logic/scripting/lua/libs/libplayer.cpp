@@ -60,7 +60,7 @@ static int l_set_vel(lua::State* L) {
 
 static int l_get_rot(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec_stack(L, player->cam);
+        return lua::pushvec_stack(L, player->rotation);
     }
     return 0;
 }
@@ -70,17 +70,17 @@ static int l_set_rot(lua::State* L) {
     if (!player) {
         return 0;
     }
-    glm::vec3& cam = player->cam;
+    glm::vec3& rotation = player->rotation;
 
     auto x = lua::tonumber(L, 2);
     auto y = lua::tonumber(L, 3);
-    auto z = cam.z;
+    auto z = rotation.z;
     if (lua::isnumber(L, 4)) {
         z = lua::tonumber(L, 4);
     }
-    cam.x = x;
-    cam.y = y;
-    cam.z = z;
+    rotation.x = x;
+    rotation.y = y;
+    rotation.z = z;
     return 0;
 }
 

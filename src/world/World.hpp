@@ -56,17 +56,17 @@ struct WorldInfo : public Serializable {
 class World {
     WorldInfo info {};
 
-    const Content* const content;
+    const Content& content;
     std::vector<ContentPack> packs;
 
-    void writeResources(const Content* content);
+    void writeResources(const Content& content);
 public:
     std::shared_ptr<WorldFiles> wfile;
 
     World(
         WorldInfo info,
         const std::shared_ptr<WorldFiles>& worldFiles,
-        const Content* content,
+        const Content& content,
         const std::vector<ContentPack>& packs
     );
 
@@ -103,7 +103,7 @@ public:
         const fs::path& directory,
         uint64_t seed,
         EngineSettings& settings,
-        const Content* content,
+        const Content& content,
         const std::vector<ContentPack>& packs
     );
 
@@ -118,7 +118,7 @@ public:
     static std::unique_ptr<Level> load(
         const std::shared_ptr<WorldFiles>& worldFiles,
         EngineSettings& settings,
-        const Content* content,
+        const Content& content,
         const std::vector<ContentPack>& packs
     );
 
@@ -155,10 +155,5 @@ public:
     /// @return integer >= 1
     int64_t getNextInventoryId() {
         return info.nextInventoryId++;
-    }
-
-    /// @brief Get current world Content instance
-    const Content* getContent() const {
-        return content;
     }
 };

@@ -39,7 +39,7 @@ struct CursorSelection {
 };
 
 class Player : public Serializable {
-    Level* level;
+    Level& level;
     int64_t id;
     std::string name;
     float speed;
@@ -57,12 +57,12 @@ class Player : public Serializable {
 public:
     std::unique_ptr<Chunks> chunks;
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
-    std::shared_ptr<Camera> currentCamera;;
-    glm::vec3 cam {};
+    std::shared_ptr<Camera> currentCamera;
+    glm::vec3 rotation {};
     CursorSelection selection {};
 
     Player(
-        Level* level,
+        Level& level,
         int64_t id,
         const std::string& name,
         glm::vec3 position,

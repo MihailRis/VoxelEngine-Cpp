@@ -138,7 +138,7 @@ std::shared_ptr<UINode> create_debug_panel(
         }
     }));
     panel->add(create_label([&](){
-        auto* indices = level.content->getIndices();
+        auto indices = level.content.getIndices();
         if (auto def = indices->blocks.get(player.selection.vox.id)) {
             return L"name: " + util::str2wstr_utf8(def->name);
         } else {

@@ -14,12 +14,12 @@ class Level;
 class Player;
 
 class Players : public Serializable {
-    Level* level;
+    Level& level;
     std::unordered_map<int64_t, std::unique_ptr<Player>> players;
 
     void add(std::unique_ptr<Player> player);
 public:
-    Players(Level* level);
+    Players(Level& level);
 
     Player* get(int64_t id) const;
 

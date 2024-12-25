@@ -17,6 +17,9 @@
 #include "window/Events.hpp"
 #include "world/Level.hpp"
 #include "data/dv_util.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("player");
 
 constexpr float CROUCH_SPEED_MUL = 0.35f;
 constexpr float RUN_SPEED_MUL = 1.5f;
@@ -28,7 +31,7 @@ constexpr float JUMP_FORCE = 8.0f;
 constexpr int SPAWN_ATTEMPTS_PER_UPDATE = 64;
 
 Player::Player(
-    Level* level,
+    Level& level,
     int64_t id,
     const std::string& name,
     glm::vec3 position,
@@ -45,11 +48,11 @@ Player::Player(
       inventory(std::move(inv)),
       eid(eid),
       chunks(std::make_unique<Chunks>(
-          3, 3, 0, 0, level->events.get(), level->content->getIndices()
+          3, 3, 0, 0, level.events.get(), *level.content.getIndices()
       )),
-      fpCamera(level->getCamera("core:first-person")),
-      spCamera(level->getCamera("core:third-person-front")),
-      tpCamera(level->getCamera("core:third-person-back")),
+      fpCamera(level.getCamera("core:first-person")),
+      spCamera(level.getCamera("core:third-person-front")),
+      tpCamera(level.getCamera("core:third-person-back")),
       currentCamera(fpCamera) {
     fpCamera->setFov(glm::radians(90.0f));
     spCamera->setFov(glm::radians(90.0f));
@@ -60,17 +63,19 @@ Player::~Player() = default;
 
 void Player::updateEntity() {
     if (eid == 0) {
-        auto& def = level->content->entities.require("base:player");
-        eid = level->entities->spawn(def, getPosition());
-    } else if (auto entity = level->entities->get(eid)) {
+        auto& def = level.content.entities.require("base:player");
+        eid = level.entities->spawn(def, getPosition());
+    } else if (auto entity = level.entities->get(eid)) {
         position = entity->getTransform().pos;
-    } else {
-        // TODO: check if chunk loaded
+    } else if (chunks->getChunkByVoxel(position)) {
+        logger.error() << "player entity despawned or deleted; "
+                          "will be respawned";
+        eid = 0;
     }
 }
 
 Hitbox* Player::getHitbox() {
-    if (auto entity = level->entities->get(eid)) {
+    if (auto entity = level.entities->get(eid)) {
         return &entity->getRigidbody().hitbox;
     }
     return nullptr;
@@ -143,7 +148,7 @@ void Player::updateSelectedEntity() {
 }
 
 void Player::postUpdate() {
-    auto entity = level->entities->get(eid);
+    auto entity = level.entities->get(eid);
     if (!entity.has_value()) {
         return;
     }
@@ -168,12 +173,12 @@ void Player::postUpdate() {
 
     if (body) {
         skeleton.pose.matrices[body->getIndex()] = glm::rotate(
-            glm::mat4(1.0f), glm::radians(cam.x), glm::vec3(0, 1, 0)
+            glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(0, 1, 0)
         );
     }
     if (head) {
         skeleton.pose.matrices[head->getIndex()] = glm::rotate(
-            glm::mat4(1.0f), glm::radians(cam.y), glm::vec3(1, 0, 0)
+            glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(1, 0, 0)
         );
     }
 }
@@ -181,7 +186,7 @@ void Player::postUpdate() {
 void Player::teleport(glm::vec3 position) {
     this->position = position;
 
-    if (auto entity = level->entities->get(eid)) {
+    if (auto entity = level.entities->get(eid)) {
         entity->getRigidbody().hitbox.position = position;
         entity->getTransform().setPos(position);
     }
@@ -298,7 +303,7 @@ dv::value Player::serialize() const {
     root["name"] = name;
 
     root["position"] = dv::to_value(position);
-    root["rotation"] = dv::to_value(cam);
+    root["rotation"] = dv::to_value(rotation);
     root["spawnpoint"] = dv::to_value(spawnpoint);
 
     root["flight"] = flight;
@@ -310,10 +315,10 @@ dv::value Player::serialize() const {
     root["entity"] = eid;
     root["inventory"] = inventory->serialize();
     auto found =
-        std::find(level->cameras.begin(), level->cameras.end(), currentCamera);
-    if (found != level->cameras.end()) {
-        root["camera"] = level->content->getIndices(ResourceType::CAMERA)
-                .getName(found - level->cameras.begin());
+        std::find(level.cameras.begin(), level.cameras.end(), currentCamera);
+    if (found != level.cameras.end()) {
+        root["camera"] = level.content.getIndices(ResourceType::CAMERA)
+                .getName(found - level.cameras.begin());
     }
     return root;
 }
@@ -328,7 +333,7 @@ void Player::deserialize(const dv::value& src) {
     fpCamera->position = position;
 
     const auto& rotarr = src["rotation"];
-    dv::get_vec(rotarr, cam);
+    dv::get_vec(rotarr, rotation);
 
     const auto& sparr = src["spawnpoint"];
     setSpawnPoint(glm::vec3(
@@ -349,7 +354,7 @@ void Player::deserialize(const dv::value& src) {
 
     if (src.has("camera")) {
         std::string name = src["camera"].asString();
-        if (auto camera = level->getCamera(name)) {
+        if (auto camera = level.getCamera(name)) {
             currentCamera = camera;
         }
     }
