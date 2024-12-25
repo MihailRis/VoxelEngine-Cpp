@@ -30,8 +30,6 @@ jobs:
         run: |
           git clone https://github.com/microsoft/vcpkg.git
           ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
-          ${{ github.workspace }}/vcpkg integrate install
-
       - name: Configure and build project with CMake and vcpkg
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg

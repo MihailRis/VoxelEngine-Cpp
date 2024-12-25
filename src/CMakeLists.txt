@@ -10,7 +10,12 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(OpenAL CONFIG REQUIRED)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # specific for vcpkg
+    find_package(OpenAL CONFIG REQUIRED)
+else()
+    find_package(OpenAL REQUIRED)
+endif()
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(CURL REQUIRED)
