@@ -50,6 +50,7 @@ if app then
         local ticks = 0
         while ticks < max_ticks and not predicate() do
             app.tick()
+            ticks = ticks + 1
         end
         if ticks == max_ticks then
             error("max ticks exceed")
