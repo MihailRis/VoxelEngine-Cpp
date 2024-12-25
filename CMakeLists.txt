@@ -6,6 +6,7 @@ option(VOXELENGINE_BUILD_TESTS "" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   # We use two types linking: for clang build is static (vcpkg triplet x64-windows-static)
