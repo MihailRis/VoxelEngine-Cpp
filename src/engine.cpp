@@ -184,7 +184,7 @@ void Engine::run() {
 
 void Engine::postUpdate() {
     network->update();
-    processPostRunnables();
+    postRunnables.run();
 }
 
 void Engine::updateFrontend() {
@@ -211,15 +211,6 @@ void Engine::renderFrame() {
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, nullptr);
     gui->draw(ctx, *assets);
-}
-
-void Engine::processPostRunnables() {
-    std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
-    while (!postRunnables.empty()) {
-        postRunnables.front()();
-        postRunnables.pop();
-    }
-    scripting::process_post_runnables();
 }
 
 void Engine::saveSettings() {
@@ -515,11 +506,6 @@ ResPaths* Engine::getResPaths() {
 
 std::shared_ptr<Screen> Engine::getScreen() {
     return screen;
-}
-
-void Engine::postRunnable(const runnable& callback) {
-    std::lock_guard<std::recursive_mutex> lock(postRunnablesMutex);
-    postRunnables.push(callback);
 }
 
 SettingsHandler& Engine::getSettingsHandler() {
