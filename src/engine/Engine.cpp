@@ -1,6 +1,8 @@
 #include "Engine.hpp"
 
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 
 #include "debug/Logger.hpp"
 #include "assets/AssetsLoader.hpp"
