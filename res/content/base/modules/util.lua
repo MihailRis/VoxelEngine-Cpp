@@ -20,7 +20,7 @@ local function calc_loot(loot_table)
         local roll = math.random()
         
         if roll < chance then
-            table.insert(results, {item=loot.item, count=count})
+            table.insert(results, {item=item.index(loot.item), count=count})
         end
     end
     return results
@@ -31,7 +31,7 @@ function util.block_loot(blockid)
     if lootscheme then
         return calc_loot(lootscheme)
     end
-    return {{block.get_picking_item(blockid), 1}}
+    return {{item=block.get_picking_item(blockid), count=1}}
 end
 
 return util
