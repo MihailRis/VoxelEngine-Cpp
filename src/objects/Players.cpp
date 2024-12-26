@@ -36,6 +36,10 @@ Player* Players::create() {
     return player;
 }
 
+void Players::remove(int64_t id) {
+    players.erase(id);
+}
+
 dv::value Players::serialize() const {
     auto root = dv::object();
     auto& list = root.list("players");

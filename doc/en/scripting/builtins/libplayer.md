@@ -1,6 +1,18 @@
 # *player* library
 
 ```lua
+player.create(name: str) -> int
+```
+
+Creates a player and returns id.
+
+```lua
+player.delete(id: int)
+```
+
+Deletes a player by id.
+
+```lua
 player.get_pos(playerid: int) -> number, number, number
 ```
 

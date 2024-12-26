@@ -24,4 +24,6 @@ for i=1,25 do
     app.tick()
 end
 
+player.delete(pid2)
+
 app.close_world(true)

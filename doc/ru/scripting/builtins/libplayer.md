@@ -1,6 +1,18 @@
 # Библиотека *player*
 
 ```lua
+player.create(name: str) -> int
+```
+
+Создаёт игрока и возвращает его id.
+
+```lua
+player.delete(id: int)
+```
+
+Удаляет игрока по id.
+
+```lua
 player.get_pos(playerid: int) -> number, number, number
 ```
 

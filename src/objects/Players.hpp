@@ -25,6 +25,8 @@ public:
 
     Player* create();
 
+    void remove(int64_t id);
+
     dv::value serialize() const override;
 
     void deserialize(const dv::value& src) override;
