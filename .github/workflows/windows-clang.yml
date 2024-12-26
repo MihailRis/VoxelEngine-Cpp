@@ -45,9 +45,10 @@ jobs:
         run: |
             export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
             export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
+            export VCPKG_ROOT=./vcpkg
             mkdir build
             cd build
-            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON ..
+            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
             cmake --build . --config Release
       - name: Package for Windows
         run: |
