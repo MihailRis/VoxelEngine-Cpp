@@ -11,4 +11,6 @@ function on_block_broken(id, x, y, z, playerid)
             spawn_spread={0.4, 0.4, 0.4}
         })
     end
+
+    rules.create("do-loot-non-player", true)
 end
