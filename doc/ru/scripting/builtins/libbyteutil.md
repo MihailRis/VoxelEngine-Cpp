@@ -67,12 +67,5 @@ debug.print(byteutil.tpack('>iBH?', -8, 250, 2019, true))
 local bytes = byteutil.pack('>iBH?', -8, 250, 2019, true)
 debug.print(byteutil.unpack('>iBH?', bytes))
 -- выводит:
--- debug.print(
---  {
---    -8,
---    250,
---    2019,
---    true
---  }
---)
+--  -8      250     2019    true
 ```
