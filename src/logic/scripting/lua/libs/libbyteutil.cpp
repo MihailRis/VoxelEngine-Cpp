@@ -11,6 +11,7 @@ static size_t calc_size(const char* format) {
         switch (format[i]) {
             case 'b':
             case 'B':
+            case '?':
                 outSize += 1;
                 break;
             case 'h':
@@ -43,7 +44,13 @@ static int pack(lua::State* L, const char* format, bool usetable) {
     for (int i = 0; format[i]; i++) {
         switch (format[i]) {
             case 'b':
+                builder.put(lua::tointeger(L, index));
+                break;
+            case 'B':
                 builder.put(lua::tointeger(L, index) & 0xFF);
+                break;
+            case '?':
+                builder.put(lua::toboolean(L, index) ? 1 : 0);
                 break;
             case 'h':
                 builder.putInt16(lua::tointeger(L, index), bigEndian);
@@ -102,6 +109,7 @@ static int count_elements(const char* format) {
         switch (format[i]) {
             case 'b':
             case 'B':
+            case '?':
             case 'h':
             case 'H':
             case 'i':
@@ -126,12 +134,16 @@ static int l_unpack(lua::State* L) {
     ByteReader reader(bytes);
     bool bigEndian = false;
 
-    int index = 1;
-    lua::createtable(L, count, 0);
     for (size_t i = 0; format[i]; i++) {
         switch (format[i]) {
             case 'b':
                 lua::pushinteger(L, reader.get());
+                break;
+            case 'B':
+                lua::pushinteger(L, reader.get() & 0xFF);
+                break;
+            case '?':
+                lua::pushboolean(L, reader.get() != 0);
                 break;
             case 'h':
                 lua::pushinteger(L, reader.getInt16(bigEndian));
@@ -171,9 +183,8 @@ static int l_unpack(lua::State* L) {
             default:
                 continue;
         }
-        lua::rawseti(L, index++);
     }
-    return 1;
+    return count;
 }
 
 static int l_pack(lua::State* L) {
