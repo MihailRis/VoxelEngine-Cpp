@@ -6,6 +6,10 @@
 
 #include "util/data_io.hpp"
 
+ByteBuilder::ByteBuilder(size_t size) {
+    buffer.reserve(size);
+}
+
 void ByteBuilder::put(ubyte b) {
     buffer.push_back(b);
 }
@@ -31,37 +35,37 @@ void ByteBuilder::put(const ubyte* arr, size_t size) {
     }
 }
 
-void ByteBuilder::putInt16(int16_t val) {
+void ByteBuilder::putInt16(int16_t val, bool bigEndian) {
     size_t size = buffer.size();
     buffer.resize(buffer.size() + sizeof(int16_t));
-    val = dataio::h2le(val);
+    val = bigEndian ? dataio::h2be(val) : dataio::h2le(val);
     std::memcpy(buffer.data()+size, &val, sizeof(int16_t));
 }
 
-void ByteBuilder::putInt32(int32_t val) {
+void ByteBuilder::putInt32(int32_t val, bool bigEndian) {
     size_t size = buffer.size();
     buffer.resize(buffer.size() + sizeof(int32_t));
-    val = dataio::h2le(val);
+    val = bigEndian ? dataio::h2be(val) : dataio::h2le(val);
     std::memcpy(buffer.data()+size, &val, sizeof(int32_t));
 }
 
-void ByteBuilder::putInt64(int64_t val) {
+void ByteBuilder::putInt64(int64_t val, bool bigEndian) {
     size_t size = buffer.size();
     buffer.resize(buffer.size() + sizeof(int64_t));
-    val = dataio::h2le(val);
+    val = bigEndian ? dataio::h2be(val) : dataio::h2le(val);
     std::memcpy(buffer.data()+size, &val, sizeof(int64_t));
 }
 
-void ByteBuilder::putFloat32(float val) {
+void ByteBuilder::putFloat32(float val, bool bigEndian) {
     int32_t i32_val;
     std::memcpy(&i32_val, &val, sizeof(int32_t));
-    putInt32(i32_val);
+    putInt32(i32_val, bigEndian);
 }
 
-void ByteBuilder::putFloat64(double val) {
+void ByteBuilder::putFloat64(double val, bool bigEndian) {
     int64_t i64_val;
     std::memcpy(&i64_val, &val, sizeof(int64_t));
-    putInt64(i64_val);
+    putInt64(i64_val, bigEndian);
 }
 
 void ByteBuilder::set(size_t position, ubyte val) {
@@ -93,6 +97,10 @@ ByteReader::ByteReader(const ubyte* data, size_t size)
 
 ByteReader::ByteReader(const ubyte* data) : data(data), size(4), pos(0) {
     size = getInt32();
+}
+
+ByteReader::ByteReader(const std::vector<ubyte>& data)
+    : data(data.data()), size(data.size()), pos(0) {
 }
 
 void ByteReader::checkMagic(const char* data, size_t size) {
@@ -129,45 +137,51 @@ ubyte ByteReader::peek() {
     return data[pos];
 }
 
-int16_t ByteReader::getInt16() {
+int16_t ByteReader::getInt16(bool bigEndian) {
     if (pos + sizeof(int16_t) > size) {
         throw std::runtime_error("buffer underflow");
     }
     int16_t value;
     std::memcpy(&value, data + pos, sizeof(int16_t));
     pos += sizeof(int16_t);
-    return dataio::le2h(value);
+    return bigEndian ? dataio::be2h(value) : dataio::le2h(value);
 }
 
-int32_t ByteReader::getInt32() {
+int32_t ByteReader::getInt32(bool bigEndian) {
     if (pos + sizeof(int32_t) > size) {
         throw std::runtime_error("buffer underflow");
     }
     int32_t value;
     std::memcpy(&value, data + pos, sizeof(int32_t));
     pos += sizeof(int32_t);
-    return dataio::le2h(value);
+    return bigEndian ? dataio::be2h(value) : dataio::le2h(value);
 }
 
-int64_t ByteReader::getInt64() {
+int64_t ByteReader::getInt64(bool bigEndian) {
     if (pos + sizeof(int64_t) > size) {
         throw std::runtime_error("buffer underflow");
     }
     int64_t value;
     std::memcpy(&value, data + pos, sizeof(int64_t));
     pos += sizeof(int64_t);
-    return dataio::le2h(value);
+    return bigEndian ? dataio::be2h(value) : dataio::le2h(value);
 }
 
-float ByteReader::getFloat32() {
+float ByteReader::getFloat32(bool bigEndian) {
     int32_t i32_val = getInt32();
+    if (bigEndian) {
+        i32_val = dataio::be2h(i32_val);
+    }
     float val;
     std::memcpy(&val, &i32_val, sizeof(float));
     return val;
 }
 
-double ByteReader::getFloat64() {
+double ByteReader::getFloat64(bool bigEndian) {
     int64_t i64_val = getInt64();
+    if (bigEndian) {
+        i64_val = dataio::be2h(i64_val);
+    }
     double val;
     std::memcpy(&val, &i64_val, sizeof(double));
     return val;
