@@ -3,6 +3,7 @@ project(VoxelEngine)
 
 option(VOXELENGINE_BUILD_APPDIR "" OFF)
 option(VOXELENGINE_BUILD_TESTS "" OFF)
+option(VOXELENGINE_TRACY_PROFILER "Building applications with Tracy Profiler" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -14,19 +14,40 @@
                 "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
                 "VOXELENGINE_BUILD_TESTS": "ON"
             }
+        },
+        {
+            "name": "profiler-tracy-vs-msvc-windows",
+            "inherits": "default-vs-msvc-windows",
+            "cacheVariables": {
+                "VOXELENGINE_TRACY_PROFILER": "ON"
+            }
         }
     ],
     "buildPresets": [
         {
             "name": "default-vs-msvc-windows",
             "configurePreset": "default-vs-msvc-windows",
-            "configuration": "Debug"
+            "configuration": "Debug",
+            "jobs": 24
+        },
+        {
+            "name": "profiler-tracy-vs-msvc-windows",
+            "configurePreset": "profiler-tracy-vs-msvc-windows",
+            "configuration": "Release",
+            "jobs": 24
         }
     ],
     "testPresets": [
         {
             "name": "default-vs-msvc-windows",
             "configurePreset": "default-vs-msvc-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "profiler-tracy-vs-msvc-windows",
+            "configurePreset": "profiler-tracy-vs-msvc-windows",
             "output": {
                 "outputOnFailure": true
             }
