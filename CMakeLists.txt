@@ -63,7 +63,7 @@ target_link_libraries(${PROJECT_NAME} VoxelEngineSrc ${CMAKE_DL_LIBS})
 add_custom_command(
   TARGET ${PROJECT_NAME} 
   POST_BUILD 
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+  COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different 
           ${CMAKE_CURRENT_SOURCE_DIR}/res 
           $<TARGET_FILE_DIR:${PROJECT_NAME}>/res
   )
