@@ -15,7 +15,8 @@ entities.get(uid: int) -> table
 -- префикс - id пака
 -- имя - название компонента
 -- префикс и имя компонента разделяются двумя подчеркиваниями
-entities.spawn(name: str, pos: vec3, [optional] args: table)
+-- Возвращает обьект сущности
+entities.spawn(name: str, pos: vec3, [optional] args: table) -> table
 
 -- Проверяет наличие сущности по уникальному идентификатору.
 entities.exists(uid: int) -> bool

@@ -97,6 +97,15 @@ enum class BlockModel {
 std::string to_string(BlockModel model);
 std::optional<BlockModel> BlockModel_from(std::string_view str);
 
+enum class CullingMode {
+    DEFAULT,
+    OPTIONAL,
+    DISABLED,
+};
+
+std::string to_string(CullingMode mode);
+std::optional<CullingMode> CullingMode_from(std::string_view str);
+
 using BoxModel = AABB;
 
 /// @brief Common kit of block properties applied to groups of blocks
@@ -142,6 +151,9 @@ public:
 
     std::string modelName = "";
 
+    /// @brief Culling mode
+    CullingMode culling = CullingMode::DEFAULT;
+
     /// @brief Does the block passing lights into itself
     bool lightPassing = false;
 
@@ -181,7 +193,7 @@ public:
     bool translucent = false;
 
     /// @brief Set of block physical hitboxes
-    std::vector<AABB> hitboxes;
+    std::vector<AABB> hitboxes {AABB()};
 
     /// @brief Set of available block rotations (coord-systems)
     BlockRotProfile rotations = BlockRotProfile::NONE;

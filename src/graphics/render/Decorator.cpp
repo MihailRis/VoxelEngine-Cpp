@@ -99,9 +99,8 @@ void Decorator::update(
 
 void Decorator::update(float delta, const Camera& camera) {
     glm::ivec3 pos = camera.position;
-    pos -= glm::ivec3(UPDATE_AREA_DIAMETER / 2);
     for (int i = 0; i < ITERATIONS; i++) {
-        update(delta, pos, camera.position);
+        update(delta, pos - glm::ivec3(UPDATE_AREA_DIAMETER / 2), pos);
     }
     const auto& chunks = *level.chunks;
     const auto& indices = *level.content->getIndices();

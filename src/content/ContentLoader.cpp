@@ -220,11 +220,11 @@ void ContentLoader::loadBlock(
     }
 
     // block model
-    std::string modelTypeName;
+    std::string modelTypeName = to_string(def.model);
     root.at("model").get(modelTypeName);
     root.at("model-name").get(def.modelName);
     if (auto model = BlockModel_from(modelTypeName)) {
-        if (*model == BlockModel::custom) {
+        if (*model == BlockModel::custom && def.customModelRaw == nullptr) {
             if (root.has("model-primitives")) {
                 def.customModelRaw = root["model-primitives"];
             } else if (def.modelName.empty()) {
@@ -239,14 +239,22 @@ void ContentLoader::loadBlock(
         }
         def.model = *model;
     } else if (!modelTypeName.empty()) {
-        logger.error() << "unknown model " << modelTypeName;
+        logger.error() << "unknown model: " << modelTypeName;
         def.model = BlockModel::none;
+    }
+
+    std::string cullingModeName = to_string(def.culling);
+    root.at("culling").get(cullingModeName);
+    if (auto mode = CullingMode_from(cullingModeName)) {
+        def.culling = *mode;
+    } else {
+        logger.error() << "unknown culling mode: " << cullingModeName;
     }
 
     root.at("material").get(def.material);
 
     // rotation profile
-    std::string profile = "none";
+    std::string profile = def.rotations.name;
     root.at("rotation").get(profile);
 
     def.rotatable = profile != "none";
@@ -285,8 +293,6 @@ void ContentLoader::loadBlock(
         );
         aabb.b += aabb.a;
         def.hitboxes = {aabb};
-    } else {
-        def.hitboxes = {AABB()};
     }
 
     // block light emission [r, g, b] where r,g,b in range [0..15]

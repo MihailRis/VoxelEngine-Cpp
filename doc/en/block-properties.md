@@ -35,6 +35,16 @@ Block model type from list:
 - "X" - grass model (two crossed sprites)
 - "aabb" - model based of block hitbox (complex hitbox will be combined into one). Examples: pipes, bulbs, panels.
 
+### *model-name*
+
+In addition to built-in model types, you can use your own, loaded from file.
+
+The property specifies the model name without `entry_point:models/` nor extension.
+
+> [!WARNING]
+> Textures (materials) used in the model must be in the `blocks` atlas and specified in the *atlas-texture* format:
+> `blocks:texture_name`
+
 ### *draw-group*
 
 Integer specifying number of block draw group (render order). Used for semi-transparent blocks.
@@ -80,6 +90,13 @@ Turns off block model shading
 ### *ambient-occlusion* (Vertex-based Ambient-Occlusion)
 
 Determines the presence of the vertex AO effect. Turned-on by default.
+
+### *culling*
+
+Face culling mode:
+- **default** - normal face culling
+- **optional** - face culling among blocks of the same rendering group can be disabled via the `graphics.dense-render` setting.
+- **disabled** - face culling among blocks of the same rendering group disabled.
 
 ## Physics
 
