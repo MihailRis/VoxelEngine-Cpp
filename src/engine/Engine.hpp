@@ -1,24 +1,24 @@
 #pragma once
 
+#include "delegates.hpp"
+#include "typedefs.hpp"
+#include "settings.hpp"
+
+#include "assets/Assets.hpp"
+#include "content/content_fwd.hpp"
+#include "content/ContentPack.hpp"
+#include "content/PacksManager.hpp"
+#include "files/engine_paths.hpp"
+#include "files/settings_io.hpp"
+#include "util/ObjectsKeeper.hpp"
+#include "PostRunnables.hpp"
+#include "Time.hpp"
+
 #include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#include "PostRunnables.hpp"
-#include "Profiler.hpp"
-#include "Time.hpp"
-#include "assets/Assets.hpp"
-#include "content/ContentPack.hpp"
-#include "content/PacksManager.hpp"
-#include "content/content_fwd.hpp"
-#include "delegates.hpp"
-#include "files/engine_paths.hpp"
-#include "files/settings_io.hpp"
-#include "settings.hpp"
-#include "typedefs.hpp"
-#include "util/ObjectsKeeper.hpp"
 
 class Level;
 class Screen;
@@ -42,8 +42,7 @@ namespace network {
 
 class initialize_error : public std::runtime_error {
 public:
-    initialize_error(const std::string& message) : std::runtime_error(message) {
-    }
+    initialize_error(const std::string& message) : std::runtime_error(message) {}
 };
 
 struct CoreParameters {
@@ -74,7 +73,7 @@ class Engine : public util::ObjectsKeeper {
     Time time;
     consumer<std::unique_ptr<Level>> levelConsumer;
     bool quitSignal = false;
-
+    
     void loadControls();
     void loadSettings();
     void saveSettings();
@@ -93,16 +92,15 @@ public:
     void renderFrame();
     void nextFrame();
 
-    /// @brief Called after assets loading when all engine systems are
-    /// initialized
+    /// @brief Called after assets loading when all engine systems are initialized
     void onAssetsLoaded();
-
+    
     /// @brief Set screen (scene).
     /// nullptr may be used to delete previous screen before creating new one,
     /// not-null value must be set before next frame
     /// @param screen nullable screen
     void setScreen(std::shared_ptr<Screen> screen);
-
+    
     /// @brief Change locale to specified
     /// @param locale isolanguage_ISOCOUNTRY (example: en_US)
     void setLanguage(std::string locale);
@@ -111,7 +109,7 @@ public:
     void loadContent();
 
     void resetContent();
-
+    
     /// @brief Collect world content-packs and load content
     /// @see loadContent
     /// @param folder world folder
@@ -122,7 +120,7 @@ public:
 
     /// @brief Get active assets storage instance
     Assets* getAssets();
-
+    
     /// @brief Get main UI controller
     gui::GUI* getGUI();
 
