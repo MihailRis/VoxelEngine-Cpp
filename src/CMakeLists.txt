@@ -26,6 +26,10 @@ endif()
 
 set(LIBS "")
 
+# Tested only for Windows
+if (VOXELENGINE_TRACY_PROFILER)
+    find_package(Tracy CONFIG REQUIRED)
+endif()
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Use directly linking to lib instead PkgConfig (because pkg-config dont install on windows as default) 
     # TODO: Do it with findLua.
@@ -39,10 +43,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(glfw3 REQUIRED)
     find_package(glm REQUIRED)
     find_package(vorbis REQUIRED)
-    # At first implement Tracy and test only on Windows
-    if (VOXELENGINE_TRACY_PROFILER)
-        find_package(Tracy CONFIG REQUIRED)
-    endif()
     set(VORBISLIB Vorbis::vorbis Vorbis::vorbisfile)
 
 elseif(APPLE)
