@@ -134,8 +134,6 @@ static int l_unpack(lua::State* L) {
     ByteReader reader(bytes);
     bool bigEndian = false;
 
-    int index = 1;
-    lua::createtable(L, count, 0);
     for (size_t i = 0; format[i]; i++) {
         switch (format[i]) {
             case 'b':
@@ -185,9 +183,8 @@ static int l_unpack(lua::State* L) {
             default:
                 continue;
         }
-        lua::rawseti(L, index++);
     }
-    return 1;
+    return count;
 }
 
 static int l_pack(lua::State* L) {

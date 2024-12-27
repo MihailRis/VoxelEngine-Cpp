@@ -39,6 +39,12 @@ Value characters describe the type and size.
 > [!WARNING]
 > Due to the absence of an integer type in Lua for values `l` and `L`, only an output size of 8 bytes is guaranteed; the value may differ from what is expected.
 
+```lua
+byteutil.unpack(format: str, bytes: table|Bytearray) -> ...
+```
+
+Extracts values ​​from a byte array based on a format string.
+
 Example:
 
 ```lua
@@ -58,14 +64,7 @@ debug.print(byteutil.tpack('>iBH?', -8, 250, 2019, true))
 -- )
 
 local bytes = byteutil.pack('>iBH?', -8, 250, 2019, true)
-debug.print(byteutil.unpack('>iBH?', bytes))
+print(byteutil.unpack('>iBH?', bytes))
 -- outputs:
--- debug.print(
---  {
---    -8,
---    250,
---    2019,
---    true
---  }
---)
+--  -8      250     2019    true
 ```
