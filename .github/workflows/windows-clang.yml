@@ -59,12 +59,6 @@ jobs:
           cp build/*.dll packaged/
           cp -r build/res/* packaged/res/
           mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
-      - env:
-          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
-        name: Add lua51.dll to the package
-        run: |
-          cp $env:MSYS2_LOCATION/clang64/bin/lua51.dll ${{ github.workspace }}/packaged/
-        working-directory: ${{ github.workspace }}
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-Build

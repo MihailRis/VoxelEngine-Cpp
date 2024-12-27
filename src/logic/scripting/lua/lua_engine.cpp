@@ -43,6 +43,7 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "base64", base64lib);
     openlib(L, "bjson", bjsonlib);
     openlib(L, "block", blocklib);
+    openlib(L, "byteutil", byteutillib);
     openlib(L, "core", corelib);
     openlib(L, "file", filelib);
     openlib(L, "generation", generationlib);

@@ -19,6 +19,7 @@ extern const luaL_Reg base64lib[];
 extern const luaL_Reg bjsonlib[];
 extern const luaL_Reg blocklib[];
 extern const luaL_Reg blockwrapslib[]; // gfx.blockwraps
+extern const luaL_Reg byteutillib[];
 extern const luaL_Reg cameralib[];
 extern const luaL_Reg consolelib[];
 extern const luaL_Reg corelib[];

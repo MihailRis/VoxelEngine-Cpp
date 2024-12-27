@@ -720,4 +720,15 @@ namespace lua {
             }
         }
     }
+
+    inline std::vector<ubyte> require_bytearray(lua::State* L, int idx) {
+        if (auto* bytearray = lua::touserdata<LuaBytearray>(L, idx)) {
+            return bytearray->data();
+        } else if (lua::istable(L, idx)) {
+            std::vector<ubyte> bytes;
+            read_bytes_from_table(L, idx, bytes);
+            return bytes;
+        }
+        throw std::runtime_error("bytearray expected");
+    }
 }
