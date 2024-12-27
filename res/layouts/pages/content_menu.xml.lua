@@ -1,8 +1,12 @@
 local packs_installed = {}
 local pack_open = {}
-local parsers = {
+local PARSERS = {
     toml = toml,
     json = json
+}
+
+local CONFIG_NAMES = {
+    "config"
 }
 
 function on_open(params)
@@ -113,15 +117,26 @@ end
 
 
 local function load_config_file(path)
-    local extension = path:match("%.(%w+)$")
+    local function valid_name(file_name)
+        for _, name in ipairs(CONFIG_NAMES) do
+            if string.find(file_name, name) then
+                return true
+            end
+        end
+
+        return false
+    end
+
+    local extension = path:match("^.+%.(.+)$")
+    local name = path:match("([^/]+)%.([^%.]+)$")
 
     if not extension or file.isdir(path) then
         return
     end
 
-    if parsers[extension] then
+    if PARSERS[extension] and valid_name(name:lower()) then
         local value = file.read(path)
-        return parsers[extension].parse(value), extension
+        return PARSERS[extension].parse(value), extension
     end
 end
 
@@ -154,8 +169,8 @@ end
 local function valid_configs(path)
     if file.exists(path) and file.isdir(path) then
         for _, c in ipairs(file.list(path)) do
-            local extension = c:match("%.(%w+)$")
-            if parsers[extension] then
+            local extension = c:match("^.+%.(.+)$")
+            if PARSERS[extension] then
                 return true
             end
         end
@@ -176,8 +191,8 @@ function set_value(name, id, value)
     local config, extension = load_config_file(path)
     config[name] = value
 
-    if parsers[extension] then
-        file.write(path, parsers[extension].tostring(config))
+    if PARSERS[extension] then
+        file.write(path, PARSERS[extension].tostring(config))
     end
 end
 
