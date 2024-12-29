@@ -210,6 +210,7 @@ int main(int argc, char** argv) {
     std::cout << "running " << tests.size() << " test(s)" << std::endl;
     for (const auto& path : tests) {
         passed += run_test(config, path);
+        fs::remove_all(config.workingDir / fs::u8path("worlds"));
     }
     print_separator(std::cout);
     cleanup(config.workingDir);

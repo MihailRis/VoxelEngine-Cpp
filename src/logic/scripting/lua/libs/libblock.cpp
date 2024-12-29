@@ -108,8 +108,10 @@ static int l_set(lua::State* L) {
     if (chunksController == nullptr) {
         return 1;
     }
-    Lighting& lighting = *chunksController->lighting;
-    lighting.onBlockSet(x, y, z, id);
+    if (chunksController->lighting) {
+        Lighting& lighting = *chunksController->lighting;
+        lighting.onBlockSet(x, y, z, id);
+    }
     if (!noupdate) {
         blocks->updateSides(x, y, z);
     }
