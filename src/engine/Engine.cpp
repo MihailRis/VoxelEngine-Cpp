@@ -4,60 +4,65 @@
 #define GLEW_STATIC
 #endif
 
-#include "debug/Logger.hpp"
+#include <assert.h>
+
+#include <functional>
+#include <glm/glm.hpp>
+#include <iostream>
+#include <unordered_set>
+#include <utility>
+
+#include "Mainloop.hpp"
+#include "ServerMainloop.hpp"
 #include "assets/AssetsLoader.hpp"
 #include "audio/audio.hpp"
 #include "coders/GLSLExtension.hpp"
+#include "coders/commons.hpp"
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
-#include "coders/commons.hpp"
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
+#include "debug/Logger.hpp"
+#include "engine/Profiler.hpp"
 #include "files/files.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
-#include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
+#include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/ui/GUI.hpp"
-#include "objects/rigging.hpp"
-#include "logic/EngineController.hpp"
 #include "logic/CommandsInterpreter.hpp"
+#include "logic/EngineController.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "network/Network.hpp"
+#include "objects/rigging.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
 #include "window/Camera.hpp"
 #include "window/Events.hpp"
-#include "window/input.hpp"
 #include "window/Window.hpp"
+#include "window/input.hpp"
 #include "world/Level.hpp"
-#include "Mainloop.hpp"
-#include "ServerMainloop.hpp"
-
-#include <iostream>
-#include <assert.h>
-#include <glm/glm.hpp>
-#include <unordered_set>
-#include <functional>
-#include <utility>
 
 static debug::Logger logger("engine");
 
 namespace fs = std::filesystem;
 
-static void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
+static void create_channel(
+    Engine* engine, std::string name, NumberSetting& setting
+) {
     if (name != "master") {
         audio::create_channel(name);
     }
-    engine->keepAlive(setting.observe([=](auto value) {
-        audio::get_channel(name)->setVolume(value*value);
-    }, true));
+    engine->keepAlive(setting.observe(
+        [=](auto value) { audio::get_channel(name)->setVolume(value * value); },
+        true
+    ));
 }
 
 static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
@@ -94,7 +99,7 @@ Engine::Engine(CoreParameters coreParameters)
 
     controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
-        if (Window::initialize(&settings.display)){
+        if (Window::initialize(&settings.display)) {
             throw initialize_error("could not initialize window");
         }
         time.set(Window::time());
@@ -119,16 +124,15 @@ Engine::Engine(CoreParameters coreParameters)
     bool langNotSet = settings.ui.language.get() == "auto";
     if (langNotSet) {
         settings.ui.language.set(langs::locale_by_envlocale(
-            platform::detect_locale(),
-            paths.getResourcesFolder()
+            platform::detect_locale(), paths.getResourcesFolder()
         ));
     }
-    keepAlive(settings.ui.language.observe([this](auto lang) {
-        setLanguage(lang);
-    }, true));
-    
+    keepAlive(settings.ui.language.observe(
+        [this](auto lang) { setLanguage(lang); }, true
+    ));
+
     scripting::initialize(this);
-    basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
+    basePacks = files::read_list(resdir / fs::path("config/builtins.list"));
 }
 
 void Engine::loadSettings() {
@@ -185,12 +189,14 @@ void Engine::run() {
 }
 
 void Engine::postUpdate() {
+    VOXELENGINE_PROFILE;
     network->update();
     postRunnables.run();
     scripting::process_post_runnables();
 }
 
 void Engine::updateFrontend() {
+    VOXELENGINE_PROFILE;
     double delta = time.getDelta();
     updateHotkeys();
     audio::update(delta);
@@ -199,6 +205,7 @@ void Engine::updateFrontend() {
 }
 
 void Engine::nextFrame() {
+    VOXELENGINE_PROFILE;
     Window::setFramerate(
         Window::isIconified() && settings.display.limitFpsIconified.get()
             ? 20
@@ -206,9 +213,11 @@ void Engine::nextFrame() {
     );
     Window::swapBuffers();
     Events::pollEvents();
+    VOXELENGINE_PROFILE_FRAME;
 }
 
 void Engine::renderFrame() {
+    VOXELENGINE_PROFILE;
     screen->draw(time.getDelta());
 
     Viewport viewport(Window::width, Window::height);
@@ -218,7 +227,9 @@ void Engine::renderFrame() {
 
 void Engine::saveSettings() {
     logger.info() << "saving settings";
-    files::write_string(paths.getSettingsFile(), toml::stringify(settingsHandler));
+    files::write_string(
+        paths.getSettingsFile(), toml::stringify(settingsHandler)
+    );
     if (!params.headless) {
         logger.info() << "saving bindings";
         files::write_string(paths.getControlsFile(), Events::writeBindings());
@@ -261,11 +272,11 @@ cmd::CommandsInterpreter* Engine::getCommandsInterpreter() {
 
 PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     PacksManager manager;
-    manager.setSources({
-        worldFolder/fs::path("content"),
-        paths.getUserFilesFolder()/fs::path("content"),
-        paths.getResourcesFolder()/fs::path("content")
-    });
+    manager.setSources(
+        {worldFolder / fs::path("content"),
+         paths.getUserFilesFolder() / fs::path("content"),
+         paths.getResourcesFolder() / fs::path("content")}
+    );
     return manager;
 }
 
@@ -283,9 +294,9 @@ void Engine::loadAssets() {
 
     // no need
     // correct log messages order is more useful
-    bool threading = false; // look at two upper lines
+    bool threading = false;  // look at two upper lines
     if (threading) {
-        auto task = loader.startTask([=](){});
+        auto task = loader.startTask([=]() {});
         task->waitForEnd();
     } else {
         while (loader.hasNext()) {
@@ -321,8 +332,8 @@ void Engine::loadAssets() {
 }
 
 static void load_configs(const fs::path& root) {
-    auto configFolder = root/fs::path("config");
-    auto bindsFile = configFolder/fs::path("bindings.toml");
+    auto configFolder = root / fs::path("config");
+    auto bindsFile = configFolder / fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
             bindsFile.u8string(), files::read_string(bindsFile), BindType::BIND
@@ -352,9 +363,7 @@ void Engine::loadContent() {
     auto corePack = ContentPack::createCore(paths);
 
     // Setup filesystem entry points
-    std::vector<PathsRoot> resRoots {
-        {"core", corePack.folder}
-    };
+    std::vector<PathsRoot> resRoots {{"core", corePack.folder}};
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
     }
@@ -411,11 +420,11 @@ void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
     PacksManager manager;
-    manager.setSources({
-        folder/fs::path("content"),
-        paths.getUserFilesFolder()/fs::path("content"),
-        paths.getResourcesFolder()/fs::path("content")
-    });
+    manager.setSources(
+        {folder / fs::path("content"),
+         paths.getUserFilesFolder() / fs::path("content"),
+         paths.getResourcesFolder() / fs::path("content")}
+    );
     manager.scan();
     contentPacks = manager.getAll(manager.assembly(packNames));
     paths.setCurrentWorldFolder(folder);

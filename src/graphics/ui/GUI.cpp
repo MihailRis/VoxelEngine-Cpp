@@ -1,25 +1,25 @@
 #include "GUI.hpp"
 
-#include "gui_util.hpp"
-
-#include "elements/UINode.hpp"
-#include "elements/Label.hpp"
-#include "elements/Menu.hpp"
+#include <algorithm>
+#include <iostream>
+#include <utility>
 
 #include "assets/Assets.hpp"
+#include "elements/Label.hpp"
+#include "elements/Menu.hpp"
+#include "elements/UINode.hpp"
+#include "engine/Profiler.hpp"
 #include "frontend/UiDocument.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/core/Batch2D.hpp"
-#include "graphics/core/Shader.hpp"
 #include "graphics/core/DrawContext.hpp"
+#include "graphics/core/Shader.hpp"
+#include "gui_util.hpp"
+#include "window/Camera.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "window/input.hpp"
-#include "window/Camera.hpp"
 
-#include <iostream>
-#include <algorithm>
-#include <utility>
 
 using namespace gui;
 
@@ -36,7 +36,7 @@ GUI::GUI() : batch2D(std::make_unique<Batch2D>(1024)) {
 
     tooltip = guiutil::create(
         "<container color='#000000A0' interactive='false' z-index='999'>"
-            "<label id='tooltip.label' pos='2' autoresize='true'></label>"
+        "<label id='tooltip.label' pos='2' autoresize='true'></label>"
         "</container>"
     );
     store("tooltip", tooltip);
@@ -51,12 +51,15 @@ std::shared_ptr<Menu> GUI::getMenu() {
 }
 
 void GUI::onAssetsLoad(Assets* assets) {
-    assets->store(std::make_unique<UiDocument>(
-        "core:root", 
-        uidocscript {}, 
-        std::dynamic_pointer_cast<gui::UINode>(container), 
-        nullptr
-    ), "core:root");
+    assets->store(
+        std::make_unique<UiDocument>(
+            "core:root",
+            uidocscript {},
+            std::dynamic_pointer_cast<gui::UINode>(container),
+            nullptr
+        ),
+        "core:root"
+    );
 }
 
 void GUI::resetTooltip() {
@@ -69,7 +72,8 @@ void GUI::updateTooltip(float delta) {
         return resetTooltip();
     }
     if (tooltipTimer + delta >= hover->getTooltipDelay()) {
-        auto label = std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
+        auto label =
+            std::dynamic_pointer_cast<gui::Label>(get("tooltip.label"));
         const auto& text = hover->getTooltip();
         if (text.empty() && tooltip->isVisible()) {
             return resetTooltip();
@@ -77,11 +81,11 @@ void GUI::updateTooltip(float delta) {
         if (label && !text.empty()) {
             tooltip->setVisible(true);
             label->setText(langs::get(text));
-            auto size = label->getSize()+glm::vec2(4.0f);
-            auto pos = Events::cursor+glm::vec2(10.0f);
+            auto size = label->getSize() + glm::vec2(4.0f);
+            auto pos = Events::cursor + glm::vec2(10.0f);
             auto rootSize = container->getSize();
-            pos.x = glm::min(pos.x, rootSize.x-size.x);
-            pos.y = glm::min(pos.y, rootSize.y-size.y);
+            pos.x = glm::min(pos.x, rootSize.x - size.x);
+            pos.y = glm::min(pos.y, rootSize.y - size.y);
             tooltip->setSize(size);
             tooltip->setPos(pos);
         }
@@ -89,7 +93,7 @@ void GUI::updateTooltip(float delta) {
     tooltipTimer += delta;
 }
 
-/// @brief Mouse related input and logic handling 
+/// @brief Mouse related input and logic handling
 void GUI::actMouse(float delta) {
     float mouseDelta = glm::length(Events::delta);
     doubleClicked = false;
@@ -142,7 +146,7 @@ void GUI::actMouse(float delta) {
             }
         }
     }
-} 
+}
 
 void GUI::actFocused() {
     if (Events::jpressed(keycode::ESCAPE)) {
@@ -158,9 +162,9 @@ void GUI::actFocused() {
     }
 
     if (!Events::_cursor_locked) {
-        if (Events::clicked(mousecode::BUTTON_1) && 
-            (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x || Events::delta.y))
-        {
+        if (Events::clicked(mousecode::BUTTON_1) &&
+            (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x ||
+             Events::delta.y)) {
             if (!doubleClicked) {
                 focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
             }
@@ -188,7 +192,7 @@ void GUI::act(float delta, const Viewport& vp) {
             hover = nullptr;
         }
     }
-    
+
     if (focus) {
         actFocused();
     }
@@ -198,6 +202,7 @@ void GUI::act(float delta, const Viewport& vp) {
 }
 
 void GUI::draw(const DrawContext& pctx, const Assets& assets) {
+    VOXELENGINE_PROFILE;
     auto ctx = pctx.sub(batch2D.get());
 
     auto& viewport = ctx.getViewport();

@@ -6,7 +6,9 @@
 #include "core_defs.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
+#include "engine/Profiler.hpp"
 #include "files/files.hpp"
+#include "frontend/ContentGfxCache.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "frontend/hud.hpp"
 #include "graphics/core/DrawContext.hpp"
@@ -17,8 +19,6 @@
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "graphics/ui/elements/Menu.hpp"
-#include "graphics/ui/GUI.hpp"
-#include "frontend/ContentGfxCache.hpp"
 #include "logic/LevelController.hpp"
 #include "logic/PlayerController.hpp"
 #include "logic/scripting/scripting.hpp"
@@ -37,8 +37,7 @@
 static debug::Logger logger("level-screen");
 
 LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
- : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) 
-{
+    : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) {
     Level* level = levelPtr.get();
 
     auto& settings = engine.getSettings();
@@ -50,18 +49,13 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
     controller =
         std::make_unique<LevelController>(&engine, std::move(levelPtr), player);
     playerController = std::make_unique<PlayerController>(
-        settings,
-        *level,
-        *player,
-        *controller->getBlocksController()
+        settings, *level, *player, *controller->getBlocksController()
     );
 
     frontend = std::make_unique<LevelFrontend>(
         player, controller.get(), assets, settings
     );
-    worldRenderer = std::make_unique<WorldRenderer>(
-        engine, *frontend, *player
-    );
+    worldRenderer = std::make_unique<WorldRenderer>(engine, *frontend, *player);
     hud = std::make_unique<Hud>(engine, *frontend, *player);
 
     decorator = std::make_unique<Decorator>(
@@ -80,7 +74,7 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
     keepAlive(settings.camera.fov.observe([=](double value) {
         player->fpCamera->setFov(glm::radians(value));
     }));
-    keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=](){
+    keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=]() {
         player->chunks->saveAndClear();
         worldRenderer->clear();
     }));
@@ -101,7 +95,7 @@ void LevelScreen::initializeContent() {
 
 void LevelScreen::initializePack(ContentPackRuntime* pack) {
     const ContentPack& info = pack->getInfo();
-    fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
+    fs::path scriptFile = info.folder / fs::path("scripts/hud.lua");
     if (fs::is_regular_file(scriptFile)) {
         scripting::load_hud_script(
             pack->getEnvironment(),
@@ -137,17 +131,22 @@ void LevelScreen::saveWorldPreview() {
 
         Viewport viewport(previewSize * 1.5, previewSize);
         DrawContext ctx(&pctx, viewport, batch.get());
-        
-        worldRenderer->draw(ctx, camera, false, true, 0.0f, postProcessing.get());
+
+        worldRenderer->draw(
+            ctx, camera, false, true, 0.0f, postProcessing.get()
+        );
         auto image = postProcessing->toImage();
         image->flipY();
-        imageio::write(paths.resolve("world:preview.png").u8string(), image.get());
+        imageio::write(
+            paths.resolve("world:preview.png").u8string(), image.get()
+        );
     } catch (const std::exception& err) {
         logger.error() << err.what();
     }
 }
 
 void LevelScreen::updateHotkeys() {
+    VOXELENGINE_PROFILE;
     auto player = playerController->getPlayer();
     auto& settings = engine.getSettings();
     if (Events::jpressed(keycode::O)) {
@@ -164,11 +163,11 @@ void LevelScreen::updateHotkeys() {
 }
 
 void LevelScreen::update(float delta) {
+    VOXELENGINE_PROFILE;
     gui::GUI* gui = engine.getGUI();
-    
-    bool inputLocked = hud->isPause() || 
-                       hud->isInventoryOpen() || 
-                       gui->isFocusCaught();
+
+    bool inputLocked =
+        hud->isPause() || hud->isInventoryOpen() || gui->isFocusCaught();
     if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
@@ -180,14 +179,11 @@ void LevelScreen::update(float delta) {
     audio::get_channel("regular")->setPaused(paused);
     audio::get_channel("ambient")->setPaused(paused);
     glm::vec3 velocity {};
-    if (auto hitbox = player->getHitbox())  {
+    if (auto hitbox = player->getHitbox()) {
         velocity = hitbox->velocity;
     }
     audio::set_listener(
-        camera->position, 
-        velocity,
-        camera->dir, 
-        glm::vec3(0, 1, 0)
+        camera->position, velocity, camera->dir, glm::vec3(0, 1, 0)
     );
     auto level = controller->getLevel();
     const auto& settings = engine.getSettings();
@@ -207,6 +203,7 @@ void LevelScreen::update(float delta) {
 }
 
 void LevelScreen::draw(float delta) {
+    VOXELENGINE_PROFILE;
     auto camera = playerController->getPlayer()->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
@@ -234,4 +231,3 @@ void LevelScreen::onEngineShutdown() {
 LevelController* LevelScreen::getLevelController() const {
     return controller.get();
 }
-

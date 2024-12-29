@@ -27,14 +27,12 @@
         {
             "name": "default-vs-msvc-windows",
             "configurePreset": "default-vs-msvc-windows",
-            "configuration": "Debug",
-            "jobs": 24
+            "configuration": "Debug"
         },
         {
             "name": "profiler-tracy-vs-msvc-windows",
             "configurePreset": "profiler-tracy-vs-msvc-windows",
-            "configuration": "Release",
-            "jobs": 24
+            "configuration": "Release"
         }
     ],
     "testPresets": [

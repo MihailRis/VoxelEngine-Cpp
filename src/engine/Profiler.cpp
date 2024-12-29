@@ -11,5 +11,7 @@ void operator delete(void* ptr) noexcept {
     TracyFree(ptr);
     free(ptr);
 }
+#else
+#error "No active memory profiler overloading"
 #endif
 #endif

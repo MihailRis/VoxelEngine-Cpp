@@ -1,21 +1,22 @@
 #include "Decorator.hpp"
 
 #include "ParticlesRenderer.hpp"
-#include "WorldRenderer.hpp"
-#include "TextsRenderer.hpp"
 #include "TextNote.hpp"
+#include "TextsRenderer.hpp"
+#include "WorldRenderer.hpp"
 #include "assets/assets_util.hpp"
 #include "content/Content.hpp"
-#include "voxels/Chunks.hpp"
-#include "voxels/Block.hpp"
-#include "world/Level.hpp"
-#include "window/Camera.hpp"
+#include "engine/Engine.hpp"
+#include "engine/Profiler.hpp"
+#include "files/files.hpp"
+#include "logic/LevelController.hpp"
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
-#include "logic/LevelController.hpp"
 #include "util/stringutil.hpp"
-#include "engine/Engine.hpp"
-#include "files/files.hpp"
+#include "voxels/Block.hpp"
+#include "voxels/Chunks.hpp"
+#include "window/Camera.hpp"
+#include "world/Level.hpp"
 
 namespace fs = std::filesystem;
 
@@ -42,11 +43,14 @@ Decorator::Decorator(
       assets(assets),
       player(player) {
     controller.getBlocksController()->listenBlockInteraction(
-    [this](auto player, const auto& pos, const auto& def, BlockInteraction type) {
-        if (type == BlockInteraction::placing && def.particles) {
-            addParticles(def, pos);
+        [this](
+            auto player, const auto& pos, const auto& def, BlockInteraction type
+        ) {
+            if (type == BlockInteraction::placing && def.particles) {
+                addParticles(def, pos);
+            }
         }
-    });
+    );
     for (const auto& [id, player] : *level.players) {
         if (id == this->player.getId()) {
             continue;
@@ -65,12 +69,11 @@ Decorator::Decorator(
 void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
     const auto& found = blockEmitters.find(pos);
     if (found == blockEmitters.end()) {
-        auto treg = util::get_texture_region(
-            assets, def.particles->texture, ""
-        );
+        auto treg =
+            util::get_texture_region(assets, def.particles->texture, "");
         blockEmitters[pos] = renderer.particles->add(std::make_unique<Emitter>(
             level,
-            glm::vec3{pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
+            glm::vec3 {pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
             *def.particles,
             treg.texture,
             treg.region,
@@ -91,7 +94,7 @@ void Decorator::update(
     int lx = index % UPDATE_AREA_DIAMETER;
     int lz = (index / UPDATE_AREA_DIAMETER) % UPDATE_AREA_DIAMETER;
     int ly = (index / UPDATE_AREA_DIAMETER / UPDATE_AREA_DIAMETER);
-    
+
     auto pos = areaStart + glm::ivec3(lx, ly, lz);
 
     if (auto vox = chunks.get(pos)) {
@@ -103,6 +106,7 @@ void Decorator::update(
 }
 
 void Decorator::update(float delta, const Camera& camera) {
+    VOXELENGINE_PROFILE;
     glm::ivec3 pos = camera.position;
     for (int i = 0; i < ITERATIONS; i++) {
         update(delta, pos - glm::ivec3(UPDATE_AREA_DIAMETER / 2), pos);
