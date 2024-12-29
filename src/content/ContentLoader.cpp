@@ -187,11 +187,49 @@ static void perform_user_block_fields(
     layout = StructLayout::create(fields);
 }
 
+static void process_method(
+    dv::value& properties,
+    const std::string& method,
+    const std::string& name,
+    const dv::value& value
+) {
+    if (method == "append") {
+        if (!properties.has(name)) {
+            properties[name] = dv::list();
+        }
+        auto& list = properties[name];
+        if (value.isList()) {
+            for (const auto& item : value) {
+                list.add(item);
+            }
+        } else {
+            list.add(value);
+        }
+    } else {
+        throw std::runtime_error(
+            "unknown method " + method + " for " + name
+        );
+    }
+}
+
 void ContentLoader::loadBlock(
     Block& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
-    def.properties = root;
+    if (def.properties == nullptr) {
+        def.properties = dv::object();
+        def.properties["name"] = name;
+    }
+    for (auto& [key, value] : root.asObject()) {
+        auto pos = key.rfind('@');
+        if (pos == std::string::npos) {
+            def.properties[key] = value;
+            continue;
+        }
+        auto field = key.substr(0, pos);
+        auto suffix = key.substr(pos + 1);
+        process_method(def.properties, suffix, field, value);
+    }
 
     if (root.has("parent")) {
         const auto& parentName = root["parent"].asString();
