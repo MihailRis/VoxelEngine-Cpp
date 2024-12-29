@@ -18,7 +18,7 @@ block.place(0, 2, 0, block.index("base:sand"), 0, pid)
 app.tick()
 
 -- Check if the block is falling
-assert(block.get(0, 100, 0) == 0)
+assert(block.get(0, 2, 0) == 0)
 
 -- Wait for the block to fall
 app.sleep_until(function () return block.get(0, 1, 0) == block.index("base:sand") end, 100)
