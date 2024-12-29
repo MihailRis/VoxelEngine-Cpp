@@ -18,8 +18,17 @@ do -- setup visuals
     local textures = block.get_textures(id)
     for i,t in ipairs(textures) do
         rig:set_texture("$"..tostring(i-1), "blocks:"..textures[i])
-        rig:set_matrix(0, mat4.look_at({0,0,0}, {block.get_Z(id, rotation)}, {block.get_Y(id, rotation)}))
     end
+    local axisX = {block.get_X(id, rotation)}
+    local axisY = {block.get_Y(id, rotation)}
+    local axisZ = {block.get_Z(id, rotation)}
+    local matrix = {
+        axisX[1], axisX[2], axisX[3], 0,
+        axisY[1], axisY[2], axisY[3], 0,
+        axisZ[1], axisZ[2], axisZ[3], 0,
+        0, 0, 0, 1
+    }
+    rig:set_matrix(0, matrix)
 end
 
 function on_grounded()
