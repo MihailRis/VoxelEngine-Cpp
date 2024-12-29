@@ -41,9 +41,9 @@ void BlocksController::updateSides(int x, int y, int z, int w, int h, int d) {
     voxel* vox = blocks_agent::get(chunks, x, y, z);
     const auto& def = level.content.getIndices()->blocks.require(vox->id);
     const auto& rot = def.rotations.variants[vox->state.rotation];
-    const auto& xaxis = rot.axisX;
-    const auto& yaxis = rot.axisY;
-    const auto& zaxis = rot.axisZ;
+    const auto& xaxis = rot.axes[0];
+    const auto& yaxis = rot.axes[1];
+    const auto& zaxis = rot.axes[2];
     for (int ly = -1; ly <= h; ly++) {
         for (int lz = -1; lz <= d; lz++) {
             for (int lx = -1; lx <= w; lx++) {

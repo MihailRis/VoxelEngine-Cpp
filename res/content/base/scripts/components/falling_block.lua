@@ -13,9 +13,12 @@ else
 end
 
 do -- setup visuals
-    local textures = block.get_textures(block.index(blockid))
+    local id = block.index(blockid)
+    local rotation = block.decompose_state(blockstates)[1]
+    local textures = block.get_textures(id)
     for i,t in ipairs(textures) do
         rig:set_texture("$"..tostring(i-1), "blocks:"..textures[i])
+        rig:set_matrix(0, mat4.look_at({0,0,0}, {block.get_Z(id, rotation)}, {block.get_Y(id, rotation)}))
     end
 end
 

@@ -47,10 +47,7 @@ struct BlockFuncsSet {
 };
 
 struct CoordSystem {
-    glm::ivec3 axisX;
-    glm::ivec3 axisY;
-    glm::ivec3 axisZ;
-
+    std::array<glm::ivec3, 3> axes;
     /// @brief Grid 3d position fix offset (for negative vectors)
     glm::ivec3 fix;
 
@@ -261,5 +258,5 @@ public:
 };
 
 inline glm::ivec3 get_ground_direction(const Block& def, int rotation) {
-    return -def.rotations.variants[rotation].axisY;
+    return -def.rotations.variants[rotation].axes[1];
 }

@@ -74,7 +74,7 @@ std::optional<CullingMode> CullingMode_from(std::string_view str) {
 }
 
 CoordSystem::CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ)
-    : axisX(axisX), axisY(axisY), axisZ(axisZ) {
+    : axes({axisX, axisY, axisZ}) {
     fix = glm::ivec3(0);
     if (isVectorHasNegatives(axisX)) fix -= axisX;
     if (isVectorHasNegatives(axisY)) fix -= axisY;
@@ -82,9 +82,9 @@ CoordSystem::CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ)
 }
 
 void CoordSystem::transform(AABB& aabb) const {
-    glm::vec3 X(axisX);
-    glm::vec3 Y(axisY);
-    glm::vec3 Z(axisZ);
+    glm::vec3 X(axes[0]);
+    glm::vec3 Y(axes[1]);
+    glm::vec3 Z(axes[2]);
     aabb.a = X * aabb.a.x + Y * aabb.a.y + Z * aabb.a.z;
     aabb.b = X * aabb.b.x + Y * aabb.b.y + Z * aabb.b.z;
     aabb.a += fix;

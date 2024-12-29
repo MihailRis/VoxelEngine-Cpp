@@ -162,9 +162,9 @@ inline void erase_segments(
                     continue;
                 }
                 glm::ivec3 pos(x, y, z);
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
+                pos += rotation.axes[0] * sx;
+                pos += rotation.axes[1] * sy;
+                pos += rotation.axes[2] * sz;
                 set(chunks, pos.x, pos.y, pos.z, 0, {});
             }
         }
@@ -205,9 +205,9 @@ inline void repair_segments(
                 segState.segment = segment_to_int(sx, sy, sz);
 
                 glm::ivec3 pos(x, y, z);
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
+                pos += rotation.axes[0] * sx;
+                pos += rotation.axes[1] * sy;
+                pos += rotation.axes[2] * sz;
                 set(chunks, pos.x, pos.y, pos.z, id, segState);
             }
         }
@@ -233,9 +233,9 @@ inline glm::ivec3 seek_origin(
         if (!segment) {
             return pos;
         }
-        if (segment & 1) pos -= rotation.axisX;
-        if (segment & 2) pos -= rotation.axisY;
-        if (segment & 4) pos -= rotation.axisZ;
+        if (segment & 1) pos -= rotation.axes[0];
+        if (segment & 2) pos -= rotation.axes[1];
+        if (segment & 4) pos -= rotation.axes[2];
 
         if (auto* voxel = get(chunks, pos.x, pos.y, pos.z)) {
             segment = voxel->state.segment;
@@ -268,9 +268,9 @@ inline bool check_replaceability(
         for (int sz = 0; sz < size.z; sz++) {
             for (int sx = 0; sx < size.x; sx++) {
                 auto pos = origin;
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
+                pos += rotation.axes[0] * sx;
+                pos += rotation.axes[1] * sy;
+                pos += rotation.axes[2] * sz;
                 if (auto vox = get(chunks, pos.x, pos.y, pos.z)) {
                     auto& target = blocks.require(vox->id);
                     if (!target.replaceable && vox->id != ignore) {
@@ -316,9 +316,9 @@ inline void set_rotation_extended(
         for (int sz = 0; sz < size.z; sz++) {
             for (int sx = 0; sx < size.x; sx++) {
                 auto pos = origin;
-                pos += rotation.axisX * sx;
-                pos += rotation.axisY * sy;
-                pos += rotation.axisZ * sz;
+                pos += rotation.axes[0] * sx;
+                pos += rotation.axes[1] * sy;
+                pos += rotation.axes[2] * sz;
 
                 blockstate segState = newstate;
                 segState.segment = segment_to_int(sx, sy, sz);
@@ -344,9 +344,9 @@ inline void set_rotation_extended(
         for (int sz = 0; sz < size.z; sz++) {
             for (int sx = 0; sx < size.x; sx++) {
                 auto pos = origin;
-                pos += prevRotation.axisX * sx;
-                pos += prevRotation.axisY * sy;
-                pos += prevRotation.axisZ * sz;
+                pos += prevRotation.axes[0] * sx;
+                pos += prevRotation.axes[1] * sy;
+                pos += prevRotation.axes[2] * sz;
                 if (std::find(
                         segmentBlocks.begin(), segmentBlocks.end(), pos
                     ) == segmentBlocks.end()) {
