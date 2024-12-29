@@ -1,8 +1,8 @@
+local util = require("core:tests_util")
+util.create_demo_world()
+
 app.set_setting("chunks.load-distance", 3)
 app.set_setting("chunks.load-speed", 1)
-
-app.reconfig_packs({"base"}, {})
-app.new_world("demo", "2019", "core:default")
 
 local pid1 = player.create("Xerxes")
 assert(player.get_name(pid1) == "Xerxes")
