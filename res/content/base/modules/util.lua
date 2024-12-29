@@ -20,8 +20,15 @@ local function calc_loot(loot_table)
         local roll = math.random()
         
         if roll < chance then
+            if loot.min and loot.max then
+                count = math.random(loot.min, loot.max)
+            end
+            if count == 0 then
+                goto continue
+            end
             table.insert(results, {item=item.index(loot.item), count=count})
         end
+        ::continue::
     end
     return results
 end
