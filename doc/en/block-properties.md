@@ -213,3 +213,11 @@ User properties must be declared in `pack:config/user-props.toml` file:
 ```
 
 Example: [user properties of pack **base**](../../res/content/base/config/user-props.toml).
+
+## Methods
+
+Methods are used to manage the overwriting of properties when extending a block with other packs.
+
+### `property_name@append`
+
+Adds elements to the end of the list instead of completely overwriting it.
