@@ -401,6 +401,10 @@ static int p_get_line_pos(UINode*, lua::State* L) {
     return lua::pushcfunction(L, l_get_line_pos);
 }
 
+static int p_get_cursor(UINode* node, lua::State* L) {
+    return lua::pushstring(L, to_string(node->getCursor()));
+}
+
 static int l_gui_getattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
     auto element = lua::require_string(L, 2);
@@ -455,6 +459,7 @@ static int l_gui_getattr(lua::State* L) {
             {"paste", p_get_paste},
             {"inventory", p_get_inventory},
             {"focused", p_get_focused},
+            {"cursor", p_get_cursor},
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {
@@ -616,6 +621,12 @@ static void p_set_focused(
     }
 }
 
+static void p_set_cursor(UINode* node, lua::State* L, int idx) {
+    if (auto cursor = CursorShape_from(lua::require_string(L, idx))) {
+        node->setCursor(*cursor);
+    }
+}
+
 static int l_gui_setattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
     auto element = lua::require_string(L, 2);
@@ -658,6 +669,7 @@ static int l_gui_setattr(lua::State* L) {
             {"checked", p_set_checked},
             {"page", p_set_page},
             {"inventory", p_set_inventory},
+            {"cursor", p_set_cursor},
         };
     auto func = setters.find(attr);
     if (func != setters.end()) {

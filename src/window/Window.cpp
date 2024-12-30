@@ -29,6 +29,7 @@ int Window::posY = 0;
 int Window::framerate = -1;
 double Window::prevSwap = 0.0;
 bool Window::fullscreen = false;
+CursorShape Window::cursor = CursorShape::ARROW;
 
 static util::ObjectsKeeper observers_keeper;
 
@@ -125,6 +126,8 @@ void error_callback(int error, const char* description) {
     }
 }
 
+static GLFWcursor* standard_cursors[static_cast<int>(CursorShape::LAST) + 1] = {};
+
 int Window::initialize(DisplaySettings* settings) {
     Window::settings = settings;
     Window::width = settings->width.get();
@@ -219,6 +222,10 @@ int Window::initialize(DisplaySettings* settings) {
     logger.info() << "monitor content scale: " << scale.x << "x" << scale.y;
 
     input_util::initialize();
+
+    for (int i = 0; i <= static_cast<int>(CursorShape::LAST); i++) {
+        standard_cursors[i] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR + i);
+    }
     return 0;
 }
 
@@ -305,6 +312,9 @@ void Window::popScissor() {
 
 void Window::terminate() {
     observers_keeper = util::ObjectsKeeper();
+    for (int i = 0; i <= static_cast<int>(CursorShape::LAST); i++) {
+        glfwDestroyCursor(standard_cursors[i]);
+    }
     glfwTerminate();
 }
 
@@ -378,6 +388,15 @@ double Window::time() {
 
 DisplaySettings* Window::getSettings() {
     return settings;
+}
+
+void Window::setCursor(CursorShape shape) {
+    if (cursor == shape) {
+        return;
+    }
+    cursor = shape;
+    // NULL cursor is valid for GLFW
+    glfwSetCursor(window, standard_cursors[static_cast<int>(shape)]);
 }
 
 std::unique_ptr<ImageData> Window::takeScreenshot() {

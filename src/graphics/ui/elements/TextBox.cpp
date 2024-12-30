@@ -25,6 +25,7 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     input(L""),
     placeholder(std::move(placeholder))
 {
+    setCursor(CursorShape::TEXT);
     setOnUpPressed(nullptr);
     setOnDownPressed(nullptr);
     setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
