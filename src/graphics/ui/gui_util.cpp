@@ -23,8 +23,11 @@ std::shared_ptr<gui::UINode> guiutil::create(const std::string& source, scripten
     return reader.readXML("[string]", source);
 }
 
-void guiutil::alert(GUI* gui, const std::wstring& text, const runnable& on_hidden) {
-    auto menu = gui->getMenu();
+void guiutil::alert(
+    const std::shared_ptr<gui::Menu>& menu,
+    const std::wstring& text,
+    const runnable& on_hidden
+) {
     auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(8.0f), 8.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     
@@ -47,7 +50,7 @@ void guiutil::alert(GUI* gui, const std::wstring& text, const runnable& on_hidde
 }
 
 void guiutil::confirm(
-        GUI* gui, 
+        const std::shared_ptr<gui::Menu>& menu, 
         const std::wstring& text, 
         const runnable& on_confirm,
         std::wstring yestext, 
@@ -55,7 +58,6 @@ void guiutil::confirm(
     if (yestext.empty()) yestext = langs::get(L"Yes");
     if (notext.empty()) notext = langs::get(L"No");
 
-    auto menu = gui->getMenu();
     auto panel = std::make_shared<Panel>(glm::vec2(600, 200), glm::vec4(8.0f), 8.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(std::make_shared<Label>(text));
@@ -79,8 +81,8 @@ void guiutil::confirm(
     menu->setPage("<confirm>");
 }
 
-void guiutil::confirmWithMemo(
-        gui::GUI* gui, 
+void guiutil::confirm_with_memo(
+        const std::shared_ptr<gui::Menu>& menu,
         const std::wstring& text, 
         const std::wstring& memo,
         const runnable& on_confirm,
@@ -90,7 +92,6 @@ void guiutil::confirmWithMemo(
     if (yestext.empty()) yestext = langs::get(L"Yes");
     if (notext.empty()) notext = langs::get(L"No");
 
-    auto menu = gui->getMenu();
     auto panel = std::make_shared<Panel>(glm::vec2(600, 500), glm::vec4(8.0f), 8.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
     panel->add(std::make_shared<Label>(text));

@@ -13,20 +13,20 @@ namespace guiutil {
     std::shared_ptr<gui::UINode> create(const std::string& source, scriptenv env=0);
 
     void alert(
-        gui::GUI* gui, 
+        const std::shared_ptr<gui::Menu>& menu,
         const std::wstring& text, 
         const runnable& on_hidden=nullptr
     );
 
     void confirm(
-        gui::GUI* gui, 
+        const std::shared_ptr<gui::Menu>& menu,
         const std::wstring& text, 
         const runnable& on_confirm=nullptr,
         std::wstring yestext=L"", 
         std::wstring notext=L"");
 
-    void confirmWithMemo(
-        gui::GUI* gui, 
+    void confirm_with_memo(
+        const std::shared_ptr<gui::Menu>& menu,
         const std::wstring& text, 
         const std::wstring& memo,
         const runnable& on_confirm=nullptr,

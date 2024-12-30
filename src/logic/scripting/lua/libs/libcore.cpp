@@ -100,32 +100,23 @@ static int l_delete_world(lua::State* L) {
 /// @param remPacks An array of packs to remove
 static int l_reconfig_packs(lua::State* L) {
     if (!lua::istable(L, 1)) {
-        throw std::runtime_error("strings array expected as the first argument"
-        );
+        throw std::runtime_error("strings array expected as the first argument");
     }
     if (!lua::istable(L, 2)) {
-        throw std::runtime_error("strings array expected as the second argument"
-        );
+        throw std::runtime_error("strings array expected as the second argument");
     }
     std::vector<std::string> addPacks;
-    if (!lua::istable(L, 1)) {
-        throw std::runtime_error("an array expected as argument 1");
-    }
     int addLen = lua::objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
         lua::rawgeti(L, i + 1, 1);
-        addPacks.emplace_back(lua::tostring(L, -1));
+        addPacks.emplace_back(lua::require_lstring(L, -1));
         lua::pop(L);
     }
-
     std::vector<std::string> remPacks;
-    if (!lua::istable(L, 2)) {
-        throw std::runtime_error("an array expected as argument 2");
-    }
     int remLen = lua::objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
         lua::rawgeti(L, i + 1, 2);
-        remPacks.emplace_back(lua::tostring(L, -1));
+        remPacks.emplace_back(lua::require_lstring(L, -1));
         lua::pop(L);
     }
     auto engineController = engine->getController();
