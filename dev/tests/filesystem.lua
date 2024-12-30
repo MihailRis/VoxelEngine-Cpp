@@ -48,3 +48,5 @@ assert(file.is_writeable("config:"))
 assert(file.is_writeable("export:"))
 assert(not file.is_writeable("user:"))
 assert(not file.is_writeable("res:"))
+
+print(file.resolve("user:content"))

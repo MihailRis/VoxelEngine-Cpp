@@ -68,3 +68,8 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: |
           packaged/vctest.exe -e packaged/VoxelCore.exe -d dev/tests -u build --output-always
+      - name: Test smth
+        shell: msys2 {0}
+        working-directory: ${{ github.workspace }}/packaged/res
+        run: |
+          ../VoxelCore.exe --dir ../ --res ../res --headless --script ../../dev/tests/filesystem.lua
