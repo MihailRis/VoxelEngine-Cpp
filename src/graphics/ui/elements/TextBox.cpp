@@ -699,6 +699,10 @@ std::shared_ptr<UINode> TextBox::getAt(
 void TextBox::setOnUpPressed(const runnable &callback) {
     if (callback == nullptr) {
         onUpPressed = [this]() {
+            if (Events::pressed(keycode::LEFT_CONTROL)) {
+                scrolled(1);
+                return;
+            }
             bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
             bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
             stepDefaultUp(shiftPressed, breakSelection);
@@ -711,6 +715,10 @@ void TextBox::setOnUpPressed(const runnable &callback) {
 void TextBox::setOnDownPressed(const runnable &callback) {
     if (callback == nullptr) {
         onDownPressed = [this]() {
+            if (Events::pressed(keycode::LEFT_CONTROL)) {
+                scrolled(-1);
+                return;
+            }
             bool shiftPressed = Events::pressed(keycode::LEFT_SHIFT);
             bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
             stepDefaultDown(shiftPressed, breakSelection);
