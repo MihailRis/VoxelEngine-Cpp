@@ -10,6 +10,7 @@
 #include "Events.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Texture.hpp"
 #include "settings.hpp"
@@ -176,6 +177,7 @@ int Window::initialize(DisplaySettings* settings) {
             return -1;
         }
     }
+    VOXELENGINE_PROFILE_GPU_CONTEXT;
 
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 1);
@@ -358,7 +360,14 @@ bool Window::isFullscreen() {
 
 void Window::swapBuffers() {
     VOXELENGINE_PROFILE;
+
     glfwSwapBuffers(window);
+
+    VOXELENGINE_PROFILE_GPU_COLLECT;  // This call so slow, be careful when
+                                      // checking perf in this mode. Undef
+                                      // VOXELENGINE_PROFILER_GPU macro in cmake
+                                      // for disable GPU profiling
+
     Window::resetScissor();
     if (framerate > 0) {
         auto elapsedTime = time() - prevSwap;

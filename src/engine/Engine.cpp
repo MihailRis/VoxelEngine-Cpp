@@ -1,9 +1,5 @@
 #include "Engine.hpp"
 
-#ifndef GLEW_STATIC
-#define GLEW_STATIC
-#endif
-
 #include <assert.h>
 
 #include <functional>
@@ -27,6 +23,7 @@
 #include "core_defs.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "files/files.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
@@ -206,6 +203,8 @@ void Engine::updateFrontend() {
 
 void Engine::nextFrame() {
     VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("Engine::nextFrame");
+
     Window::setFramerate(
         Window::isIconified() && settings.display.limitFpsIconified.get()
             ? 20
@@ -218,6 +217,8 @@ void Engine::nextFrame() {
 
 void Engine::renderFrame() {
     VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("Engine::renderFrame");
+
     screen->draw(time.getDelta());
 
     Viewport viewport(Window::width, Window::height);

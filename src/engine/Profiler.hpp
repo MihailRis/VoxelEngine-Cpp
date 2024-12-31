@@ -2,7 +2,6 @@
 
 #if defined(VOXELENGINE_PROFILER)
 #if defined(VOXELENGINE_TRACY_PROFILER)
-// #include <GL/glew.h>  // Need for TracyOpenGL.hpp
 
 #include <Tracy/Tracy.hpp>
 

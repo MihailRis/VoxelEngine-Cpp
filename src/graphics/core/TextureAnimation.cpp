@@ -7,13 +7,18 @@
 #include "Framebuffer.hpp"
 #include "GLTexture.hpp"
 #include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 
 TextureAnimator::TextureAnimator() {
+    VOXELENGINE_PROFILE_GPU("TextureAnimator::TextureAnimator");
+
     glGenFramebuffers(1, &fboR);
     glGenFramebuffers(1, &fboD);
 }
 
 TextureAnimator::~TextureAnimator() {
+    VOXELENGINE_PROFILE_GPU("TextureAnimator::~TextureAnimator");
+
     glDeleteFramebuffers(1, &fboR);
     glDeleteFramebuffers(1, &fboD);
 }
@@ -28,6 +33,8 @@ void TextureAnimator::addAnimations(
 
 void TextureAnimator::update(float delta) {
     VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("TextureAnimator::update");
+
     std::unordered_set<uint> changedTextures;
 
     for (auto& elem : animations) {

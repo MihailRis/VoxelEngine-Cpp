@@ -9,6 +9,7 @@
 #include "elements/Menu.hpp"
 #include "elements/UINode.hpp"
 #include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "frontend/UiDocument.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/core/Batch2D.hpp"
@@ -19,7 +20,6 @@
 #include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "window/input.hpp"
-
 
 using namespace gui;
 
@@ -203,6 +203,8 @@ void GUI::act(float delta, const Viewport& vp) {
 
 void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("GUI::draw");
+
     auto ctx = pctx.sub(batch2D.get());
 
     auto& viewport = ctx.getViewport();

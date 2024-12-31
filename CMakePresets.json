@@ -32,7 +32,7 @@
         {
             "name": "profiler-tracy-vs-msvc-windows",
             "configurePreset": "profiler-tracy-vs-msvc-windows",
-            "configuration": "Release"
+            "configuration": "RelWithDebInfo"
         }
     ],
     "testPresets": [

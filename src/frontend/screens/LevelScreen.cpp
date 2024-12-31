@@ -7,6 +7,7 @@
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
 #include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "files/files.hpp"
 #include "frontend/ContentGfxCache.hpp"
 #include "frontend/LevelFrontend.hpp"
@@ -204,6 +205,8 @@ void LevelScreen::update(float delta) {
 
 void LevelScreen::draw(float delta) {
     VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("LevelScreen::draw");
+
     auto camera = playerController->getPlayer()->currentCamera;
 
     Viewport viewport(Window::width, Window::height);
