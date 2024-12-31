@@ -141,6 +141,7 @@ bool lua::emit_event(
         pop(L, 2);
         return result;
     }
+    pop(L, 1);
     return false;
 }
 
