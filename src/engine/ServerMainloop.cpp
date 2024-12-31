@@ -61,6 +61,7 @@ void ServerMainloop::run() {
             controller->getLevel()->getWorld()->updateTimers(delta);
             controller->update(glm::min(delta, 0.2), false);
         }
+        engine.postUpdate();
 
         if (!coreParams.testMode) {
             auto end = system_clock::now();
