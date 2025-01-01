@@ -95,3 +95,9 @@ Returns information about the pack (not necessarily installed).
   - `?` - optional
   - `~` - weak
   for example `!teal`
+
+To obtain information about multiple packs, use table of ids to avoid re-scanning.
+
+```lua
+pack.get_info(packids: table) -> {id={...}, id2={...}, ...}
+```

@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <stdexcept>
 #include <string>
+#include <set>
 
 #include "assets/AssetsLoader.hpp"
 #include "content/Content.hpp"
@@ -123,6 +124,44 @@ static int l_pack_get_info(
     return 1;
 }
 
+static int pack_get_infos(lua::State* L) {
+    std::set<std::string> ids;
+    size_t len = lua::objlen(L, 1);
+    for (size_t i = 1; i <= len; i++) {
+        lua::rawgeti(L, i);
+        ids.insert(lua::require_string(L, -1));
+        lua::pop(L, 1);
+    }
+    std::unordered_map<std::string, ContentPack> packs;
+    auto content = engine->getContent();
+    const auto& loadedPacks = engine->getContentPacks();
+    for (const auto& pack : loadedPacks) {
+        if (ids.find(pack.id) != ids.end()) {
+            packs[pack.id] = pack;
+            ids.erase(pack.id);
+        }
+    }
+    if (!ids.empty()) {
+        fs::path worldFolder("");
+        if (level) {
+            worldFolder = level->getWorld()->wfile->getFolder();
+        }
+        auto manager = engine->createPacksManager(worldFolder);
+        manager.scan();
+        auto vec =
+            manager.getAll(std::vector<std::string>(ids.begin(), ids.end()));
+        for (const auto& pack : vec) {
+            packs[pack.id] = pack;
+        }
+    }
+    lua::createtable(L, 0, packs.size());
+    for (const auto& [id, pack] : packs) {
+        l_pack_get_info(L, pack, content);
+        lua::setfield(L, id);
+    }
+    return 1;
+}
+
 /// @brief pack.get_info(packid: str) -> {
 ///     title: str,
 ///     creator: str,
@@ -131,6 +170,11 @@ static int l_pack_get_info(
 ///     [optional] has_indices: bool
 /// } or nil
 static int l_pack_get_info(lua::State* L) {
+    if (lua::istable(L, 1)) {
+        return pack_get_infos(L);
+    } else if (!lua::isstring(L, 1)) {
+        throw std::runtime_error("string or table expected");
+    }
     auto packid = lua::tostring(L, 1);
 
     auto content = engine->getContent();
@@ -140,7 +184,6 @@ static int l_pack_get_info(lua::State* L) {
             return pack.id == packid;
         });
     if (found == packs.end()) {
-        // TODO: optimize
         fs::path worldFolder("");
         if (level) {
             worldFolder = level->getWorld()->wfile->getFolder();
