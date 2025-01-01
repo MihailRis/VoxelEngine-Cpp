@@ -2,13 +2,17 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 class Engine;
 class World;
+class ContentReport;
 class LevelController;
 
 class EngineController {
     Engine& engine;
+
+    void onMissingContent(const std::shared_ptr<ContentReport>& report);
 public:
     EngineController(Engine& engine);
 

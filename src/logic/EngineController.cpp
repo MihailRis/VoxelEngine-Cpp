@@ -7,6 +7,7 @@
 #include "engine/Engine.hpp"
 #include "coders/commons.hpp"
 #include "debug/Logger.hpp"
+#include "coders/json.hpp"
 #include "content/ContentReport.hpp"
 #include "files/WorldConverter.hpp"
 #include "files/WorldFiles.hpp"
@@ -32,14 +33,21 @@ EngineController::EngineController(Engine& engine) : engine(engine) {
 
 void EngineController::deleteWorld(const std::string& name) {
     fs::path folder = engine.getPaths().getWorldFolderByName(name);
+
+    auto deletion = [&]() {
+        logger.info() << "deleting " << folder;
+        fs::remove_all(folder);
+    };
+
+    if (engine.isHeadless()) {
+        deletion();
+        return;
+    }
     guiutil::confirm(
         engine.getGUI()->getMenu(),
         langs::get(L"delete-confirm", L"world") + L" (" +
             util::str2wstr_utf8(folder.u8string()) + L")",
-        [=]() {
-            logger.info() << "deleting " << folder.u8string();
-            fs::remove_all(folder);
-        }
+        deletion
     );
 }
 
@@ -63,10 +71,10 @@ std::shared_ptr<Task> create_converter(
         content,
         report,
         [&engine, postRunnable]() {
-            auto menu = engine.getGUI()->getMenu();
-            menu->reset();
-            menu->setPage("main", false);
-            engine.getGUI()->postRunnable([=]() { postRunnable(); });
+            //auto menu = engine.getGUI()->getMenu();
+            //menu->reset();
+            //menu->setPage("main", false);
+            engine.postRunnable([=]() { postRunnable(); });
         },
         mode,
         true
@@ -119,20 +127,6 @@ static void show_convert_request(
     );
 }
 
-static void show_content_missing(
-    Engine& engine, const std::shared_ptr<ContentReport>& report
-) {
-    auto root = dv::object();
-    auto& contentEntries = root.list("content");
-    for (auto& entry : report->getMissingContent()) {
-        std::string contentName = ContentType_name(entry.type);
-        auto& contentEntry = contentEntries.object();
-        contentEntry["type"] = contentName;
-        contentEntry["name"] = entry.name;
-    }
-    menus::show(engine, "reports/missing_content", {std::move(root)});
-}
-
 static bool load_world_content(Engine& engine, const fs::path& folder) {
     if (engine.isHeadless()) {
         engine.loadWorldContent(folder);
@@ -163,6 +157,36 @@ static void load_world(
     }
 }
 
+static dv::value create_missing_content_report(
+    const std::shared_ptr<ContentReport>& report
+) {
+    auto root = dv::object();
+    auto& contentEntries = root.list("content");
+    for (auto& entry : report->getMissingContent()) {
+        std::string contentName = ContentType_name(entry.type);
+        auto& contentEntry = contentEntries.object();
+        contentEntry["type"] = contentName;
+        contentEntry["name"] = entry.name;
+    }
+    return root;
+}
+
+void EngineController::onMissingContent(const std::shared_ptr<ContentReport>& report) {
+    if (engine.isHeadless()) {
+        throw std::runtime_error(
+            "missing content: " +
+            json::stringify(create_missing_content_report(report), true)
+        );
+    } else {
+        engine.setScreen(std::make_shared<MenuScreen>(engine));
+        menus::show(
+            engine,
+            "reports/missing_content",
+            {create_missing_content_report(report)}
+        );
+    }
+}
+
 void EngineController::openWorld(const std::string& name, bool confirmConvert) {
     const auto& paths = engine.getPaths();
     auto folder = paths.getWorldsFolder() / fs::u8path(name);
@@ -180,21 +204,23 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
         folder, engine.getSettings().debug);
     if (auto report = World::checkIndices(worldFiles, content)) {
         if (report->hasMissingContent()) {
-            engine.setScreen(std::make_shared<MenuScreen>(engine));
-            show_content_missing(engine, report);
+            onMissingContent(report);
         } else {
             if (confirmConvert) {
-                menus::show_process_panel(
+                auto task = create_converter(
                     engine,
-                    create_converter(
-                        engine,
-                        worldFiles,
-                        content,
-                        report,
-                        [=]() { openWorld(name, false); }
-                    ),
-                    L"Converting world..."
+                    worldFiles,
+                    content,
+                    report,
+                    [=]() { openWorld(name, false); }
                 );
+                if (engine.isHeadless()) {
+                    task->waitForEnd();
+                } else {
+                    menus::show_process_panel(
+                        engine, task, L"Converting world..."
+                    );
+                }
             } else {
                 show_convert_request(engine, content, report, std::move(worldFiles), [=]() {
                     openWorld(name, false);
@@ -255,10 +281,9 @@ void EngineController::createWorld(
 }
 
 void EngineController::reopenWorld(World* world) {
-    std::string wname = world->wfile->getFolder().filename().u8string();
-    engine.setScreen(nullptr);
-    engine.setScreen(std::make_shared<MenuScreen>(engine));
-    openWorld(wname, true);
+    std::string name = world->wfile->getFolder().filename().u8string();
+    engine.onWorldClosed();
+    openWorld(name, true);
 }
 
 void EngineController::reconfigPacks(
@@ -316,7 +341,13 @@ void EngineController::reconfigPacks(
             }
             for (const auto& id : packsToRemove) {
                 manager.exclude(id);
-                names.erase(std::find(names.begin(), names.end(), id));
+                const auto& found = std::find(names.begin(), names.end(), id);
+                if (found != names.end()) {
+                    names.erase(found);
+                } else {
+                    logger.warning()
+                        << "attempt to remove non-installed pack: " << id;
+                }
             }
             wfile.removeIndices(packsToRemove);
             wfile.writePacks(manager.getAll(names));
@@ -324,7 +355,7 @@ void EngineController::reconfigPacks(
         }
     };
 
-    if (hasIndices) {
+    if (hasIndices && !engine.isHeadless()) {
         guiutil::confirm(
             engine.getGUI()->getMenu(),
             langs::get(L"remove-confirm", L"pack") + L" (" +
