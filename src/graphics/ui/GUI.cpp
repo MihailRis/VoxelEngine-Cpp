@@ -219,6 +219,10 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
 
     batch2D->begin();
     container->draw(ctx, assets);
+
+    if (hover) {
+        Window::setCursor(hover->getCursor());
+    }
 }
 
 std::shared_ptr<UINode> GUI::getFocused() const {

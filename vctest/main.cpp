@@ -16,6 +16,7 @@ struct Config {
     fs::path directory;
     fs::path resDir {"res"};
     fs::path workingDir {"."};
+    std::string memchecker = "valgrind";
     bool outputAlways = false;
 };
 
@@ -28,7 +29,8 @@ static bool perform_keyword(
         std::cout << "  --exe <path>, -e <path>         = VoxelCore executable path\n";
         std::cout << "  --tests <path>, -d <path>       = tests directory path\n";
         std::cout << "  --res <path>, -r <path>         = 'res' directory path\n";
-        std::cout << "  --working-dir <path>, -w <path> = user directory path\n";
+        std::cout << "  --user <path>, -u <path>        = user directory path\n";
+        std::cout << "  --memchecker <path>             = path to valgrind\n";
         std::cout << "  --output-always                 = always show tests output\n";
         std::cout << std::endl;
         return false;
@@ -127,6 +129,37 @@ static void display_test_output(
     }
 }
 
+static void display_segfault_valgrind(
+    const fs::path& path, const fs::path& name, std::ostream& stream
+) {
+    stream << "[MEMCHECK] " << name << std::endl;
+    if (fs::exists(path)) {
+        std::ifstream t(path);
+        while (!t.eof()) {
+            std::string line;
+            std::getline(t, line);
+            // skip until the terminating signal
+            if (line.find("Process terminating with default action of signal ") != std::string::npos) {
+                break;
+            }
+        }
+        std::stringstream ss;
+        while (!t.eof()) {
+            std::string line;
+            std::getline(t, line);
+            size_t pos = line.find("== ");
+            if (pos == std::string::npos) {
+                continue;
+            }
+            if (line.find("If you") != std::string::npos) {
+                break;
+            }
+            ss << line.substr(pos + 3) << "\n";
+        }
+        stream << ss.str() << std::endl;
+    }
+}
+
 static std::string fix_path(std::string s) {
     for (char& c : s) {
         if (c == '\\') {
@@ -136,7 +169,7 @@ static std::string fix_path(std::string s) {
     return s;
 }
 
-static bool run_test(const Config& config, const fs::path& path) {
+static bool run_test(const Config& config, const fs::path& path, bool memcheck = false) {
     using std::chrono::duration_cast;
     using std::chrono::high_resolution_clock;
     using std::chrono::milliseconds;
@@ -145,6 +178,9 @@ static bool run_test(const Config& config, const fs::path& path) {
 
     auto name = path.stem();
     std::stringstream ss;
+    if (memcheck) {
+        ss << config.memchecker << " ";
+    }
     ss << fs::canonical(config.executable) << " --headless";
     ss << " --test " << fix_path(path.string());
     ss << " --res " << fix_path(config.resDir.string());
@@ -162,9 +198,17 @@ static bool run_test(const Config& config, const fs::path& path) {
             .count();
 
     if (code) {
-        display_test_output(outputFile, name, std::cerr);
-        std::cerr << "[FAILED] " << name << " in " << testTime << " ms" << std::endl;
-        fs::remove(outputFile);
+        if (memcheck) {
+            // valgrind-specific output
+            display_segfault_valgrind(outputFile, name, std::cerr);
+            fs::remove(outputFile);
+        } else {
+            display_test_output(outputFile, name, std::cerr);
+            std::cerr << "[FAILED] " << name << " in " << testTime
+                    << " ms (code=" << code << ")" << std::endl;
+            fs::remove(outputFile);
+            run_test(config, path, true);
+        }
         return false;
     } else {
         if (config.outputAlways) {
@@ -210,6 +254,7 @@ int main(int argc, char** argv) {
     std::cout << "running " << tests.size() << " test(s)" << std::endl;
     for (const auto& path : tests) {
         passed += run_test(config, path);
+        fs::remove_all(config.workingDir / fs::u8path("worlds"));
     }
     print_separator(std::cout);
     cleanup(config.workingDir);

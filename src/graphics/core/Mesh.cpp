@@ -1,6 +1,7 @@
 #include "Mesh.hpp"
 
 #include <GL/glew.h>
+#include <assert.h>
 
 #include "engine/ProfilerGpu.hpp"
 
@@ -12,6 +13,7 @@ inline size_t calc_vertex_size(const VertexAttribute* attrs) {
     for (int i = 0; attrs[i].size; i++) {
         vertexSize += attrs[i].size;
     }
+    assert(vertexSize != 0);
     return vertexSize;
 }
 

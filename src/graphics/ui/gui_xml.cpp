@@ -156,6 +156,11 @@ static void _readUINode(
     if (element.has("tooltip-delay")) {
         node.setTooltipDelay(element.attr("tooltip-delay").asFloat());
     }
+    if (element.has("cursor")) {
+        if (auto cursor = CursorShape_from(element.attr("cursor").getText())) {
+            node.setCursor(*cursor);
+        }
+    }
 
     if (auto onclick = create_action(reader, element, "onclick")) {
         node.listenAction(onclick);

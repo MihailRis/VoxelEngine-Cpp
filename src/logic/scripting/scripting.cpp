@@ -351,7 +351,7 @@ static bool on_block_common(
         result =
             lua::emit_event(lua::get_main_state(), name, [pos, player](auto L) {
                 lua::pushivec_stack(L, pos);
-                lua::pushinteger(L, player->getId());
+                lua::pushinteger(L, player ? player->getId() : -1);
                 return 4;
             });
     }

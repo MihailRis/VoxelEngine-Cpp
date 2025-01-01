@@ -382,7 +382,6 @@ int util::replaceAll(
         str.replace(start_pos, from.length(), to);
         offset = start_pos + to.length();
         count++;
-        break;
     }
     return count;
 }

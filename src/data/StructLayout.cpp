@@ -95,8 +95,8 @@ static inline FieldIncapatibilityType checkIncapatibility(
 
 static inline integer_t clamp_value(integer_t value, FieldType type) {
     auto typesize = sizeof_type(type) * CHAR_BIT;
-    integer_t minval = -(1 << (typesize-1));
-    integer_t maxval = (1 << (typesize-1))-1;
+    integer_t minval = -(1LL << (typesize-1));
+    integer_t maxval = (1LL << (typesize-1))-1;
     return std::min(maxval, std::max(minval, value));
 }
 

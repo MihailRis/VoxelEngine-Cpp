@@ -172,7 +172,10 @@ local __post_runnables = {}
 function __process_post_runnables()
     if #__post_runnables then
         for _, func in ipairs(__post_runnables) do
-            func()
+            local status, result = pcall(func)
+            if not status then
+                debug.log("error in post_runnable: "..result)
+            end
         end
         __post_runnables = {}
     end
