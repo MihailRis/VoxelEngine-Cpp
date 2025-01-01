@@ -151,7 +151,8 @@ static void display_segfault_valgrind(
             if (pos == std::string::npos) {
                 continue;
             }
-            if (line.find("If you") != std::string::npos) {
+            if (line.find("If you") != std::string::npos ||
+                line.find("HEAP SUMMARY:") != std::string::npos) {
                 break;
             }
             ss << line.substr(pos + 3) << "\n";
@@ -175,11 +176,13 @@ static bool run_test(const Config& config, const fs::path& path, bool memcheck =
     using std::chrono::milliseconds;
 
     auto outputFile = config.workingDir / "output.txt";
+    auto memcheckLogFile = config.workingDir / "memcheck.txt";
 
     auto name = path.stem();
     std::stringstream ss;
     if (memcheck) {
-        ss << config.memchecker << " ";
+        ss << config.memchecker << " --log-file="
+           << fix_path(memcheckLogFile.string()) << " ";
     }
     ss << fs::canonical(config.executable) << " --headless";
     ss << " --test " << fix_path(path.string());
@@ -200,7 +203,8 @@ static bool run_test(const Config& config, const fs::path& path, bool memcheck =
     if (code) {
         if (memcheck) {
             // valgrind-specific output
-            display_segfault_valgrind(outputFile, name, std::cerr);
+            display_segfault_valgrind(memcheckLogFile, name, std::cerr);
+            fs::remove(memcheckLogFile);
             fs::remove(outputFile);
         } else {
             display_test_output(outputFile, name, std::cerr);
