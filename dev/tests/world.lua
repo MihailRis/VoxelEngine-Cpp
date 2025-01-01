@@ -14,12 +14,15 @@ app.close_world(true)
 assert(not world.is_open())
 
 -- Reopen
-app.open_world("demo")
+app.open_world("demo") 
 assert(world.is_open())
 assert(world.get_total_time() > 0.0)
 assert(world.get_seed() == 2019)
 app.tick()
-app.reconfig_packs({}, {"base"})
+
+-- Remove base pack
+app.reconfig_packs({"undefined"}, {"base"})
+-- World is reopened in post-runnable
 app.tick()
 
 -- Close
