@@ -148,7 +148,6 @@ void LevelScreen::saveWorldPreview() {
 }
 
 void LevelScreen::updateHotkeys() {
-    auto player = playerController->getPlayer();
     auto& settings = engine.getSettings();
     if (Events::jpressed(keycode::O)) {
         settings.graphics.frustumCulling.toggle();

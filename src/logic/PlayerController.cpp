@@ -479,7 +479,6 @@ void PlayerController::updateEntityInteraction(
 
 void PlayerController::updateInteraction(float delta) {
     auto indices = level.content.getIndices();
-    auto chunks = player.chunks.get();
     const auto& selection = player.selection;
     
     if (interactionTimer > 0.0f) {

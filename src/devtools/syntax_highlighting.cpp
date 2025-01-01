@@ -32,7 +32,6 @@ static std::unique_ptr<FontStylesScheme> build_styles(
             continue;
         }
         if (token.start.pos > offset) {
-            int n = token.start.pos - offset;
             styles.map.insert(styles.map.end(), token.start.pos - offset, 0);
         }
         offset = token.end.pos;

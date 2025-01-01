@@ -289,8 +289,6 @@ void Hud::updateWorldGenDebugVisualization() {
 
     for (int z = 0; z < height; z++) {
         for (int x = 0; x < width; x++) {
-            int cx = x + ox;
-            int cz = z + oz;
             int flippedZ = height - z - 1;
 
             int ax = x - (width - areaWidth) / 2;
