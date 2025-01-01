@@ -21,7 +21,7 @@ assert(world.get_seed() == 2019)
 app.tick()
 
 -- Remove base pack
-app.reconfig_packs({"undefined"}, {"base"})
+app.reconfig_packs({}, {"base"})
 -- World is reopened in post-runnable
 app.tick()
 
