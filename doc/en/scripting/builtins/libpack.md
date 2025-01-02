@@ -76,14 +76,14 @@ pack.get_base_packs() -> strings array
 
 Returns the id of all base packages (non-removeable)
 
-```python
+```lua
 pack.get_info(packid: str) -> {
   id: str,
   title: str,
   creator: str,
   description: str,
   version: str,
-  icon: str,
+  icon: str, -- not available in headless mode
   dependencies: optional strings array
 }
 ```

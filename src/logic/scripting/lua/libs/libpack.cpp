@@ -81,24 +81,17 @@ static int l_pack_get_info(
     lua::pushstring(L, pack.version);
     lua::setfield(L, "version");
 
-    auto assets = engine->getAssets();
-    std::string icon = pack.id + ".icon";
-    if (engine->isHeadless()) {
-        if (fs::exists(pack.folder / fs::path("icon.png"))) {
-            icon = pack.folder.u8string() + "/icon.png";
-        } else {
-            icon = "gui/no_icon";
-        }
-    } else {
+    if (!engine->isHeadless()) {
+        auto assets = engine->getAssets();
+        std::string icon = pack.id + ".icon";
         if (!AssetsLoader::loadExternalTexture(
                 assets, icon, {pack.folder / fs::path("icon.png")}
             )) {
             icon = "gui/no_icon";
         }
+        lua::pushstring(L, icon);
+        lua::setfield(L, "icon");
     }
-
-    lua::pushstring(L, icon);
-    lua::setfield(L, "icon");
 
     if (!pack.dependencies.empty()) {
         lua::createtable(L, pack.dependencies.size(), 0);
