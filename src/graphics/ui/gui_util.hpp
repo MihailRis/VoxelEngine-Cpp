@@ -22,6 +22,7 @@ namespace guiutil {
         const std::shared_ptr<gui::Menu>& menu,
         const std::wstring& text, 
         const runnable& on_confirm=nullptr,
+        const runnable& on_deny=nullptr,
         std::wstring yestext=L"", 
         std::wstring notext=L"");
 

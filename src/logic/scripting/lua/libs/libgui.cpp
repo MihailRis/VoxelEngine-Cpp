@@ -759,6 +759,34 @@ static int l_gui_escape_markup(lua::State* L) {
     return lua::pushstring(L, text);
 }
 
+static int l_gui_confirm(lua::State* L) {
+    auto question = lua::require_wstring(L, 1);
+    lua::pushvalue(L, 2);
+    auto onconfirm = lua::create_runnable(L);
+    runnable ondeny = nullptr;
+    if (lua::gettop(L) > 2) {
+        lua::pushvalue(L, 3);
+        ondeny = lua::create_runnable(L);
+    }
+    std::wstring yestext = L"";
+    if (lua::gettop(L) > 3) {
+        yestext = lua::require_wstring(L, 4);
+    }
+    std::wstring notext = L"";
+    if (lua::gettop(L) > 4) {
+        notext = lua::require_wstring(L, 5);
+    }
+    guiutil::confirm(
+        engine->getGUI()->getMenu(),
+        question,
+        onconfirm,
+        ondeny,
+        yestext,
+        notext
+    );
+    return 0;
+}
+
 const luaL_Reg guilib[] = {
     {"get_viewport", lua::wrap<l_gui_getviewport>},
     {"getattr", lua::wrap<l_gui_getattr>},
@@ -768,6 +796,7 @@ const luaL_Reg guilib[] = {
     {"get_locales_info", lua::wrap<l_gui_get_locales_info>},
     {"clear_markup", lua::wrap<l_gui_clear_markup>},
     {"escape_markup", lua::wrap<l_gui_escape_markup>},
+    {"confirm", lua::wrap<l_gui_confirm>},
     {"__reindex", lua::wrap<l_gui_reindex>},
     {NULL, NULL}
 };

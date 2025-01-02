@@ -122,6 +122,7 @@ static void show_convert_request(
         engine.getGUI()->getMenu(),
         langs::get(message),
         on_confirm,
+        nullptr,
         L"",
         langs::get(L"Cancel")
     );
