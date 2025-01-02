@@ -8,6 +8,21 @@ end
 add_packs = {}
 rem_packs = {}
 
+packs_included = {}
+packs_excluded = {}
+
+packs_info = {}
+
+local function include(id, is_include)
+    if is_include then
+        table.insert(packs_included, id)
+        table.remove_value(packs_excluded, id)
+    else
+        table.insert(packs_excluded, id)
+        table.remove_value(packs_included, id)
+    end
+end
+
 function apply()
     core.reconfig_packs(add_packs, rem_packs)
     if mode ~= "world" then
@@ -15,8 +30,37 @@ function apply()
     end
 end
 
+function refresh_search()
+    local search_text = document.search_textbox.text:lower()
+    local interval = 2
+    local step = -1
+
+    for _, packs in ipairs({packs_excluded, packs_included}) do
+        local visible = 0
+
+        for i, v in ipairs(packs) do
+            local info = packs_info[v]
+
+            local id = info[1]
+            local title = info[2]
+
+            local content = document["pack_" .. id]
+            local pos = content.pos
+            local size = content.size
+
+            if title:lower():find(search_text) or search_text == '' then
+                content.pos = {pos[1], visible * (size[2] + interval) - step}
+                visible = visible + 1
+            else
+                content.pos = {pos[1], (visible + #packs - i) * (size[2] + interval) - step}
+            end
+        end
+    end
+end
+
 function refresh_changes()
     document.apply_btn.enabled = (#add_packs>0) or (#rem_packs>0)
+    refresh_search()
 end
 
 function move_pack(id)
@@ -24,19 +68,57 @@ function move_pack(id)
     if table.has(add_packs, id) then
         document["pack_"..id]:moveInto(document.packs_add)
         table.remove_value(add_packs, id)
+        include(id, false)
     -- cancel pack removal
     elseif table.has(rem_packs, id) then
         document["pack_"..id]:moveInto(document.packs_cur)
         table.remove_value(rem_packs, id)
+        include(id, true)
     -- add pack
     elseif table.has(packs_installed, id) then
         document["pack_"..id]:moveInto(document.packs_add)
         table.insert(rem_packs, id)
+        include(id, false)
     -- remove pack
     else
         document["pack_"..id]:moveInto(document.packs_cur)
         table.insert(add_packs, id)
+        include(id, true)
     end
+    refresh_changes()
+end
+
+function move_left()
+    for _, id in pairs(table.copy(packs_excluded)) do
+        if not document["pack_"..id].enabled then goto continue end
+
+        include(id, true)
+        table.insert(add_packs, id)
+        table.remove_value(rem_packs, id)
+        document["pack_"..id]:moveInto(document.packs_cur)
+
+        ::continue::
+    end
+
+    refresh_changes()
+end
+
+function move_right()
+    for _, id in pairs(table.copy(packs_included)) do
+        if not document["pack_"..id].enabled then goto continue end
+
+        include(id, false)
+
+        if table.has(packs_installed, id) then
+            table.insert(rem_packs, id)
+        end
+
+        table.remove_value(add_packs, id)
+        document["pack_"..id]:moveInto(document.packs_add)
+
+        ::continue::
+    end
+
     refresh_changes()
 end
 
@@ -115,11 +197,24 @@ function refresh()
         place_pack(packs_add, packinfo, callback)
     end
 
+    for _,id in ipairs(base_packs) do
+        local packinfo = pack.get_info(id)
+        packs_info[id] = {packinfo.id, packinfo.title}
+    end
+
+    for _,id in ipairs(packs_all) do
+        local packinfo = pack.get_info(id)
+        packs_info[id] = {packinfo.id, packinfo.title}
+    end
+
     for i,id in ipairs(packs_installed) do
         if table.has(required, id) then
             document["pack_"..id].enabled = false
         end
     end
+
+    if #packs_excluded == 0 then packs_excluded = table.copy(packs_available) end
+    if #packs_included == 0 then packs_included = table.copy(packs_installed) end
 
     apply_movements(packs_cur, packs_add)
     refresh_changes()
