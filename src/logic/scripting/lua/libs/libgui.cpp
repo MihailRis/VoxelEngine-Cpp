@@ -780,6 +780,17 @@ static int l_gui_confirm(lua::State* L) {
     return 0;
 }
 
+static int l_gui_alert(lua::State* L) {
+    auto message = lua::require_wstring(L, 1);
+    runnable onconfirm = nullptr;
+    if (lua::gettop(L) >= 2) {
+        lua::pushvalue(L, 2);
+        onconfirm = lua::create_runnable(L);
+    }
+    guiutil::alert(*engine, message, onconfirm);
+    return 0;
+}
+
 const luaL_Reg guilib[] = {
     {"get_viewport", lua::wrap<l_gui_getviewport>},
     {"getattr", lua::wrap<l_gui_getattr>},
@@ -790,6 +801,7 @@ const luaL_Reg guilib[] = {
     {"clear_markup", lua::wrap<l_gui_clear_markup>},
     {"escape_markup", lua::wrap<l_gui_escape_markup>},
     {"confirm", lua::wrap<l_gui_confirm>},
+    {"alert", lua::wrap<l_gui_alert>},
     {"__reindex", lua::wrap<l_gui_reindex>},
     {NULL, NULL}
 };

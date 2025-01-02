@@ -12,7 +12,7 @@ namespace util {
         int nextid = 1;
         std::unordered_map<int, std::function<bool(Types...)>> handlers;
         std::vector<int> order;
-        std::mutex mutex;
+        std::recursive_mutex mutex;
     public:
         HandlersList() = default;
 
@@ -45,7 +45,9 @@ namespace util {
 
         void notify(Types...args) {
             std::lock_guard lock(mutex);
-            for (auto it = order.rbegin(); it != order.rend(); ++it) {
+            
+            auto orderCopy = order;
+            for (auto it = orderCopy.rbegin(); it != orderCopy.rend(); ++it) {
                 if (handlers.at(*it)(args...)) {
                     break;
                 }

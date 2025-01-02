@@ -151,7 +151,7 @@ static void load_world(
         engine.onWorldOpen(std::move(level));
     } catch (const world_load_error& error) {
         guiutil::alert(
-            engine.getGUI()->getMenu(),
+            engine,
             langs::get(L"Error") + L": " + util::str2wstr_utf8(error.what())
         );
         return;

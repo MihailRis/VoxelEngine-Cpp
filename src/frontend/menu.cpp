@@ -86,25 +86,25 @@ bool menus::call(Engine& engine, runnable func) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         // could not to find or read pack
         guiutil::alert(
-            gui->getMenu(), langs::get(L"error.pack-not-found")+L": "+
+            engine, langs::get(L"error.pack-not-found")+L": "+
             util::str2wstr_utf8(error.getPackId())
         );
         return false;
     } catch (const assetload::error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
-            gui->getMenu(), langs::get(L"Assets Load Error", L"menu")+L":\n"+
+            engine, langs::get(L"Assets Load Error", L"menu")+L":\n"+
             util::str2wstr_utf8(error.what())
         );
         return false;
     } catch (const parsing_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(gui->getMenu(), util::str2wstr_utf8(error.errorLog()));
+        guiutil::alert(engine, util::str2wstr_utf8(error.errorLog()));
         return false;
     } catch (const std::runtime_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
-            gui->getMenu(), langs::get(L"Content Error", L"menu")+L":\n"+
+            engine, langs::get(L"Content Error", L"menu")+L":\n"+
             util::str2wstr_utf8(error.what())
         );
         return false;

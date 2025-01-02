@@ -241,8 +241,9 @@ runnable lua::create_runnable(State* L) {
     return [=]() {
         getglobal(L, LAMBDAS_TABLE);
         getfield(L, *funcptr);
-        call_nothrow(L, 0);
-        pop(L);
+        if (call_nothrow(L, 0)) {
+            pop(L);
+        }
     };
 }
 
@@ -253,10 +254,9 @@ supplier<bool> lua::create_simple_handler(State* L) {
         getfield(L, *funcptr);
         if (call_nothrow(L, 0)) {
             bool result = toboolean(L, -1);
-            pop(L, 2);
+            pop(L);
             return result;
         } else {
-            pop(L);
             return false;
         }
     };

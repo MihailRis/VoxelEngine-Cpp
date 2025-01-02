@@ -15,7 +15,7 @@ namespace guiutil {
     std::shared_ptr<gui::UINode> create(const std::string& source, scriptenv env=0);
 
     void alert(
-        const std::shared_ptr<gui::Menu>& menu,
+        Engine& engine,
         const std::wstring& text, 
         const runnable& on_hidden=nullptr
     );
