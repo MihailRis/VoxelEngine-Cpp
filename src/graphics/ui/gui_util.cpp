@@ -11,6 +11,9 @@
 #include "util/stringutil.hpp"
 #include "delegates.hpp"
 
+#include "window/Events.hpp"
+#include "engine/Engine.hpp"
+
 #include <glm/glm.hpp>
 
 using namespace gui;
@@ -50,7 +53,7 @@ void guiutil::alert(
 }
 
 void guiutil::confirm(
-    const std::shared_ptr<gui::Menu>& menu,
+    Engine& engine,
     const std::wstring& text,
     const runnable& on_confirm,
     const runnable& on_deny,
@@ -66,19 +69,45 @@ void guiutil::confirm(
     auto subpanel = std::make_shared<Panel>(glm::vec2(600, 53));
     subpanel->setColor(glm::vec4(0));
 
-    subpanel->add(std::make_shared<Button>(yestext, glm::vec4(8.f), [=](GUI*){
-        if (on_confirm)
+    auto menu = engine.getGUI()->getMenu();
+
+    runnable on_confirm_final = [on_confirm, menu, &engine]() {
+        if (on_confirm) {
             on_confirm();
+        }
         menu->back();
+        engine.postRunnable([menu]() {
+            menu->removePage("<confirm>");
+        });
+    };
+
+    runnable on_deny_final = [on_deny, menu, &engine]() {
+        if (on_deny) {
+            on_deny();
+        }
+        menu->back();
+        engine.postRunnable([menu]() {
+            menu->removePage("<confirm>");
+        });
+    };
+
+    subpanel->add(std::make_shared<Button>(yestext, glm::vec4(8.f), [=](GUI*){
+        on_confirm_final();
     }));
 
     subpanel->add(std::make_shared<Button>(notext, glm::vec4(8.f), [=](GUI*){
-        if (on_deny)
-            on_deny();
-        menu->back();
+        on_deny_final();
     }));
 
     panel->add(subpanel);
+    panel->keepAlive(Events::keyCallbacks[keycode::ENTER].add([=](){
+        on_confirm_final();
+        return true;
+    }));
+    panel->keepAlive(Events::keyCallbacks[keycode::ESCAPE].add([=](){
+        on_deny_final();
+        return true;
+    }));
 
     panel->refresh();
     menu->addPage("<confirm>", panel);

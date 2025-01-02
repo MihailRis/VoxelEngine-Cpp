@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 
+class Engine;
+
 namespace guiutil {
     /// @brief Create element from XML
     /// @param source XML
@@ -19,7 +21,7 @@ namespace guiutil {
     );
 
     void confirm(
-        const std::shared_ptr<gui::Menu>& menu,
+        Engine& engine,
         const std::wstring& text, 
         const runnable& on_confirm=nullptr,
         const runnable& on_deny=nullptr,

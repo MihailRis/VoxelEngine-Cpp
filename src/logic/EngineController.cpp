@@ -44,7 +44,7 @@ void EngineController::deleteWorld(const std::string& name) {
         return;
     }
     guiutil::confirm(
-        engine.getGUI()->getMenu(),
+        engine,
         langs::get(L"delete-confirm", L"world") + L" (" +
             util::str2wstr_utf8(folder.u8string()) + L")",
         deletion
@@ -119,7 +119,7 @@ static void show_convert_request(
         return;
     }
     guiutil::confirm(
-        engine.getGUI()->getMenu(),
+        engine,
         langs::get(message),
         on_confirm,
         nullptr,
@@ -358,7 +358,7 @@ void EngineController::reconfigPacks(
 
     if (hasIndices && !engine.isHeadless()) {
         guiutil::confirm(
-            engine.getGUI()->getMenu(),
+            engine,
             langs::get(L"remove-confirm", L"pack") + L" (" +
                 util::str2wstr_utf8(ss.str()) + L")",
             [=]() { removeFunc(); }

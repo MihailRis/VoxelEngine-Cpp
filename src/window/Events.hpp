@@ -20,6 +20,8 @@ class Events {
     static uint currentFrame;
     static bool cursor_drag;
 public:
+    using KeyCallback = std::function<bool()>;
+
     static int scroll;
     static glm::vec2 delta;
     static glm::vec2 cursor;
@@ -27,7 +29,7 @@ public:
     static std::vector<uint> codepoints;
     static std::vector<keycode> pressedKeys;
     static std::unordered_map<std::string, Binding> bindings;
-    static std::unordered_map<keycode, util::RunnablesList> keyCallbacks;
+    static std::unordered_map<keycode, util::HandlersList<>> keyCallbacks;
 
     static void pollEvents();
 
@@ -51,7 +53,7 @@ public:
     static bool active(const std::string& name);
     static bool jactive(const std::string& name);
 
-    static observer_handler addKeyCallback(keycode key, runnable callback);
+    static observer_handler addKeyCallback(keycode key, KeyCallback callback);
 
     static void setKey(int key, bool b);
     static void setButton(int button, bool b);

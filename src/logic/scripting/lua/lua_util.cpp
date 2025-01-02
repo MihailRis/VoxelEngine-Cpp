@@ -246,6 +246,22 @@ runnable lua::create_runnable(State* L) {
     };
 }
 
+supplier<bool> lua::create_simple_handler(State* L) {
+    auto funcptr = create_lambda_handler(L);
+    return [=]() -> bool {
+        getglobal(L, LAMBDAS_TABLE);
+        getfield(L, *funcptr);
+        if (call_nothrow(L, 0)) {
+            bool result = toboolean(L, -1);
+            pop(L, 2);
+            return result;
+        } else {
+            pop(L);
+            return false;
+        }
+    };
+}
+
 scripting::common_func lua::create_lambda(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {

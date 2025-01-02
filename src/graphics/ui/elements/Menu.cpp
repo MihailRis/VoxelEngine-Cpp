@@ -13,11 +13,15 @@ bool Menu::has(const std::string& name) {
            pageSuppliers.find(name) != pageSuppliers.end();
 }
 
-void Menu::addPage(const std::string& name, const std::shared_ptr<UINode> &panel) {
-    pages[name] = Page{name, panel};
+void Menu::addPage(const std::string& name, const std::shared_ptr<UINode>& panel) {
+    pages[name] = Page {name, panel};
 }
 
-void Menu::addSupplier(const std::string &name, const supplier<std::shared_ptr<UINode>> &pageSupplier) {
+void Menu::removePage(const std::string& name) {
+    pages.erase(name);
+}
+
+void Menu::addSupplier(const std::string& name, const supplier<std::shared_ptr<UINode>>& pageSupplier) {
     pageSuppliers[name] = pageSupplier;
 }
 
@@ -89,6 +93,6 @@ void Menu::reset() {
     clearHistory();
     if (current.panel) {
         Container::remove(current.panel);
-        current = Page{"", nullptr};
+        current = Page {"", nullptr};
     }
 }

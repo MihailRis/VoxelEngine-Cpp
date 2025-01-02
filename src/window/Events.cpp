@@ -23,7 +23,7 @@ bool Events::_cursor_locked = false;
 std::vector<uint> Events::codepoints;
 std::vector<keycode> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
-std::unordered_map<keycode, util::RunnablesList> Events::keyCallbacks;
+std::unordered_map<keycode, util::HandlersList<>> Events::keyCallbacks;
 
 bool Events::pressed(keycode keycode) {
     return pressed(static_cast<int>(keycode));
@@ -180,7 +180,7 @@ void Events::setPosition(float xpos, float ypos) {
     Events::cursor.y = ypos;
 }
 
-observer_handler Events::addKeyCallback(keycode key, runnable callback) {
+observer_handler Events::addKeyCallback(keycode key, KeyCallback callback) {
     return keyCallbacks[key].add(std::move(callback));
 }
 

@@ -1,6 +1,6 @@
+#include "libgui.hpp"
 #include "assets/Assets.hpp"
 #include "engine/Engine.hpp"
-#include "frontend/UiDocument.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/ui/elements/Button.hpp"
 #include "graphics/ui/elements/CheckBox.hpp"
@@ -10,24 +10,17 @@
 #include "graphics/ui/elements/Panel.hpp"
 #include "graphics/ui/elements/TextBox.hpp"
 #include "graphics/ui/elements/TrackBar.hpp"
-#include "graphics/ui/elements/UINode.hpp"
 #include "graphics/ui/gui_util.hpp"
 #include "graphics/ui/markdown.hpp"
 #include "graphics/core/Font.hpp"
 #include "items/Inventories.hpp"
 #include "util/stringutil.hpp"
 #include "world/Level.hpp"
-#include "api_lua.hpp"
 
 using namespace gui;
 using namespace scripting;
 
-struct DocumentNode {
-    UiDocument* document;
-    std::shared_ptr<UINode> node;
-};
-
-static DocumentNode getDocumentNode(
+static DocumentNode get_document_node_impl(
     lua::State*, const std::string& name, const std::string& nodeName
 ) {
     auto doc = engine->getAssets()->get<UiDocument>(name);
@@ -43,18 +36,18 @@ static DocumentNode getDocumentNode(
     return {doc, node};
 }
 
-static DocumentNode getDocumentNode(lua::State* L, int idx = 1) {
+DocumentNode get_document_node(lua::State* L, int idx) {
     lua::getfield(L, "docname", idx);
     lua::getfield(L, "name", idx);
     auto docname = lua::require_string(L, -2);
     auto name = lua::require_string(L, -1);
-    auto node = getDocumentNode(L, docname, name);
+    auto node = get_document_node_impl(L, docname, name);
     lua::pop(L, 2);
     return node;
 }
 
 static int l_menu_back(lua::State* L) {
-    auto node = getDocumentNode(L);
+    auto node = get_document_node(L);
     if (auto menu = dynamic_cast<Menu*>(node.node.get())) {
         menu->back();
     }
@@ -62,7 +55,7 @@ static int l_menu_back(lua::State* L) {
 }
 
 static int l_menu_reset(lua::State* L) {
-    auto node = getDocumentNode(L);
+    auto node = get_document_node(L);
     if (auto menu = dynamic_cast<Menu*>(node.node.get())) {
         menu->reset();
     }
@@ -70,7 +63,7 @@ static int l_menu_reset(lua::State* L) {
 }
 
 static int l_textbox_paste(lua::State* L) {
-    auto node = getDocumentNode(L);
+    auto node = get_document_node(L);
     if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
         auto text = lua::require_string(L, 2);
         box->paste(util::str2wstr_utf8(text));
@@ -79,7 +72,7 @@ static int l_textbox_paste(lua::State* L) {
 }
 
 static int l_container_add(lua::State* L) {
-    auto docnode = getDocumentNode(L);
+    auto docnode = get_document_node(L);
     auto node = dynamic_cast<Container*>(docnode.node.get());
     if (node == nullptr) {
         return 0;
@@ -97,7 +90,7 @@ static int l_container_add(lua::State* L) {
 }
 
 static int l_node_destruct(lua::State* L) {
-    auto docnode = getDocumentNode(L);
+    auto docnode = get_document_node(L);
     auto node = docnode.node;
     engine->getGUI()->postRunnable([node]() {
         auto parent = node->getParent();
@@ -109,7 +102,7 @@ static int l_node_destruct(lua::State* L) {
 }
 
 static int l_container_clear(lua::State* L) {
-    auto node = getDocumentNode(L, 1);
+    auto node = get_document_node(L, 1);
     if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
         container->clear();
     }
@@ -117,7 +110,7 @@ static int l_container_clear(lua::State* L) {
 }
 
 static int l_container_set_interval(lua::State* L) {
-    auto node = getDocumentNode(L, 1);
+    auto node = get_document_node(L, 1);
     auto interval = lua::tointeger(L, 2) / 1000.0f;
     if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
         lua::pushvalue(L, 3);
@@ -128,8 +121,8 @@ static int l_container_set_interval(lua::State* L) {
 }
 
 static int l_move_into(lua::State* L) {
-    auto node = getDocumentNode(L, 1);
-    auto dest = getDocumentNode(L, 2);
+    auto node = get_document_node(L, 1);
+    auto dest = get_document_node(L, 2);
     UINode::moveInto(
         node.node, std::dynamic_pointer_cast<Container>(dest.node)
     );
@@ -137,7 +130,7 @@ static int l_move_into(lua::State* L) {
 }
 
 static int l_get_line_at(lua::State* L) {
-    auto node = getDocumentNode(L, 1);
+    auto node = get_document_node(L, 1);
     auto position = lua::tointeger(L, 2);
     if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
         return lua::pushinteger(L, box->getLineAt(position));
@@ -146,7 +139,7 @@ static int l_get_line_at(lua::State* L) {
 }
 
 static int l_get_line_pos(lua::State* L) {
-    auto node = getDocumentNode(L, 1);
+    auto node = get_document_node(L, 1);
     auto line = lua::tointeger(L, 2);
     if (auto box = dynamic_cast<TextBox*>(node.node.get())) {
         return lua::pushinteger(L, box->getLinePos(line));
@@ -463,7 +456,7 @@ static int l_gui_getattr(lua::State* L) {
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {
-        auto docnode = getDocumentNode(L, docname, element);
+        auto docnode = get_document_node_impl(L, docname, element);
         auto node = docnode.node;
         return func->second(node.get(), L);
     }
@@ -632,7 +625,7 @@ static int l_gui_setattr(lua::State* L) {
     auto element = lua::require_string(L, 2);
     auto attr = lua::require_string(L, 3);
 
-    auto docnode = getDocumentNode(L, docname, element);
+    auto docnode = get_document_node_impl(L, docname, element);
     auto node = docnode.node;
 
     static const std::unordered_map<
@@ -777,7 +770,7 @@ static int l_gui_confirm(lua::State* L) {
         notext = lua::require_wstring(L, 5);
     }
     guiutil::confirm(
-        engine->getGUI()->getMenu(),
+        *engine,
         question,
         onconfirm,
         ondeny,
