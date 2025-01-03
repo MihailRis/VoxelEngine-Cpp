@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "delegates.hpp"
 #include "typedefs.hpp"
 #include "input.hpp"
 
@@ -20,8 +21,6 @@ class Events {
     static uint currentFrame;
     static bool cursor_drag;
 public:
-    using KeyCallback = std::function<bool()>;
-
     static int scroll;
     static glm::vec2 delta;
     static glm::vec2 cursor;

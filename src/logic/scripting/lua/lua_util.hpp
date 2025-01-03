@@ -574,7 +574,7 @@ namespace lua {
     }
 
     runnable create_runnable(lua::State*);
-    supplier<bool> create_simple_handler(lua::State*);
+    KeyCallback create_simple_handler(lua::State*);
     scripting::common_func create_lambda(lua::State*);
     scripting::common_func create_lambda_nothrow(lua::State*);
 
