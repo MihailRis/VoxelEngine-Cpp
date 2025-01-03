@@ -6,9 +6,23 @@ Cancel=Скасувати
 Back=Назад
 Continue=Продовжити
 Add=Додати
+Version=Версія
+Creator=Автор
+Dependencies=Залежності
+Description=Опис
 Converting world...=Виконується конвертація світу...
-
+Unlimited=Необмежено
+Chat=Чат
+Console=Консоль
+Log=Лог
+Problems=Проблеми
+Monitor=Моніторинг
+Debug=Налагодження
+File=Файл
+devtools.traceback=Стек викликів (від останнього)
 error.pack-not-found=Не вдалося знайти пакет
+error.dependency-not-found=Використовувана залежність не знайдена
+pack.remove-confirm=Видалити весь контент, що постачається паком/паками зі світу (безповоротно)?
 
 # Меню
 menu.Apply=Застосувати
@@ -18,6 +32,7 @@ menu.Content Error=Помилка Контенту
 menu.Content=Контент
 menu.Continue=Продовжити
 menu.Controls=Керування
+menu.Display=Дисплей
 menu.Graphics=Графіка
 menu.missing-content=Відсутній Контент!
 menu.New World=Новий Світ
@@ -27,22 +42,38 @@ menu.Page not found=Сторінка не знайдена
 menu.Quit=Вихід
 menu.Save and Quit to Menu=Зберегти і Вийти в Меню
 menu.Settings=Налаштування
+menu.Reset settings=Скинути налаштування
+menu.Contents Menu=Меню контентпаків
+menu.Open data folder=Відкрити папку даних
+menu.Open content folder=Відкрити папку [content]
+
+# Підказки
+graphics.gamma.tooltip=Крива яскравості освітлення
+graphics.backlight.tooltip=Підсвічування, що запобігає повній темряві
+
+# Світ
 world.Seed=Зерно
 world.Name=Назва
-menu.Create World=Створити Світ
-
+world.Create World=Створити Світ
 world.World generator=Генератор світу
 world.generators.default=Звичайні
 world.generators.flat=Плоскі
 world.convert-request=Є зміни в індексах! Конвертувати світ?
+world.upgrade-request=Формат світу застарів! Конвертувати світ?
+world.convert-with-loss=Конвертувати світ з втратами?
+world.convert-block-layouts=Є зміни в полях блоків! Конвертувати світ?
+world.delete-confirm=Видалити світ безповоротно?
 
 # Налаштування
 settings.Ambient=Фон
 settings.Backlight=Підсвічування
 settings.Camera Shaking=Тряска Камери
+settings.Camera Inertia=Інерція Камери
+settings.Camera FOV Effects=Ефекти поля зору
 settings.Fog Curve=Крива Туману
 settings.FOV=Поле зору
 settings.Fullscreen=Повний екран
+settings.Framerate=Частота кадрів
 settings.Gamma=Гамма
 settings.Language=Мова
 settings.Load Distance=Дистанція Завантаження
@@ -53,8 +84,13 @@ settings.Music=Музика
 settings.Regular Sounds=Звичайні Звуки
 settings.UI Sounds=Звуки інтерфейсу
 settings.V-Sync=Вертикальна Синхронізація
+settings.Key=Кнопка
+settings.Controls Search Mode=Пошук за прив'язаною кнопкою керування
+settings.Limit Background FPS=Обмежити фонову частоту кадрів
 
 # Керування
+chunks.reload=Перезавантажити Чанки
+devtools.console=Консоль
 movement.forward=Уперед
 movement.back=Назад
 movement.left=Ліворуч
@@ -65,8 +101,11 @@ movement.crouch=Крастися
 movement.cheat=Чит
 hud.inventory=Інвентар
 player.pick=Підібрати Блок
-player.attack=Атакувати / Зламати
+player.attack=Атакувати
+player.destroy=Зламати
 player.build=Поставити Блок
+player.fast_interaction=Прискорена взаємодія
 player.flight=Політ
+player.drop=Викинути Предмет
 camera.zoom=Наближення
 camera.mode=Змінити Режим Камери
