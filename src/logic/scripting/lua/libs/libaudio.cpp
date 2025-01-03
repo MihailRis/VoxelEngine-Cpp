@@ -1,5 +1,5 @@
 #include "audio/audio.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "api_lua.hpp"
 
 inline const char* DEFAULT_CHANNEL = "regular";

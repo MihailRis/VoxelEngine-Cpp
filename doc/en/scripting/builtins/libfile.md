@@ -25,6 +25,12 @@ file.read_bytes(path: str) -> array of integers
 
 Read file into bytes array.
 
+```lua
+file.is_writeable(path: str) -> bool
+```
+
+Checks if the specified path is writable.
+
 ```python
 file.write(path: str, text: str) -> nil
 ```

@@ -35,11 +35,13 @@ public:
         : allNames(allNames), type(type) {
     }
 
-    T& create(const std::string& id) {
+    T& create(const std::string& id, bool* created = nullptr) {
         auto found = defs.find(id);
         if (found != defs.end()) {
+            if (created) *created = false;
             return *found->second;
         }
+        if (created) *created = true;
         checkIdentifier(id);
         allNames[id] = type;
         names.push_back(id);

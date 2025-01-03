@@ -15,7 +15,7 @@
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "world/generator/WorldGenerator.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "Level.hpp"
@@ -30,7 +30,7 @@ world_load_error::world_load_error(const std::string& message)
 World::World(
     WorldInfo info,
     const std::shared_ptr<WorldFiles>& worldFiles,
-    const Content* content,
+    const Content& content,
     const std::vector<ContentPack>& packs
 ) : info(std::move(info)),
     content(content),
@@ -46,12 +46,12 @@ void World::updateTimers(float delta) {
     info.totalTime += delta;
 }
 
-void World::writeResources(const Content* content) {
+void World::writeResources(const Content& content) {
     auto root = dv::object();
     for (size_t typeIndex = 0; typeIndex < RESOURCE_TYPES_COUNT; typeIndex++) {
         auto typeName = to_string(static_cast<ResourceType>(typeIndex));
         auto& list = root.list(typeName);
-        auto& indices = content->resourceIndices[typeIndex];
+        auto& indices = content.resourceIndices[typeIndex];
         for (size_t i = 0; i < indices.size(); i++) {
             auto& map = list.object();
             map["name"] = indices.getName(i);
@@ -65,10 +65,9 @@ void World::writeResources(const Content* content) {
 }
 
 void World::write(Level* level) {
-    const Content* content = level->content;
     level->chunks->saveAll();
     info.nextEntityId = level->entities->peekNextID();
-    wfile->write(this, content);
+    wfile->write(this, &content);
 
     auto playerFile = level->players->serialize();
     files::write_json(wfile->getPlayerFile(), playerFile);
@@ -82,7 +81,7 @@ std::unique_ptr<Level> World::create(
     const fs::path& directory,
     uint64_t seed,
     EngineSettings& settings,
-    const Content* content,
+    const Content& content,
     const std::vector<ContentPack>& packs
 ) {
     WorldInfo info {};
@@ -95,15 +94,15 @@ std::unique_ptr<Level> World::create(
         content,
         packs
     );
-    auto level = std::make_unique<Level>(std::move(world), content, settings);
-    level->players->create();
-    return level;
+    logger.info() << "created world '" << name << "' (" << directory.u8string() << ")";
+    logger.info() << "world seed: " << seed << " generator: " << generator;
+    return std::make_unique<Level>(std::move(world), content, settings);
 }
 
 std::unique_ptr<Level> World::load(
     const std::shared_ptr<WorldFiles>& worldFilesPtr,
     EngineSettings& settings,
-    const Content* content,
+    const Content& content,
     const std::vector<ContentPack>& packs
 ) {
     auto worldFiles = worldFilesPtr.get();
@@ -133,8 +132,10 @@ std::unique_ptr<Level> World::load(
         auto playerRoot = files::read_json(file);
         level->players->deserialize(playerRoot);
 
-        if (!playerRoot["players"][0].has("id")) {
-            level->getWorld()->getInfo().nextPlayerId++;
+        if (!playerRoot["players"].empty()) {
+            if (!playerRoot["players"][0].has("id")) {
+                level->getWorld()->getInfo().nextPlayerId++;
+            }
         }
     }
     return level;

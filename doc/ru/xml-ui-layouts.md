@@ -48,6 +48,7 @@
 - `gravity` - автоматическое позиционирование элемента в контейнере. (Не работает в автоматических контейнерах, как panel). Значения: *top-left, top-center, top-right, center-left, center-center, center-right, bottom-left, bottom-center, bottom-right*.
 - `z-index` - определяет порядок элементов, при большем значении будет перекрывать элементы с меньшим.
 - `interactive` - при значении false наведение на элемент и все под-элементы будет игнорироваться.
+- `cursor` - курсор, отображаемый при наведении на элемент (arrow/text/pointer/crosshair/ew-resize/ns-resize/...).
 
 # Атрибуты шаблонов
 

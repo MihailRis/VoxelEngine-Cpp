@@ -5,7 +5,7 @@
 #include <sstream>
 
 namespace debug {
-    enum class LogLevel { debug, info, warning, error };
+    enum class LogLevel { print, debug, info, warning, error };
 
     class Logger;
 
@@ -59,6 +59,11 @@ namespace debug {
 
         LogMessage warning() {
             return LogMessage(this, LogLevel::warning);
+        }
+
+        /// @brief Print-debugging tool (printed without header)
+        LogMessage print() {
+            return LogMessage(this, LogLevel::print);
         }
     };
 }

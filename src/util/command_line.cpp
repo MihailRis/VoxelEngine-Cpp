@@ -1,81 +1,61 @@
 #include "command_line.hpp"
 
-#include <cstring>
 #include <filesystem>
 #include <iostream>
-#include <stdexcept>
-#include <string>
 
 #include "files/engine_paths.hpp"
+#include "util/ArgsReader.hpp"
+#include "engine/Engine.hpp"
 
 namespace fs = std::filesystem;
 
-class ArgsReader {
-    const char* last = "";
-    char** argv;
-    int argc;
-    int pos = 0;
-public:
-    ArgsReader(int argc, char** argv) : argv(argv), argc(argc) {
-    }
-
-    void skip() {
-        pos++;
-    }
-
-    bool hasNext() const {
-        return pos < argc && strlen(argv[pos]);
-    }
-
-    bool isKeywordArg() const {
-        return last[0] == '-';
-    }
-
-    std::string next() {
-        if (pos >= argc) {
-            throw std::runtime_error("unexpected end");
-        }
-        last = argv[pos];
-        return argv[pos++];
-    }
-};
-
-bool perform_keyword(
-    ArgsReader& reader, const std::string& keyword, EnginePaths& paths
+static bool perform_keyword(
+    util::ArgsReader& reader, const std::string& keyword, CoreParameters& params
 ) {
     if (keyword == "--res") {
         auto token = reader.next();
-        if (!fs::is_directory(fs::path(token))) {
-            throw std::runtime_error(token + " is not a directory");
-        }
-        paths.setResourcesFolder(fs::path(token));
-        std::cout << "resources folder: " << token << std::endl;
+        params.resFolder = fs::u8path(token);
     } else if (keyword == "--dir") {
         auto token = reader.next();
-        if (!fs::is_directory(fs::path(token))) {
-            fs::create_directories(fs::path(token));
-        }
-        paths.setUserFilesFolder(fs::path(token));
-        std::cout << "userfiles folder: " << token << std::endl;
+        params.userFolder = fs::u8path(token);
     } else if (keyword == "--help" || keyword == "-h") {
-        std::cout << "VoxelEngine command-line arguments:" << std::endl;
-        std::cout << " --res [path] - set resources directory" << std::endl;
-        std::cout << " --dir [path] - set userfiles directory" << std::endl;
+        std::cout << "VoxelCore v" << ENGINE_VERSION_STRING << "\n\n";
+        std::cout << "command-line arguments:\n";
+        std::cout << " --help - show help\n";
+        std::cout << " --version - print engine version\n";
+        std::cout << " --res <path> - set resources directory\n";
+        std::cout << " --dir <path> - set userfiles directory\n";
+        std::cout << " --headless - run in headless mode\n";
+        std::cout << " --test <path> - test script file\n";
+        std::cout << " --script <path> - main script file\n";
+        std::cout << std::endl;
         return false;
+    } else if (keyword == "--version") {
+        std::cout << ENGINE_VERSION_STRING << std::endl;
+        return false;
+    } else if (keyword == "--headless") {
+        params.headless = true;
+    } else if (keyword == "--test") {
+        auto token = reader.next();
+        params.testMode = true;
+        params.scriptFile = fs::u8path(token);
+    } else if (keyword == "--script") {
+        auto token = reader.next();
+        params.testMode = false;
+        params.scriptFile = fs::u8path(token);
     } else {
-        std::cerr << "unknown argument " << keyword << std::endl;
-        return false;
+        throw std::runtime_error("unknown argument " + keyword);
     }
     return true;
 }
 
-bool parse_cmdline(int argc, char** argv, EnginePaths& paths) {
-    ArgsReader reader(argc, argv);
+bool parse_cmdline(int argc, char** argv, CoreParameters& params) {
+    util::ArgsReader reader(argc, argv);
     reader.skip();
     while (reader.hasNext()) {
         std::string token = reader.next();
         if (reader.isKeywordArg()) {
-            if (!perform_keyword(reader, token, paths)) {
+            if (!perform_keyword(reader, token, params)) {
                 return false;
             }
         } else {

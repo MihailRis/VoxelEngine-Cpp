@@ -156,6 +156,11 @@ static void _readUINode(
     if (element.has("tooltip-delay")) {
         node.setTooltipDelay(element.attr("tooltip-delay").asFloat());
     }
+    if (element.has("cursor")) {
+        if (auto cursor = CursorShape_from(element.attr("cursor").getText())) {
+            node.setCursor(*cursor);
+        }
+    }
 
     if (auto onclick = create_action(reader, element, "onclick")) {
         node.listenAction(onclick);
@@ -612,7 +617,7 @@ static std::shared_ptr<UINode> readInventory(UiXmlReader& reader, const xml::xml
 static std::shared_ptr<UINode> readPageBox(UiXmlReader& reader, const xml::xmlelement& element) {
     auto menu = std::make_shared<Menu>();
     // fixme
-    menu->setPageLoader(menus::create_page_loader(scripting::engine));
+    menu->setPageLoader(menus::create_page_loader(*scripting::engine));
     _readContainer(reader, element, *menu);
 
     return menu;

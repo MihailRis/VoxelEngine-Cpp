@@ -23,18 +23,18 @@ LevelFrontend::LevelFrontend(
       controller(controller),
       assets(assets),
       contentCache(std::make_unique<ContentGfxCache>(
-          *level.content, assets, settings.graphics
+          level.content, assets, settings.graphics
       )) {
     assets.store(
         BlocksPreview::build(
-            *contentCache, assets, *level.content->getIndices()
+            *contentCache, assets, *level.content.getIndices()
         ),
         "block-previews"
     );
     controller->getBlocksController()->listenBlockInteraction(
         [currentPlayer, controller, &assets](auto player, const auto& pos, const auto& def, BlockInteraction type) {
             const auto& level = *controller->getLevel();
-            auto material = level.content->findBlockMaterial(def.material);
+            auto material = level.content.findBlockMaterial(def.material);
             if (material == nullptr) {
                 return;
             }

@@ -71,6 +71,8 @@ struct GraphicsSettings {
     IntegerSetting skyboxResolution {64 + 32, 64, 128};
     /// @brief Chunk renderer vertices buffer capacity
     IntegerSetting chunkMaxVertices {200'000, 0, 4'000'000};
+    /// @brief Chunk renderer vertices buffer capacity in dense render mode
+    IntegerSetting chunkMaxVerticesDense {800'000, 0, 8'000'000};
     /// @brief Limit of chunk renderers count
     IntegerSetting chunkMaxRenderers {6, -4, 32};
 };

@@ -73,6 +73,7 @@ SettingsHandler::SettingsHandler(EngineSettings& settings) {
     builder.add("frustum-culling", &settings.graphics.frustumCulling);
     builder.add("skybox-resolution", &settings.graphics.skyboxResolution);
     builder.add("chunk-max-vertices", &settings.graphics.chunkMaxVertices);
+    builder.add("chunk-max-vertices-dense", &settings.graphics.chunkMaxVerticesDense);
     builder.add("chunk-max-renderers", &settings.graphics.chunkMaxRenderers);
 
     builder.section("ui");

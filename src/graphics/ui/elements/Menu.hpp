@@ -32,6 +32,7 @@ namespace gui {
         void setPage(const std::string &name, bool history=true);
         void setPage(Page page, bool history=true);
         void addPage(const std::string& name, const std::shared_ptr<UINode>& panel);
+        void removePage(const std::string& name);
         std::shared_ptr<UINode> fetchPage(const std::string& name);
 
         /// @brief Add page supplier used if page is not found

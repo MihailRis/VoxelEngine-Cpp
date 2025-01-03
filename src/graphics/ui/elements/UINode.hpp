@@ -1,6 +1,7 @@
 #pragma once
 
 #include "delegates.hpp"
+#include "graphics/core/commons.hpp"
 #include "window/input.hpp"
 
 #include <glm/glm.hpp>
@@ -112,6 +113,8 @@ namespace gui {
         std::wstring tooltip;
         /// @brief element tooltip delay
         float tooltipDelay = 0.5f;
+        /// @brief cursor shape when mouse is over the element
+        CursorShape cursor = CursorShape::ARROW;
 
         UINode(glm::vec2 size);
     public:
@@ -205,6 +208,9 @@ namespace gui {
 
         virtual void setTooltipDelay(float delay);
         virtual float getTooltipDelay() const;
+
+        virtual void setCursor(CursorShape shape);
+        virtual CursorShape getCursor() const;
 
         virtual glm::vec4 calcColor() const;
 

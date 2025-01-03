@@ -116,7 +116,7 @@ static bool resolve_dependencies(
     return satisfied;
 }
 
-std::vector<std::string> PacksManager::assembly(
+std::vector<std::string> PacksManager::assemble(
     const std::vector<std::string>& names
 ) const {
     std::vector<std::string> allNames = names;

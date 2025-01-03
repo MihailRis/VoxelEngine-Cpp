@@ -150,6 +150,14 @@ float UINode::getTooltipDelay() const {
     return tooltipDelay;
 }
 
+void UINode::setCursor(CursorShape shape) {
+    cursor = shape;
+}
+
+CursorShape UINode::getCursor() const {
+    return cursor;
+}
+
 glm::vec2 UINode::calcPos() const {
     if (parent) {
         return pos + parent->calcPos() + parent->getContentOffset();

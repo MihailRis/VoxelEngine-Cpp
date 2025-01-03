@@ -1,0 +1,35 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "condition": {
+                "type": "equals",
+                "rhs": "${hostSystemName}",
+                "lhs": "Windows"
+            },
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VOXELENGINE_BUILD_TESTS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "configuration": "Debug"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ]
+}

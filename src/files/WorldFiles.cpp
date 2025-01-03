@@ -159,9 +159,9 @@ std::optional<WorldInfo> WorldFiles::readWorldInfo() {
 }
 
 static void read_resources_data(
-    const Content* content, const dv::value& list, ResourceType type
+    const Content& content, const dv::value& list, ResourceType type
 ) {
-    const auto& indices = content->getIndices(type);
+    const auto& indices = content.getIndices(type);
     for (size_t i = 0; i < list.size(); i++) {
         auto& map = list[i];
         const auto& name = map["name"].asString();
@@ -174,7 +174,7 @@ static void read_resources_data(
     }
 }
 
-bool WorldFiles::readResourcesData(const Content* content) {
+bool WorldFiles::readResourcesData(const Content& content) {
     fs::path file = getResourcesFile();
     if (!fs::is_regular_file(file)) {
         logger.warning() << "resources.json does not exists";

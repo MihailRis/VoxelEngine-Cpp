@@ -4,14 +4,14 @@
 
 using std::vector;
 
-void LevelEvents::listen(lvl_event_type type, const chunk_event_func& func) {
+void LevelEvents::listen(LevelEventType type, const ChunkEventFunc& func) {
     auto& callbacks = chunk_callbacks[type];
     callbacks.push_back(func);
 }
 
-void LevelEvents::trigger(lvl_event_type type, Chunk* chunk) {
+void LevelEvents::trigger(LevelEventType type, Chunk* chunk) {
     const auto& callbacks = chunk_callbacks[type];
-    for (const chunk_event_func& func : callbacks) {
+    for (const ChunkEventFunc& func : callbacks) {
         func(type, chunk);
     }
 }

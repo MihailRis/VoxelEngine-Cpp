@@ -50,7 +50,7 @@ class WorldGenerator {
     /// @param def generator definition
     const GeneratorDef& def;
     /// @param content world content
-    const Content* content;
+    const Content& content;
     /// @param seed world seed
     uint64_t seed;
     /// @brief Chunk prototypes main storage
@@ -120,7 +120,7 @@ class WorldGenerator {
 public:
     WorldGenerator(
         const GeneratorDef& def,
-        const Content* content,
+        const Content& content,
         uint64_t seed
     );
     ~WorldGenerator();

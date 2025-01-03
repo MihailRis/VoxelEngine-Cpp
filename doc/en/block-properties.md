@@ -213,3 +213,39 @@ User properties must be declared in `pack:config/user-props.toml` file:
 ```
 
 Example: [user properties of pack **base**](../../res/content/base/config/user-props.toml).
+
+## Properties introduced by the `base` pack
+
+### *base:durability*
+
+The time it takes to break a block without tools or effects, measured in seconds.
+
+### Loot - *base:loot*
+
+A list of tables with properties:
+
+```json
+{
+    "item": "pack:item",
+    "min": 1,
+    "max": 3,
+    "chance": 0.5
+}
+```
+
+- `count` defaults to 1. It does not need to be specified if `min` and `max` are provided.
+- `min`, `max` - the minimum and maximum quantity of the item.
+- `chance` - the probability of the item dropping. Defaults to 1.0.
+
+It should be noted that the `item` refers specifically to the item. That is, to specify the item of a block, you need to add `.item` after the block name. 
+Example: `base:dirt.item`.
+
+To generate loot, the function `block_loot(block_id: int)` in the `base:util` module should be used.
+
+## Methods
+
+Methods are used to manage the overwriting of properties when extending a block with other packs.
+
+### `property_name@append`
+
+Adds elements to the end of the list instead of completely overwriting it.

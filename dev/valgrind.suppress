@@ -1,0 +1,46 @@
+# Valgrind suppression file for VoxelCore
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   fun:lua_getfield
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   fun:lua_setfield
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   fun:lua_loadx
+   fun:luaL_loadbufferx
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   fun:lua_pushstring
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libluajit-5.1.so.2.1.0
+   fun:lua_pushlstring
+}
+{
+   glewInit internal leak
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   obj:*
+   obj:*
+   fun:glXGetClientString
+   fun:glxewInit
+   fun:glewInit
+}

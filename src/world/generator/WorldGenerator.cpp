@@ -24,7 +24,7 @@ static inline constexpr uint MAX_PARAMETERS = 4;
 static inline constexpr uint BASIC_PROTOTYPE_LAYERS = 5;
 
 WorldGenerator::WorldGenerator(
-    const GeneratorDef& def, const Content* content, uint64_t seed
+    const GeneratorDef& def, const Content& content, uint64_t seed
 )
     : def(def), 
       content(content), 
@@ -66,10 +66,10 @@ WorldGenerator::WorldGenerator(
     });
     for (int i = 0; i < def.structures.size(); i++) {
         // pre-calculate rotated structure variants
-        def.structures[i]->fragments[0]->prepare(*content);
+        def.structures[i]->fragments[0]->prepare(content);
         for (int j = 1; j < 4; j++) {
             def.structures[i]->fragments[j] = 
-                def.structures[i]->fragments[j-1]->rotated(*content);
+                def.structures[i]->fragments[j-1]->rotated(content);
         }
     }
 }
@@ -189,10 +189,10 @@ void WorldGenerator::placeLine(const LinePlacement& line, int priority) {
     aabb.fix();
     aabb.a -= line.radius;
     aabb.b += line.radius;
-    int cxa = floordiv(aabb.a.x, CHUNK_W);
-    int cza = floordiv(aabb.a.z, CHUNK_D);
-    int cxb = floordiv(aabb.b.x, CHUNK_W);
-    int czb = floordiv(aabb.b.z, CHUNK_D);
+    int cxa = floordiv<CHUNK_W>(aabb.a.x);
+    int cza = floordiv<CHUNK_D>(aabb.a.z);
+    int cxb = floordiv<CHUNK_W>(aabb.b.x);
+    int czb = floordiv<CHUNK_D>(aabb.b.z);
     for (int cz = cza; cz <= czb; cz++) {
         for (int cx = cxa; cx <= cxb; cx++) {
             const auto& found = prototypes.find({cx, cz});
@@ -354,8 +354,8 @@ void WorldGenerator::generateHeightmap(
 
 void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
-    // 1 is safety padding preventing ChunksController rounding problem
-    surroundMap.resize(loadDistance + 1);
+    // 2 is safety padding preventing ChunksController rounding problem
+    surroundMap.resize(loadDistance + 2);
     surroundMap.setCenter(centerX, centerY);
 }
 
@@ -367,7 +367,7 @@ void WorldGenerator::generatePlants(
     int chunkZ,
     const Biome** biomes
 ) {
-    const auto& indices = content->getIndices()->blocks;
+    const auto& indices = content.getIndices()->blocks;
     util::PseudoRandom plantsRand;
     plantsRand.setSeed(chunkX, chunkZ);
 
@@ -431,7 +431,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
 
     std::memset(voxels, 0, sizeof(voxel) * CHUNK_VOL);
 
-    const auto& indices = content->getIndices()->blocks;
+    const auto& indices = content.getIndices()->blocks;
     const auto& biomes = prototype.biomes.get();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
@@ -531,7 +531,7 @@ void WorldGenerator::generateLine(
     voxel* voxels, 
     int chunkX, int chunkZ
 ) {
-    const auto& indices = content->getIndices()->blocks;
+    const auto& indices = content.getIndices()->blocks;
 
     int cgx = chunkX * CHUNK_W;
     int cgz = chunkZ * CHUNK_D;

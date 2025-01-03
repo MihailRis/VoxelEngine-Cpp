@@ -48,6 +48,7 @@ Properties that apply to all elements:
 | tooltip       | string | yes  | yes   | tooltip text                                |
 | tooltipDelay  | float  | yes  | yes   | tooltip delay                               |
 | contentOffset | vec2   | yes  | *no*  | element content offset                      |
+| cursor        | string | yes  | yes   | cursor displayed on hover                   |
 
 Common element methods:
 

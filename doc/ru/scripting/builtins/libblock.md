@@ -90,12 +90,15 @@ block.raycast(start: vec3, dir: vec3, max_distance: number, [опциональ�
 -- Возвращает целочисленный единичный вектор X блока на указанных координатах с учётом его вращения (три целых числа).
 -- Если поворот отсутствует, возвращает 1, 0, 0
 block.get_X(x: int, y: int, z: int) -> int, int, int
+block.get_X(id: int, rotation: int) -> int, int, int
 
 -- То же, но для оси Y (по-умолчанию 0, 1, 0)
 block.get_Y(x: int, y: int, z: int) -> int, int, int
+block.get_Y(id: int, rotation: int) -> int, int, int
 
 -- То же, но для оси Z (по-умолчанию 0, 0, 1)
 block.get_Z(x: int, y: int, z: int) -> int, int, int
+block.get_Z(id: int, rotation: int) -> int, int, int
 
 -- Возвращает индекс поворота блока в его профиле вращения (не превышает 7).
 block.get_rotation(x: int, y: int, z: int) -> int

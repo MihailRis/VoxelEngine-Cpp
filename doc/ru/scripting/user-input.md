@@ -40,9 +40,18 @@ input.add_callback(bindname: str, callback: function)
 ```
 
 Назначает функцию, которая будет вызываться при активации привязки. Пример:
+
 ```lua
 input.add_callback("hud.inventory", function ()
 	print("Inventory open key pressed")
+end)
+```
+
+Можно назначить функцию на нажатие клавиши.
+
+```lua
+input.add_callback("key:space", function ()
+    print("Space pressed")
 end)
 ```
 

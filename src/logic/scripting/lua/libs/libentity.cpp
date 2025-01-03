@@ -1,7 +1,7 @@
 #include "libentity.hpp"
 
 #include "content/Content.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "objects/Entities.hpp"
 #include "objects/EntityDef.hpp"
 #include "objects/Player.hpp"
@@ -9,6 +9,7 @@
 #include "physics/Hitbox.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/Block.hpp"
+#include "voxels/blocks_agent.hpp"
 #include "window/Camera.hpp"
 
 using namespace scripting;
@@ -149,8 +150,15 @@ static int l_raycast(lua::State* L) {
 
     blockid_t block = BLOCK_VOID;
 
-    if (auto voxel = level->chunks->rayCast(
-            start, dir, maxDistance, end, normal, iend, filteredBlocks
+    if (auto voxel = blocks_agent::raycast(
+            *level->chunks,
+            start,
+            dir,
+            maxDistance,
+            end,
+            normal,
+            iend,
+            filteredBlocks
         )) {
         maxDistance = glm::distance(start, end);
         block = voxel->id;

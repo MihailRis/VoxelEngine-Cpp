@@ -7,14 +7,17 @@
 #include "coders/compression.hpp"
 #include "coders/gzip.hpp"
 #include "coders/json.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "lighting/Lighting.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "logic/LevelController.hpp"
+#include "logic/ChunksController.hpp"
 
 using namespace scripting;
 namespace fs = std::filesystem;
@@ -31,8 +34,8 @@ static int l_is_open(lua::State* L) {
 }
 
 static int l_get_list(lua::State* L) {
-    auto paths = engine->getPaths();
-    auto worlds = paths->scanForWorlds();
+    const auto& paths = engine->getPaths();
+    auto worlds = paths.scanForWorlds();
 
     lua::createtable(L, worlds.size(), 0);
     for (size_t i = 0; i < worlds.size(); i++) {
@@ -101,7 +104,7 @@ static int l_get_seed(lua::State* L) {
 
 static int l_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
-    auto worldsDir = engine->getPaths()->getWorldFolderByName(name);
+    auto worldsDir = engine->getPaths().getWorldFolderByName(name);
     return lua::pushboolean(L, fs::is_directory(worldsDir));
 }
 
@@ -179,7 +182,7 @@ static int l_set_chunk_data(lua::State* L) {
         is_compressed = lua::toboolean(L, 4);
     }
     auto chunk = level->chunks->getChunk(x, y);
-    if(chunk== nullptr){
+    if (chunk == nullptr) {
         return 0;
     }
     if (is_compressed) {
@@ -202,33 +205,47 @@ static int l_set_chunk_data(lua::State* L) {
     } else {
         chunk->decode(buffer->data().data());
     }
+
+    auto chunksController = controller->getChunksController();
+    if (chunksController == nullptr) {
+        return 1;
+    }
+
+    Lighting& lighting = *chunksController->lighting;
     chunk->updateHeights();
-    level->lighting->buildSkyLight(x, y);
+    lighting.buildSkyLight(x, y);
     chunk->flags.modified = true;
-    level->lighting->onChunkLoaded(x, y, true);
+    lighting.onChunkLoaded(x, y, true);
 
     chunk = level->chunks->getChunk(x - 1, y);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x - 1, y, true);
+        lighting.onChunkLoaded(x - 1, y, true);
     }
     chunk = level->chunks->getChunk(x + 1, y);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x + 1, y, true);
+        lighting.onChunkLoaded(x + 1, y, true);
     }
     chunk = level->chunks->getChunk(x, y - 1);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x, y - 1, true);
+        lighting.onChunkLoaded(x, y - 1, true);
     }
     chunk = level->chunks->getChunk(x, y + 1);
     if (chunk != nullptr) {
         chunk->flags.modified = true;
-        level->lighting->onChunkLoaded(x, y + 1, true);
+        lighting.onChunkLoaded(x, y + 1, true);
     }
 
     return 1;
+}
+
+static int l_count_chunks(lua::State* L) {
+    if (level == nullptr) {
+        return 0;
+    }
+    return lua::pushinteger(L, level->chunks->size());
 }
 
 const luaL_Reg worldlib[] = {
@@ -246,5 +263,6 @@ const luaL_Reg worldlib[] = {
     {"exists", lua::wrap<l_exists>},
     {"get_chunk_data", lua::wrap<l_get_chunk_data>},
     {"set_chunk_data", lua::wrap<l_set_chunk_data>},
+    {"count_chunks", lua::wrap<l_count_chunks>},
     {NULL, NULL}
 };

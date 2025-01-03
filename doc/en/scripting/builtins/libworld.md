@@ -36,14 +36,15 @@ world.get_seed() -> int
 -- Returns generator name.
 world.get_generator() -> str
 
--- Proves that this is the current time during the day 
--- from 0.333(8 am) to 0.833(8 pm).
-world.is_day() -> boolean
+-- Checks the existence of a world by name.
+world.exists(name: str) -> bool
 
--- Checks that it is the current time at night
--- from 0.833(8 pm) to 0.333(8 am).
+-- Checks if the current time is daytime. From 0.333(8am) to 0.833(8pm).
+world.is_day() -> bool
+
+-- Checks if the current time is nighttime. From 0.833(8pm) to 0.333(8am).
 world.is_night() -> bool
 
--- Checks the existence of a world by name.
-world.exists() -> bool
+-- Returns the total number of chunks loaded into memory
+world.count_chunks() -> int
 ```

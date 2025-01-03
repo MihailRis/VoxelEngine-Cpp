@@ -8,5 +8,8 @@
         "grass_side",
         "grass_side"
     ],
-    "base:durability": 1.3
+    "base:durability": 1.3,
+    "base:loot": [
+        {"item": "base:dirt.item"}
+    ]
 }

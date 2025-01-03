@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "util/RunnablesList.hpp"
+#include "util/HandlersList.hpp"
 
 /// @brief Represents glfw3 keycode values.
 enum class keycode : int {
@@ -131,7 +131,7 @@ enum class inputtype {
 };
 
 struct Binding {
-    util::RunnablesList onactived;
+    util::HandlersList<> onactived;
 
     inputtype type;
     int code;

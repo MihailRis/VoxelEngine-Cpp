@@ -70,12 +70,12 @@ public:
 };
 
 class Hud : public util::ObjectsKeeper {
-    Engine* engine;
-    Assets* assets;
+    Engine& engine;
+    Assets& assets;
     std::unique_ptr<Camera> uicamera;
-    gui::GUI* gui;
+    gui::GUI& gui;
     LevelFrontend& frontend;
-    Player* player;
+    Player& player;
 
     /// @brief Is any overlay/inventory open
     bool inventoryOpen = false;
@@ -113,6 +113,7 @@ class Hud : public util::ObjectsKeeper {
     bool showContentPanel = true;
     /// @brief Provide cheat controllers to the debug panel
     bool allowDebugCheats = true;
+    bool debug = false;
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI;
 
@@ -134,7 +135,7 @@ class Hud : public util::ObjectsKeeper {
     void showExchangeSlot();
     void updateWorldGenDebugVisualization();
 public:
-    Hud(Engine* engine, LevelFrontend& frontend, Player* player);
+    Hud(Engine& engine, LevelFrontend& frontend, Player& player);
     ~Hud();
 
     void update(bool hudVisible);
@@ -192,6 +193,8 @@ public:
     void add(const HudElement& element, const dv::value& arg=nullptr);
     void onRemove(const HudElement& element);
     void remove(const std::shared_ptr<gui::UINode>& node);
+
+    void setDebug(bool flag);
 
     Player* getPlayer() const;
 

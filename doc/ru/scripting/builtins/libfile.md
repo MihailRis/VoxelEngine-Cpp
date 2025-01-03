@@ -25,6 +25,12 @@ file.read_bytes(путь: str) -> array of integers
 
 Читает файл в массив байт.
 
+```lua
+file.is_writeable(путь: str) -> bool
+```
+
+Проверяет, доступно ли право записи по указанному пути.
+
 ```python
 file.write(путь: str, текст: str) -> nil
 ```

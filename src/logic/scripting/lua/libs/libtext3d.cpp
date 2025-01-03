@@ -4,7 +4,7 @@
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/render/TextsRenderer.hpp"
 #include "graphics/render/TextNote.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 
 using namespace scripting;
 

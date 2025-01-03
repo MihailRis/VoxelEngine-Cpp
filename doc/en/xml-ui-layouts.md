@@ -44,6 +44,7 @@ Examples:
 - `gravity` - automatic positioning of the element in the container. (Does not work in automatic containers like panel). Values: *top-left, top-center, top-right, center-left, center-center, center-right, bottom-left, bottom-center, bottom-right*.
 - `z-index` - determines the order of elements, with a larger value it will overlap elements with a smaller one.
 - `interactive` - if false, hovering over the element and all sub-elements will be ignored.
+- `cursor` - the cursor displayed when hovering over the element (arrow/text/pointer/crosshair/ew-resize/ns-resize/...).
 
 # Template attributes
 

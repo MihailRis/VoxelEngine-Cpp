@@ -187,11 +187,49 @@ static void perform_user_block_fields(
     layout = StructLayout::create(fields);
 }
 
+static void process_method(
+    dv::value& properties,
+    const std::string& method,
+    const std::string& name,
+    const dv::value& value
+) {
+    if (method == "append") {
+        if (!properties.has(name)) {
+            properties[name] = dv::list();
+        }
+        auto& list = properties[name];
+        if (value.isList()) {
+            for (const auto& item : value) {
+                list.add(item);
+            }
+        } else {
+            list.add(value);
+        }
+    } else {
+        throw std::runtime_error(
+            "unknown method " + method + " for " + name
+        );
+    }
+}
+
 void ContentLoader::loadBlock(
     Block& def, const std::string& name, const fs::path& file
 ) {
     auto root = files::read_json(file);
-    def.properties = root;
+    if (def.properties == nullptr) {
+        def.properties = dv::object();
+        def.properties["name"] = name;
+    }
+    for (auto& [key, value] : root.asObject()) {
+        auto pos = key.rfind('@');
+        if (pos == std::string::npos) {
+            def.properties[key] = value;
+            continue;
+        }
+        auto field = key.substr(0, pos);
+        auto suffix = key.substr(pos + 1);
+        process_method(def.properties, suffix, field, value);
+    }
 
     if (root.has("parent")) {
         const auto& parentName = root["parent"].asString();
@@ -492,7 +530,8 @@ void ContentLoader::loadBlock(
     if (fs::exists(configFile)) loadBlock(def, full, configFile);
 
     if (!def.hidden) {
-        auto& item = builder.items.create(full + BLOCK_ITEM_SUFFIX);
+        bool created;
+        auto& item = builder.items.create(full + BLOCK_ITEM_SUFFIX, &created);
         item.generated = true;
         item.caption = def.caption;
         item.iconType = ItemIconType::BLOCK;
@@ -502,7 +541,7 @@ void ContentLoader::loadBlock(
         for (uint j = 0; j < 4; j++) {
             item.emission[j] = def.emission[j];
         }
-        stats->totalItems++;
+        stats->totalItems += created;
     }
 }
 
@@ -564,9 +603,10 @@ void ContentLoader::loadContent(const dv::value& root) {
             if (parent.empty() || builder.blocks.get(parent)) {
                 // No dependency or dependency already loaded/exists in another
                 // content pack
-                auto& def = builder.blocks.create(full);
+                bool created;
+                auto& def = builder.blocks.create(full, &created);
                 loadBlock(def, full, name);
-                stats->totalBlocks++;
+                stats->totalBlocks += created;
             } else {
                 // Dependency not loaded yet, add to pending items
                 pendingDefs.emplace_back(full, name);
@@ -583,9 +623,10 @@ void ContentLoader::loadContent(const dv::value& root) {
                 if (builder.blocks.get(parent)) {
                     // Dependency resolved or parent exists in another pack,
                     // load the item
-                    auto& def = builder.blocks.create(it->first);
+                    bool created;
+                    auto& def = builder.blocks.create(it->first, &created);
                     loadBlock(def, it->first, it->second);
-                    stats->totalBlocks++;
+                    stats->totalBlocks += created;
                     it = pendingDefs.erase(it);  // Remove resolved item
                     progressMade = true;
                 } else {
@@ -609,9 +650,10 @@ void ContentLoader::loadContent(const dv::value& root) {
             if (parent.empty() || builder.items.get(parent)) {
                 // No dependency or dependency already loaded/exists in another
                 // content pack
-                auto& def = builder.items.create(full);
+                bool created;
+                auto& def = builder.items.create(full, &created);
                 loadItem(def, full, name);
-                stats->totalItems++;
+                stats->totalItems += created;
             } else {
                 // Dependency not loaded yet, add to pending items
                 pendingDefs.emplace_back(full, name);
@@ -628,9 +670,10 @@ void ContentLoader::loadContent(const dv::value& root) {
                 if (builder.items.get(parent)) {
                     // Dependency resolved or parent exists in another pack,
                     // load the item
-                    auto& def = builder.items.create(it->first);
+                    bool created;
+                    auto& def = builder.items.create(it->first, &created);
                     loadItem(def, it->first, it->second);
-                    stats->totalItems++;
+                    stats->totalItems += created;
                     it = pendingDefs.erase(it);  // Remove resolved item
                     progressMade = true;
                 } else {
@@ -654,9 +697,10 @@ void ContentLoader::loadContent(const dv::value& root) {
             if (parent.empty() || builder.entities.get(parent)) {
                 // No dependency or dependency already loaded/exists in another
                 // content pack
-                auto& def = builder.entities.create(full);
+                bool created;
+                auto& def = builder.entities.create(full, &created);
                 loadEntity(def, full, name);
-                stats->totalEntities++;
+                stats->totalEntities += created;
             } else {
                 // Dependency not loaded yet, add to pending items
                 pendingDefs.emplace_back(full, name);
@@ -673,9 +717,10 @@ void ContentLoader::loadContent(const dv::value& root) {
                 if (builder.entities.get(parent)) {
                     // Dependency resolved or parent exists in another pack,
                     // load the item
-                    auto& def = builder.entities.create(it->first);
+                    bool created;
+                    auto& def = builder.entities.create(it->first, &created);
                     loadEntity(def, it->first, it->second);
-                    stats->totalEntities++;
+                    stats->totalEntities += created;
                     it = pendingDefs.erase(it);  // Remove resolved item
                     progressMade = true;
                 } else {

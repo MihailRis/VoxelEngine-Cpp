@@ -23,10 +23,16 @@ Logger::Logger(std::string name) : name(std::move(name)) {
 void Logger::log(
     LogLevel level, const std::string& name, const std::string& message
 ) {
+    if (level == LogLevel::print) {
+        std::cout << "[" << name << "]    " << message << std::endl;
+        return;
+    }
+
     using namespace std::chrono;
 
     std::stringstream ss;
     switch (level) {
+        case LogLevel::print:
         case LogLevel::debug:
 #ifdef NDEBUG
             return;

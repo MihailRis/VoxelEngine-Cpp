@@ -3,7 +3,7 @@
 
 #include "assets/Assets.hpp"
 #include "content/Content.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "frontend/UiDocument.hpp"
 #include "frontend/hud.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
@@ -14,6 +14,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/voxel.hpp"
+#include "voxels/blocks_agent.hpp"
 #include "world/Level.hpp"
 #include "api_lua.hpp"
 
@@ -59,7 +60,7 @@ static int l_open_block(lua::State* L) {
     auto z = lua::tointeger(L, 3);
     bool playerInventory = !lua::toboolean(L, 4);
 
-    auto vox = level->chunks->get(x, y, z);
+    auto vox = blocks_agent::get(*level->chunks, x, y, z);
     if (vox == nullptr) {
         throw std::runtime_error(
             "block does not exists at " + std::to_string(x) + " " +
