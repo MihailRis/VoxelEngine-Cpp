@@ -1,34 +1,41 @@
 
-<container size='940,580' color='#0F1E2DB2' interval='5' context='menu'>
-    <button pos='15,525' id='apply_btn' size='440,40' onclick='apply()'>@Apply</button>
-    <button pos='485,525' size='440,40' onclick='menu:back()'>@Cancel</button>
+<container size='940,600' color='#0F1E2DB2' interval='5' context='menu'>  
+    <button pos='15,545' id='apply_btn' size='440,40' onclick='apply()'>@Apply</button>  
+    <button pos='485,545' size='440,40' onclick='menu:back()'>@Cancel</button>  
 
-    <panel id='search_panel' size='440,35' pos='15,485' interval='1' color='#0000004C'>
-        <textbox id='search_textbox' multiline='false' size='440,25' sub-consumer='function(x) refresh_search() end'></textbox>
-    </panel>
+    <image id="move_left" src='gui/check_mark'   
+        size='32' margin='218,0,0,0' gravity='top-left'  
+        color='#FFFFFF50'/>  
 
-    <image onclick='core.open_folder("user:content")' interactive='true' src='gui/folder_icon' 
-        size='32' margin='0,0,18,66' gravity='bottom-right'
-        color='#FFFFFF50' hover-color='#FFFFFF10'/>
+    <image id="move_left" src='gui/cross'   
+        size='32' margin='0,0,219,0' gravity='top-right'  
+        color='#FFFFFF50'/>  
 
-    <image onclick='refresh()' interactive='true' src='gui/refresh' 
-        size='32' margin='0,0,65,66' gravity='bottom-right'
-        color='#FFFFFF80' hover-color='#FFFFFF10'/>
-    
-    <image id="move_right" onclick='move_right()' interactive='true' src='gui/right_arrow' 
-        size='32' margin='0,0,380,64' gravity='bottom-right'
-        color='#FFFFFF50' hover-color='#FFFFFF10'/>
-
-    <image id="move_left" onclick='move_left()' interactive='true' src='gui/left_arrow' 
-        size='32' margin='0,0,425,64' gravity='bottom-right'
-        color='#FFFFFF50' hover-color='#FFFFFF10'/>
-
-
-    <panel id='packs_add' pos='485,15' size='440,506' color='0' max-length='455' scrollable='true'>
-        <!-- content is generated in script -->
-    </panel>
-
-    <panel id='packs_cur' pos='15,15' size='440,506' color='0' max-length='455' scrollable='true'>
-        <!-- content is generated in script -->
-    </panel>
+    <panel id='search_panel' size='440,36' pos='15,504' interval='1' color='#0000004C'>  
+        <textbox id='search_textbox' multiline='false' size='440,25' sub-consumer='function(x) refresh_search() end'></textbox>  
+    </panel>  
+  
+    <image onclick='core.open_folder("user:content")' interactive='true' src='gui/folder_icon'   
+        size='32' margin='0,0,18,66' gravity='bottom-right'  
+        color='#FFFFFF50' hover-color='#FFFFFF10'/>  
+  
+    <image onclick='refresh()' interactive='true' src='gui/refresh'   
+        size='32' margin='0,0,65,66' gravity='bottom-right'  
+        color='#FFFFFF80' hover-color='#FFFFFF10'/>  
+  
+    <image id="move_right" onclick='move_right()' interactive='true' src='gui/right_arrow'   
+        size='32' margin='0,0,380,64' gravity='bottom-right'  
+        color='#FFFFFF50' hover-color='#FFFFFF10'/>  
+  
+    <image id="move_left" onclick='move_left()' interactive='true' src='gui/left_arrow'   
+        size='32' margin='0,0,425,64' gravity='bottom-right'  
+        color='#FFFFFF50' hover-color='#FFFFFF10'/>  
+  
+    <panel id='packs_add' pos='485,34' size='440,507' color='0' max-length='455' scrollable='true'>  
+        <!-- content is generated in script -->  
+    </panel>  
+  
+    <panel id='packs_cur' pos='15,34' size='440,507' color='0' max-length='455' scrollable='true'>  
+        <!-- content is generated in script -->  
+    </panel>  
 </container>

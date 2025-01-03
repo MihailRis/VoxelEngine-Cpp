@@ -20,7 +20,7 @@
         "gui/refresh",
         "gui/folder_icon",
         "gui/settings_icon",
-        "gui/loupe",
+        "gui/check_mark",
         "gui/left_arrow",
         "gui/right_arrow"
     ],
