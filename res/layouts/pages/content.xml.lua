@@ -5,9 +5,13 @@ function on_open(params)
     refresh()
 end
 
+-- add - packs to be added to the world (after apply)
+-- rem - packs that should be removed from the world (after apply)
 add_packs = {}
 rem_packs = {}
 
+-- included - connected packs to the world
+-- excluded - packs that are not connected to the world
 packs_included = {}
 packs_excluded = {}
 
