@@ -401,8 +401,10 @@ void Engine::resetContent() {
     content.reset();
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
-    loadAssets();
-    onAssetsLoaded();
+    if (!isHeadless()) {
+        loadAssets();
+        onAssetsLoaded();
+    }
 
     contentPacks = manager.getAll(basePacks);
 }

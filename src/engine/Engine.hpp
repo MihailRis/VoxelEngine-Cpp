@@ -108,6 +108,7 @@ public:
     /// @brief Load all selected content-packs and reload assets
     void loadContent();
 
+    /// @brief Reset content to base packs list
     void resetContent();
     
     /// @brief Collect world content-packs and load content
