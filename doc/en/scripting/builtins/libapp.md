@@ -61,8 +61,8 @@ In this case, `base` will also be removed from the configuration.
 
 ```lua
 app.config_packs(
--- expected set of packs (excluding dependencies)
-packs: table
+    -- expected set of packs (excluding dependencies)
+    packs: table
 )
 ```
 
