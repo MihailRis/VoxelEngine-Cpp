@@ -48,7 +48,8 @@ app.reconfig_packs(
 )
 ```
 
-Updates the pack configuration, checking its correctness (dependencies and availability of packs).
+Updates the packs configuration, checking its correctness (dependencies and availability of packs).
+Automatically adds dependencies.
 
 To remove all packs from the configuration, you can use `pack.get_installed()`:
 
@@ -57,6 +58,16 @@ app.reconfig_packs({}, pack.get_installed())
 ```
 
 In this case, `base` will also be removed from the configuration.
+
+```lua
+app.config_packs(
+-- expected set of packs (excluding dependencies)
+packs: table
+)
+```
+
+Updates the packs configuration, automatically removing unspecified ones, adding those missing in the previous configuration.
+Uses app.reconfig_packs.
 
 ```lua
 app.new_world(

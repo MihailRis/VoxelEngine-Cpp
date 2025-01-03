@@ -346,7 +346,7 @@ void Engine::loadContent() {
     paths.setContentPacks(&contentPacks);
     PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
-    names = manager.assembly(names);
+    names = manager.assemble(names);
     contentPacks = manager.getAll(names);
 
     auto corePack = ContentPack::createCore(paths);
@@ -417,7 +417,7 @@ void Engine::loadWorldContent(const fs::path& folder) {
         paths.getResourcesFolder()/fs::path("content")
     });
     manager.scan();
-    contentPacks = manager.getAll(manager.assembly(packNames));
+    contentPacks = manager.getAll(manager.assemble(packNames));
     paths.setCurrentWorldFolder(folder);
     loadContent();
 }
@@ -426,7 +426,7 @@ void Engine::loadAllPacks() {
     PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
     auto allnames = manager.getAllNames();
-    contentPacks = manager.getAll(manager.assembly(allnames));
+    contentPacks = manager.getAll(manager.assemble(allnames));
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {

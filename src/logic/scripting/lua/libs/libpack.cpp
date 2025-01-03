@@ -211,10 +211,38 @@ static int l_pack_get_base_packs(lua::State* L) {
     return 1;
 }
 
+static int l_pack_assemble(lua::State* L) {
+    if (!lua::istable(L, 1)) {
+        throw std::runtime_error("table expected");
+    }
+    std::vector<std::string> ids;
+    size_t len = lua::objlen(L, 1);
+    for (size_t i = 1; i <= len; i++) {
+        lua::rawgeti(L, i);
+        ids.push_back(lua::require_string(L, -1));
+        lua::pop(L);
+    }
+    fs::path worldFolder("");
+    if (level) {
+        worldFolder = level->getWorld()->wfile->getFolder();
+    }
+    auto manager = engine->createPacksManager(worldFolder);
+    manager.scan();
+    ids = std::move(manager.assemble(ids));
+
+    lua::createtable(L, ids.size(), 0);
+    for (size_t i = 0; i < ids.size(); i++) {
+        lua::pushstring(L, ids[i]);
+        lua::rawseti(L, i + 1);
+    }
+    return 1;
+}
+
 const luaL_Reg packlib[] = {
     {"get_folder", lua::wrap<l_pack_get_folder>},
     {"get_installed", lua::wrap<l_pack_get_installed>},
     {"get_available", lua::wrap<l_pack_get_available>},
     {"get_info", lua::wrap<l_pack_get_info>},
     {"get_base_packs", lua::wrap<l_pack_get_base_packs>},
+    {"assemble", lua::wrap<l_pack_assemble>},
     {NULL, NULL}};

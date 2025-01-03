@@ -38,7 +38,7 @@ public:
     /// @return resulting ordered vector of pack names
     /// @throws contentpack_error if required dependency not found or
     /// circular dependency detected
-    std::vector<std::string> assembly(const std::vector<std::string>& names
+    std::vector<std::string> assemble(const std::vector<std::string>& names
     ) const;
 
     /// @brief Collect all pack names (identifiers) into a new vector

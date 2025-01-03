@@ -322,7 +322,7 @@ void EngineController::reconfigPacks(
                     manager.exclude(id);
                     names.erase(std::find(names.begin(), names.end(), id));
                 }
-                names = manager.assembly(names);
+                names = manager.assemble(names);
                 engine.getContentPacks() = manager.getAll(names);
             } catch (const contentpack_error& err) {
                 throw std::runtime_error(

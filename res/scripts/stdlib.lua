@@ -37,6 +37,26 @@ if app then
     app.tick = coroutine.yield
     app.get_version = core.get_version
     app.get_setting_info = core.get_setting_info
+    
+    function app.config_packs(packs_list)
+        -- Check if packs are valid and add dependencies to the configuration
+        packs_list = pack.assemble(packs_list)
+        
+        local installed = pack.get_installed()
+        local toremove = {}
+        for _, packid in ipairs(installed) do
+            if not table.has(packs_list, packid) then
+                table.insert(toremove, packid)
+            end
+        end
+        local toadd = {}
+        for _, packid in ipairs(packs_list) do
+            if not table.has(installed, packid) then
+                table.insert(toadd, packid)
+            end
+        end
+        app.reconfig_packs(toadd, toremove)
+    end
 
     function app.quit()
         local tb = debug.get_traceback(1)
