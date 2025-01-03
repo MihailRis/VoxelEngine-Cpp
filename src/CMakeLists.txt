@@ -6,7 +6,7 @@ file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
-add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
+add_library(VoxelEngineSrc STATIC ${SOURCES} ${HEADERS})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -26,6 +26,10 @@ endif()
 
 set(LIBS "")
 
+# Tested only for Windows
+if (VOXELENGINE_TRACY_PROFILER)
+    find_package(Tracy CONFIG REQUIRED)
+endif()
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # Use directly linking to lib instead PkgConfig (because pkg-config dont install on windows as default) 
     # TODO: Do it with findLua.
@@ -68,6 +72,9 @@ if(UNIX)
 endif()
 
 include_directories(${LUA_INCLUDE_DIR})
-include_directories(${CURL_INCLUDE_DIR})
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB PNG::PNG CURL::libcurl ${VORBISLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
+target_include_directories(VoxelEngineSrc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(VoxelEngineSrc PUBLIC ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB PNG::PNG CURL::libcurl ${VORBISLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
+if (VOXELENGINE_TRACY_PROFILER)
+    target_link_libraries(VoxelEngineSrc PUBLIC Tracy::TracyClient)
+    target_compile_definitions(VoxelEngineSrc PUBLIC VOXELENGINE_PROFILER VOXELENGINE_PROFILER_GPU TRACY_ENABLE VOXELENGINE_TRACY_PROFILER)
+endif()

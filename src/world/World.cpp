@@ -4,9 +4,11 @@
 #include <memory>
 #include <utility>
 
+#include "Level.hpp"
 #include "content/Content.hpp"
 #include "content/ContentReport.hpp"
 #include "debug/Logger.hpp"
+#include "engine/Profiler.hpp"
 #include "files/WorldFiles.hpp"
 #include "items/Inventories.hpp"
 #include "objects/Entities.hpp"
@@ -16,9 +18,8 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/GlobalChunks.hpp"
-#include "world/generator/WorldGenerator.hpp"
 #include "world/generator/GeneratorDef.hpp"
-#include "Level.hpp"
+#include "world/generator/WorldGenerator.hpp"
 
 static debug::Logger logger("world");
 const float DAYIME_SPECIFIC_SPEED = 1.0f / 1440.0f;  // 1.0f/60.0f/24.0f;
@@ -32,15 +33,18 @@ World::World(
     const std::shared_ptr<WorldFiles>& worldFiles,
     const Content& content,
     const std::vector<ContentPack>& packs
-) : info(std::move(info)),
-    content(content),
-    packs(packs),
-    wfile(std::move(worldFiles)) {}
+)
+    : info(std::move(info)),
+      content(content),
+      packs(packs),
+      wfile(std::move(worldFiles)) {
+}
 
 World::~World() {
 }
 
 void World::updateTimers(float delta) {
+    VOXELENGINE_PROFILE;
     info.daytime += delta * info.daytimeSpeed * DAYIME_SPECIFIC_SPEED;
     info.daytime = std::fmod(info.daytime, 1.0f);
     info.totalTime += delta;
@@ -94,7 +98,8 @@ std::unique_ptr<Level> World::create(
         content,
         packs
     );
-    logger.info() << "created world '" << name << "' (" << directory.u8string() << ")";
+    logger.info() << "created world '" << name << "' (" << directory.u8string()
+                  << ")";
     logger.info() << "world seed: " << seed << " generator: " << generator;
     return std::make_unique<Level>(std::move(world), content, settings);
 }

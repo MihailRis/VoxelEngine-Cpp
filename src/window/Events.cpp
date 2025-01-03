@@ -4,9 +4,10 @@
 #include <GLFW/glfw3.h>
 #include <string.h>
 
-#include "debug/Logger.hpp"
-#include "util/stringutil.hpp"
 #include "Window.hpp"
+#include "debug/Logger.hpp"
+#include "engine/Profiler.hpp"
+#include "util/stringutil.hpp"
 
 static debug::Logger logger("events");
 
@@ -69,6 +70,7 @@ void Events::toggleCursor() {
 }
 
 void Events::pollEvents() {
+    VOXELENGINE_PROFILE;
     currentFrame++;
     delta.x = 0.f;
     delta.y = 0.f;
@@ -212,8 +214,7 @@ std::string Events::writeBindings() {
 }
 
 void Events::loadBindings(
-    const std::string& filename, const std::string& source,
-    BindType bindType
+    const std::string& filename, const std::string& source, BindType bindType
 ) {
     auto map = toml::parse(filename, source);
     for (auto& [sectionName, section] : map.asObject()) {
@@ -229,9 +230,8 @@ void Events::loadBindings(
                 type = inputtype::mouse;
                 code = static_cast<int>(input_util::mousecode_from(codename));
             } else {
-                logger.error()
-                    << "unknown input type: " << prefix << " (binding "
-                    << util::quote(key) << ")";
+                logger.error() << "unknown input type: " << prefix
+                               << " (binding " << util::quote(key) << ")";
                 continue;
             }
             if (bindType == BindType::BIND) {
