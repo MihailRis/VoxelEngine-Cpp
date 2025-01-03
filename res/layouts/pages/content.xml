@@ -4,11 +4,11 @@
     <button pos='485,545' size='440,40' onclick='menu:back()'>@Cancel</button>  
 
     <image id="move_left" src='gui/check_mark'   
-        size='32' margin='218,0,0,0' gravity='top-left'  
+        size='32' margin='218,2,0,0' gravity='top-left'  
         color='#FFFFFF50'/>  
 
     <image id="move_left" src='gui/cross'   
-        size='32' margin='0,0,219,0' gravity='top-right'  
+        size='32' margin='0,2,219,0' gravity='top-right'  
         color='#FFFFFF50'/>  
 
     <panel id='search_panel' size='440,36' pos='15,504' interval='1' color='#0000004C'>  
