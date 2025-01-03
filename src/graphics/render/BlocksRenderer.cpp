@@ -184,11 +184,17 @@ void BlocksRenderer::blockXSprite(
     const UVRegion& texface2, 
     float spread
 ) {
-    glm::vec4 lights[] {
+    glm::vec4 lights1[] {
         pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
         pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
         pickSoftLight({x + 1, y + 1, z}, {1, 0, 0}, {0, 1, 0}),
         pickSoftLight({x, y + 1, z}, {1, 0, 0}, {0, 1, 0})
+    };
+    glm::vec4 lights2[] {
+        pickSoftLight({x, y + 1, z}, {-1, 0, 0}, {0, 1, 0}),
+        pickSoftLight({x - 1, y + 1, z}, {-1, 0, 0}, {0, 1, 0}),
+        pickSoftLight({x - 1, y + 1, z}, {-1, 0, 0}, {0, 1, 0}),
+        pickSoftLight({x, y + 1, z}, {-1, 0, 0}, {0, 1, 0})
     };
     randomizer.setSeed((x * 52321) ^ (z * 389) ^ y);
     short rand = randomizer.rand32();
@@ -199,15 +205,15 @@ void BlocksRenderer::blockXSprite(
     const float w = size.x / 1.41f;
     const glm::vec4 tint (0.8f);
 
-    face({x + xs, y, z + zs}, w, size.y, 0, {1, 0, 1}, {0, 1, 0}, glm::vec3(),
-        texface1, lights, tint);
-    face({x + xs, y, z + zs}, w, size.y, 0, {-1, 0, -1}, {0, 1, 0}, glm::vec3(), 
-        texface1, lights, tint);
+    face({x + xs, y, z + zs}, w, size.y, 0, {-1, 0, 1}, {0, 1, 0}, glm::vec3(),
+        texface1, lights2, tint);
+    face({x + xs, y, z + zs}, w, size.y, 0, {1, 0, 1}, {0, 1, 0}, glm::vec3(), 
+        texface1, lights1, tint);
 
+    face({x + xs, y, z + zs}, w, size.y, 0, {-1, 0, -1}, {0, 1, 0}, glm::vec3(), 
+        texface2, lights2, tint);
     face({x + xs, y, z + zs}, w, size.y, 0, {1, 0, -1}, {0, 1, 0}, glm::vec3(), 
-        texface2, lights, tint);
-    face({x + xs, y, z + zs}, w, size.y, 0, {-1, 0, 1}, {0, 1, 0}, glm::vec3(), 
-        texface2, lights, tint);
+        texface2, lights1, tint);
 }
 
 // HINT: texture faces order: {east, west, bottom, top, south, north}
