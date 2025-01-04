@@ -17,10 +17,10 @@ Console=Konsol
 Log=log
 Problems=Muammolar
 Monitor=Monitoring
-Debug=Xatolarni tuzatish (Debug)
+Debug=Debug
 File=Fayl
 
-devtools.traceback=Chaqiruvlar steki (so‘nggisidan boshlab)
+devtools.traceback=Chaqiruvlar steki (so`nggisidan boshlab)
 error.pack-not-found=Paketni topib bo'lmadi
 error.dependency-not-found=Amaldagi qaramliklar topilmadi
 pack.remove-confirm=Paketlar bilan taqdim etilgan barcha contentni dunyodan olib tashlash (qaytarib bo'lmaydi)?
