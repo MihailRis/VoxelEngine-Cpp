@@ -127,7 +127,12 @@ function events.emit(event, ...)
         return nil
     end
     for _, func in ipairs(handlers) do
-        result = result or func(...)
+        local status, newres = xpcall(func, __vc__error, ...)
+        if not status then
+            print("error in event ("..event..") handler: "..newres)
+        else 
+            result = result or newres
+        end
     end
     return result
 end
