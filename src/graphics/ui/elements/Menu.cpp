@@ -13,8 +13,10 @@ bool Menu::has(const std::string& name) {
            pageSuppliers.find(name) != pageSuppliers.end();
 }
 
-void Menu::addPage(const std::string& name, const std::shared_ptr<UINode>& panel) {
-    pages[name] = Page {name, panel};
+void Menu::addPage(
+    const std::string& name, const std::shared_ptr<UINode>& panel, bool temporal
+) {
+    pages[name] = Page {name, panel, temporal};
 }
 
 void Menu::removePage(const std::string& name) {
@@ -25,26 +27,26 @@ void Menu::addSupplier(const std::string& name, const supplier<std::shared_ptr<U
     pageSuppliers[name] = pageSupplier;
 }
 
-std::shared_ptr<UINode> Menu::fetchPage(const std::string& name) {
+Page Menu::fetchPage(const std::string& name) {
     auto found = pages.find(name);
     if (found == pages.end()) {
         auto supplier = pageSuppliers.find(name);
         if (supplier == pageSuppliers.end()) {
             if (pagesLoader) {
-                return pagesLoader(name);
+                return {name, pagesLoader(name), false};
             }
-            return nullptr;
+            return {};
         } else {
-            return supplier->second();
+            return {name, supplier->second(), false};
             // supplied pages caching is not implemented
         }
     } else {
-        return found->second.panel;
+        return found->second;
     }
 }
 
 void Menu::setPage(const std::string &name, bool history) {
-    Page page {name, fetchPage(name)};
+    Page page = fetchPage(name);
     if (page.panel == nullptr) {
         throw std::runtime_error("no page found");
     }
@@ -54,7 +56,7 @@ void Menu::setPage(const std::string &name, bool history) {
 void Menu::setPage(Page page, bool history) {
     if (current.panel) {
         Container::remove(current.panel);
-        if (history) {
+        if (history && !current.temporal) {
             pageStack.push(current);
         }
     }
@@ -68,10 +70,10 @@ void Menu::back() {
         return;
     Page page = pageStack.top();
     pageStack.pop();
-    
+
     auto updated = fetchPage(page.name);
-    if (updated) {
-        page.panel = updated;
+    if (updated.panel) {
+        page.panel = updated.panel;
     }
 
     setPage(page, false);
