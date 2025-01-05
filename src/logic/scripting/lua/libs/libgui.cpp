@@ -754,29 +754,25 @@ static int l_gui_escape_markup(lua::State* L) {
 
 static int l_gui_confirm(lua::State* L) {
     auto question = lua::require_wstring(L, 1);
-    lua::pushvalue(L, 2);
-    auto onconfirm = lua::create_runnable(L);
+    runnable onconfirm = nullptr;
+    if (lua::gettop(L) >= 2) {
+        lua::pushvalue(L, 2);
+        onconfirm = lua::create_runnable(L);
+    }
     runnable ondeny = nullptr;
-    if (lua::gettop(L) > 2) {
+    if (lua::gettop(L) >= 3) {
         lua::pushvalue(L, 3);
         ondeny = lua::create_runnable(L);
     }
     std::wstring yestext = L"";
-    if (lua::gettop(L) > 3) {
+    if (lua::gettop(L) >= 4) {
         yestext = lua::require_wstring(L, 4);
     }
     std::wstring notext = L"";
-    if (lua::gettop(L) > 4) {
+    if (lua::gettop(L) >= 5) {
         notext = lua::require_wstring(L, 5);
     }
-    guiutil::confirm(
-        *engine,
-        question,
-        onconfirm,
-        ondeny,
-        yestext,
-        notext
-    );
+    guiutil::confirm(*engine, question, onconfirm, ondeny, yestext, notext);
     return 0;
 }
 
