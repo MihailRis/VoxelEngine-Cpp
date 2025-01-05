@@ -64,7 +64,7 @@ static int l_pack_get_available(lua::State* L) {
 static int l_pack_get_info(
     lua::State* L, const ContentPack& pack, const Content* content
 ) {
-    lua::createtable(L, 0, 5);
+    lua::createtable(L, 0, 6);
 
     lua::pushstring(L, pack.id);
     lua::setfield(L, "id");
@@ -80,6 +80,9 @@ static int l_pack_get_info(
 
     lua::pushstring(L, pack.version);
     lua::setfield(L, "version");
+
+    lua::pushstring(L, pack.path);
+    lua::setfield(L, "path");
 
     if (!engine->isHeadless()) {
         auto assets = engine->getAssets();

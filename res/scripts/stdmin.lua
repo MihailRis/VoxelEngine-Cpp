@@ -361,3 +361,16 @@ function __vc_warning(msg, detail, n)
             "core:warning", msg, detail, debug.get_traceback(1 + (n or 0)))
     end
 end
+
+function file.name(path)
+    return path:match("([^:/\\]+)$")
+end
+
+function file.stem(path)
+    local name = file.name(path)
+    return name:match("(.+)%.[^%.]+$") or name
+end
+
+function file.ext(path)
+    return path:match("%.([^:/\\]+)$")
+end

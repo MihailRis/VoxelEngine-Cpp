@@ -262,9 +262,9 @@ cmd::CommandsInterpreter* Engine::getCommandsInterpreter() {
 PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     PacksManager manager;
     manager.setSources({
-        worldFolder/fs::path("content"),
-        paths.getUserFilesFolder()/fs::path("content"),
-        paths.getResourcesFolder()/fs::path("content")
+        {"world:content", worldFolder.empty() ? worldFolder : worldFolder/fs::path("content")},
+        {"user:content", paths.getUserFilesFolder()/fs::path("content")},
+        {"res:content", paths.getResourcesFolder()/fs::path("content")}
     });
     return manager;
 }
@@ -413,11 +413,12 @@ void Engine::loadWorldContent(const fs::path& folder) {
     contentPacks.clear();
     auto packNames = ContentPack::worldPacksList(folder);
     PacksManager manager;
-    manager.setSources({
-        folder/fs::path("content"),
-        paths.getUserFilesFolder()/fs::path("content"),
-        paths.getResourcesFolder()/fs::path("content")
-    });
+    manager.setSources(
+        {{"world:content",
+          folder.empty() ? folder : folder / fs::path("content")},
+         {"user:content", paths.getUserFilesFolder() / fs::path("content")},
+         {"res:content", paths.getResourcesFolder() / fs::path("content")}}
+    );
     manager.scan();
     contentPacks = manager.getAll(manager.assemble(packNames));
     paths.setCurrentWorldFolder(folder);

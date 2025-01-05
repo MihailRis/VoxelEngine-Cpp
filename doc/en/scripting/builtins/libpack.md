@@ -83,6 +83,7 @@ pack.get_info(packid: str) -> {
   creator: str,
   description: str,
   version: str,
+  path: str,
   icon: str, -- not available in headless mode
   dependencies: optional strings array
 }

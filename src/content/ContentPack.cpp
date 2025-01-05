@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 
 ContentPack ContentPack::createCore(const EnginePaths& paths) {
     return ContentPack {
-        "core", "Core", ENGINE_VERSION_STRING, "", "", paths.getResourcesFolder(), {}
+        "core", "Core", ENGINE_VERSION_STRING, "", "", paths.getResourcesFolder(), "res:", {}
     };
 }
 
@@ -70,7 +70,7 @@ static void checkContentPackId(const std::string& id, const fs::path& folder) {
     }
 }
 
-ContentPack ContentPack::read(const fs::path& folder) {
+ContentPack ContentPack::read(const std::string& path, const fs::path& folder) {
     auto root = files::read_json(folder / fs::path(PACKAGE_FILENAME));
     ContentPack pack;
     root.at("id").get(pack.id);
@@ -90,6 +90,7 @@ ContentPack ContentPack::read(const fs::path& folder) {
     root.at("description").get(pack.description);
     root.at("source").get(pack.source);
     pack.folder = folder;
+    pack.path = path;
 
     if (auto found = root.at("dependencies")) {
         const auto& dependencies = *found;
@@ -123,17 +124,19 @@ ContentPack ContentPack::read(const fs::path& folder) {
 }
 
 void ContentPack::scanFolder(
-    const fs::path& folder, std::vector<ContentPack>& packs
+    const std::string& path, const fs::path& folder, std::vector<ContentPack>& packs
 ) {
     if (!fs::is_directory(folder)) {
         return;
     }
     for (const auto& entry : fs::directory_iterator(folder)) {
-        const fs::path& folder = entry.path();
-        if (!fs::is_directory(folder)) continue;
-        if (!is_pack(folder)) continue;
+        const fs::path& packFolder = entry.path();
+        if (!fs::is_directory(packFolder)) continue;
+        if (!is_pack(packFolder)) continue;
         try {
-            packs.push_back(read(folder));
+            packs.push_back(
+                read(path + "/" + packFolder.filename().string(), packFolder)
+            );
         } catch (const contentpack_error& err) {
             std::cerr << "package.json error at " << err.getFolder().u8string();
             std::cerr << ": " << err.what() << std::endl;

@@ -120,3 +120,15 @@ file.read_combined_object(path: str) -> array
 ```
 
 Combines objects from JSON files of different packs.
+
+```lua
+file.name(path: str) --> str
+```
+
+Extracts the file name from the path.
+
+``lua
+file.stem(path: str) --> str
+```
+
+Extracts the file name from the path, removing the extension.
