@@ -129,7 +129,7 @@ function events.emit(event, ...)
     for _, func in ipairs(handlers) do
         local status, newres = xpcall(func, __vc__error, ...)
         if not status then
-            print("error in event ("..event..") handler: "..newres)
+            debug.error("error in event ("..event..") handler: "..newres)
         else 
             result = result or newres
         end
@@ -197,9 +197,9 @@ local __post_runnables = {}
 function __process_post_runnables()
     if #__post_runnables then
         for _, func in ipairs(__post_runnables) do
-            local status, result = pcall(func)
+            local status, result = xpcall(func, __vc__error)
             if not status then
-                debug.log("error in post_runnable: "..result)
+                debug.error("error in post_runnable: "..result)
             end
         end
         __post_runnables = {}
