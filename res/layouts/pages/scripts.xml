@@ -1,0 +1,7 @@
+<panel size='400' color='0' context='menu'>
+    <label>@Scripts</label>
+    <panel id="list" size='400' interval='1' color='#00000030' max-length='300'>
+        <!-- content is generated in script -->
+    </panel>
+    <button onclick='menu:back()'>@Back</button>
+</panel>
