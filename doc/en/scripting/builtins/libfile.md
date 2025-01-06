@@ -125,10 +125,22 @@ Combines objects from JSON files of different packs.
 file.name(path: str) --> str
 ```
 
-Extracts the file name from the path.
+Extracts the file name from the path. Example: `world:data/base/config.toml` -> `config.toml`.
 
 ``lua
 file.stem(path: str) --> str
 ```
 
-Extracts the file name from the path, removing the extension.
+Extracts the file name from the path, removing the extension. Example: `world:data/base/config.toml` -> `config`.
+
+```lua
+file.ext(path: str) --> str
+```
+
+Extracts the extension from the path. Example: `world:data/base/config.toml` -> `toml`.
+
+```lua
+file.prefix(path: str) --> str
+```
+
+Extracts the entry point (prefix) from the path. Example: `world:data/base/config.toml` -> `world`.

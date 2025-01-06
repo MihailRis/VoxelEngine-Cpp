@@ -29,6 +29,7 @@
 #include "logic/EngineController.hpp"
 #include "logic/CommandsInterpreter.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "logic/scripting/scripting_hud.hpp"
 #include "network/Network.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
@@ -123,11 +124,10 @@ Engine::Engine(CoreParameters coreParameters)
             paths.getResourcesFolder()
         ));
     }
+    scripting::initialize(this);
     keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
-    
-    scripting::initialize(this);
     basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
 }
 
@@ -442,7 +442,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
     if (gui) {
-        gui->getMenu()->setPageLoader(menus::create_page_loader(*this));
+        gui->getMenu()->setPageLoader(scripting::create_page_loader());
     }
 }
 

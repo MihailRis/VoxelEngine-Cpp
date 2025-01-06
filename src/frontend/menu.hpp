@@ -16,8 +16,6 @@ namespace menus {
     /// @brief Create development version label at the top-right screen corner
     void create_version_label(Engine& engine);
 
-    gui::page_loader_func create_page_loader(Engine& engine);
-
     UiDocument* show(
         Engine& engine, 
         const std::string& name,

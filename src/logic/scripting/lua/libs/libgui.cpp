@@ -787,6 +787,23 @@ static int l_gui_alert(lua::State* L) {
     return 0;
 }
 
+static int l_gui_load_document(lua::State* L) {
+    auto filename = lua::require_string(L, 1);
+    auto alias = lua::require_string(L, 2);
+    auto args = lua::tovalue(L, 3);
+    
+    auto documentPtr = UiDocument::read(
+        scripting::get_root_environment(),
+        alias,
+        engine->getPaths().resolve(fs::u8path(filename)),
+        filename  
+    );
+    auto document = documentPtr.get();
+    engine->getAssets()->store(std::move(documentPtr), alias);
+    scripting::on_ui_open(document, {args});
+    return 0;
+}
+
 const luaL_Reg guilib[] = {
     {"get_viewport", lua::wrap<l_gui_getviewport>},
     {"getattr", lua::wrap<l_gui_getattr>},
@@ -798,6 +815,7 @@ const luaL_Reg guilib[] = {
     {"escape_markup", lua::wrap<l_gui_escape_markup>},
     {"confirm", lua::wrap<l_gui_confirm>},
     {"alert", lua::wrap<l_gui_alert>},
+    {"load_document", lua::wrap<l_gui_load_document>},
     {"__reindex", lua::wrap<l_gui_reindex>},
     {NULL, NULL}
 };

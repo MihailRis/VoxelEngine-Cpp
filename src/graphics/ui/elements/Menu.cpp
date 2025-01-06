@@ -79,8 +79,12 @@ void Menu::back() {
     setPage(page, false);
 }
 
-void Menu::setPageLoader(page_loader_func loader) {
+void Menu::setPageLoader(PageLoaderFunc loader) {
     pagesLoader = std::move(loader);
+}
+
+PageLoaderFunc Menu::getPageLoader() {
+    return pagesLoader;
 }
 
 Page& Menu::getCurrent() {

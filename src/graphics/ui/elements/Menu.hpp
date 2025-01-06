@@ -11,7 +11,7 @@ namespace gui {
         bool temporal = false;
     };
 
-    using page_loader_func = std::function<std::shared_ptr<UINode>(const std::string& name)>;
+    using PageLoaderFunc = std::function<std::shared_ptr<UINode>(const std::string&)>;
 
     class Menu : public Container {
     protected:
@@ -19,7 +19,7 @@ namespace gui {
         std::stack<Page> pageStack;
         Page current;
         std::unordered_map<std::string, supplier<std::shared_ptr<UINode>>> pageSuppliers;
-        page_loader_func pagesLoader = nullptr;
+        PageLoaderFunc pagesLoader = nullptr;
     public:
         Menu();
 
@@ -49,7 +49,9 @@ namespace gui {
         );
 
         /// @brief Page loader is called if accessed page is not found 
-        void setPageLoader(page_loader_func loader);
+        void setPageLoader(PageLoaderFunc loader);
+
+        PageLoaderFunc getPageLoader();
 
         /// @brief Set page to previous saved in history
         void back();

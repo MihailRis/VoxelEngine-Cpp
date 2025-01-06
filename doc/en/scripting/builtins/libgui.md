@@ -79,3 +79,16 @@ gui.confirm(
 ```
 
 Requests confirmation from the user for an action. **Does not** stop code execution.
+
+```lua
+gui.load_document(
+    -- Path to the xml file of the page. Example: `core:layouts/pages/main.xml`
+    path: str,
+    -- Name (id) of the document. Example: `core:pages/main`
+    name: str
+    -- Table of parameters passed to the on_open event
+    args: table
+) --> str
+```
+
+Loads a UI document with its script, returns the name of the document if successfully loaded.

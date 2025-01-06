@@ -34,46 +34,6 @@ void menus::create_version_label(Engine& engine) {
     ));
 }
 
-gui::page_loader_func menus::create_page_loader(Engine& engine) {
-    return [&](const std::string& query) {
-        std::vector<dv::value> args;
-
-        std::string name;
-        size_t index = query.find('?');
-        if (index != std::string::npos) {
-            auto argstr = query.substr(index+1);
-            name = query.substr(0, index);
-            
-            auto map = dv::object();
-            auto filename = "query for "+name;
-            BasicParser parser(filename, argstr);
-            while (parser.hasNext()) {
-                auto key = std::string(parser.readUntil('='));
-                parser.nextChar();
-                auto value = std::string(parser.readUntil('&'));
-                map[key] = value;
-            }
-            args.emplace_back(map);
-        } else {
-            name = query;
-        }
-
-        auto file = engine.getResPaths()->find("layouts/pages/"+name+".xml");
-        auto fullname = "core:pages/"+name;
-
-        auto documentPtr = UiDocument::read(
-            scripting::get_root_environment(),
-            fullname,
-            file,
-            "core:layouts/pages/" + name
-        );
-        auto document = documentPtr.get();
-        engine.getAssets()->store(std::move(documentPtr), fullname);
-        scripting::on_ui_open(document, std::move(args));
-        return document->getRoot();
-    };
-}
-
 bool menus::call(Engine& engine, runnable func) {
     if (engine.isHeadless()) {
         throw std::runtime_error("menus::call(...) in headless mode");

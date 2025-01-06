@@ -192,6 +192,9 @@ _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu
 menu = _MENU
 
+local gui_util = require "core:gui_util"
+__vc_page_loader = gui_util.load_page
+
 ---  Console library extension ---
 console.cheats = {}
 

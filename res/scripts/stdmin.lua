@@ -374,3 +374,7 @@ end
 function file.ext(path)
     return path:match("%.([^:/\\]+)$")
 end
+
+function file.prefix(path)
+    return path:match("^([^:]+)")
+end
