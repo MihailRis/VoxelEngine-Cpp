@@ -10,7 +10,7 @@ function run_script(path)
     start_coroutine(chunk, path)
 end
 
-local function refresh()
+function refresh()
     document.list:clear()
     
     local available = pack.get_available()
