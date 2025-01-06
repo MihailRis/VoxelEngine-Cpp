@@ -22,7 +22,7 @@ function tb_frame_tostring(frame)
     return s
 end
 
-if app then
+local function complete_app_lib(app)
     app.sleep = sleep
     app.script = __VC_SCRIPT_NAME
     app.new_world = core.new_world
@@ -37,6 +37,7 @@ if app then
     app.tick = coroutine.yield
     app.get_version = core.get_version
     app.get_setting_info = core.get_setting_info
+    app.load_content = core.load_content
     
     function app.config_packs(packs_list)
         -- Check if packs are valid and add dependencies to the configuration
@@ -80,6 +81,12 @@ if app then
             error("max ticks exceed")
         end
     end
+end
+
+if app then
+    complete_app_lib(app)
+elseif __vc_app then
+    complete_app_lib(__vc_app)
 end
 
 ------------------------------------------------

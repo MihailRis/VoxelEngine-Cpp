@@ -30,6 +30,11 @@ static int l_get_version(lua::State* L) {
     );
 }
 
+static int l_load_content(lua::State* L) {
+    engine->loadContent();
+    return 0;
+}
+
 /// @brief Creating new world
 /// @param name Name world
 /// @param seed Seed world
@@ -243,6 +248,7 @@ static int l_blank(lua::State*) {
 const luaL_Reg corelib[] = {
     {"blank", lua::wrap<l_blank>},
     {"get_version", lua::wrap<l_get_version>},
+    {"load_content", lua::wrap<l_load_content>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
