@@ -1,0 +1,3 @@
+<button color='#10305080' hover-color='#10305040' onclick='run_script("%{path}")'>
+    %{name} [%{pack}]
+</button>

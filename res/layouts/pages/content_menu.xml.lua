@@ -247,8 +247,9 @@ function refresh()
     local contents = document.contents
     contents:clear()
 
+    local packinfos = pack.get_info(packs_installed)
     for i, id in ipairs(packs_installed) do
-        local packinfo = pack.get_info(id)
+        local packinfo = packinfos[id]
 
         packinfo.id = id
         packs_installed[i] = {packinfo.id, packinfo.title}

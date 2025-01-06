@@ -44,7 +44,6 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "bjson", bjsonlib);
     openlib(L, "block", blocklib);
     openlib(L, "byteutil", byteutillib);
-    openlib(L, "core", corelib);
     openlib(L, "file", filelib);
     openlib(L, "generation", generationlib);
     openlib(L, "item", itemlib);
@@ -52,7 +51,6 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "mat4", mat4lib);
     openlib(L, "pack", packlib);
     openlib(L, "quat", quatlib);
-    openlib(L, "time", timelib);
     openlib(L, "toml", tomllib);
     openlib(L, "utf8", utf8lib);
     openlib(L, "vec2", vec2lib);
@@ -61,16 +59,20 @@ static void create_libs(State* L, StateType stateType) {
 
     if (stateType == StateType::SCRIPT) {
         openlib(L, "app", applib);
+    } else if (stateType == StateType::BASE) {
+        openlib(L, "__vc_app", applib);
     }
     if (stateType == StateType::BASE || stateType == StateType::SCRIPT) {
+        openlib(L, "audio", audiolib);
+        openlib(L, "console", consolelib);
+        openlib(L, "core", corelib);
         openlib(L, "gui", guilib);
         openlib(L, "input", inputlib);
         openlib(L, "inventory", inventorylib);
-        openlib(L, "world", worldlib);
-        openlib(L, "audio", audiolib);
-        openlib(L, "console", consolelib);
-        openlib(L, "player", playerlib);
         openlib(L, "network", networklib);
+        openlib(L, "player", playerlib);
+        openlib(L, "time", timelib);
+        openlib(L, "world", worldlib);
 
         openlib(L, "entities", entitylib);
         openlib(L, "cameras", cameralib);

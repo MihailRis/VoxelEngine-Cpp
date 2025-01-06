@@ -9,6 +9,8 @@
 #include "elements/TrackBar.hpp"
 #include "elements/InputBindBox.hpp"
 #include "elements/InventoryView.hpp"
+#include "GUI.hpp"
+#include "engine/Engine.hpp"
 
 #include "frontend/menu.hpp"
 #include "frontend/locale.hpp"
@@ -616,8 +618,8 @@ static std::shared_ptr<UINode> readInventory(UiXmlReader& reader, const xml::xml
 
 static std::shared_ptr<UINode> readPageBox(UiXmlReader& reader, const xml::xmlelement& element) {
     auto menu = std::make_shared<Menu>();
-    // fixme
-    menu->setPageLoader(menus::create_page_loader(*scripting::engine));
+    // FIXME
+    menu->setPageLoader(scripting::engine->getGUI()->getMenu()->getPageLoader());
     _readContainer(reader, element, *menu);
 
     return menu;

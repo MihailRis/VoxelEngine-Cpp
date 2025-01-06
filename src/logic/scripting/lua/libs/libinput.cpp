@@ -5,10 +5,11 @@
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "graphics/ui/GUI.hpp"
+#include "graphics/ui/elements/Container.hpp"
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
-#include "api_lua.hpp"
+#include "libgui.hpp"
 
 namespace scripting {
     extern Hud* hud;
@@ -39,7 +40,7 @@ static int l_add_callback(lua::State* L) {
                 throw std::runtime_error("on_hud_open is not called yet");
             }
             auto key = input_util::keycode_from(bindname.substr(pos + 1));
-            auto callback = lua::create_runnable(L);
+            auto callback = lua::create_simple_handler(L);
             hud->keepAlive(Events::keyCallbacks[key].add(callback));
             return 0;
         }
@@ -50,18 +51,25 @@ static int l_add_callback(lua::State* L) {
         throw std::runtime_error("unknown binding " + util::quote(bindname));
     }
     lua::pushvalue(L, 2);
-    runnable actual_callback = lua::create_runnable(L);
-    runnable callback = [=]() {
+    auto actual_callback = lua::create_simple_handler(L);
+    auto callback = [=]() -> bool {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
-            actual_callback();
+            return actual_callback();
         }
+        return false;
     };
     if (hud) {
         hud->keepAlive(bind->second.onactived.add(callback));
-    } else {
-        throw std::runtime_error("on_hud_open is not called yet");
+        return 0;
+    } else if (lua::gettop(L) >= 3) {
+        auto node = get_document_node(L, 3);
+        if (auto container = std::dynamic_pointer_cast<gui::Container>(node.node)) {
+            container->keepAlive(bind->second.onactived.add(callback));
+            return 0;
+        }
+        throw std::runtime_error("owner expected to be a container");
     }
-    return 0;
+    throw std::runtime_error("on_hud_open is not called yet");
 }
 
 static int l_get_mouse_pos(lua::State* L) {

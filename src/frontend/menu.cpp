@@ -34,46 +34,6 @@ void menus::create_version_label(Engine& engine) {
     ));
 }
 
-gui::page_loader_func menus::create_page_loader(Engine& engine) {
-    return [&](const std::string& query) {
-        std::vector<dv::value> args;
-
-        std::string name;
-        size_t index = query.find('?');
-        if (index != std::string::npos) {
-            auto argstr = query.substr(index+1);
-            name = query.substr(0, index);
-            
-            auto map = dv::object();
-            auto filename = "query for "+name;
-            BasicParser parser(filename, argstr);
-            while (parser.hasNext()) {
-                auto key = std::string(parser.readUntil('='));
-                parser.nextChar();
-                auto value = std::string(parser.readUntil('&'));
-                map[key] = value;
-            }
-            args.emplace_back(map);
-        } else {
-            name = query;
-        }
-
-        auto file = engine.getResPaths()->find("layouts/pages/"+name+".xml");
-        auto fullname = "core:pages/"+name;
-
-        auto documentPtr = UiDocument::read(
-            scripting::get_root_environment(),
-            fullname,
-            file,
-            "core:layouts/pages/" + name
-        );
-        auto document = documentPtr.get();
-        engine.getAssets()->store(std::move(documentPtr), fullname);
-        scripting::on_ui_open(document, std::move(args));
-        return document->getRoot();
-    };
-}
-
 bool menus::call(Engine& engine, runnable func) {
     if (engine.isHeadless()) {
         throw std::runtime_error("menus::call(...) in headless mode");
@@ -86,25 +46,25 @@ bool menus::call(Engine& engine, runnable func) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         // could not to find or read pack
         guiutil::alert(
-            gui->getMenu(), langs::get(L"error.pack-not-found")+L": "+
+            engine, langs::get(L"error.pack-not-found")+L": "+
             util::str2wstr_utf8(error.getPackId())
         );
         return false;
     } catch (const assetload::error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
-            gui->getMenu(), langs::get(L"Assets Load Error", L"menu")+L":\n"+
+            engine, langs::get(L"Assets Load Error", L"menu")+L":\n"+
             util::str2wstr_utf8(error.what())
         );
         return false;
     } catch (const parsing_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
-        guiutil::alert(gui->getMenu(), util::str2wstr_utf8(error.errorLog()));
+        guiutil::alert(engine, util::str2wstr_utf8(error.errorLog()));
         return false;
     } catch (const std::runtime_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
-            gui->getMenu(), langs::get(L"Content Error", L"menu")+L":\n"+
+            engine, langs::get(L"Content Error", L"menu")+L":\n"+
             util::str2wstr_utf8(error.what())
         );
         return false;

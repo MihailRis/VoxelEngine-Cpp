@@ -78,6 +78,7 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
     keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=]() {
         player->chunks->saveAndClear();
         worldRenderer->clear();
+        return false;
     }));
 
     animator = std::make_unique<TextureAnimator>();

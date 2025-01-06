@@ -36,6 +36,7 @@
 #include "logic/CommandsInterpreter.hpp"
 #include "logic/EngineController.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "logic/scripting/scripting_hud.hpp"
 #include "network/Network.hpp"
 #include "objects/rigging.hpp"
 #include "util/listutil.hpp"
@@ -124,12 +125,11 @@ Engine::Engine(CoreParameters coreParameters)
             platform::detect_locale(), paths.getResourcesFolder()
         ));
     }
-    keepAlive(settings.ui.language.observe(
-        [this](auto lang) { setLanguage(lang); }, true
-    ));
-
     scripting::initialize(this);
-    basePacks = files::read_list(resdir / fs::path("config/builtins.list"));
+    keepAlive(settings.ui.language.observe([this](auto lang) {
+        setLanguage(lang);
+    }, true));
+    basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
 }
 
 void Engine::loadSettings() {
@@ -273,11 +273,11 @@ cmd::CommandsInterpreter* Engine::getCommandsInterpreter() {
 
 PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     PacksManager manager;
-    manager.setSources(
-        {worldFolder / fs::path("content"),
-         paths.getUserFilesFolder() / fs::path("content"),
-         paths.getResourcesFolder() / fs::path("content")}
-    );
+    manager.setSources({
+        {"world:content", worldFolder.empty() ? worldFolder : worldFolder/fs::path("content")},
+        {"user:content", paths.getUserFilesFolder()/fs::path("content")},
+        {"res:content", paths.getResourcesFolder()/fs::path("content")}
+    });
     return manager;
 }
 
@@ -358,7 +358,7 @@ void Engine::loadContent() {
     paths.setContentPacks(&contentPacks);
     PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
-    names = manager.assembly(names);
+    names = manager.assemble(names);
     contentPacks = manager.getAll(names);
 
     auto corePack = ContentPack::createCore(paths);
@@ -411,8 +411,10 @@ void Engine::resetContent() {
     content.reset();
 
     langs::setup(resdir, langs::current->getId(), contentPacks);
-    loadAssets();
-    onAssetsLoaded();
+    if (!isHeadless()) {
+        loadAssets();
+        onAssetsLoaded();
+    }
 
     contentPacks = manager.getAll(basePacks);
 }
@@ -422,12 +424,13 @@ void Engine::loadWorldContent(const fs::path& folder) {
     auto packNames = ContentPack::worldPacksList(folder);
     PacksManager manager;
     manager.setSources(
-        {folder / fs::path("content"),
-         paths.getUserFilesFolder() / fs::path("content"),
-         paths.getResourcesFolder() / fs::path("content")}
+        {{"world:content",
+          folder.empty() ? folder : folder / fs::path("content")},
+         {"user:content", paths.getUserFilesFolder() / fs::path("content")},
+         {"res:content", paths.getResourcesFolder() / fs::path("content")}}
     );
     manager.scan();
-    contentPacks = manager.getAll(manager.assembly(packNames));
+    contentPacks = manager.getAll(manager.assemble(packNames));
     paths.setCurrentWorldFolder(folder);
     loadContent();
 }
@@ -436,7 +439,7 @@ void Engine::loadAllPacks() {
     PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
     auto allnames = manager.getAllNames();
-    contentPacks = manager.getAll(manager.assembly(allnames));
+    contentPacks = manager.getAll(manager.assemble(allnames));
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
@@ -449,7 +452,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
     if (gui) {
-        gui->getMenu()->setPageLoader(menus::create_page_loader(*this));
+        gui->getMenu()->setPageLoader(scripting::create_page_loader());
     }
 }
 

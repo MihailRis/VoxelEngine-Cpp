@@ -1,4 +1,4 @@
-local util = require("core:tests_util")
+local util = require "core:tests_util"
 util.create_demo_world()
 
 app.set_setting("chunks.load-distance", 3)
@@ -27,3 +27,4 @@ end
 player.delete(pid2)
 
 app.close_world(true)
+app.delete_world("demo")
