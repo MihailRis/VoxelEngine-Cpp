@@ -795,7 +795,7 @@ static int l_gui_load_document(lua::State* L) {
     auto documentPtr = UiDocument::read(
         scripting::get_root_environment(),
         alias,
-        engine->getPaths().resolve(fs::u8path(filename)),
+        engine->getPaths().resolve(filename),
         filename  
     );
     auto document = documentPtr.get();
