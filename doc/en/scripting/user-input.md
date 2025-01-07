@@ -57,6 +57,16 @@ input.add_callback("key:space", function ()
 end)
 ```
 
+You can also bind the function lifetime to the UI container instead of the HUD. 
+In that case, `input.add_callback` may be used until the `on_hud_open` is called.
+
+```lua
+input.add_callback("key:escape", function ()
+    print("NO")
+    return true -- prevents previously assigned functions from being called
+end, document.root)
+```
+
 ```python
 input.get_mouse_pos() -> {int, int}
 ```

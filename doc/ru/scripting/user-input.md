@@ -55,6 +55,16 @@ input.add_callback("key:space", function ()
 end)
 ```
 
+Также можно привязать время жизни функции к UI контейнеру, вместо HUD.
+В таком случае, `input.add_callback` можно использовать до вызова `on_hud_open`.
+
+```lua
+input.add_callback("key:escape", function ()
+    print("NO")
+    return true -- предотвращает вызов назначенных ранее функций
+end, document.root)
+```
+
 ```python
 input.get_mouse_pos() -> {int, int}
 ```
