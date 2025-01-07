@@ -40,6 +40,7 @@ static int l_add_callback(lua::State* L) {
                 throw std::runtime_error("on_hud_open is not called yet");
             }
             auto key = input_util::keycode_from(bindname.substr(pos + 1));
+            lua::pushvalue(L, 2);
             auto callback = lua::create_simple_handler(L);
             hud->keepAlive(Events::keyCallbacks[key].add(callback));
             return 0;
