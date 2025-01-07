@@ -125,7 +125,9 @@ Engine::Engine(CoreParameters coreParameters)
         ));
     }
     scripting::initialize(this);
-    gui->setPageLoader(scripting::create_page_loader());
+    if (!isHeadless()) {
+        gui->setPageLoader(scripting::create_page_loader());
+    }
     keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
