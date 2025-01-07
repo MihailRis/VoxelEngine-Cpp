@@ -272,9 +272,10 @@ scripting::common_func lua::create_lambda(State* L) {
         }
         if (call(L, args.size(), 1)) {
             auto result = tovalue(L, -1);
-            pop(L);
+            pop(L, 2);
             return result;
         }
+        pop(L);
         return nullptr;
     };
 }
