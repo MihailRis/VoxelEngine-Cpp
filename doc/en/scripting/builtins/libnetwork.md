@@ -54,6 +54,9 @@ socket:recv(
 -- Closes the connection
 socket:close()
 
+-- Returns the number of data bytes available for reading
+socket:available() --> int
+
 -- Checks that the socket exists and is not closed.
 socket:is_alive() --> bool
 

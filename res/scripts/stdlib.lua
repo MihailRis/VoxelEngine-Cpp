@@ -424,6 +424,7 @@ function __vc_resume_coroutine(id)
     if co then
         coroutine.resume(co)
         if __vc_coroutine_error then
+            debug.error(__vc_coroutine_error)
             error(__vc_coroutine_error)
         end
         return coroutine.status(co) ~= "dead"
