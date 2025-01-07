@@ -33,17 +33,16 @@ static int l_mousecode(lua::State* L) {
 static int l_add_callback(lua::State* L) {
     std::string bindname = lua::require_string(L, 1);
     size_t pos = bindname.find(':');
+
+    lua::pushvalue(L, 2);
+    auto actual_callback = lua::create_simple_handler(L);
+    observer_handler handler;
+    
     if (pos != std::string::npos) {
         std::string prefix = bindname.substr(0, pos);
         if (prefix == "key") {
-            if (hud == nullptr) {
-                throw std::runtime_error("on_hud_open is not called yet");
-            }
             auto key = input_util::keycode_from(bindname.substr(pos + 1));
-            lua::pushvalue(L, 2);
-            auto callback = lua::create_simple_handler(L);
-            hud->keepAlive(Events::keyCallbacks[key].add(callback));
-            return 0;
+            handler = Events::keyCallbacks[key].add(actual_callback);
         }
     }
 
@@ -51,21 +50,23 @@ static int l_add_callback(lua::State* L) {
     if (bind == Events::bindings.end()) {
         throw std::runtime_error("unknown binding " + util::quote(bindname));
     }
-    lua::pushvalue(L, 2);
-    auto actual_callback = lua::create_simple_handler(L);
     auto callback = [=]() -> bool {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
             return actual_callback();
         }
         return false;
     };
+    if (handler == nullptr) {
+        handler = bind->second.onactived.add(callback);
+    }
+
     if (hud) {
-        hud->keepAlive(bind->second.onactived.add(callback));
+        hud->keepAlive(handler);
         return 0;
     } else if (lua::gettop(L) >= 3) {
         auto node = get_document_node(L, 3);
         if (auto container = std::dynamic_pointer_cast<gui::Container>(node.node)) {
-            container->keepAlive(bind->second.onactived.add(callback));
+            container->keepAlive(handler);
             return 0;
         }
         throw std::runtime_error("owner expected to be a container");
