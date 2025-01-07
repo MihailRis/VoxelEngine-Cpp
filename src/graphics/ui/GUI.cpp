@@ -46,6 +46,15 @@ GUI::GUI() : batch2D(std::make_unique<Batch2D>(1024)) {
 
 GUI::~GUI() = default;
 
+void GUI::setPageLoader(PageLoaderFunc pageLoader) {
+    this->pagesLoader = std::move(pageLoader);
+    menu->setPageLoader(this->pagesLoader);
+}
+
+PageLoaderFunc GUI::getPagesLoader() {
+    return pagesLoader;
+}
+
 std::shared_ptr<Menu> GUI::getMenu() {
     return menu;
 }
