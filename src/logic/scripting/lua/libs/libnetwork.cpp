@@ -2,6 +2,7 @@
 
 #include "engine/Engine.hpp"
 #include "network/Network.hpp"
+#include "coders/json.hpp"
 
 using namespace scripting;
 
@@ -31,6 +32,25 @@ static int l_get_binary(lua::State* L) {
         );
         engine->postRunnable([=]() {
             onResponse({buffer});
+        });
+    });
+    return 0;
+}
+
+static int l_post(lua::State* L) {
+    std::string url(lua::require_lstring(L, 1));
+    auto data = lua::tovalue(L, 2);
+
+    lua::pushvalue(L, 3);
+    auto onResponse = lua::create_lambda_nothrow(L);
+
+    auto string = json::stringify(data, false);
+    engine->getNetwork().post(url, string, [onResponse](std::vector<char> bytes) {
+        auto buffer = std::make_shared<util::Buffer<ubyte>>(
+            reinterpret_cast<const ubyte*>(bytes.data()), bytes.size()
+        );
+        engine->postRunnable([=]() {
+            onResponse({std::string(bytes.data(), bytes.size())});
         });
     });
     return 0;
@@ -200,6 +220,7 @@ static int l_get_total_download(lua::State* L) {
 const luaL_Reg networklib[] = {
     {"get", lua::wrap<l_get>},
     {"get_binary", lua::wrap<l_get_binary>},
+    {"post", lua::wrap<l_post>},
     {"get_total_upload", lua::wrap<l_get_total_upload>},
     {"get_total_download", lua::wrap<l_get_total_download>},
     {"__open", lua::wrap<l_open>},
