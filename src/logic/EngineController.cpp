@@ -37,7 +37,9 @@ void EngineController::deleteWorld(const std::string& name) {
     auto deletion = [this, folder]() {
         logger.info() << "deleting " << folder;
         fs::remove_all(folder);
-        engine.getGUI()->getMenu()->back();
+        if (!engine.isHeadless()) {
+            engine.getGUI()->getMenu()->back();
+        }
     };
 
     if (engine.isHeadless()) {
