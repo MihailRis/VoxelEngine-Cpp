@@ -46,4 +46,10 @@ world.is_night() -> bool
 
 -- Checks the existence of a world by name.
 world.exists() -> bool
+
+-- Serializes and compresses the world chunk into a byte array
+world.get_chunk_data(x:number, z:number) -> bytearray
+
+-- Deserializes a chunk from a compressed byte array and stores it in the current world
+world.set_chunk_data(x:number, z:number, data:bytearray)
 ```

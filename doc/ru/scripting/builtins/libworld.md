@@ -43,4 +43,10 @@ world.is_day() -> bool
 
 -- Проверяет является ли текущее время ночью. От 0.833(8 вечера) до 0.333(8 утра).
 world.is_night() -> bool
+
+-- Сериализует и сжимает чанк мира в массив байт
+world.get_chunk_data(x:number, z:number) -> bytearray
+
+-- Десериализует чанк из сжатого массива байт и сохраняет его в текущем мире
+world.set_chunk_data(x:number, z:number, data:bytearray)
 ```
