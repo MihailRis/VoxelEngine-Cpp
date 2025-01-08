@@ -36,6 +36,9 @@ static int l_load_content(lua::State* L) {
 }
 
 static int l_reset_content(lua::State* L) {
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     engine->resetContent();
     return 0;
 }
