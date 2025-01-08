@@ -16,6 +16,11 @@ end)
 
 -- Вариант для двоичных файлов, с массивом байт вместо строки в ответе.
 network.get_binary(url: str, callback: function(table|ByteArray))
+
+-- Выполняет POST запрос к указанному URL.
+-- На данный момент реализована поддержка только `Content-Type: application/json`
+-- После получения ответа, передаёт текст в функцию callback.
+network.post(url: str, data: table, callback: function(str))
 ```
 
 ## TCP-Соединения
