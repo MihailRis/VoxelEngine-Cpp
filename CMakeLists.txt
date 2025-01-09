@@ -30,10 +30,7 @@ if(VOXELENGINE_BUILD_APPDIR)
 endif()
 
 if(MSVC)
-    target_compile_options(
-        VoxelEngine
-        PRIVATE /source-charset:UTF-8 /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
-                /W4)
+
 else()
     target_compile_options(
         VoxelEngine

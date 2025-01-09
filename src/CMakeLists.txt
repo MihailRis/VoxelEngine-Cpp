@@ -66,6 +66,7 @@ target_include_directories(
     VoxelEngineSrc
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
     PRIVATE ${LUA_INCLUDE_DIR})
+
 target_link_libraries(
     VoxelEngineSrc
     PRIVATE glfw
@@ -80,3 +81,7 @@ target_link_libraries(
     PUBLIC glm::glm # Need public for src/delegates.hpp, which including to
                     # main.cpp
 )
+
+target_compile_options(
+    VoxelEngineSrc PUBLIC /source-charset:UTF-8
+                          /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR /W4)

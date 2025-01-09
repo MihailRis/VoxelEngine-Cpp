@@ -6,8 +6,7 @@ add_executable(vctest ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
 target_include_directories(vctest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 if(MSVC)
-    target_compile_options(
-        vctest PRIVATE /W4)
+    target_compile_options(vctest PRIVATE /W4)
 else()
     target_compile_options(
         vctest
