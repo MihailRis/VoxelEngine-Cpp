@@ -8,7 +8,7 @@ add_library(VoxelEngineSrc STATIC ${SOURCES} ${HEADERS})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(glm CONFIG REQUIRED)
+find_package(glm REQUIRED)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # specific for vcpkg
     find_package(OpenAL CONFIG REQUIRED)
