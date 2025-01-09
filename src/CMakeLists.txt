@@ -78,8 +78,8 @@ target_link_libraries(
             OpenAL::OpenAL
             ${VORBIS_LIBRARIES}
             ${LUA_LIBRARIES}
-    PUBLIC glm::glm # Need public for src/delegates.hpp, which including to
-                    # main.cpp
+    PUBLIC glm::glm-header-only # Need public for src/delegates.hpp, which
+                                # including to main.cpp
 )
 
 target_compile_options(
