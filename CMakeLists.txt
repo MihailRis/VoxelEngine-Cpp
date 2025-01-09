@@ -58,8 +58,8 @@ endif()
 
 target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie
                     -lstdc++fs>)
-
-target_link_libraries(VoxelEngine PRIVATE VoxelEngineSrc
+find_package(glm REQUIRED)
+target_link_libraries(VoxelEngine PRIVATE VoxelEngineSrc glm::glm
                                           $<$<PLATFORM_ID:Windows>:winmm>)
 
 # Deploy res to build dir
