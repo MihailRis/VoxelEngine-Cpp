@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main", "release-**"]
   pull_request:
-    branches: [ "main", "headless-mode" ]
+    branches: [ "main" ]
 
 jobs:
   build-dmg:
@@ -44,7 +44,7 @@ jobs:
         run: |
           chmod +x build/VoxelEngine
           chmod +x AppDir/usr/bin/vctest
-          AppDir/usr/bin/vctest -e build/VoxelEngine -d dev/tests -u build --output-always
+          AppDir/usr/bin/vctest -e build/VoxelEngine -d dev/tests -u build
       - name: Create DMG
         run: |
           mkdir VoxelEngineDmgContent

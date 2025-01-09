@@ -12,11 +12,9 @@ function gui_util.parse_query(query)
         local argstr = string.sub(query, index + 1)
         name = string.sub(query, 1, index - 1)
         
-        local map = {}
         for key, value in string.gmatch(argstr, "([^=&]*)=([^&]*)") do
-            map[key] = value
+            args[key] = value
         end
-        table.insert(args, map)
     else
         name = query
     end

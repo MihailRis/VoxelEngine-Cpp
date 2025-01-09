@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main", "release-**"]
   pull_request:
-    branches: [ "main", "headless-mode" ]
+    branches: [ "main" ]
 
 jobs:
   build-windows:
@@ -67,4 +67,4 @@ jobs:
         shell: msys2 {0}
         working-directory: ${{ github.workspace }}
         run: |
-          packaged/vctest.exe -e packaged/VoxelCore.exe -d dev/tests -u build --output-always
+          packaged/vctest.exe -e packaged/VoxelCore.exe -d dev/tests -u build

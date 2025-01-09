@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main", "release-**"]
   pull_request:
-    branches: [ "main", "headless-mode" ]
+    branches: [ "main" ]
 
 jobs:
   build-windows:
@@ -37,7 +37,7 @@ jobs:
         run: ctest --preset default-vs-msvc-windows
       - name: Run engine tests
         run: |
-            build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build --output-always
+            build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build
         timeout-minutes: 1
       - name: Package for Windows
         run: |

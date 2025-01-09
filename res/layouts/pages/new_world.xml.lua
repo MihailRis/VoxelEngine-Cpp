@@ -1,6 +1,6 @@
 settings = session.get_entry('new_world')
 
-local function world_name_validator(name)
+function world_name_validator(name)
     return name:match("^[%w-\\.\\ ]+$") ~= nil and not world.exists(name)
 end
 
