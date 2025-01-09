@@ -8,6 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(VOXELENGINE_BUILD_APPDIR "" OFF)
 option(VOXELENGINE_BUILD_TESTS "" OFF)
 
+add_subdirectory(src)
+add_executable(VoxelEngine src/main.cpp)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # We use two types linking: for clang build is static (vcpkg triplet
     # x64-windows-static) and for msvc build is dynamic linking (vcpkg triplet
@@ -20,9 +23,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         target_link_options(VoxelEngine PRIVATE $<$<COMPILER_ID:Clang>:-static>)
     endif()
 endif()
-
-add_subdirectory(src)
-add_executable(VoxelEngine src/main.cpp)
 
 if(VOXELENGINE_BUILD_APPDIR)
     include(${CMAKE_CURRENT_SOURCE_DIR}/dev/cmake/BuildAppdir.cmake)
