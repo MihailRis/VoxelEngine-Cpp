@@ -42,20 +42,12 @@ elseif(APPLE)
     find_package(PkgConfig)
 
     pkg_check_modules(LUAJIT REQUIRED luajit)
-    set(LUA_INCLUDE_DIR "/opt/homebrew/include/luajit-2.1")
-    set(LUA_LIBRARIES "/opt/homebrew/lib/libluajit-5.1.a")
-
     pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
-    set(VORBIS_LIBRARIES ${VORBIS_LDFLAGS})
 else()
     find_package(PkgConfig)
 
     pkg_check_modules(LUAJIT REQUIRED luajit)
-    set(LUA_LIBRARIES ${LUAJIT_LIBRARIES})
-    set(LUA_INCLUDE_DIR ${LUAJIT_INCLUDE_DIRS})
-
     pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
-    set(VORBIS_LIBRARIES ${VORBIS_LDFLAGS})
 endif()
 
 if(UNIX)
@@ -65,7 +57,7 @@ endif()
 target_include_directories(
     VoxelEngineSrc
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE ${LUA_INCLUDE_DIR})
+    PRIVATE ${LUAJIT_INCLUDE_DIR})
 
 target_link_libraries(
     VoxelEngineSrc
@@ -77,7 +69,7 @@ target_link_libraries(
             CURL::libcurl
             OpenAL::OpenAL
             ${VORBIS_LIBRARIES}
-            ${LUA_LIBRARIES}
+            ${LUAJIT_LIBRARIES}
     PUBLIC glm::glm # Need public for src/delegates.hpp, which including to
                     # main.cpp
 )
