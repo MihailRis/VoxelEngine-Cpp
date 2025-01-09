@@ -7,7 +7,7 @@
 
 PacksManager::PacksManager() = default;
 
-void PacksManager::setSources(std::vector<fs::path> sources) {
+void PacksManager::setSources(std::vector<std::pair<std::string, fs::path>> sources) {
     this->sources = std::move(sources);
 }
 
@@ -15,8 +15,8 @@ void PacksManager::scan() {
     packs.clear();
 
     std::vector<ContentPack> packsList;
-    for (auto& folder : sources) {
-        ContentPack::scanFolder(folder, packsList);
+    for (auto& [path, folder] : sources) {
+        ContentPack::scanFolder(path, folder, packsList);
         for (auto& pack : packsList) {
             packs.try_emplace(pack.id, pack);
         }
@@ -116,7 +116,7 @@ static bool resolve_dependencies(
     return satisfied;
 }
 
-std::vector<std::string> PacksManager::assembly(
+std::vector<std::string> PacksManager::assemble(
     const std::vector<std::string>& names
 ) const {
     std::vector<std::string> allNames = names;

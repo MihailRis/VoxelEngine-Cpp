@@ -16,6 +16,11 @@ end)
 
 -- A variant for binary files, with a byte array instead of a string in the response.
 network.get_binary(url: str, callback: function(table|ByteArray))
+
+-- Performs a POST request to the specified URL.
+-- Currently, only `Content-Type: application/json` is supported
+-- After receiving the response, passes the text to the callback function.
+network.post(url: str, data: table, callback: function(str))
 ```
 
 ## TCP Connections
@@ -53,6 +58,9 @@ socket:recv(
 
 -- Closes the connection
 socket:close()
+
+-- Returns the number of data bytes available for reading
+socket:available() --> int
 
 -- Checks that the socket exists and is not closed.
 socket:is_alive() --> bool

@@ -2,15 +2,19 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 class Engine;
 class World;
+class ContentReport;
 class LevelController;
 
 class EngineController {
-    Engine* engine;
+    Engine& engine;
+
+    void onMissingContent(const std::shared_ptr<ContentReport>& report);
 public:
-    EngineController(Engine* engine);
+    EngineController(Engine& engine);
 
     /// @brief Load world, convert if required and set to LevelScreen.
     /// @param name world name

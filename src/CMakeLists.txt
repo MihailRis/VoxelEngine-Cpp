@@ -4,15 +4,19 @@ set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/voxel_engine.cpp)
+list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
-
-option(VOXELENGINE_BUILD_WINDOWS_VCPKG ON)
+add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(OpenAL REQUIRED)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # specific for vcpkg
+    find_package(OpenAL CONFIG REQUIRED)
+    set(OPENAL_LIBRARY OpenAL::OpenAL)
+else()
+    find_package(OpenAL REQUIRED)
+endif()
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(CURL REQUIRED)
@@ -20,19 +24,23 @@ if (NOT APPLE)
     find_package(EnTT REQUIRED)
 endif()
 
-if (WIN32)
-    if(VOXELENGINE_BUILD_WINDOWS_VCPKG)
-      set(LUA_LIBRARIES "${CMAKE_CURRENT_SOURCE_DIR}/../vcpkg/packages/luajit_x64-windows/lib/lua51.lib")
-      set(LUA_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../vcpkg/packages/luajit_x64-windows/include/luajit")
-      find_package(glfw3 REQUIRED)
-      find_package(glm REQUIRED)
-      find_package(vorbis REQUIRED)
-      set(VORBISLIB Vorbis::vorbis Vorbis::vorbisfile)
+set(LIBS "")
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # Use directly linking to lib instead PkgConfig (because pkg-config dont install on windows as default) 
+    # TODO: Do it with findLua.
+    if (MSVC)
+        set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
+        find_package(Lua REQUIRED)
     else()
-      find_package(Lua REQUIRED)
-      set(VORBISLIB vorbis vorbisfile) # not tested
-      add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/glfw)
+        # Used for mingw-clang cross compiling from msys2
+        set(LIBS ${LIBS} luajit-5.1)
     endif()
+    find_package(glfw3 REQUIRED)
+    find_package(glm REQUIRED)
+    find_package(vorbis REQUIRED)
+    set(VORBISLIB Vorbis::vorbis Vorbis::vorbisfile)
+
 elseif(APPLE)
     find_package(PkgConfig)
     pkg_check_modules(LUAJIT REQUIRED luajit)
@@ -52,8 +60,6 @@ else()
     set(LUA_INCLUDE_DIR ${LUAJIT_INCLUDE_DIRS})
     set(VORBISLIB ${VORBIS_LDFLAGS})
 endif()
-
-set(LIBS "")
 
 if(UNIX)
     find_package(glfw3 3.3 REQUIRED)

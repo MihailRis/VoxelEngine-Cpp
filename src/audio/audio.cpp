@@ -8,6 +8,9 @@
 #include "coders/wav.hpp"
 #include "AL/ALAudio.hpp"
 #include "NoAudio.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("audio");
 
 namespace audio {
     static speakerid_t nextId = 1;
@@ -147,10 +150,14 @@ public:
 
 void audio::initialize(bool enabled) {
     if (enabled) {
+        logger.info() << "initializing ALAudio backend";
         backend = ALAudio::create().release();
     }
     if (backend == nullptr) {
-        std::cerr << "could not to initialize audio" << std::endl;
+        if (enabled) {
+            std::cerr << "could not to initialize audio" << std::endl;
+        }
+        logger.info() << "initializing NoAudio backend";
         backend = NoAudio::create().release();
     }
     create_channel("master");

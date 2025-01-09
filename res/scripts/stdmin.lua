@@ -34,11 +34,11 @@ end
 
 
 function timeit(iters, func, ...)
-    local tm = time.uptime()
+    local tm = os.clock()
     for i=1,iters do
         func(...)
     end
-    print("[time mcs]", (time.uptime()-tm) * 1000000)
+    print("[time mcs]", (os.clock()-tm) * 1000000)
 end
 
 ----------------------------------------------
@@ -360,4 +360,21 @@ function __vc_warning(msg, detail, n)
         events.emit(
             "core:warning", msg, detail, debug.get_traceback(1 + (n or 0)))
     end
+end
+
+function file.name(path)
+    return path:match("([^:/\\]+)$")
+end
+
+function file.stem(path)
+    local name = file.name(path)
+    return name:match("(.+)%.[^%.]+$") or name
+end
+
+function file.ext(path)
+    return path:match("%.([^:/\\]+)$")
+end
+
+function file.prefix(path)
+    return path:match("^([^:]+)")
 end

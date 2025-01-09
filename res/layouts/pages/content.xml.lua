@@ -185,8 +185,14 @@ function refresh()
         end
     end
 
+    local packids = {unpack(packs_installed)}
+    for i,k in ipairs(packs_available) do
+        table.insert(packids, k)
+    end
+    local packinfos = pack.get_info(packids)
+
     for i,id in ipairs(packs_installed) do
-        local packinfo = pack.get_info(id)
+        local packinfo = packinfos[id]
         packinfo.index = i
         callback = not table.has(base_packs, id) and string.format('move_pack("%s")', id) or nil
         packinfo.error = check_dependencies(packinfo)
@@ -194,7 +200,7 @@ function refresh()
     end
 
     for i,id in ipairs(packs_available) do
-        local packinfo = pack.get_info(id)
+        local packinfo = packinfos[id]
         packinfo.index = i
         callback = string.format('move_pack("%s")', id)
         packinfo.error = check_dependencies(packinfo)

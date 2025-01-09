@@ -18,7 +18,7 @@ struct CameraSettings;
 struct EngineSettings;
 
 class CameraControl {
-    Player* player;
+    Player& player;
     std::shared_ptr<Camera> camera;
     const CameraSettings& settings;
     glm::vec3 offset;
@@ -39,24 +39,21 @@ class CameraControl {
     /// @brief Switch active player camera
     void switchCamera();
 public:
-    CameraControl(
-        Player* player, const CameraSettings& settings
-    );
+    CameraControl(Player& player, const CameraSettings& settings);
     void updateMouse(PlayerInput& input);
-    void update(PlayerInput input, float delta, Chunks* chunks);
+    void update(PlayerInput input, float delta, const Chunks& chunks);
     void refresh();
 };
 
 class PlayerController {
     const EngineSettings& settings;
-    Level* level;
-    Player* player;
+    Level& level;
+    Player& player;
     PlayerInput input {};
     CameraControl camControl;
-    BlocksController* blocksController;
-    util::Clock playerTickClock;
-
+    BlocksController& blocksController;
     float interactionTimer = 0.0f;
+    
     void updateKeyboard();
     void resetKeyboard();
     void updatePlayer(float delta);
@@ -71,9 +68,21 @@ class PlayerController {
     voxel* updateSelection(float maxDistance);
 public:
     PlayerController(
-        const EngineSettings& settings, Level* level, BlocksController* blocksController
+        const EngineSettings& settings,
+        Level& level,
+        Player& player,
+        BlocksController& blocksController
     );
-    void update(float delta, bool input, bool pause);
+
+    /// @brief Called after blocks update if not paused
+    /// @param delta delta time
+    /// @param input process user input
+    void update(float delta, bool input);
+
+    /// @brief Called after whole level update
+    /// @param delta delta time
+    /// @param input process user input
+    /// @param pause is game paused
     void postUpdate(float delta, bool input, bool pause);
     Player* getPlayer();
 };

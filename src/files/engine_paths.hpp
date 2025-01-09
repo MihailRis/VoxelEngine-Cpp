@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <stdexcept>
+#include <optional>
 #include <string>
 #include <vector>
 #include <tuple>
@@ -26,6 +27,8 @@ public:
     void setResourcesFolder(std::filesystem::path folder);
     std::filesystem::path getResourcesFolder() const;
 
+    void setScriptFolder(std::filesystem::path folder);
+
     std::filesystem::path getWorldFolderByName(const std::string& name);
     std::filesystem::path getWorldsFolder() const;
     std::filesystem::path getConfigFolder() const;
@@ -39,9 +42,9 @@ public:
 
     void setContentPacks(std::vector<ContentPack>* contentPacks);
 
-    std::vector<std::filesystem::path> scanForWorlds();
+    std::vector<std::filesystem::path> scanForWorlds() const;
 
-    std::filesystem::path resolve(const std::string& path, bool throwErr = true);
+    std::filesystem::path resolve(const std::string& path, bool throwErr = true) const;
 
     static std::tuple<std::string, std::string> parsePath(std::string_view view);
 
@@ -51,6 +54,7 @@ private:
     std::filesystem::path userFilesFolder {"."};
     std::filesystem::path resourcesFolder {"res"};
     std::filesystem::path currentWorldFolder;
+    std::optional<std::filesystem::path> scriptFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
 };
 

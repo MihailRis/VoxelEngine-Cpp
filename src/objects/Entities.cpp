@@ -7,7 +7,7 @@
 #include "content/Content.hpp"
 #include "data/dv_util.hpp"
 #include "debug/Logger.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/LineBatch.hpp"
 #include "graphics/commons/Model.hpp"
@@ -59,7 +59,7 @@ void Entity::setRig(const rigging::SkeletonConfig* rigConfig) {
     );
 }
 
-Entities::Entities(Level* level)
+Entities::Entities(Level& level)
     : level(level), sensorsTickClock(20, 3), updateTickClock(20, 3) {
 }
 
@@ -117,7 +117,7 @@ entityid_t Entities::spawn(
     dv::value saved,
     entityid_t uid
 ) {
-    auto skeleton = level->content->getSkeleton(def.skeletonName);
+    auto skeleton = level.content.getSkeleton(def.skeletonName);
     if (skeleton == nullptr) {
         throw std::runtime_error("skeleton " + def.skeletonName + " not found");
     }
@@ -162,7 +162,7 @@ entityid_t Entities::spawn(
 
     for (auto& componentName : def.components) {
         auto component = std::make_unique<UserComponent>(
-            componentName, entity_funcs_set {}, nullptr
+            componentName, EntityFuncsSet {}, nullptr
         );
         scripting.components.emplace_back(std::move(component));
     }
@@ -190,7 +190,7 @@ void Entities::despawn(entityid_t id) {
 void Entities::loadEntity(const dv::value& map) {
     entityid_t uid = map["uid"].asInteger();
     std::string defname = map["def"].asString();
-    auto& def = level->content->entities.require(defname);
+    auto& def = level.content.entities.require(defname);
     spawn(def, {}, nullptr, map, uid);
 }
 
@@ -219,7 +219,7 @@ void Entities::loadEntity(const dv::value& map, Entity entity) {
     std::string skeletonName = skeleton.config->getName();
     map.at("skeleton").get(skeletonName);
     if (skeletonName != skeleton.config->getName()) {
-        skeleton.config = level->content->getSkeleton(skeletonName);
+        skeleton.config = level.content.getSkeleton(skeletonName);
     }
     if (auto found = map.at(COMP_SKELETON)) {
         auto& skeletonmap = *found;
@@ -361,8 +361,8 @@ dv::value Entities::serialize(const std::vector<Entity>& entities) {
         if (!entity.getDef().save.enabled) {
             continue;
         }
-        level->entities->onSave(entity);
-        list.add(level->entities->serialize(entity));
+        level.entities->onSave(entity);
+        list.add(level.entities->serialize(entity));
     }
     return list;
 }
@@ -380,7 +380,7 @@ void Entities::clean() {
         } else {
             auto& rigidbody = registry.get<Rigidbody>(it->second);
             // todo: refactor
-            auto physics = level->physics.get();
+            auto physics = level.physics.get();
             for (auto& sensor : rigidbody.sensors) {
                 physics->removeSensor(&sensor);
             }
@@ -428,7 +428,7 @@ void Entities::preparePhysics(float delta) {
         auto parts = sensorsTickClock.getParts();
 
         auto view = registry.view<EntityId, Transform, Rigidbody>();
-        auto physics = level->physics.get();
+        auto physics = level.physics.get();
         std::vector<Sensor*> sensors;
         for (auto [entity, eid, transform, rigidbody] : view.each()) {
             if (!rigidbody.enabled) {
@@ -447,7 +447,7 @@ void Entities::updatePhysics(float delta) {
     preparePhysics(delta);
 
     auto view = registry.view<EntityId, Transform, Rigidbody>();
-    auto physics = level->physics.get();
+    auto physics = level.physics.get();
     for (auto [entity, eid, transform, rigidbody] : view.each()) {
         if (!rigidbody.enabled || rigidbody.hitbox.type == BodyType::STATIC) {
             continue;
@@ -459,7 +459,7 @@ void Entities::updatePhysics(float delta) {
         float vel = glm::length(prevVel);
         int substeps = static_cast<int>(delta * vel * 20);
         substeps = std::min(100, std::max(2, substeps));
-        physics->step(level->chunks.get(), &hitbox, delta, substeps, eid.uid);
+        physics->step(*level.chunks, hitbox, delta, substeps, eid.uid);
         hitbox.linearDamping = hitbox.grounded * 24;
         transform.setPos(hitbox.position);
         if (hitbox.grounded && !grounded) {
@@ -556,10 +556,6 @@ void Entities::render(
     float delta,
     bool pause
 ) {
-    if (!pause) {
-        scripting::on_entities_render(delta);
-    }
-
     auto view = registry.view<Transform, rigging::Skeleton>();
     for (auto [entity, transform, skeleton] : view.each()) {
         if (transform.dirty) {

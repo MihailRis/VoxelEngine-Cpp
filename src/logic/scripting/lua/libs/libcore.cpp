@@ -6,7 +6,7 @@
 #include "constants.hpp"
 #include "content/Content.hpp"
 #include "debug/Logger.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "files/settings_io.hpp"
@@ -16,6 +16,7 @@
 #include "logic/EngineController.hpp"
 #include "logic/LevelController.hpp"
 #include "util/listutil.hpp"
+#include "util/platform.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
@@ -27,6 +28,19 @@ static int l_get_version(lua::State* L) {
     return lua::pushvec_stack(
         L, glm::vec2(ENGINE_VERSION_MAJOR, ENGINE_VERSION_MINOR)
     );
+}
+
+static int l_load_content(lua::State* L) {
+    engine->loadContent();
+    return 0;
+}
+
+static int l_reset_content(lua::State* L) {
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
+    engine->resetContent();
+    return 0;
 }
 
 /// @brief Creating new world
@@ -55,7 +69,19 @@ static int l_open_world(lua::State* L) {
 /// @brief Reopen world
 static int l_reopen_world(lua::State*) {
     auto controller = engine->getController();
+    if (level == nullptr) {
+        throw std::runtime_error("no world open");
+    }
     controller->reopenWorld(level->getWorld());
+    return 0;
+}
+
+/// @brief Save world
+static int l_save_world(lua::State* L) {
+    if (controller == nullptr) {
+        throw std::runtime_error("no world open");
+    }
+    controller->saveWorld();
     return 0;
 }
 
@@ -69,10 +95,7 @@ static int l_close_world(lua::State* L) {
     if (save_world) {
         controller->saveWorld();
     }
-    // destroy LevelScreen and run quit callbacks
-    engine->setScreen(nullptr);
-    // create and go to menu screen
-    engine->setScreen(std::make_shared<MenuScreen>(engine));
+    engine->onWorldClosed();
     return 0;
 }
 
@@ -90,36 +113,27 @@ static int l_delete_world(lua::State* L) {
 /// @param remPacks An array of packs to remove
 static int l_reconfig_packs(lua::State* L) {
     if (!lua::istable(L, 1)) {
-        throw std::runtime_error("strings array expected as the first argument"
-        );
+        throw std::runtime_error("strings array expected as the first argument");
     }
     if (!lua::istable(L, 2)) {
-        throw std::runtime_error("strings array expected as the second argument"
-        );
+        throw std::runtime_error("strings array expected as the second argument");
     }
     std::vector<std::string> addPacks;
-    if (!lua::istable(L, 1)) {
-        throw std::runtime_error("an array expected as argument 1");
-    }
     int addLen = lua::objlen(L, 1);
     for (int i = 0; i < addLen; i++) {
         lua::rawgeti(L, i + 1, 1);
-        addPacks.emplace_back(lua::tostring(L, -1));
+        addPacks.emplace_back(lua::require_lstring(L, -1));
         lua::pop(L);
     }
-
     std::vector<std::string> remPacks;
-    if (!lua::istable(L, 2)) {
-        throw std::runtime_error("an array expected as argument 2");
-    }
     int remLen = lua::objlen(L, 2);
     for (int i = 0; i < remLen; i++) {
         lua::rawgeti(L, i + 1, 2);
-        remPacks.emplace_back(lua::tostring(L, -1));
+        remPacks.emplace_back(lua::require_lstring(L, -1));
         lua::pop(L);
     }
-    auto engine_controller = engine->getController();
-    engine_controller->reconfigPacks(controller, addPacks, remPacks);
+    auto engineController = engine->getController();
+    engineController->reconfigPacks(controller, addPacks, remPacks);
     return 0;
 }
 
@@ -223,25 +237,31 @@ static int l_load_texture(lua::State* L) {
     return 0;
 }
 
-#include "util/platform.hpp"
-
 static int l_open_folder(lua::State* L) {
-    auto path = engine->getPaths()->resolve(lua::require_string(L, 1));
+    auto path = engine->getPaths().resolve(lua::require_string(L, 1));
     platform::open_folder(path);
     return 0;
 }
 
 /// @brief Quit the game
 static int l_quit(lua::State*) {
-    Window::setShouldClose(true);
+    engine->quit();
+    return 0;
+}
+
+static int l_blank(lua::State*) {
     return 0;
 }
 
 const luaL_Reg corelib[] = {
+    {"blank", lua::wrap<l_blank>},
     {"get_version", lua::wrap<l_get_version>},
+    {"load_content", lua::wrap<l_load_content>},
+    {"reset_content", lua::wrap<l_reset_content>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
+    {"save_world", lua::wrap<l_save_world>},
     {"close_world", lua::wrap<l_close_world>},
     {"delete_world", lua::wrap<l_delete_world>},
     {"reconfig_packs", lua::wrap<l_reconfig_packs>},

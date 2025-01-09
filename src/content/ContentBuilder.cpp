@@ -91,10 +91,18 @@ std::unique_ptr<Content> ContentBuilder::build() {
     for (Block* def : blockDefsIndices) {
         def->rt.pickingItem = content->items.require(def->pickingItem).rt.id;
         def->rt.surfaceReplacement = content->blocks.require(def->surfaceReplacement).rt.id;
+        if (def->properties == nullptr) {
+            def->properties = dv::object();
+            def->properties["name"] = def->name;
+        }
     }
 
     for (ItemDef* def : itemDefsIndices) {
         def->rt.placingBlock = content->blocks.require(def->placingBlock).rt.id;
+        if (def->properties == nullptr) {
+            def->properties = dv::object();
+        }
+        def->properties["name"] = def->name;
     }
 
     for (auto& [name, def] : content->generators.getDefs()) {

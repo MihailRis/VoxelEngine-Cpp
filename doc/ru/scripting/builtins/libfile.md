@@ -25,6 +25,12 @@ file.read_bytes(путь: str) -> array of integers
 
 Читает файл в массив байт.
 
+```lua
+file.is_writeable(путь: str) -> bool
+```
+
+Проверяет, доступно ли право записи по указанному пути.
+
 ```python
 file.write(путь: str, текст: str) -> nil
 ```
@@ -114,3 +120,27 @@ file.read_combined_object(путь: str) -> массив
 ```
 
 Совмещает объекты из JSON файлов разных паков.
+
+```lua
+file.name(путь: str) --> str
+```
+
+Извлекает имя файла из пути. Пример: `world:data/base/config.toml` -> `config.toml`.
+
+```lua
+file.stem(путь: str) --> str
+```
+
+Извлекает имя файла из пути, удаляя расширение. Пример: `world:data/base/config.toml` -> `config`.
+
+```lua
+file.ext(путь: str) --> str
+```
+
+Извлекает расширение из пути. Пример: `world:data/base/config.toml` -> `toml`.
+
+```lua
+file.prefix(путь: str) --> str
+```
+
+Извлекает точку входа (префикс) из пути. Пример: `world:data/base/config.toml` -> `world`.

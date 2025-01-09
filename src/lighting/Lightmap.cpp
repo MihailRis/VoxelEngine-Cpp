@@ -2,16 +2,15 @@
 
 #include "util/data_io.hpp"
 
-#include <assert.h>
+#include <cassert>
+#include <cstring>
 
 void Lightmap::set(const Lightmap* lightmap) {
     set(lightmap->map);
 }
 
 void Lightmap::set(const light_t* map) {
-    for (size_t i = 0; i < CHUNK_VOL; i++) {
-        this->map[i] = map[i];
-    }
+    std::memcpy(this->map, map, sizeof(light_t) * CHUNK_VOL);
 }
 
 static_assert(sizeof(light_t) == 2, "replace dataio calls to new light_t");

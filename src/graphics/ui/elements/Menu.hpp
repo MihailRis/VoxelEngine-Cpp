@@ -8,9 +8,10 @@ namespace gui {
     struct Page {
         std::string name;
         std::shared_ptr<UINode> panel;
+        bool temporal = false;
     };
 
-    using page_loader_func = std::function<std::shared_ptr<UINode>(const std::string& name)>;
+    using PageLoaderFunc = std::function<std::shared_ptr<UINode>(const std::string&)>;
 
     class Menu : public Container {
     protected:
@@ -18,7 +19,7 @@ namespace gui {
         std::stack<Page> pageStack;
         Page current;
         std::unordered_map<std::string, supplier<std::shared_ptr<UINode>>> pageSuppliers;
-        page_loader_func pagesLoader = nullptr;
+        PageLoaderFunc pagesLoader = nullptr;
     public:
         Menu();
 
@@ -31,16 +32,26 @@ namespace gui {
         /// @param history previous page will not be saved in history if false
         void setPage(const std::string &name, bool history=true);
         void setPage(Page page, bool history=true);
-        void addPage(const std::string& name, const std::shared_ptr<UINode>& panel);
-        std::shared_ptr<UINode> fetchPage(const std::string& name);
+        void addPage(
+            const std::string& name,
+            const std::shared_ptr<UINode>& panel,
+            bool temporal = false
+        );
+        void removePage(const std::string& name);
+        Page fetchPage(const std::string& name);
 
         /// @brief Add page supplier used if page is not found
         /// @param name page name
         /// @param pageSupplier page supplier function
-        void addSupplier(const std::string& name, const supplier<std::shared_ptr<UINode>>& pageSupplier);
+        void addSupplier(
+            const std::string& name,
+            const supplier<std::shared_ptr<UINode>>& pageSupplier
+        );
 
         /// @brief Page loader is called if accessed page is not found 
-        void setPageLoader(page_loader_func loader);
+        void setPageLoader(PageLoaderFunc loader);
+
+        PageLoaderFunc getPageLoader();
 
         /// @brief Set page to previous saved in history
         void back();

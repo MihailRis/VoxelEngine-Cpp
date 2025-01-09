@@ -39,6 +39,12 @@ jobs:
       - name: Run tests
         run: ctest --output-on-failure --test-dir build
 
+      - name: Run engine tests
+        timeout-minutes: 1
+        run: |
+          chmod +x build/VoxelEngine
+          chmod +x AppDir/usr/bin/vctest
+          AppDir/usr/bin/vctest -e build/VoxelEngine -d dev/tests -u build
       - name: Create DMG
         run: |
           mkdir VoxelEngineDmgContent

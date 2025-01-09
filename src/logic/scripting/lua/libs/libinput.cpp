@@ -1,14 +1,15 @@
 #include <filesystem>
 
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "files/files.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "graphics/ui/GUI.hpp"
+#include "graphics/ui/elements/Container.hpp"
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
-#include "api_lua.hpp"
+#include "libgui.hpp"
 
 namespace scripting {
     extern Hud* hud;
@@ -30,24 +31,47 @@ static int l_mousecode(lua::State* L) {
 }
 
 static int l_add_callback(lua::State* L) {
-    auto bindname = lua::require_string(L, 1);
+    std::string bindname = lua::require_string(L, 1);
+    size_t pos = bindname.find(':');
+
+    lua::pushvalue(L, 2);
+    auto actual_callback = lua::create_simple_handler(L);
+    observer_handler handler;
+    
+    if (pos != std::string::npos) {
+        std::string prefix = bindname.substr(0, pos);
+        if (prefix == "key") {
+            auto key = input_util::keycode_from(bindname.substr(pos + 1));
+            handler = Events::keyCallbacks[key].add(actual_callback);
+        }
+    }
+
     const auto& bind = Events::bindings.find(bindname);
     if (bind == Events::bindings.end()) {
         throw std::runtime_error("unknown binding " + util::quote(bindname));
     }
-    lua::pushvalue(L, 2);
-    runnable actual_callback = lua::create_runnable(L);
-    runnable callback = [=]() {
+    auto callback = [=]() -> bool {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
-            actual_callback();
+            return actual_callback();
         }
+        return false;
     };
-    if (hud) {
-        hud->keepAlive(bind->second.onactived.add(callback));
-    } else {
-        throw std::runtime_error("on_hud_open is not called yet");
+    if (handler == nullptr) {
+        handler = bind->second.onactived.add(callback);
     }
-    return 0;
+
+    if (hud) {
+        hud->keepAlive(handler);
+        return 0;
+    } else if (lua::gettop(L) >= 3) {
+        auto node = get_document_node(L, 3);
+        if (auto container = std::dynamic_pointer_cast<gui::Container>(node.node)) {
+            container->keepAlive(handler);
+            return 0;
+        }
+        throw std::runtime_error("owner expected to be a container");
+    }
+    throw std::runtime_error("on_hud_open is not called yet");
 }
 
 static int l_get_mouse_pos(lua::State* L) {
@@ -125,7 +149,7 @@ static void resetPackBindings(fs::path& packFolder) {
 }
 
 static int l_reset_bindings(lua::State*) {
-    auto resFolder = engine->getPaths()->getResourcesFolder();
+    auto resFolder = engine->getPaths().getResourcesFolder();
     resetPackBindings(resFolder);
     for (auto& pack : engine->getContentPacks()) {
         resetPackBindings(pack.folder);

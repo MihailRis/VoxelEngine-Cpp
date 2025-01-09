@@ -12,4 +12,5 @@ namespace platform {
     void open_folder(const std::filesystem::path& folder);
     /// Makes the current thread sleep for the specified amount of milliseconds.
     void sleep(size_t millis);
+    int get_process_id();
 }

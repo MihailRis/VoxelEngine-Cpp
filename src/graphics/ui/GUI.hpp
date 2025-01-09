@@ -13,6 +13,7 @@ class Viewport;
 class DrawContext;
 class Assets;
 class Camera;
+class Batch2D;
 
 /*
  Some info about padding and margin.
@@ -50,8 +51,11 @@ namespace gui {
     class Container;
     class Menu;
 
+    using PageLoaderFunc = std::function<std::shared_ptr<UINode>(const std::string&)>;
+
     /// @brief The main UI controller
     class GUI {
+        std::unique_ptr<Batch2D> batch2D;
         std::shared_ptr<Container> container;
         std::shared_ptr<UINode> hover;
         std::shared_ptr<UINode> pressed;
@@ -62,6 +66,8 @@ namespace gui {
         std::unique_ptr<Camera> uicamera;
         std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
+
+        PageLoaderFunc pagesLoader;
 
         float tooltipTimer = 0.0f;
         float doubleClickTimer = 0.0f;
@@ -75,6 +81,10 @@ namespace gui {
     public:
         GUI();
         ~GUI();
+
+        void setPageLoader(PageLoaderFunc pageLoader);
+        
+        PageLoaderFunc getPagesLoader();
 
         /// @brief Get the main menu (Menu) node
         std::shared_ptr<Menu> getMenu();

@@ -4,7 +4,6 @@
 #include "data/dv_util.hpp"
 #include "items/Inventories.hpp"
 #include "items/Inventory.hpp"
-#include "lighting/Lighting.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
@@ -12,27 +11,26 @@
 #include "physics/PhysicsSolver.hpp"
 #include "settings.hpp"
 #include "voxels/Chunk.hpp"
-#include "voxels/Chunks.hpp"
-#include "voxels/ChunksStorage.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "window/Camera.hpp"
 #include "LevelEvents.hpp"
 #include "World.hpp"
 
 Level::Level(
     std::unique_ptr<World> worldPtr,
-    const Content* content,
+    const Content& content,
     EngineSettings& settings
 )
-    : world(std::move(worldPtr)),
+    : settings(settings),
+      world(std::move(worldPtr)),
       content(content),
-      chunksStorage(std::make_unique<ChunksStorage>(this)),
+      chunks(std::make_unique<GlobalChunks>(*this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
       events(std::make_unique<LevelEvents>()),
-      entities(std::make_unique<Entities>(this)),
-      players(std::make_unique<Players>(this)),
-      settings(settings) {
+      entities(std::make_unique<Entities>(*this)),
+      players(std::make_unique<Players>(*this)) {
     const auto& worldInfo = world->getInfo();
-    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    auto& cameraIndices = content.getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto camera = std::make_shared<Camera>();
         auto map = cameraIndices.getSavedData(i);
@@ -54,34 +52,20 @@ Level::Level(
         entities->setNextID(worldInfo.nextEntityId);
     }
 
-    uint matrixSize =
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
-        2;
-    chunks = std::make_unique<Chunks>(
-        matrixSize, matrixSize, 0, 0, world->wfile.get(), this
-    );
-    lighting = std::make_unique<Lighting>(content, chunks.get());
-
-    events->listen(EVT_CHUNK_HIDDEN, [this](lvl_event_type, Chunk* chunk) {
-        this->chunksStorage->remove(chunk->x, chunk->z);
+    events->listen(LevelEventType::EVT_CHUNK_SHOWN, [this](LevelEventType, Chunk* chunk) {
+        chunks->incref(chunk);
     });
-
+    events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
+        chunks->decref(chunk);
+    });
+    chunks->setOnUnload([this](const Chunk& chunk) {
+        AABB aabb = chunk.getAABB();
+        entities->despawn(entities->getAllInside(aabb));
+    });
     inventories = std::make_unique<Inventories>(*this);
 }
 
 Level::~Level() = default;
-
-void Level::loadMatrix(int32_t x, int32_t z, uint32_t radius) {
-    chunks->setCenter(x, z);
-    uint32_t diameter = std::min(
-        radius * 2LL,
-        (settings.chunks.loadDistance.get() + settings.chunks.padding.get()) *
-            2LL
-    );
-    if (chunks->getWidth() != diameter) {
-        chunks->resize(diameter, diameter);
-    }
-}
 
 World* Level::getWorld() {
     return world.get();
@@ -92,7 +76,7 @@ const World* Level::getWorld() const {
 }
 
 void Level::onSave() {
-    auto& cameraIndices = content->getIndices(ResourceType::CAMERA);
+    auto& cameraIndices = content.getIndices(ResourceType::CAMERA);
     for (size_t i = 0; i < cameraIndices.size(); i++) {
         auto& camera = *cameras.at(i);
         auto map = dv::object();
@@ -107,7 +91,7 @@ void Level::onSave() {
 }
 
 std::shared_ptr<Camera> Level::getCamera(const std::string& name) {
-    size_t index = content->getIndices(ResourceType::CAMERA).indexOf(name);
+    size_t index = content.getIndices(ResourceType::CAMERA).indexOf(name);
     if (index == ResourceIndices::MISSING) {
         return nullptr;
     }
