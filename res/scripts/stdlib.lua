@@ -39,6 +39,7 @@ local function complete_app_lib(app)
     app.get_setting_info = core.get_setting_info
     app.load_content = core.load_content
     app.reset_content = core.reset_content
+    app.is_content_loaded = core.is_content_loaded
     
     function app.config_packs(packs_list)
         -- Check if packs are valid and add dependencies to the configuration
