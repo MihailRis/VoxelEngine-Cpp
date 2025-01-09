@@ -65,7 +65,7 @@ endif()
 target_include_directories(
     VoxelEngineSrc
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE ${CURL_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
+    PRIVATE ${LUA_INCLUDE_DIR})
 target_link_libraries(
     VoxelEngineSrc
     PRIVATE glfw
