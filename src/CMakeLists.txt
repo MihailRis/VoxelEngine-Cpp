@@ -42,6 +42,9 @@ elseif(APPLE)
     find_package(PkgConfig)
 
     pkg_check_modules(LUAJIT REQUIRED luajit)
+    set(LUAJIT_INCLUDE_DIR ${LUAJIT_STATIC_INCLUDE_DIR})
+    set(LUAJIT_LIBRARIES ${LUAJIT_STATIC_LIBRARIES})
+
     pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
 else()
     find_package(PkgConfig)
