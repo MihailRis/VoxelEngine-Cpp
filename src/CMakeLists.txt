@@ -8,6 +8,7 @@ add_library(VoxelEngineSrc STATIC ${SOURCES} ${HEADERS})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
+find_package(glm REQUIRED)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # specific for vcpkg
     find_package(OpenAL CONFIG REQUIRED)
@@ -34,7 +35,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         target_link_libraries(VoxelEngineSrc PRIVATE luajit-5.1)
     endif()
     find_package(glfw3 REQUIRED)
-    find_package(glm REQUIRED)
     find_package(vorbis REQUIRED)
     set(VORBIS_LIBRARIES Vorbis::vorbis Vorbis::vorbisfile)
 
@@ -62,9 +62,10 @@ if(UNIX)
     find_package(glfw3 3.3 REQUIRED)
 endif()
 
-include_directories(${LUA_INCLUDE_DIR})
-include_directories(${CURL_INCLUDE_DIR})
-target_include_directories(VoxelEngineSrc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+    VoxelEngineSrc
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+    PRIVATE ${CURL_INCLUDE_DIR} ${LUA_INCLUDE_DIR})
 target_link_libraries(
     VoxelEngineSrc
     PRIVATE glfw
@@ -75,4 +76,7 @@ target_link_libraries(
             CURL::libcurl
             OpenAL::OpenAL
             ${VORBIS_LIBRARIES}
-            ${LUA_LIBRARIES})
+            ${LUA_LIBRARIES}
+    PUBLIC glm::glm # Need public for src/delegates.hpp, which including to
+                    # main.cpp
+)
