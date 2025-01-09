@@ -1,10 +1,10 @@
 project(VoxelEngineSrc)
 
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+file(GLOB_RECURSE headers ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
+file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
-add_library(VoxelEngineSrc STATIC ${SOURCES} ${HEADERS})
+add_library(VoxelEngineSrc STATIC ${sources} ${headers})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -102,9 +102,14 @@ target_compile_options(
            $<$<CONFIG:Debug>:-Og>
            >)
 
-# Need for static compilation on Windows with clang TODO: Make single build on
-# Windows to avoid dependence on combinations of platforms and compilers and
-# make it independent
 target_link_options(
-    VoxelEngineSrc PUBLIC
+    VoxelEngineSrc
+    PUBLIC
+    $<$<CXX_COMPILER_ID:GNU>:
+    -no-pie
+    -lstdc++fs
+    >
+    # Need for static compilation on Windows with clang TODO: Make single build
+    # on Windows to avoid dependence on combinations of platforms and compilers
+    # and make it independent
     $<$<PLATFORM_ID:Windows>:$<$<CXX_COMPILER_ID:Clang>:-static>>)

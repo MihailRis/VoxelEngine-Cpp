@@ -7,8 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 execute_process(COMMAND ${CMAKE_COMMAND} --version)
 
-option(VOXELENGINE_BUILD_APPDIR "" OFF)
-option(VOXELENGINE_BUILD_TESTS "" OFF)
+option(VOXELENGINE_BUILD_APPDIR "Pack linux build" OFF)
+option(VOXELENGINE_BUILD_TESTS "Build tests" OFF)
 
 # Need for static compilation on Windows with MSVC clang TODO: Make single build
 # on Windows to avoid dependence on combinations of platforms and compilers and
@@ -31,9 +31,6 @@ if(VOXELENGINE_BUILD_APPDIR)
     include(${CMAKE_CURRENT_SOURCE_DIR}/dev/cmake/BuildAppdir.cmake)
 endif()
 
-target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie
-                    -lstdc++fs>)
-
 target_link_libraries(VoxelEngine PRIVATE VoxelEngineSrc
                                           $<$<PLATFORM_ID:Windows>:winmm>)
 
@@ -45,7 +42,6 @@ add_custom_command(
             ${CMAKE_CURRENT_SOURCE_DIR}/res $<TARGET_FILE_DIR:VoxelEngine>/res)
 
 if(VOXELENGINE_BUILD_TESTS)
-    enable_testing()
     add_subdirectory(test)
 endif()
 
