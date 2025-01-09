@@ -8,9 +8,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(VOXELENGINE_BUILD_APPDIR "" OFF)
 option(VOXELENGINE_BUILD_TESTS "" OFF)
 
-add_subdirectory(src)
-add_executable(VoxelEngine src/main.cpp)
-
+# Need for static compilation on Windows with MSVC clang TODO: Make single build
+# on Windows to avoid dependence on combinations of platforms and compilers and
+# make it independent
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # We use two types linking: for clang build is static (vcpkg triplet
     # x64-windows-static) and for msvc build is dynamic linking (vcpkg triplet
@@ -19,10 +19,11 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     if(VCPKG_TARGET_TRIPLET MATCHES "static")
         # Need for MSVC clang
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-        # Need for any clang
-        target_link_options(VoxelEngine PRIVATE $<$<COMPILER_ID:Clang>:-static>)
     endif()
 endif()
+
+add_subdirectory(src)
+add_executable(VoxelEngine src/main.cpp)
 
 if(VOXELENGINE_BUILD_APPDIR)
     include(${CMAKE_CURRENT_SOURCE_DIR}/dev/cmake/BuildAppdir.cmake)
@@ -46,6 +47,13 @@ else()
                 -Wwrite-strings
                 -Wno-unused-parameter
                 $<$<CONFIG:Debug>:-Og>)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        # Need for static compilation on Windows with clang TODO: Make single
+        # build on Windows to avoid dependence on combinations of platforms and
+        # compilers and make it independent
+        target_link_options(VoxelEngine PRIVATE
+                            $<$<CXX_COMPILER_ID:Clang>:-static>)
+    endif()
 endif()
 
 target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie
