@@ -31,30 +31,6 @@ if(VOXELENGINE_BUILD_APPDIR)
     include(${CMAKE_CURRENT_SOURCE_DIR}/dev/cmake/BuildAppdir.cmake)
 endif()
 
-if(MSVC)
-
-else()
-    target_compile_options(
-        VoxelEngine
-        PRIVATE -Wall
-                -Wextra
-                # additional warnings
-                -Wformat-nonliteral
-                -Wcast-align
-                -Wpointer-arith
-                -Wundef
-                -Wwrite-strings
-                -Wno-unused-parameter
-                $<$<CONFIG:Debug>:-Og>)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        # Need for static compilation on Windows with clang TODO: Make single
-        # build on Windows to avoid dependence on combinations of platforms and
-        # compilers and make it independent
-        target_link_options(VoxelEngine PRIVATE
-                            $<$<CXX_COMPILER_ID:Clang>:-static>)
-    endif()
-endif()
-
 target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie
                     -lstdc++fs>)
 

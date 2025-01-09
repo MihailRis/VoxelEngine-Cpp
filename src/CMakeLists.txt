@@ -83,5 +83,28 @@ target_link_libraries(
 )
 
 target_compile_options(
-    VoxelEngineSrc PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/source-charset:UTF-8
-                          /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR /W4>)
+    VoxelEngineSrc
+    PUBLIC $<$<CXX_COMPILER_ID:MSVC>:
+           /source-charset:UTF-8
+           /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+           /W4
+           >
+           $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
+           -Wall
+           -Wextra
+           # additional warnings
+           -Wformat-nonliteral
+           -Wcast-align
+           -Wpointer-arith
+           -Wundef
+           -Wwrite-strings
+           -Wno-unused-parameter
+           $<$<CONFIG:Debug>:-Og>
+           >)
+
+# Need for static compilation on Windows with clang TODO: Make single build on
+# Windows to avoid dependence on combinations of platforms and compilers and
+# make it independent
+target_link_options(
+    VoxelEngineSrc PUBLIC
+    $<$<PLATFORM_ID:Windows>:$<$<CXX_COMPILER_ID:Clang>:-static>>)
