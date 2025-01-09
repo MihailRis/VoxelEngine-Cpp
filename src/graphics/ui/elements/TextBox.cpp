@@ -1,19 +1,19 @@
 #include "TextBox.hpp"
 
+#include <algorithm>
 #include <sstream>
 #include <utility>
-#include <algorithm>
 
 #include "Label.hpp"
-#include "devtools/syntax_highlighting.hpp"
-#include "graphics/core/DrawContext.hpp"
-#include "graphics/core/Batch2D.hpp"
-#include "graphics/core/Font.hpp"
 #include "assets/Assets.hpp"
+#include "devtools/syntax_highlighting.hpp"
+#include "graphics/core/Batch2D.hpp"
+#include "graphics/core/DrawContext.hpp"
+#include "graphics/core/Font.hpp"
+#include "graphics/ui/markdown.hpp"
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
-#include "../markdown.hpp"
 
 using namespace gui;
 
