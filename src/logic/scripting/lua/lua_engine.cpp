@@ -9,6 +9,7 @@
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
 #include "lua_custom_types.hpp"
+#include "engine/Engine.hpp"
 
 static debug::Logger logger("lua-state");
 static lua::State* main_thread = nullptr;
@@ -42,7 +43,7 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "base64", base64lib);
     openlib(L, "bjson", bjsonlib);
     openlib(L, "block", blocklib);
-    openlib(L, "core", corelib);
+    openlib(L, "byteutil", byteutillib);
     openlib(L, "file", filelib);
     openlib(L, "generation", generationlib);
     openlib(L, "item", itemlib);
@@ -50,22 +51,28 @@ static void create_libs(State* L, StateType stateType) {
     openlib(L, "mat4", mat4lib);
     openlib(L, "pack", packlib);
     openlib(L, "quat", quatlib);
-    openlib(L, "time", timelib);
     openlib(L, "toml", tomllib);
     openlib(L, "utf8", utf8lib);
     openlib(L, "vec2", vec2lib);
     openlib(L, "vec3", vec3lib);
     openlib(L, "vec4", vec4lib);
 
-    if (stateType == StateType::BASE) {
+    if (stateType == StateType::SCRIPT) {
+        openlib(L, "app", applib);
+    } else if (stateType == StateType::BASE) {
+        openlib(L, "__vc_app", applib);
+    }
+    if (stateType == StateType::BASE || stateType == StateType::SCRIPT) {
+        openlib(L, "audio", audiolib);
+        openlib(L, "console", consolelib);
+        openlib(L, "core", corelib);
         openlib(L, "gui", guilib);
         openlib(L, "input", inputlib);
         openlib(L, "inventory", inventorylib);
-        openlib(L, "world", worldlib);
-        openlib(L, "audio", audiolib);
-        openlib(L, "console", consolelib);
-        openlib(L, "player", playerlib);
         openlib(L, "network", networklib);
+        openlib(L, "player", playerlib);
+        openlib(L, "time", timelib);
+        openlib(L, "world", worldlib);
 
         openlib(L, "entities", entitylib);
         openlib(L, "cameras", cameralib);
@@ -110,11 +117,15 @@ void lua::init_state(State* L, StateType stateType) {
     newusertype<LuaVoxelFragment>(L);
 }
 
-void lua::initialize(const EnginePaths& paths) {
+void lua::initialize(const EnginePaths& paths, const CoreParameters& params) {
     logger.info() << LUA_VERSION;
     logger.info() << LUAJIT_VERSION;
 
-    main_thread = create_state(paths, StateType::BASE);
+    main_thread = create_state(
+        paths, params.headless ? StateType::SCRIPT : StateType::BASE
+    );
+    lua::pushstring(main_thread, params.scriptFile.stem().u8string());
+    lua::setglobal(main_thread, "__VC_SCRIPT_NAME");
 }
 
 void lua::finalize() {
@@ -127,10 +138,13 @@ bool lua::emit_event(
     getglobal(L, "events");
     getfield(L, "emit");
     pushstring(L, name);
-    call_nothrow(L, args(L) + 1);
-    bool result = toboolean(L, -1);
-    pop(L, 2);
-    return result;
+    if (call_nothrow(L, args(L) + 1)) {
+        bool result = toboolean(L, -1);
+        pop(L, 2);
+        return result;
+    }
+    pop(L, 1);
+    return false;
 }
 
 State* lua::get_main_state() {

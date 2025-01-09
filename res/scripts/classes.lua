@@ -40,6 +40,7 @@ local Socket = {__index={
     send=function(self, ...) return network.__send(self.id, ...) end,
     recv=function(self, ...) return network.__recv(self.id, ...) end,
     close=function(self) return network.__close(self.id) end,
+    available=function(self) return network.__available(self.id) or 0 end,
     is_alive=function(self) return network.__is_alive(self.id) end,
     is_connected=function(self) return network.__is_connected(self.id) end,
     get_address=function(self) return network.__get_address(self.id) end,

@@ -63,14 +63,15 @@ pack.get_base_packs() -> массив строк
 
 Возвращает id всех базовых паков (неудаляемых)
 
-```python
+```lua
 pack.get_info(packid: str) -> {
 	id: str,
 	title: str,
 	creator: str,
 	description: str,
 	version: str,
-	icon: str,
+    path: str,
+	icon: str, -- отсутствует в headless режиме
 	dependencies: опциональный массив строк
 }
 ```
@@ -82,3 +83,16 @@ pack.get_info(packid: str) -> {
 	- `?` - optional
 	- `~` - weak
 	например `!teal`
+
+Для получения информации о нескольких паках используйте таблицу id, чтобы не
+производить сканирование для каждого пака:
+
+```lua
+pack.get_info(packids: table) -> {id={...}, id2={...}, ...}
+```
+
+```lua
+pack.assemble(packis: table) -> table
+```
+
+Проверяет корректность конфигурации и добавляет зависимости, возвращая полную.

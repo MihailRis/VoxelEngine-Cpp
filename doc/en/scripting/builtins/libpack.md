@@ -76,14 +76,15 @@ pack.get_base_packs() -> strings array
 
 Returns the id of all base packages (non-removeable)
 
-```python
+```lua
 pack.get_info(packid: str) -> {
   id: str,
   title: str,
   creator: str,
   description: str,
   version: str,
-  icon: str,
+  path: str,
+  icon: str, -- not available in headless mode
   dependencies: optional strings array
 }
 ```
@@ -95,3 +96,15 @@ Returns information about the pack (not necessarily installed).
   - `?` - optional
   - `~` - weak
   for example `!teal`
+
+To obtain information about multiple packs, use table of ids to avoid re-scanning:one
+
+```lua
+pack.get_info(packids: table) -> {id={...}, id2={...}, ...}
+```
+
+```lua
+pack.assemble(packis: table) -> table
+```
+
+Checks the configuration for correctness and adds dependencies, returning the complete configuration.

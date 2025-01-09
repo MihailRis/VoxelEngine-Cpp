@@ -10,7 +10,7 @@ class Engine;
 class MenuScreen : public Screen {
     std::unique_ptr<Camera> uicamera;
 public:
-    MenuScreen(Engine* engine);
+    MenuScreen(Engine& engine);
     ~MenuScreen();
 
     void update(float delta) override;

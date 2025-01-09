@@ -42,12 +42,18 @@ static size_t write_callback(
     return size * nmemb;
 }
 
+enum class RequestType {
+    GET, POST
+};
+
 struct Request {
+    RequestType type;
     std::string url;
     OnResponse onResponse;
     OnReject onReject;
     long maxSize;
     bool followLocation = false;
+    std::string data;
 };
 
 class CurlRequests : public Requests {
@@ -73,22 +79,33 @@ public:
         curl_easy_cleanup(curl);
         curl_multi_cleanup(multiHandle);
     }
-
     void get(
         const std::string& url,
         OnResponse onResponse,
         OnReject onReject,
         long maxSize
     ) override {
-        Request request {url, onResponse, onReject, maxSize};
-        if (url.empty()) {
-            processRequest(request);
-        } else {
-            requests.push(request);
-        }
+        Request request {RequestType::GET, url, onResponse, onReject, maxSize};
+        processRequest(std::move(request));
     }
 
-    void processRequest(const Request& request) {
+    void post(
+        const std::string& url,
+        const std::string& data,
+        OnResponse onResponse,
+        OnReject onReject=nullptr,
+        long maxSize=0
+    ) override {
+        Request request {RequestType::POST, url, onResponse, onReject, maxSize};
+        request.data = data;
+        processRequest(std::move(request));
+    }
+
+    void processRequest(Request request) {
+        if (!url.empty()) {
+            requests.push(request);
+            return;
+        }
         onResponse = request.onResponse;
         onReject = request.onReject;
         url = request.url;
@@ -96,9 +113,25 @@ public:
         buffer.clear();
 
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_POST, request.type == RequestType::POST);
+        
+        curl_slist* hs = NULL;
+
+        switch (request.type) {
+            case RequestType::GET:
+                break;
+            case RequestType::POST: 
+                hs = curl_slist_append(hs, "Content-Type: application/json");
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, request.data.length());
+                curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, request.data.c_str());
+                break;
+            default:
+                throw std::runtime_error("not implemented");
+        }
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hs);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, request.followLocation);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, request.followLocation);
         curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.81.0");
         if (request.maxSize == 0) {
             curl_easy_setopt(
@@ -164,7 +197,7 @@ public:
         if (url.empty() && !requests.empty()) {
             auto request = std::move(requests.front());
             requests.pop();
-            processRequest(request);
+            processRequest(std::move(request));
         }
     }
 
@@ -560,6 +593,16 @@ void Network::get(
     long maxSize
 ) {
     requests->get(url, onResponse, onReject, maxSize);
+}
+
+void Network::post(
+    const std::string& url,
+    const std::string& fieldsData,
+    OnResponse onResponse,
+    OnReject onReject,
+    long maxSize
+) {
+    requests->post(url, fieldsData, onResponse, onReject, maxSize);
 }
 
 Connection* Network::getConnection(u64id_t id) {

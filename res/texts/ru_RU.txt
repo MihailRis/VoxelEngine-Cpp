@@ -34,6 +34,7 @@ graphics.dense-render.tooltip=Включает прозрачность блок
 menu.Apply=Применить
 menu.Audio=Звук
 menu.Back to Main Menu=Вернуться в Меню
+menu.Scripts=Сценарии
 menu.Content Error=Ошибка Контента
 menu.Content=Контент
 menu.Continue=Продолжить

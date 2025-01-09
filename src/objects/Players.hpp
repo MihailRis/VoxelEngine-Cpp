@@ -14,16 +14,18 @@ class Level;
 class Player;
 
 class Players : public Serializable {
-    Level* level;
+    Level& level;
     std::unordered_map<int64_t, std::unique_ptr<Player>> players;
 
-    void addPlayer(std::unique_ptr<Player> player);
+    void add(std::unique_ptr<Player> player);
 public:
-    Players(Level* level);
+    Players(Level& level);
 
     Player* get(int64_t id) const;
 
     Player* create();
+
+    void remove(int64_t id);
 
     dv::value serialize() const override;
 
@@ -35,5 +37,9 @@ public:
 
     auto end() const {
         return players.end();
+    }
+
+    size_t size() const {
+        return players.size();
     }
 };

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
+#include <memory>
 #include <string>
 
 #include "typedefs.hpp"
@@ -9,6 +11,11 @@ namespace fs = std::filesystem;
 
 class Hud;
 class WorldRenderer;
+
+namespace gui {
+    class UINode;
+    using PageLoaderFunc = std::function<std::shared_ptr<UINode>(const std::string&)>;
+}
 
 namespace scripting {
     extern Hud *hud;
@@ -29,4 +36,6 @@ namespace scripting {
         const fs::path& file,
         const std::string& fileName
     );
+
+    gui::PageLoaderFunc create_page_loader(); 
 }

@@ -9,6 +9,87 @@ function sleep(timesec)
     end
 end
 
+function tb_frame_tostring(frame)
+    local s = frame.short_src
+    if frame.what ~= "C" then
+        s = s .. ":" .. tostring(frame.currentline)
+    end
+    if frame.what == "main" then
+        s = s .. ": in main chunk"
+    elseif frame.name then
+        s = s .. ": in function " .. utf8.escape(frame.name)
+    end
+    return s
+end
+
+local function complete_app_lib(app)
+    app.sleep = sleep
+    app.script = __VC_SCRIPT_NAME
+    app.new_world = core.new_world
+    app.open_world = core.open_world
+    app.save_world = core.save_world
+    app.close_world = core.close_world
+    app.reopen_world = core.reopen_world
+    app.delete_world = core.delete_world
+    app.reconfig_packs = core.reconfig_packs
+    app.get_setting = core.get_setting
+    app.set_setting = core.set_setting
+    app.tick = coroutine.yield
+    app.get_version = core.get_version
+    app.get_setting_info = core.get_setting_info
+    app.load_content = core.load_content
+    app.reset_content = core.reset_content
+    
+    function app.config_packs(packs_list)
+        -- Check if packs are valid and add dependencies to the configuration
+        packs_list = pack.assemble(packs_list)
+        
+        local installed = pack.get_installed()
+        local toremove = {}
+        for _, packid in ipairs(installed) do
+            if not table.has(packs_list, packid) then
+                table.insert(toremove, packid)
+            end
+        end
+        local toadd = {}
+        for _, packid in ipairs(packs_list) do
+            if not table.has(installed, packid) then
+                table.insert(toadd, packid)
+            end
+        end
+        app.reconfig_packs(toadd, toremove)
+    end
+
+    function app.quit()
+        local tb = debug.get_traceback(1)
+        local s = "app.quit() traceback:"
+        for i, frame in ipairs(tb) do
+            s = s .. "\n\t"..tb_frame_tostring(frame)
+        end
+        debug.log(s)
+        core.quit()
+        coroutine.yield()
+    end
+
+    function app.sleep_until(predicate, max_ticks)
+        max_ticks = max_ticks or 1e9
+        local ticks = 0
+        while ticks < max_ticks and not predicate() do
+            app.tick()
+            ticks = ticks + 1
+        end
+        if ticks == max_ticks then
+            error("max ticks exceed")
+        end
+    end
+end
+
+if app then
+    complete_app_lib(app)
+elseif __vc_app then
+    complete_app_lib(__vc_app)
+end
+
 ------------------------------------------------
 ------------------- Events ---------------------
 ------------------------------------------------
@@ -54,7 +135,12 @@ function events.emit(event, ...)
         return nil
     end
     for _, func in ipairs(handlers) do
-        result = result or func(...)
+        local status, newres = xpcall(func, __vc__error, ...)
+        if not status then
+            debug.error("error in event ("..event..") handler: "..newres)
+        else 
+            result = result or newres
+        end
     end
     return result
 end
@@ -85,7 +171,7 @@ function Document.new(docname)
 end
 
 local _RadioGroup = {}
-function _RadioGroup.set(self, key)
+function _RadioGroup:set(key)
     if type(self) ~= 'table' then
         error("called as non-OOP via '.', use radiogroup:set")
     end
@@ -98,7 +184,7 @@ function _RadioGroup.set(self, key)
         self.callback(key)
     end
 end
-function _RadioGroup.__call(self, elements, onset, default)
+function _RadioGroup:__call(elements, onset, default)
     local group = setmetatable({
         elements=elements, 
         callback=onset, 
@@ -114,20 +200,8 @@ _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu
 menu = _MENU
 
-local __post_runnables = {}
-
-function __process_post_runnables()
-    if #__post_runnables then
-        for _, func in ipairs(__post_runnables) do
-            func()
-        end
-        __post_runnables = {}
-    end
-end
-
-function time.post_runnable(runnable)
-    table.insert(__post_runnables, runnable)
-end
+local gui_util = require "core:gui_util"
+__vc_page_loader = gui_util.load_page
 
 ---  Console library extension ---
 console.cheats = {}
@@ -272,7 +346,6 @@ function __vc_on_hud_open()
 
     _rules.create("allow-content-access", hud._is_content_access(), function(value)
         hud._set_content_access(value)
-        input.set_enabled("player.pick", value)
     end)
     _rules.create("allow-flight", true, function(value)
         input.set_enabled("player.flight", value)
@@ -326,6 +399,86 @@ end
 
 function __vc_on_world_quit()
     _rules.clear()
+end
+
+local __vc_coroutines = {}
+local __vc_named_coroutines = {}
+local __vc_next_coroutine = 1
+local __vc_coroutine_error = nil
+
+function __vc_start_coroutine(chunk)
+    local co = coroutine.create(function()
+        local status, err = pcall(chunk)
+        if not status then
+            __vc_coroutine_error = err
+        end
+    end)
+    local id = __vc_next_coroutine
+    __vc_next_coroutine = __vc_next_coroutine + 1
+    __vc_coroutines[id] = co
+    return id
+end
+
+function __vc_resume_coroutine(id)
+    local co = __vc_coroutines[id]
+    if co then
+        coroutine.resume(co)
+        if __vc_coroutine_error then
+            debug.error(__vc_coroutine_error)
+            error(__vc_coroutine_error)
+        end
+        return coroutine.status(co) ~= "dead"
+    end
+    return false
+end
+
+function __vc_stop_coroutine(id)
+    local co = __vc_coroutines[id]
+    if co then
+        if coroutine.close then
+            coroutine.close(co)
+        end
+        __vc_coroutines[id] = nil
+    end
+end
+
+function start_coroutine(chunk, name)
+    local co = coroutine.create(function()
+        local status, error = xpcall(chunk, __vc__error)
+        if not status then
+            debug.error(error)
+        end
+    end)
+    __vc_named_coroutines[name] = co
+end
+
+local __post_runnables = {}
+
+function __process_post_runnables()
+    if #__post_runnables then
+        for _, func in ipairs(__post_runnables) do
+            local status, result = xpcall(func, __vc__error)
+            if not status then
+                debug.error("error in post_runnable: "..result)
+            end
+        end
+        __post_runnables = {}
+    end
+
+    local dead = {}
+    for name, co in pairs(__vc_named_coroutines) do
+        coroutine.resume(co)
+        if coroutine.status(co) == "dead" then
+            table.insert(dead, name)
+        end
+    end
+    for _, name in ipairs(dead) do
+        __vc_named_coroutines[name] = nil
+    end
+end
+
+function time.post_runnable(runnable)
+    table.insert(__post_runnables, runnable)
 end
 
 assets = {}

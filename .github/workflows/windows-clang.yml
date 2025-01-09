@@ -1,0 +1,70 @@
+name: Windows Build (CLang)
+
+on:
+  push:
+    branches: [ "main", "release-**"]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-windows:
+
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            compiler: clang
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+      - uses: msys2/setup-msys2@v2
+        id: msys2
+        name: Setup MSYS2
+        with:
+            msystem: clang64
+            install: >-
+                mingw-w64-clang-x86_64-toolchain 
+                mingw-w64-clang-x86_64-cmake 
+                mingw-w64-clang-x86_64-make 
+                mingw-w64-clang-x86_64-luajit 
+                git
+      - name: Set up vcpkg
+        shell: msys2 {0}
+        run: |
+            git clone https://github.com/microsoft/vcpkg.git
+            cd vcpkg
+            ./bootstrap-vcpkg.bat
+            ./vcpkg integrate install
+            cd ..
+      - name: Configure project with CMake and vcpkg
+        shell: msys2 {0}
+        run: |
+            export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
+            export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
+            export VCPKG_ROOT=./vcpkg
+            mkdir build
+            cd build
+            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+            cmake --build . --config Release
+      - name: Package for Windows
+        run: |
+          mkdir packaged
+          mkdir packaged/res
+          cp build/VoxelEngine.exe packaged/
+          cp build/vctest/vctest.exe packaged/
+          cp build/*.dll packaged/
+          cp -r build/res/* packaged/res/
+          mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Windows-Build
+          path: 'packaged/*'
+      - name: Run engine tests
+        shell: msys2 {0}
+        working-directory: ${{ github.workspace }}
+        run: |
+          packaged/vctest.exe -e packaged/VoxelCore.exe -d dev/tests -u build

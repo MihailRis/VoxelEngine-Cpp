@@ -1,0 +1,12 @@
+<panel size='400' color='#00000030' context='menu'>
+    <container size='400,32'>
+        <label pos='2,10'>@Scripts</label>
+        <image onclick='refresh()' interactive='true' src='gui/refresh' 
+            size='32' gravity='top-right'
+            color='#FFFFFF80' hover-color='#FFFFFF10'/>
+    </container>
+    <panel id="list" size='400' interval='1' color='0' max-length='300'>
+        <!-- content is generated in script -->
+    </panel>
+    <button onclick='menu:back()'>@Back</button>
+</panel>

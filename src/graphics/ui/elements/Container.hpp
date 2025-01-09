@@ -2,11 +2,12 @@
 
 #include "UINode.hpp"
 #include "commons.hpp"
+#include "util/ObjectsKeeper.hpp"
 
 #include <vector>
 
 namespace gui {
-    class Container : public UINode {
+    class Container : public UINode, public util::ObjectsKeeper {
         int prevScrollY = -1;
     protected:
         std::vector<std::shared_ptr<UINode>> nodes;

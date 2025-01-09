@@ -5,6 +5,7 @@
 #include <stack>
 #include <vector>
 
+#include "graphics/core/commons.hpp"
 #include "typedefs.hpp"
 
 class ImageData;
@@ -20,6 +21,7 @@ class Window {
     static bool fullscreen;
     static int framerate;
     static double prevSwap;
+    static CursorShape cursor;
 
     static bool tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor);
 public:
@@ -45,6 +47,8 @@ public:
     static void pushScissor(glm::vec4 area);
     static void popScissor();
     static void resetScissor();
+
+    static void setCursor(CursorShape shape);
 
     static void clear();
     static void clearDepth();

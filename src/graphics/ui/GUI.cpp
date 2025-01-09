@@ -23,7 +23,7 @@
 
 using namespace gui;
 
-GUI::GUI() {
+GUI::GUI() : batch2D(std::make_unique<Batch2D>(1024)) {
     container = std::make_shared<Container>(glm::vec2(1000));
     uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
     uicamera->perspective = false;
@@ -45,6 +45,15 @@ GUI::GUI() {
 }
 
 GUI::~GUI() = default;
+
+void GUI::setPageLoader(PageLoaderFunc pageLoader) {
+    this->pagesLoader = std::move(pageLoader);
+    menu->setPageLoader(this->pagesLoader);
+}
+
+PageLoaderFunc GUI::getPagesLoader() {
+    return pagesLoader;
+}
 
 std::shared_ptr<Menu> GUI::getMenu() {
     return menu;
@@ -198,7 +207,9 @@ void GUI::act(float delta, const Viewport& vp) {
 }
 
 void GUI::draw(const DrawContext& pctx, const Assets& assets) {
-    auto& viewport = pctx.getViewport();
+    auto ctx = pctx.sub(batch2D.get());
+
+    auto& viewport = ctx.getViewport();
     glm::vec2 wsize = viewport.size();
 
     menu->setPos((wsize - menu->getSize()) / 2.0f);
@@ -208,8 +219,12 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     uishader->use();
     uishader->uniformMatrix("u_projview", uicamera->getProjView());
 
-    pctx.getBatch2D()->begin();
-    container->draw(pctx, assets);
+    batch2D->begin();
+    container->draw(ctx, assets);
+
+    if (hover) {
+        Window::setCursor(hover->getCursor());
+    }
 }
 
 std::shared_ptr<UINode> GUI::getFocused() const {

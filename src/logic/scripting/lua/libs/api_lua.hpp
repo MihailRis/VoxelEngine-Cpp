@@ -19,6 +19,7 @@ extern const luaL_Reg base64lib[];
 extern const luaL_Reg bjsonlib[];
 extern const luaL_Reg blocklib[];
 extern const luaL_Reg blockwrapslib[]; // gfx.blockwraps
+extern const luaL_Reg byteutillib[];
 extern const luaL_Reg cameralib[];
 extern const luaL_Reg consolelib[];
 extern const luaL_Reg corelib[];
@@ -37,6 +38,7 @@ extern const luaL_Reg packlib[];
 extern const luaL_Reg particleslib[]; // gfx.particles
 extern const luaL_Reg playerlib[];
 extern const luaL_Reg quatlib[];
+extern const luaL_Reg applib[];
 extern const luaL_Reg text3dlib[]; // gfx.text3d
 extern const luaL_Reg timelib[];
 extern const luaL_Reg tomllib[];

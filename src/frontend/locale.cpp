@@ -37,38 +37,40 @@ const std::string& langs::Lang::getId() const {
     return locale;
 }
 
-// @brief Language key-value txt files parser
-class Reader : BasicParser {
-    void skipWhitespace() override {
-        BasicParser::skipWhitespace();
-        if (hasNext() && source[pos] == '#') {
-            skipLine();
-            if (hasNext() && is_whitespace(peek())) {
+/// @brief Language key-value txt files parser
+namespace {
+    class Reader : BasicParser {
+        void skipWhitespace() override {
+            BasicParser::skipWhitespace();
+            if (hasNext() && source[pos] == '#') {
+                skipLine();
+                if (hasNext() && is_whitespace(peek())) {
+                    skipWhitespace();
+                }
+            }
+        }
+    public:
+        Reader(std::string_view file, std::string_view source)
+            : BasicParser(file, source) {
+        }
+
+        void read(langs::Lang& lang, const std::string &prefix) {
+            skipWhitespace();
+            while (hasNext()) {
+                std::string key = parseString('=', true);
+                util::trim(key);
+                key = prefix + key;
+                std::string text = parseString('\n', false);
+                util::trim(text);
+                lang.put(util::str2wstr_utf8(key), util::str2wstr_utf8(text));
                 skipWhitespace();
             }
         }
-    }
-public:
-    Reader(std::string_view file, std::string_view source) : BasicParser(file, source) {
-    }
-
-    void read(langs::Lang& lang, const std::string &prefix) {
-        skipWhitespace();
-        while (hasNext()) {
-            std::string key = parseString('=', true);
-            util::trim(key);
-            key = prefix + key;
-            std::string text = parseString('\n', false);
-            util::trim(text);
-            lang.put(util::str2wstr_utf8(key),
-                     util::str2wstr_utf8(text));
-            skipWhitespace();
-        }
-    }
-};
+    };
+}
 
 void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
-    fs::path file = resdir/fs::path(langs::TEXTS_FOLDER)/fs::path("langs.json");
+    auto file = resdir/fs::u8path(langs::TEXTS_FOLDER)/fs::u8path("langs.json");
     auto root = files::read_json(file);
 
     langs::locales_info.clear();
@@ -85,7 +87,7 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
             } else {
                 continue;
             }
-            logline << "[" << key << " (" << name << ")] ";
+            logline << key << " ";
             langs::locales_info[key] = LocaleInfo {key, name};
         } 
         logline << "added";

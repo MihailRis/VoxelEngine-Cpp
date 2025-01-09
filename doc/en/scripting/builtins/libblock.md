@@ -67,12 +67,15 @@ Following three functions return direction vectors based on block rotation.
 -- Returns X: integer direction vector of the block at specified coordinates.
 -- Example: no rotation: 1, 0, 0.
 block.get_X(x: int, y: int, z: int) -> int, int, int
+block.get_X(id: int, rotation: int) -> int, int, int
 
 -- Same for axis Y. Default: 0, 1, 0.
 block.get_Y(x: int, y: int, z: int) -> int, int, int
+block.get_Y(id: int, rotation: int) -> int, int, int
 
 -- Same for axis Z. Default: 0, 0, 1.
 block.get_Z(x: int, y: int, z: int) -> int, int, int
+block.get_Z(id: int, rotation: int) -> int, int, int
 
 -- Returns block rotation index based on used profile.
 block.get_rotation(x: int, y: int, z: int) -> int

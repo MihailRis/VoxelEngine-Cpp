@@ -10,18 +10,18 @@
 
 class EnginePaths;
 
-namespace fs = std::filesystem;
-
 class contentpack_error : public std::runtime_error {
     std::string packId;
-    fs::path folder;
+    std::filesystem::path folder;
 public:
     contentpack_error(
-        std::string packId, fs::path folder, const std::string& message
+        std::string packId,
+        std::filesystem::path folder,
+        const std::string& message
     );
 
     std::string getPackId() const;
-    fs::path getFolder() const;
+    std::filesystem::path getFolder() const;
 };
 
 enum class DependencyLevel {
@@ -42,45 +42,52 @@ struct ContentPack {
     std::string version = "0.0";
     std::string creator = "";
     std::string description = "no description";
-    fs::path folder;
+    std::filesystem::path folder;
+    std::string path;
     std::vector<DependencyPack> dependencies;
     std::string source = "";
 
-    fs::path getContentFile() const;
+    std::filesystem::path getContentFile() const;
 
     static inline const std::string PACKAGE_FILENAME = "package.json";
     static inline const std::string CONTENT_FILENAME = "content.json";
-    static inline const fs::path BLOCKS_FOLDER = "blocks";
-    static inline const fs::path ITEMS_FOLDER = "items";
-    static inline const fs::path ENTITIES_FOLDER = "entities";
-    static inline const fs::path GENERATORS_FOLDER = "generators";
+    static inline const std::filesystem::path BLOCKS_FOLDER = "blocks";
+    static inline const std::filesystem::path ITEMS_FOLDER = "items";
+    static inline const std::filesystem::path ENTITIES_FOLDER = "entities";
+    static inline const std::filesystem::path GENERATORS_FOLDER = "generators";
     static const std::vector<std::string> RESERVED_NAMES;
 
-    static bool is_pack(const fs::path& folder);
-    static ContentPack read(const fs::path& folder);
-
-    static void scanFolder(
-        const fs::path& folder, std::vector<ContentPack>& packs
+    static bool is_pack(const std::filesystem::path& folder);
+    static ContentPack read(
+        const std::string& path, const std::filesystem::path& folder
     );
 
-    static std::vector<std::string> worldPacksList(const fs::path& folder);
+    static void scanFolder(
+        const std::string& path,
+        const std::filesystem::path& folder,
+        std::vector<ContentPack>& packs
+    );
 
-    static fs::path findPack(
+    static std::vector<std::string> worldPacksList(
+        const std::filesystem::path& folder
+    );
+
+    static std::filesystem::path findPack(
         const EnginePaths* paths,
-        const fs::path& worldDir,
+        const std::filesystem::path& worldDir,
         const std::string& name
     );
 
-    static ContentPack createCore(const EnginePaths*);
+    static ContentPack createCore(const EnginePaths&);
 
-    static inline fs::path getFolderFor(ContentType type) {
+    static inline std::filesystem::path getFolderFor(ContentType type) {
         switch (type) {
             case ContentType::BLOCK: return ContentPack::BLOCKS_FOLDER;
             case ContentType::ITEM: return ContentPack::ITEMS_FOLDER;
             case ContentType::ENTITY: return ContentPack::ENTITIES_FOLDER;
             case ContentType::GENERATOR: return ContentPack::GENERATORS_FOLDER;
-            case ContentType::NONE: return fs::u8path("");
-            default: return fs::u8path("");
+            case ContentType::NONE: return std::filesystem::u8path("");
+            default: return std::filesystem::u8path("");
         }
     }
 };
@@ -95,12 +102,13 @@ struct ContentPackStats {
     }
 };
 
-struct world_funcs_set {
-    bool onblockplaced : 1;
-    bool onblockreplaced : 1;
-    bool onblockbroken : 1;
-    bool onblockinteract : 1;
-    bool onplayertick : 1;
+struct WorldFuncsSet {
+    bool onblockplaced;
+    bool onblockreplaced;
+    bool onblockbreaking;
+    bool onblockbroken;
+    bool onblockinteract;
+    bool onplayertick;
 };
 
 class ContentPackRuntime {
@@ -108,7 +116,7 @@ class ContentPackRuntime {
     ContentPackStats stats {};
     scriptenv env;
 public:
-    world_funcs_set worldfuncsset {};
+    WorldFuncsSet worldfuncsset {};
 
     ContentPackRuntime(ContentPack info, scriptenv env);
     ~ContentPackRuntime();

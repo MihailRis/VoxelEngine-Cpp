@@ -8,20 +8,23 @@
 class ByteBuilder {
     std::vector<ubyte> buffer;
 public:
+    ByteBuilder() = default;
+    ByteBuilder(size_t size);
+
     /// @brief Write one byte (8 bit unsigned integer)
     void put(ubyte b);
     /// @brief Write c-string (bytes array terminated with '\00')
     void putCStr(const char* str);
     /// @brief Write signed 16 bit little-endian integer
-    void putInt16(int16_t val);
+    void putInt16(int16_t val, bool bigEndian = false);
     /// @brief Write signed 32 bit integer
-    void putInt32(int32_t val);
+    void putInt32(int32_t val, bool bigEndian = false);
     /// @brief Write signed 64 bit integer
-    void putInt64(int64_t val);
+    void putInt64(int64_t val, bool bigEndian = false);
     /// @brief Write 32 bit floating-point number
-    void putFloat32(float val);
+    void putFloat32(float val, bool bigEndian = false);
     /// @brief Write 64 bit floating-point number
-    void putFloat64(double val);
+    void putFloat64(double val, bool bigEndian = false);
 
     /// @brief Write string (uint32 length + bytes)
     void put(const std::string& s);
@@ -50,6 +53,7 @@ class ByteReader {
 public:
     ByteReader(const ubyte* data, size_t size);
     ByteReader(const ubyte* data);
+    ByteReader(const std::vector<ubyte>& data);
 
     void checkMagic(const char* data, size_t size);
     /// @brief Get N bytes
@@ -59,15 +63,15 @@ public:
     /// @brief Read one byte (unsigned 8 bit integer) without pointer move
     ubyte peek();
     /// @brief Read signed 16 bit little-endian integer
-    int16_t getInt16();
+    int16_t getInt16(bool bigEndian = false);
     /// @brief Read signed 32 bit little-endian integer
-    int32_t getInt32();
+    int32_t getInt32(bool bigEndian = false);
     /// @brief Read signed 64 bit little-endian integer
-    int64_t getInt64();
+    int64_t getInt64(bool bigEndian = false);
     /// @brief Read 32 bit floating-point number
-    float getFloat32();
+    float getFloat32(bool bigEndian = false);
     /// @brief Read 64 bit floating-point number
-    double getFloat64();
+    double getFloat64(bool bigEndian = false);
     /// @brief Read C-String
     const char* getCString();
     /// @brief Read string with unsigned 32 bit number before (length)

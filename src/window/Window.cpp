@@ -29,18 +29,60 @@ int Window::posY = 0;
 int Window::framerate = -1;
 double Window::prevSwap = 0.0;
 bool Window::fullscreen = false;
+CursorShape Window::cursor = CursorShape::ARROW;
 
 static util::ObjectsKeeper observers_keeper;
 
-void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
+static const char* gl_error_name(int error) {
+    switch (error) {
+        case GL_DEBUG_TYPE_ERROR: return "ERROR";
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED_BEHAVIOR";
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "UNDEFINED_BEHAVIOR";
+        case GL_DEBUG_TYPE_PORTABILITY: return "PORTABILITY";
+        case GL_DEBUG_TYPE_PERFORMANCE: return "PERFORMANCE";
+        case GL_DEBUG_TYPE_OTHER: return "OTHER";
+    }
+    return "UNKNOWN";
+}
+
+static const char* gl_severity_name(int severity) {
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_LOW: return "LOW";
+        case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
+        case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
+        case GL_DEBUG_SEVERITY_NOTIFICATION: return "NOTIFICATION";
+    }
+    return "UNKNOWN";
+}
+
+static void GLAPIENTRY gl_message_callback(
+    GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam
+) {
+    if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
+        return;
+    }
+    if (!ENGINE_DEBUG_BUILD && severity != GL_DEBUG_SEVERITY_HIGH) {
+        return;
+    }
+    std::cerr << "GL:" << gl_error_name(type) << ":"
+              << gl_severity_name(severity) << ": " << message << std::endl;
+}
+
+static void cursor_position_callback(GLFWwindow*, double xpos, double ypos) {
     Events::setPosition(xpos, ypos);
 }
 
-void mouse_button_callback(GLFWwindow*, int button, int action, int) {
+static void mouse_button_callback(GLFWwindow*, int button, int action, int) {
     Events::setButton(button, action == GLFW_PRESS);
 }
 
-void key_callback(
+static void key_callback(
     GLFWwindow*, int key, int /*scancode*/, int action, int /*mode*/
 ) {
     if (key == GLFW_KEY_UNKNOWN) return;
@@ -54,8 +96,26 @@ void key_callback(
     }
 }
 
-void scroll_callback(GLFWwindow*, double xoffset, double yoffset) {
+static void scroll_callback(GLFWwindow*, double xoffset, double yoffset) {
     Events::scroll += yoffset;
+}
+
+static void character_callback(GLFWwindow*, unsigned int codepoint) {
+    Events::codepoints.push_back(codepoint);
+}
+
+static void window_size_callback(GLFWwindow*, int width, int height) {
+    if (width && height) {
+        glViewport(0, 0, width, height);
+        Window::width = width;
+        Window::height = height;
+
+        if (!Window::isFullscreen() && !Window::isMaximized()) {
+            Window::getSettings()->width.set(width);
+            Window::getSettings()->height.set(height);
+        }
+    }
+    Window::resetScissor();
 }
 
 bool Window::isMaximized() {
@@ -70,25 +130,7 @@ bool Window::isFocused() {
     return glfwGetWindowAttrib(window, GLFW_FOCUSED);
 }
 
-void window_size_callback(GLFWwindow*, int width, int height) {
-    if (width && height) {
-        glViewport(0, 0, width, height);
-        Window::width = width;
-        Window::height = height;
-
-        if (!Window::isFullscreen() && !Window::isMaximized()) {
-            Window::getSettings()->width.set(width);
-            Window::getSettings()->height.set(height);
-        }
-    }
-    Window::resetScissor();
-}
-
-void character_callback(GLFWwindow*, unsigned int codepoint) {
-    Events::codepoints.push_back(codepoint);
-}
-
-const char* glfwErrorName(int error) {
+static const char* glfw_error_name(int error) {
     switch (error) {
         case GLFW_NO_ERROR:
             return "no error";
@@ -117,13 +159,16 @@ const char* glfwErrorName(int error) {
     }
 }
 
-void error_callback(int error, const char* description) {
-    std::cerr << "GLFW error [0x" << std::hex << error << "]: ";
-    std::cerr << glfwErrorName(error) << std::endl;
+static void glfw_error_callback(int error, const char* description) {
+    auto logline = logger.error();
+    logline << "GLFW error [0x" << std::hex << error << " - "
+            << glfw_error_name(error) << "]";
     if (description) {
-        std::cerr << description << std::endl;
+        logline << ": " << description;
     }
 }
+
+static GLFWcursor* standard_cursors[static_cast<int>(CursorShape::LAST) + 1] = {};
 
 int Window::initialize(DisplaySettings* settings) {
     Window::settings = settings;
@@ -137,7 +182,7 @@ int Window::initialize(DisplaySettings* settings) {
         title += " [debug]";
     }
 
-    glfwSetErrorCallback(error_callback);
+    glfwSetErrorCallback(glfw_error_callback);
     if (glfwInit() == GLFW_FALSE) {
         logger.error() << "failed to initialize GLFW";
         return -1;
@@ -178,6 +223,9 @@ int Window::initialize(DisplaySettings* settings) {
         }
     }
 
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(gl_message_callback, 0);
+
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 1);
     glEnable(GL_BLEND);
@@ -199,7 +247,7 @@ int Window::initialize(DisplaySettings* settings) {
 
     observers_keeper = util::ObjectsKeeper();
     observers_keeper.keepAlive(settings->fullscreen.observe(
-        [=](bool value) {
+        [](bool value) {
             if (value != isFullscreen()) {
                 toggleFullscreen();
             }
@@ -219,6 +267,15 @@ int Window::initialize(DisplaySettings* settings) {
     logger.info() << "monitor content scale: " << scale.x << "x" << scale.y;
 
     input_util::initialize();
+
+    for (int i = 0; i <= static_cast<int>(CursorShape::LAST); i++) {
+        int cursor = GLFW_ARROW_CURSOR + i;
+        // GLFW 3.3 does not support some cursors
+        if (GLFW_VERSION_MAJOR <= 3 && GLFW_VERSION_MINOR <= 3 && cursor > GLFW_VRESIZE_CURSOR) {
+            break;
+        }
+        standard_cursors[i] = glfwCreateStandardCursor(cursor);
+    }
     return 0;
 }
 
@@ -305,6 +362,9 @@ void Window::popScissor() {
 
 void Window::terminate() {
     observers_keeper = util::ObjectsKeeper();
+    for (int i = 0; i <= static_cast<int>(CursorShape::LAST); i++) {
+        glfwDestroyCursor(standard_cursors[i]);
+    }
     glfwTerminate();
 }
 
@@ -378,6 +438,15 @@ double Window::time() {
 
 DisplaySettings* Window::getSettings() {
     return settings;
+}
+
+void Window::setCursor(CursorShape shape) {
+    if (cursor == shape) {
+        return;
+    }
+    cursor = shape;
+    // NULL cursor is valid for GLFW
+    glfwSetCursor(window, standard_cursors[static_cast<int>(shape)]);
 }
 
 std::unique_ptr<ImageData> Window::takeScreenshot() {

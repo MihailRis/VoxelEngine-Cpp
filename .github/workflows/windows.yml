@@ -1,4 +1,4 @@
-name: Windows Build
+name: MSVC Build
 
 on:
   push:
@@ -21,29 +21,33 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Set up vcpkg
+      - name: Bootstrap vcpkg
+        shell: pwsh
         run: |
           git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          .\bootstrap-vcpkg.bat
-          .\vcpkg integrate install
-          cd ..
+          ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+
       - name: Configure and build project with CMake and vcpkg
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
-          mkdir build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_WINDOWS_VCPKG=ON -DVOXELENGINE_BUILD_TESTS=ON ..
-          cmake --build . --config Release
+          cmake --preset default-vs-msvc-windows
+          cmake --build --preset default-vs-msvc-windows --config Release
+      - name: Run tests
+        run: ctest --preset default-vs-msvc-windows
+      - name: Run engine tests
+        run: |
+            build/vctest/Release/vctest.exe -e build/Release/VoxelEngine.exe -d dev/tests -u build
+        timeout-minutes: 1
       - name: Package for Windows
         run: |
           mkdir packaged
-          cp -r build/* packaged/
-          cp C:/Windows/System32/msvcp140.dll packaged/Release/msvcp140.dll
-          mv packaged/Release/VoxelEngine.exe packaged/Release/VoxelCore.exe
+          cp -r build/Release/* packaged/
+          cp build/vctest/Release/vctest.exe packaged/
+          cp C:/Windows/System32/msvcp140.dll packaged/msvcp140.dll
+          mv packaged/VoxelEngine.exe packaged/VoxelCore.exe
         working-directory: ${{ github.workspace }}
-      - name: Run tests
-        run: ctest --output-on-failure --test-dir build
       - uses: actions/upload-artifact@v4
         with:
           name: Windows-Build
-          path: 'packaged/Release/*'
+          path: 'packaged/*'

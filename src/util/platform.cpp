@@ -57,7 +57,14 @@ void platform::sleep(size_t millis) {
     // Reset the timer resolution back to the system default
     timeEndPeriod(periodMin);
 }
-#else
+
+int platform::get_process_id() {
+    return GetCurrentProcessId(); 
+}
+
+#else // _WIN32
+
+#include <unistd.h>
 
 void platform::configure_encoding() {
 }
@@ -74,7 +81,11 @@ std::string platform::detect_locale() {
 void platform::sleep(size_t millis) {
     std::this_thread::sleep_for(std::chrono::milliseconds(millis));
 }
-#endif
+
+int platform::get_process_id() {
+    return getpid();
+}
+#endif // _WIN32
 
 void platform::open_folder(const std::filesystem::path& folder) {
     if (!std::filesystem::is_directory(folder)) {

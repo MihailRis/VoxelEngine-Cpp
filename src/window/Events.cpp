@@ -23,6 +23,7 @@ bool Events::_cursor_locked = false;
 std::vector<uint> Events::codepoints;
 std::vector<keycode> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
+std::unordered_map<keycode, util::HandlersList<>> Events::keyCallbacks;
 
 bool Events::pressed(keycode keycode) {
     return pressed(static_cast<int>(keycode));
@@ -156,6 +157,12 @@ bool Events::jactive(const std::string& name) {
 void Events::setKey(int key, bool b) {
     Events::keys[key] = b;
     Events::frames[key] = currentFrame;
+    if (b) {
+        const auto& callbacks = keyCallbacks.find(static_cast<keycode>(key));
+        if (callbacks != keyCallbacks.end()) {
+            callbacks->second.notify();
+        }
+    }
 }
 
 void Events::setButton(int button, bool b) {
@@ -171,6 +178,10 @@ void Events::setPosition(float xpos, float ypos) {
     }
     Events::cursor.x = xpos;
     Events::cursor.y = ypos;
+}
+
+observer_handler Events::addKeyCallback(keycode key, KeyCallback callback) {
+    return keyCallbacks[key].add(std::move(callback));
 }
 
 #include "coders/json.hpp"
@@ -228,7 +239,6 @@ void Events::loadBindings(
             } else if (bindType == BindType::REBIND) {
                 Events::rebind(key, type, code);
             }
-            
         }
     }
 }

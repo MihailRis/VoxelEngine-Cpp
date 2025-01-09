@@ -10,12 +10,12 @@ namespace fs = std::filesystem;
 
 class PacksManager {
     std::unordered_map<std::string, ContentPack> packs;
-    std::vector<fs::path> sources;
+    std::vector<std::pair<std::string, fs::path>> sources;
 public:
     PacksManager();
 
     /// @brief Set content packs sources (search folders)
-    void setSources(std::vector<fs::path> sources);
+    void setSources(std::vector<std::pair<std::string, fs::path>> sources);
 
     /// @brief Scan sources and collect all found packs excluding duplication.
     /// Scanning order depends on sources order
@@ -38,7 +38,7 @@ public:
     /// @return resulting ordered vector of pack names
     /// @throws contentpack_error if required dependency not found or
     /// circular dependency detected
-    std::vector<std::string> assembly(const std::vector<std::string>& names
+    std::vector<std::string> assemble(const std::vector<std::string>& names
     ) const;
 
     /// @brief Collect all pack names (identifiers) into a new vector

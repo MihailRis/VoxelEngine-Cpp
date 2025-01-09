@@ -1,6 +1,6 @@
 #include "audio/audio.hpp"
 #include "delegates.hpp"
-#include "engine.hpp"
+#include "engine/Engine.hpp"
 #include "settings.hpp"
 #include "hud.hpp"
 #include "content/Content.hpp"
@@ -21,6 +21,7 @@
 #include "voxels/Block.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
+#include "voxels/GlobalChunks.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
@@ -41,7 +42,7 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
 // TODO: move to xml
 // TODO: move to xml finally
 std::shared_ptr<UINode> create_debug_panel(
-    Engine* engine, 
+    Engine& engine, 
     Level& level, 
     Player& player,
     bool allowDebugCheats
@@ -55,8 +56,8 @@ std::shared_ptr<UINode> create_debug_panel(
     static int fpsMax = fps;
     static std::wstring fpsString = L"";
 
-    panel->listenInterval(0.016f, [engine]() {
-        fps = 1.0f / engine->getDelta();
+    panel->listenInterval(0.016f, [&engine]() {
+        fps = 1.0f / engine.getTime().getDelta();
         fpsMin = std::min(fps, fpsMin);
         fpsMax = std::max(fps, fpsMax);
     });
@@ -83,8 +84,8 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([]() {
         return L"lua-stack: " + std::to_wstring(scripting::get_values_on_stack());
     }));
-    panel->add(create_label([=]() {
-        auto& settings = engine->getSettings();
+    panel->add(create_label([&engine]() {
+        auto& settings = engine.getSettings();
         bool culling = settings.graphics.frustumCulling.get();
         return L"frustum-culling: "+std::wstring(culling ? L"on" : L"off");
     }));
@@ -95,7 +96,7 @@ std::shared_ptr<UINode> create_debug_panel(
                std::to_wstring(ParticlesRenderer::aliveEmitters);
     }));
     panel->add(create_label([&]() {
-        return L"chunks: "+std::to_wstring(level.chunks->getChunksCount())+
+        return L"chunks: "+std::to_wstring(level.chunks->size())+
                L" visible: "+std::to_wstring(ChunksRenderer::visibleChunks);
     }));
     panel->add(create_label([&]() {
@@ -137,7 +138,7 @@ std::shared_ptr<UINode> create_debug_panel(
         }
     }));
     panel->add(create_label([&](){
-        auto* indices = level.content->getIndices();
+        auto indices = level.content.getIndices();
         if (auto def = indices->blocks.get(player.selection.vox.id)) {
             return L"name: " + util::str2wstr_utf8(def->name);
         } else {
