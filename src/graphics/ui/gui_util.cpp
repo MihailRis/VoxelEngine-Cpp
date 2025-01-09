@@ -31,7 +31,7 @@ void guiutil::alert(
     const std::wstring& text,
     const runnable& on_hidden
 ) {
-    auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(8.0f), 8.0f);
+    auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(4.0f), 4.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
     auto menu = engine.getGUI()->getMenu();
@@ -46,7 +46,7 @@ void guiutil::alert(
     
     auto label = std::make_shared<Label>(text);
     label->setMultiline(true);
-    label->setSize(glm::vec2(1, 90));
+    label->setSize(glm::vec2(1, 24));
     panel->add(label);
     panel->add(std::make_shared<Button>(
         langs::get(L"Ok"), glm::vec4(10.f), 

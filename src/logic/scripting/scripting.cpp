@@ -302,9 +302,9 @@ void scripting::on_world_quit() {
 
 void scripting::cleanup() {
     auto L = lua::get_main_state();
-    lua::getglobal(L, "pack");
+    lua::requireglobal(L, "pack");
     for (auto& pack : scripting::engine->getAllContentPacks()) {
-        lua::getfield(L, "unload");
+        lua::requirefield(L, "unload");
         lua::pushstring(L, pack.id);
         lua::call_nothrow(L, 1);
     }

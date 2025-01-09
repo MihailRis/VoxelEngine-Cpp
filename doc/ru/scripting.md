@@ -22,6 +22,7 @@
     - [gfx.text3d](3d-text.md#библиотека-gfxtext3d)
     - [gui](scripting/builtins/libgui.md)
     - [hud](scripting/builtins/libhud.md)
+    - [input](scripting/builtins/libinput.md)
     - [inventory](scripting/builtins/libinventory.md)
     - [item](scripting/builtins/libitem.md)
     - [mat4](scripting/builtins/libmat4.md)

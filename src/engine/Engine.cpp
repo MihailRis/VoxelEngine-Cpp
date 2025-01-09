@@ -126,6 +126,9 @@ Engine::Engine(CoreParameters coreParameters)
         ));
     }
     scripting::initialize(this);
+    if (!isHeadless()) {
+        gui->setPageLoader(scripting::create_page_loader());
+    }
     keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
@@ -451,9 +454,6 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 
 void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
-    if (gui) {
-        gui->getMenu()->setPageLoader(scripting::create_page_loader());
-    }
 }
 
 void Engine::onWorldOpen(std::unique_ptr<Level> level) {

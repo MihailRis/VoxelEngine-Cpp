@@ -51,6 +51,8 @@ namespace gui {
     class Container;
     class Menu;
 
+    using PageLoaderFunc = std::function<std::shared_ptr<UINode>(const std::string&)>;
+
     /// @brief The main UI controller
     class GUI {
         std::unique_ptr<Batch2D> batch2D;
@@ -65,6 +67,8 @@ namespace gui {
         std::shared_ptr<Menu> menu;
         std::queue<runnable> postRunnables;
 
+        PageLoaderFunc pagesLoader;
+
         float tooltipTimer = 0.0f;
         float doubleClickTimer = 0.0f;
         float doubleClickDelay = 0.5f;
@@ -77,6 +81,10 @@ namespace gui {
     public:
         GUI();
         ~GUI();
+
+        void setPageLoader(PageLoaderFunc pageLoader);
+        
+        PageLoaderFunc getPagesLoader();
 
         /// @brief Get the main menu (Menu) node
         std::shared_ptr<Menu> getMenu();
