@@ -25,7 +25,17 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(vorbis REQUIRED)
-    if(MSVC)
+    if(VCPKG_TARGET_TRIPLET MATCHES "static")
+        add_library(luajit STATIC IMPORTED)
+        set_target_properties(
+            luajit
+            PROPERTIES
+                IMPORTED_LOCATION
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
+                INTERFACE_INCLUDE_DIRECTORIES
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/"
+        )
+    else()
         add_library(luajit SHARED IMPORTED)
         set_target_properties(
             luajit
@@ -33,16 +43,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
                 IMPORTED_LOCATION
                 "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/bin/lua51.dll"
                 IMPORTED_IMPLIB
-                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
-                INTERFACE_INCLUDE_DIRECTORIES
-                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
-        )
-    else()
-        add_library(luajit STATIC IMPORTED)
-        set_target_properties(
-            luajit
-            PROPERTIES
-                IMPORTED_LOCATION
                 "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
                 INTERFACE_INCLUDE_DIRECTORIES
                 "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
@@ -61,10 +61,7 @@ else()
     add_library(luajit::luajit ALIAS PkgConfig::luajit)
 endif()
 
-target_include_directories(
-    VoxelEngineSrc
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-    PRIVATE ${LUAJIT_INCLUDE_DIR})
+target_include_directories(VoxelEngineSrc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(
     VoxelEngineSrc
