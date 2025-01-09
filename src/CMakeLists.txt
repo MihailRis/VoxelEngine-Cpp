@@ -25,24 +25,29 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(glfw3 REQUIRED)
     find_package(vorbis REQUIRED)
-    # if(MSVC)
-    add_library(luajit IMPORTED)
-    set_target_properties(
-        luajit
-        PROPERTIES
-            IMPORTED_LOCATION
-            "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/bin/lua51.dll"
-            IMPORTED_IMPLIB
-            "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
-            INTERFACE_INCLUDE_DIRECTORIES
-            "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
-    )
-    # else() add_library(luajit STATIC IMPORTED) set_target_properties( luajit
-    # PROPERTIES IMPORTED_IMPLIB
-    # "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
-    # INTERFACE_INCLUDE_DIRECTORIES
-    # "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
-    # ) endif()
+    if(MSVC)
+        add_library(luajit SHARED IMPORTED)
+        set_target_properties(
+            luajit
+            PROPERTIES
+                IMPORTED_LOCATION
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/bin/lua51.dll"
+                IMPORTED_IMPLIB
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
+                INTERFACE_INCLUDE_DIRECTORIES
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
+        )
+    else()
+        add_library(luajit STATIC IMPORTED)
+        set_target_properties(
+            luajit
+            PROPERTIES
+                IMPORTED_IMPLIB
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
+                INTERFACE_INCLUDE_DIRECTORIES
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
+        )
+    endif()
 
     add_library(luajit::luajit ALIAS luajit)
 else()
