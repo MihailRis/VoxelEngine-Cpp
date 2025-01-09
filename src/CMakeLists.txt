@@ -83,5 +83,5 @@ target_link_libraries(
 )
 
 target_compile_options(
-    VoxelEngineSrc PUBLIC /source-charset:UTF-8
-                          /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR /W4)
+    VoxelEngineSrc PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/source-charset:UTF-8
+                          /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR /W4>)
