@@ -3,7 +3,7 @@
 #if defined(VOXELENGINE_PROFILER)
 #if defined(VOXELENGINE_TRACY_PROFILER)
 
-#include <Tracy/Tracy.hpp>
+#include <tracy/Tracy.hpp>
 
 #define VOXELENGINE_PROFILE ZoneScoped
 #define VOXELENGINE_PROFILE_FRAME FrameMark

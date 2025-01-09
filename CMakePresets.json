@@ -21,6 +21,26 @@
             "cacheVariables": {
                 "VOXELENGINE_TRACY_PROFILER": "ON"
             }
+        },
+        {
+            "name": "default-ninja-gnu-linux",
+            "condition": {
+                "type": "equals",
+                "rhs": "${hostSystemName}",
+                "lhs": "Linux"
+            },
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "VOXELENGINE_BUILD_TESTS": "ON"
+            }
+        },
+        {
+            "name": "profiler-tracy-ninja-gnu-linux",
+            "inherits": "default-ninja-gnu-linux",
+            "cacheVariables": {
+                "VOXELENGINE_TRACY_PROFILER": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -32,6 +52,16 @@
         {
             "name": "profiler-tracy-vs-msvc-windows",
             "configurePreset": "profiler-tracy-vs-msvc-windows",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "default-ninja-gnu-linux",
+            "configurePreset": "default-ninja-gnu-linux",
+            "configuration": "Debug"
+        },
+        {
+            "name": "profiler-tracy-ninja-gnu-linux",
+            "configurePreset": "profiler-tracy-ninja-gnu-linux",
             "configuration": "RelWithDebInfo"
         }
     ],
@@ -46,6 +76,20 @@
         {
             "name": "profiler-tracy-vs-msvc-windows",
             "configurePreset": "profiler-tracy-vs-msvc-windows",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "default-ninja-gnu-linux",
+            "configurePreset": "default-ninja-gnu-linux",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "profiler-tracy-ninja-gnu-linux",
+            "configurePreset": "profiler-tracy-ninja-gnu-linux",
             "output": {
                 "outputOnFailure": true
             }
