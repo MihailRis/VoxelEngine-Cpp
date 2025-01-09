@@ -18,12 +18,12 @@ endif()
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(CURL REQUIRED)
+find_package(glfw3 REQUIRED)
 if(NOT APPLE)
     find_package(EnTT REQUIRED)
 endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    find_package(glfw3 REQUIRED)
     find_package(vorbis REQUIRED)
     if(MSVC)
         add_library(luajit SHARED IMPORTED)
@@ -42,7 +42,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         set_target_properties(
             luajit
             PROPERTIES
-                IMPORTED_IMPLIB
+                IMPORTED_LOCATION
                 "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
                 INTERFACE_INCLUDE_DIRECTORIES
                 "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
@@ -59,10 +59,6 @@ else()
     add_library(Vorbis::vorbis ALIAS PkgConfig::vorbis)
     add_library(Vorbis::vorbisfile ALIAS PkgConfig::vorbisfile)
     add_library(luajit::luajit ALIAS PkgConfig::luajit)
-endif()
-
-if(UNIX)
-    find_package(glfw3 3.3 REQUIRED)
 endif()
 
 target_include_directories(

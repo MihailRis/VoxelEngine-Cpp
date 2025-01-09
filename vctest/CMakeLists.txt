@@ -10,14 +10,17 @@ if(MSVC)
 else()
     target_compile_options(
         vctest
-        PRIVATE -Wall
+        PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4>
+                $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
+                -Wall
                 -Wextra
                 -Wformat-nonliteral
                 -Wcast-align
                 -Wpointer-arith
                 -Wundef
                 -Wwrite-strings
-                -Wno-unused-parameter)
+                -Wno-unused-parameter
+                >)
 endif()
 
 target_link_options(vctest PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie -lstdc++fs>)

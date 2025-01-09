@@ -1,11 +1,11 @@
 project(VoxelEngineTest)
 enable_testing()
 
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 find_package(GTest)
 
-add_executable(VoxelEngineTest ${SOURCES})
+add_executable(VoxelEngineTest ${sources})
 
 target_link_libraries(VoxelEngineTest PRIVATE VoxelEngineSrc GTest::gtest_main)
 
