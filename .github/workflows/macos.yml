@@ -17,12 +17,7 @@ jobs:
 
       - name: Install dependencies from brew
         run: |
-          brew install glfw3 glew libpng openal-soft luajit libvorbis skypjack/entt/entt googletest
-
-      - name: Install specific version of GLM
-        run: |
-          curl -O https://raw.githubusercontent.com/Homebrew/homebrew-core/5c7655a866646aa4b857c002b8ae5465b9d26f65/Formula/g/glm.rb
-          brew install --formula glm.rb
+          brew install glfw3 glew libpng openal-soft luajit libvorbis skypjack/entt/entt googletest glm
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_TESTS=ON -DVOXELENGINE_BUILD_APPDIR=1
