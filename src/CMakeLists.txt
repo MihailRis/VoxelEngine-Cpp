@@ -36,21 +36,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     endif()
     find_package(glfw3 REQUIRED)
     find_package(vorbis REQUIRED)
-    set(VORBIS_LIBRARIES Vorbis::vorbis Vorbis::vorbisfile)
-
-elseif(APPLE)
-    find_package(PkgConfig)
-
-    pkg_check_modules(LUAJIT REQUIRED luajit)
-    set(LUAJIT_INCLUDE_DIR ${LUAJIT_STATIC_INCLUDE_DIRS})
-    set(LUAJIT_LIBRARIES ${LUAJIT_STATIC_LIBRARIES})
-
-    pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
 else()
     find_package(PkgConfig)
 
-    pkg_check_modules(LUAJIT REQUIRED luajit)
-    pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
+    pkg_check_modules(luajit REQUIRED IMPORTED_TARGET luajit)
+    pkg_check_modules(vorbis REQUIRED IMPORTED_TARGET vorbis)
+    pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
+    add_library(Vorbis::vorbis ALIAS PkgConfig::vorbis)
+    add_library(Vorbis::vorbisfile ALIAS PkgConfig::vorbisfile)
+    add_library(luajit::luajit ALIAS PkgConfig::luajit)
 endif()
 
 if(UNIX)
@@ -71,8 +65,9 @@ target_link_libraries(
             PNG::PNG
             CURL::libcurl
             OpenAL::OpenAL
-            ${VORBIS_LIBRARIES}
-            ${LUAJIT_LIBRARIES}
+            Vorbis::vorbis
+            Vorbis::vorbisfile
+            luajit::luajit
     PUBLIC glm::glm # Need public for src/delegates.hpp, which including to
                     # main.cpp
 )
