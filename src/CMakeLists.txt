@@ -26,15 +26,12 @@ endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(vorbis REQUIRED)
     if(VCPKG_TARGET_TRIPLET MATCHES "static")
-        file(GLOB_RECURSE paths
-             $ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/*)
-        message(FATAL_ERROR "Path to lib jit: ${paths}")
         add_library(luajit STATIC IMPORTED)
         set_target_properties(
             luajit
             PROPERTIES
                 IMPORTED_LOCATION
-                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/libluajit-5.1.a"
                 INTERFACE_INCLUDE_DIRECTORIES
                 "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/"
         )
