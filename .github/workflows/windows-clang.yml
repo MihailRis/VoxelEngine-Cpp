@@ -41,11 +41,12 @@ jobs:
             ./vcpkg integrate install
             cd ..
       - name: Configure project with CMake and vcpkg
+        env:
+            VCPKG_DEFAULT_TRIPLET: x64-mingw-static
+            VCPKG_DEFAULT_HOST_TRIPLET: x64-mingw-static
+            VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         shell: msys2 {0}
         run: |
-            export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
-            export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
-            export VCPKG_ROOT=./vcpkg
             mkdir build
             cd build
             cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
