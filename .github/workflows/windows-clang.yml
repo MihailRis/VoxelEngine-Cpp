@@ -29,7 +29,6 @@ jobs:
             install: >-
                 mingw-w64-clang-x86_64-toolchain 
                 mingw-w64-clang-x86_64-cmake
-                mingw-w64-clang-x86_64-luajit 
                 git
       - name: Set up vcpkg
         shell: msys2 {0}
