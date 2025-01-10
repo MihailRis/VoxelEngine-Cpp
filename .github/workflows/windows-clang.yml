@@ -44,7 +44,7 @@ jobs:
         env:
             VCPKG_DEFAULT_TRIPLET: x64-mingw-static
             VCPKG_DEFAULT_HOST_TRIPLET: x64-mingw-static
-            VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+            VCPKG_ROOT: ./vcpkg
         shell: msys2 {0}
         run: |
             mkdir build
