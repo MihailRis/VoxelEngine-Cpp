@@ -70,6 +70,12 @@ Updates the packs configuration, automatically removing unspecified ones, adding
 Uses app.reconfig_packs.
 
 ```lua
+app.is_content_loaded() -> bool
+```
+
+Checks if content is loaded.
+
+```lua
 app.new_world(
     -- world name
     name: str,

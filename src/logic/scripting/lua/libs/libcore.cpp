@@ -43,6 +43,10 @@ static int l_reset_content(lua::State* L) {
     return 0;
 }
 
+static int l_is_content_loaded(lua::State* L) {
+    return lua::pushboolean(L, content != nullptr);
+}
+
 /// @brief Creating new world
 /// @param name Name world
 /// @param seed Seed world
@@ -258,6 +262,7 @@ const luaL_Reg corelib[] = {
     {"get_version", lua::wrap<l_get_version>},
     {"load_content", lua::wrap<l_load_content>},
     {"reset_content", lua::wrap<l_reset_content>},
+    {"is_content_loaded", lua::wrap<l_is_content_loaded>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
