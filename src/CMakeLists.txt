@@ -85,6 +85,13 @@ target_compile_options(
            /source-charset:UTF-8
            /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
            /W4
+           /wd4244 # conversion from 'a' to 'T', possible loss of data
+           /wd4267 # conversion from 'size_t' to 'int', possible loss of data
+           /wd4245 # conversion from 'int' to 'const size_t', signed/unsigned
+                   # mismatch
+           /wd4100 # unreferenced formal parameter
+           /wd4458 # declaration of 'var' hides class member
+           /wd4101 # 'var': unreferenced local variable
            >
            $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
            -Wall
