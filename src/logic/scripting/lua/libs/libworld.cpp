@@ -206,16 +206,18 @@ static int l_set_chunk_data(lua::State* L) {
         chunk->decode(buffer->data().data());
     }
 
+    chunk->setModifiedAndUnsaved();
+    chunk->updateHeights();
+
     auto chunksController = controller->getChunksController();
     if (chunksController->lighting == nullptr) {
         return lua::pushboolean(L, true);
     }
 
     Lighting& lighting = *chunksController->lighting;
-    chunk->updateHeights();
     chunk->flags.loadedLights = false;
     chunk->flags.lighted = false;
-    chunk->setModifiedAndUnsaved();
+
     Lighting::prebuildSkyLight(*chunk, *indices);
     lighting.onChunkLoaded(x, y, true);
 
@@ -226,7 +228,7 @@ static int l_set_chunk_data(lua::State* L) {
             }
             chunk = level->chunks->getChunk(x + lx, y + lz);
             if (chunk != nullptr) {
-                chunk->setModifiedAndUnsaved();
+                chunk->flags.modified = true;
                 lighting.onChunkLoaded(x - 1, y, true);
             }
         }
