@@ -1,16 +1,14 @@
-#include "../ContentLoader.hpp"
-
 #include <algorithm>
 
-#include "../ContentPack.hpp"
-
-#include "files/files.hpp"
+#include "content/ContentLoader.hpp"
+#include "content/ContentPack.hpp"
+#include "debug/Logger.hpp"
 #include "files/engine_paths.hpp"
+#include "files/files.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "util/stringutil.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "world/generator/VoxelFragment.hpp"
-#include "debug/Logger.hpp"
-#include "util/stringutil.hpp"
 
 static BlocksLayer load_layer(
     const dv::value& map, uint& lastLayersHeight, bool& hasResizeableLayer
