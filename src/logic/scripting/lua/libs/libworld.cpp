@@ -123,6 +123,41 @@ static int l_get_generator(lua::State* L) {
     return lua::pushstring(L, require_world_info().generator);
 }
 
+static std::vector<ubyte> prepare_chunk_data(const Chunk& chunk, bool compress) {
+    auto data = chunk.encode();
+
+    std::vector<ubyte> chunkData;
+    if (compress) {
+        // world.get_chunk_data is only available in the main Lua state
+        static util::Buffer<ubyte> rleBuffer;
+        if (rleBuffer.size() < CHUNK_DATA_LEN * 2) {
+            rleBuffer = util::Buffer<ubyte>(CHUNK_DATA_LEN * 2);
+        }
+        size_t rleCompressedSize =
+            extrle::encode16(data.get(), CHUNK_DATA_LEN, rleBuffer.data());
+
+        const auto gzipCompressedData =  gzip::compress(
+            rleBuffer.data(), rleCompressedSize
+        );
+        auto tmp = dataio::h2le(rleCompressedSize);
+        chunkData.reserve(gzipCompressedData.size() + sizeof(tmp));
+        chunkData.insert(
+            chunkData.begin() + 0, (char*)&tmp, ((char*)&tmp) + sizeof(tmp)
+        );
+        chunkData.insert(
+            chunkData.begin() + sizeof(tmp),
+            gzipCompressedData.data(),
+            gzipCompressedData.data() + gzipCompressedData.size()
+        );
+    } else {
+        chunkData.reserve(CHUNK_DATA_LEN);
+        chunkData.insert(
+            chunkData.begin(), data.get(), data.get() + CHUNK_DATA_LEN
+        );
+    }
+    return chunkData;
+}
+
 static int l_get_chunk_data(lua::State* L) {
     int x = static_cast<int>(lua::tointeger(L, 1));
     int y = static_cast<int>(lua::tointeger(L, 2));
@@ -131,73 +166,38 @@ static int l_get_chunk_data(lua::State* L) {
         lua::pushnil(L);
         return 0;
     }
-
     bool compress = true;
     if (lua::gettop(L) >= 3) {
         compress = lua::toboolean(L, 3);
     }
-    std::vector<ubyte> chunk_data;
-    if (compress) {
-        // world.get_chunk_data is only available in the main Lua state
-        static util::Buffer<ubyte> rlebuffer;
-        if (rlebuffer.size() < CHUNK_DATA_LEN * 2) {
-            rlebuffer = util::Buffer<ubyte>(CHUNK_DATA_LEN * 2);
-        }
-
-        const auto& data_ptr = chunk->encode();
-        ubyte* data = data_ptr.get();
-
-        size_t rle_compressed_size =
-            extrle::encode16(data, CHUNK_DATA_LEN, rlebuffer.data());
-
-        const auto gzip_compressed_data =  gzip::compress(
-            rlebuffer.data(), rle_compressed_size
-        );
-        auto tmp = dataio::h2le(rle_compressed_size);
-        chunk_data.reserve(gzip_compressed_data.size() + sizeof(tmp));
-        chunk_data.insert(
-            chunk_data.begin() + 0, (char*)&tmp, ((char*)&tmp) + sizeof(tmp)
-        );
-        chunk_data.insert(
-            chunk_data.begin() + sizeof(tmp),
-            gzip_compressed_data.data(),
-            gzip_compressed_data.data() + gzip_compressed_data.size()
-        );
-    } else {
-        const auto& data = chunk->encode();
-        chunk_data.reserve(CHUNK_DATA_LEN);
-        chunk_data.insert(
-            chunk_data.begin(), data.get(), data.get() + CHUNK_DATA_LEN
-        );
-    }
-    return lua::newuserdata<lua::LuaBytearray>(L, chunk_data);
+    auto chunkData = prepare_chunk_data(*chunk, compress);
+    return lua::newuserdata<lua::LuaBytearray>(L, std::move(chunkData));
 }
 
 static int l_set_chunk_data(lua::State* L) {
     int x = static_cast<int>(lua::tointeger(L, 1));
     int y = static_cast<int>(lua::tointeger(L, 2));
     auto buffer = lua::touserdata<lua::LuaBytearray>(L, 3);
-    bool is_compressed = true;
+    bool isCompressed = true;
     if (lua::gettop(L) >= 4) {
-        is_compressed = lua::toboolean(L, 4);
+        isCompressed = lua::toboolean(L, 4);
     }
     auto chunk = level->chunks->getChunk(x, y);
     if (chunk == nullptr) {
         return 0;
     }
-    if (is_compressed) {
-        std::vector<ubyte>& raw_data = buffer->data();
-        size_t gzip_decompressed_size =
-            dataio::le2h(*(size_t*)(raw_data.data()));
-        const auto& rle_data = compression::decompress(
-            raw_data.data() + sizeof(gzip_decompressed_size),
-            buffer->data().size() - sizeof(gzip_decompressed_size),
-            gzip_decompressed_size,
+    if (isCompressed) {
+        std::vector<ubyte>& rawData = buffer->data();
+        size_t gzipDecompressedSize = dataio::le2h(*(size_t*)(rawData.data()));
+        auto rleData = compression::decompress(
+            rawData.data() + sizeof(gzipDecompressedSize),
+            buffer->data().size() - sizeof(gzipDecompressedSize),
+            gzipDecompressedSize,
             compression::Method::GZIP
         );
-        const auto& data = compression::decompress(
-            rle_data.get(),
-            gzip_decompressed_size,
+        auto data = compression::decompress(
+            rleData.get(),
+            gzipDecompressedSize,
             CHUNK_DATA_LEN,
             compression::Method::EXTRLE16
         );
