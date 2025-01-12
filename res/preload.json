@@ -19,7 +19,9 @@
         "gui/cross",
         "gui/refresh",
         "gui/folder_icon",
-        "gui/settings_icon"
+        "gui/settings_icon",
+        "misc/rain",
+        "misc/snow"
     ],
     "fonts": [
         {

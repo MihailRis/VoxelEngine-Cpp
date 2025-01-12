@@ -40,12 +40,6 @@ public:
 
     u64id_t add(std::unique_ptr<Emitter> emitter);
 
-    /// @brief Perform garbage collection (remove extra dead emitters).
-    /// @note Emitters are deleting without GC when there's no particles with same
-    /// texture left.
-    /// @note Currently unused
-    void gc();
-
     /// @brief Get emitter by UID
     /// @return Emitter or nullptr
     Emitter* getEmitter(u64id_t id) const;

@@ -44,6 +44,7 @@
 #include "graphics/core/Font.hpp"
 #include "BlockWrapsRenderer.hpp"
 #include "ParticlesRenderer.hpp"
+#include "PrecipitationRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "GuidesRenderer.hpp"
@@ -86,7 +87,10 @@ WorldRenderer::WorldRenderer(
       )),
       blockWraps(
           std::make_unique<BlockWrapsRenderer>(assets, level, *player.chunks)
-      ) {
+      ),
+      precipitation(std::make_unique<PrecipitationRenderer>(
+          assets, level, *player.chunks, &engine.getSettings().graphics
+      )) {
     auto& settings = engine.getSettings();
     level.events->listen(
         LevelEventType::CHUNK_HIDDEN,
@@ -187,6 +191,10 @@ void WorldRenderer::renderLevel(
     if (!pause) {
         scripting::on_frontend_render();
     }
+
+    setupWorldShader(entityShader, camera, settings, fogFactor);
+    entityShader.uniform1i("u_alphaClip", false);
+    precipitation->render(camera, delta);
 
     skybox->unbind();
 }
