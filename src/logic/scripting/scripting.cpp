@@ -24,6 +24,7 @@
 #include "util/stringutil.hpp"
 #include "util/timeutil.hpp"
 #include "voxels/Block.hpp"
+#include "voxels/Chunk.hpp"
 #include "world/Level.hpp"
 #include "interfaces/Process.hpp"
 
@@ -409,6 +410,35 @@ bool scripting::on_block_interact(
     return on_block_common<&WorldFuncsSet::onblockinteract>(
         "interact", block.rt.funcsset.oninteract, player, block, pos
     );
+}
+
+void scripting::on_chunk_present(const Chunk& chunk, bool loaded) {
+    auto args = [&chunk, loaded](lua::State* L) {
+        lua::pushvec_stack<2>(L, {chunk.x, chunk.z});
+        lua::pushboolean(L, loaded);
+        return 3;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onchunkpresent) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.chunkpresent", args
+            );
+        }
+    }
+}
+
+void scripting::on_chunk_remove(const Chunk& chunk) {
+    auto args = [&chunk](lua::State* L) {
+        lua::pushvec_stack<2>(L, {chunk.x, chunk.z});
+        return 2;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.onchunkremove) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.chunkremove", args
+            );
+        }
+    }
 }
 
 void scripting::on_player_tick(Player* player, int tps) {
@@ -837,6 +867,10 @@ void scripting::load_world_script(
         register_event(env, "on_block_interact", prefix + ":.blockinteract");
     funcsset.onplayertick =
         register_event(env, "on_player_tick", prefix + ":.playertick");
+    funcsset.onchunkpresent =
+        register_event(env, "on_chunk_present", prefix + ":.chunkpresent");
+    funcsset.onchunkremove =
+        register_event(env, "on_chunk_remove", prefix + ":.chunkremove");
 }
 
 void scripting::load_layout_script(

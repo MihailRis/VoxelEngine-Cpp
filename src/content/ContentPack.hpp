@@ -109,6 +109,8 @@ struct WorldFuncsSet {
     bool onblockbroken;
     bool onblockinteract;
     bool onplayertick;
+    bool onchunkpresent;
+    bool onchunkremove;
 };
 
 class ContentPackRuntime {

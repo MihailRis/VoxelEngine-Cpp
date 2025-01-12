@@ -34,7 +34,7 @@ Chunks::Chunks(
       areaMap(w, d) {
     areaMap.setCenter(ox-w/2, oz-d/2);
     areaMap.setOutCallback([this](int, int, const auto& chunk) {
-        this->events->trigger(EVT_CHUNK_HIDDEN, chunk.get());
+        this->events->trigger(LevelEventType::CHUNK_HIDDEN, chunk.get());
     });
 }
 
@@ -323,7 +323,7 @@ void Chunks::resize(uint32_t newW, uint32_t newD) {
 bool Chunks::putChunk(const std::shared_ptr<Chunk>& chunk) {
     if (areaMap.set(chunk->x, chunk->z, chunk)) {
         if (events) {
-            events->trigger(LevelEventType::EVT_CHUNK_SHOWN, chunk.get());
+            events->trigger(LevelEventType::CHUNK_SHOWN, chunk.get());
         }
         return true;
     }
