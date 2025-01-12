@@ -41,7 +41,7 @@ int PrecipitationRenderer::getHeightAt(int x, int z) {
 
 
 void PrecipitationRenderer::render(const Camera& camera, float delta) {
-    timer += delta * 1.0f;
+    timer += delta * 1.6f;
     batch->begin();
 
     int x = glm::floor(camera.position.x);
@@ -67,7 +67,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
         for (int lz = -depth; lz < 0; lz++) {
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 3, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -78,9 +78,9 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                 glm::vec3(1.0f),
                 UVRegion(
                     (lx + x) * scale + timer * horizontal,
-                    timer + (z + lz) * k,
+                    timer + y * scale + (z + lz) * k,
                     (lx + x + 1) * scale + timer * horizontal,
-                    timer + 40 * scale + (z + lz) * k
+                    timer + (40 + y) * scale + (z + lz) * k
                 )
             );
         }
@@ -89,7 +89,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
         for (int lz = depth; lz > 0; lz--) {
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 3, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -100,9 +100,9 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                 glm::vec3(1.0f),
                 UVRegion(
                     (lx + x) * scale + timer * horizontal,
-                    timer + (z + lz) * k,
+                    timer + y * scale + (z + lz) * k,
                     (lx + x + 1) * scale + timer * horizontal,
-                    timer + 40 * scale + (z + lz) * k
+                    timer + (40 + y) * scale + (z + lz) * k
                 )
             );
         }
@@ -111,7 +111,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
         for (int lx = -depth; lx < 0; lx++) {
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 3, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -122,9 +122,9 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                 glm::vec3(1.0f),
                 UVRegion(
                     (lz + z) * scale + timer * horizontal,
-                    timer + (x + lx) * k,
+                    timer + y * scale + (x + lx) * k,
                     (lz + z + 1) * scale + timer * horizontal,
-                    timer + 40 * scale + (x + lx) * k
+                    timer + (40 + y) * scale + (x + lx) * k
                 )
             );
         }
@@ -133,7 +133,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
         for (int lx = depth; lx > 0; lx--) {
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 3, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -144,9 +144,9 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                 glm::vec3(1.0f),
                 UVRegion(
                     (lz + z) * scale + timer * horizontal,
-                    timer + (x + lx) * k,
+                    timer + y * scale + (x + lx) * k,
                     (lz + z + 1) * scale + timer * horizontal,
-                    timer + 40 * scale + (x + lx) * k
+                    timer + (40 + y) * scale + (x + lx) * k
                 )
             );
         }
