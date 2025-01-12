@@ -413,6 +413,7 @@ std::shared_ptr<Inventory> Hud::openInventory(
     }
     secondInvView->bind(inv, &content);
     add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+    scripting::on_inventory_open(&player, *inv);
     return inv;
 }
 
@@ -521,6 +522,9 @@ void Hud::closeInventory() {
     if (blockUI) {
         scripting::on_inventory_closed(&player, *blockUI->getInventory());
         blockUI = nullptr;
+    }
+    if (secondInvView) {
+        scripting::on_inventory_closed(&player, *secondInvView->getInventory());
     }
     dropExchangeSlot();
     gui.remove(SlotView::EXCHANGE_SLOT_NAME);
