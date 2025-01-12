@@ -17,6 +17,7 @@ struct ContentPack;
 class ContentIndices;
 class Level;
 class Block;
+class Chunk;
 class Player;
 struct ItemDef;
 class Inventory;
@@ -84,6 +85,13 @@ namespace scripting {
         Player* player, const Block& block, const glm::ivec3& pos
     );
     bool on_block_interact(Player* player, const Block& block, const glm::ivec3& pos);
+    
+    void on_chunk_present(const Chunk& chunk, bool loaded);
+    void on_chunk_remove(const Chunk& chunk);
+
+    void on_inventory_open(const Player* player, const Inventory& inventory);
+    void on_inventory_closed(const Player* player, const Inventory& inventory);
+
     void on_player_tick(Player* player, int tps);
 
     /// @brief Called on RMB click with the item selected
