@@ -531,6 +531,7 @@ void Hud::closeInventory() {
     exchangeSlot = nullptr;
     exchangeSlotInv = nullptr;
     inventoryOpen = false;
+    inventoryView = nullptr;
     secondUI = nullptr;
 
     for (auto& element : elements) {
