@@ -4,11 +4,7 @@
 
 #include "api_lua.hpp"
 #include "assets/AssetsLoader.hpp"
-#include "coders/compression.hpp"
-#include "coders/gzip.hpp"
 #include "coders/json.hpp"
-#include "coders/byte_utils.hpp"
-#include "coders/rle.hpp"
 #include "engine/Engine.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
@@ -16,6 +12,7 @@
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/GlobalChunks.hpp"
+#include "voxels/compressed_chunks.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "logic/LevelController.hpp"
@@ -124,98 +121,57 @@ static int l_get_generator(lua::State* L) {
     return lua::pushstring(L, require_world_info().generator);
 }
 
-static std::vector<ubyte> prepare_chunk_data(const Chunk& chunk) {
-    auto data = chunk.encode();
-
-    /// world.get_chunk_data is only available in the main Lua state
-    static util::Buffer<ubyte> rleBuffer;
-    if (rleBuffer.size() < CHUNK_DATA_LEN * 2) {
-        rleBuffer = util::Buffer<ubyte>(CHUNK_DATA_LEN * 2);
-    }
-    size_t rleCompressedSize =
-        extrle::encode16(data.get(), CHUNK_DATA_LEN, rleBuffer.data());
-
-    const auto gzipCompressedData =  gzip::compress(
-        rleBuffer.data(), rleCompressedSize
-    );
-    auto metadataBytes = chunk.blocksMetadata.serialize();
-
-    ByteBuilder builder(2 + 8 + gzipCompressedData.size() + metadataBytes.size());
-    builder.putInt16(0); // header
-    builder.putInt32(gzipCompressedData.size());
-    builder.put(gzipCompressedData.data(), gzipCompressedData.size());
-    builder.putInt32(metadataBytes.size());
-    builder.put(metadataBytes.data(), metadataBytes.size());
-    return builder.build();
-}
-
 static int l_get_chunk_data(lua::State* L) {
     int x = static_cast<int>(lua::tointeger(L, 1));
-    int y = static_cast<int>(lua::tointeger(L, 2));
-    const auto& chunk = level->chunks->getChunk(x, y);
+    int z = static_cast<int>(lua::tointeger(L, 2));
+    const auto& chunk = level->chunks->getChunk(x, z);
     if (chunk == nullptr) {
         lua::pushnil(L);
         return 0;
     }
-    auto chunkData = prepare_chunk_data(*chunk);
+    auto chunkData = compressed_chunks::encode(*chunk);
     return lua::newuserdata<lua::LuaBytearray>(L, std::move(chunkData));
 }
 
-static int l_set_chunk_data(lua::State* L) {
-    int x = static_cast<int>(lua::tointeger(L, 1));
-    int y = static_cast<int>(lua::tointeger(L, 2));
-    auto buffer = lua::touserdata<lua::LuaBytearray>(L, 3);
-    auto chunk = level->chunks->getChunk(x, y);
-    if (chunk == nullptr) {
-        return 0;
-    }
-
-    std::vector<ubyte>& rawData = buffer->data();
-
-    ByteReader reader(rawData.data(), rawData.size());
-
-    uint16_t header = reader.getInt16();
-    size_t gzipCompressedSize = reader.getInt32();
-    
-    auto rleData = gzip::decompress(reader.pointer(), gzipCompressedSize);
-    reader.skip(gzipCompressedSize);
-
-    /// world.get_chunk_data is only available in the main Lua state
-    static util::Buffer<ubyte> voxelData (CHUNK_DATA_LEN);
-    extrle::decode16(rleData.data(), rleData.size(), voxelData.data());
-    chunk->decode(voxelData.data());
-
-    size_t metadataSize = reader.getInt32();
-    chunk->blocksMetadata.deserialize(reader.pointer(), metadataSize);
-    reader.skip(metadataSize);
-
-    chunk->setModifiedAndUnsaved();
-    chunk->updateHeights();
-
+static void integrate_chunk_client(Chunk& chunk) {
+    int x = chunk.x;
+    int z = chunk.z;
     auto chunksController = controller->getChunksController();
-    if (chunksController->lighting == nullptr) {
-        return lua::pushboolean(L, true);
-    }
-
     Lighting& lighting = *chunksController->lighting;
-    chunk->flags.loadedLights = false;
-    chunk->flags.lighted = false;
+    chunk.flags.loadedLights = false;
+    chunk.flags.lighted = false;
 
-    Lighting::prebuildSkyLight(*chunk, *indices);
-    lighting.onChunkLoaded(x, y, true);
+    Lighting::prebuildSkyLight(chunk, *indices);
+    lighting.onChunkLoaded(x, z, true);
 
     for (int lz = -1; lz <= 1; lz++) {
         for (int lx = -1; lx <= 1; lx++) {
             if (std::abs(lx) + std::abs(lz) != 1) {
                 continue;
             }
-            chunk = level->chunks->getChunk(x + lx, y + lz);
-            if (chunk != nullptr) {
-                chunk->flags.modified = true;
-                lighting.onChunkLoaded(x - 1, y, true);
+            if (auto other = level->chunks->getChunk(x + lx, z + lz)) {
+                other->flags.modified = true;
+                lighting.onChunkLoaded(x - 1, z, true);
             }
         }
     }
+}
+
+static int l_set_chunk_data(lua::State* L) {
+    int x = static_cast<int>(lua::tointeger(L, 1));
+    int z = static_cast<int>(lua::tointeger(L, 2));
+    auto buffer = lua::touserdata<lua::LuaBytearray>(L, 3);
+    auto chunk = level->chunks->getChunk(x, z);
+    if (chunk == nullptr) {
+        return 0;
+    }
+    compressed_chunks::decode(
+        *chunk, buffer->data().data(), buffer->data().size()
+    );
+    if (controller->getChunksController()->lighting == nullptr) {
+        return lua::pushboolean(L, true);
+    }
+    integrate_chunk_client(*chunk);
     return lua::pushboolean(L, true);
 }
 
