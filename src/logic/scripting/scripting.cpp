@@ -441,6 +441,36 @@ void scripting::on_chunk_remove(const Chunk& chunk) {
     }
 }
 
+void scripting::on_inventory_open(const Player* player, const Inventory& inventory) {
+    auto args = [player, &inventory](lua::State* L) {
+        lua::pushinteger(L, inventory.getId());
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 2;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.oninventoryopen) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.inventoryopen", args
+            );
+        }
+    }
+}
+
+void scripting::on_inventory_closed(const Player* player, const Inventory& inventory) {
+    auto args = [player, &inventory](lua::State* L) {
+        lua::pushinteger(L, inventory.getId());
+        lua::pushinteger(L, player ? player->getId() : -1);
+        return 2;
+    };
+    for (auto& [packid, pack] : content->getPacks()) {
+        if (pack->worldfuncsset.oninventoryclosed) {
+            lua::emit_event(
+                lua::get_main_state(), packid + ":.inventoryclosed", args
+            );
+        }
+    }
+}
+
 void scripting::on_player_tick(Player* player, int tps) {
     auto args = [=](lua::State* L) {
         lua::pushinteger(L, player ? player->getId() : -1);
@@ -871,6 +901,10 @@ void scripting::load_world_script(
         register_event(env, "on_chunk_present", prefix + ":.chunkpresent");
     funcsset.onchunkremove =
         register_event(env, "on_chunk_remove", prefix + ":.chunkremove");
+    funcsset.oninventoryopen =
+        register_event(env, "on_inventory_open", prefix + ":.inventoryopen");
+    funcsset.oninventoryclosed =
+        register_event(env, "on_inventory_closed", prefix + ":.inventoryclosed");
 }
 
 void scripting::load_layout_script(

@@ -89,6 +89,9 @@ namespace scripting {
     void on_chunk_present(const Chunk& chunk, bool loaded);
     void on_chunk_remove(const Chunk& chunk);
 
+    void on_inventory_open(const Player* player, const Inventory& inventory);
+    void on_inventory_closed(const Player* player, const Inventory& inventory);
+
     void on_player_tick(Player* player, int tps);
 
     /// @brief Called on RMB click with the item selected

@@ -447,6 +447,8 @@ void Hud::openInventory(
     blockPos = block;
     currentblockid = chunks.require(block.x, block.y, block.z).id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
+
+    scripting::on_inventory_open(&player, *blockinv);
 }
 
 void Hud::showExchangeSlot() {
@@ -461,7 +463,6 @@ void Hud::showExchangeSlot() {
     exchangeSlot->setInteractive(false);
     exchangeSlot->setZIndex(1);
     gui.store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
-
 }
 
 void Hud::showOverlay(
@@ -517,13 +518,15 @@ void Hud::dropExchangeSlot() {
 }
 
 void Hud::closeInventory() {
+    if (blockUI) {
+        scripting::on_inventory_closed(&player, *blockUI->getInventory());
+        blockUI = nullptr;
+    }
     dropExchangeSlot();
     gui.remove(SlotView::EXCHANGE_SLOT_NAME);
     exchangeSlot = nullptr;
     exchangeSlotInv = nullptr;
     inventoryOpen = false;
-    inventoryView = nullptr;
-    blockUI = nullptr;
     secondUI = nullptr;
 
     for (auto& element : elements) {

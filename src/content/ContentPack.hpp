@@ -111,6 +111,8 @@ struct WorldFuncsSet {
     bool onplayertick;
     bool onchunkpresent;
     bool onchunkremove;
+    bool oninventoryopen;
+    bool oninventoryclosed;
 };
 
 class ContentPackRuntime {
