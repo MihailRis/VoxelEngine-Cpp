@@ -126,6 +126,34 @@ function on_block_interact(blockid, x, y, z, playerid) -> bool
 
 Called on block RMB click interaction. Prevents block placing if **true** returned.
 
+### Chunk Events (world.lua)
+
+```lua
+function on_chunk_present(x: int, z: int, loaded: bool)
+```
+
+Called after a chunk is generated/loaded. If a previously saved chunk is loaded, `loaded` will be true.
+
+```lua
+function on_chunk_remove(x: int, z: int)
+```
+
+Called when a chunk is unloaded from the world.
+
+### Inventory Events (world.lua)
+
+```lua
+function on_inventory_open(invid: int, playerid: int)
+```
+
+Called when the inventory is opened. If the inventory was not opened directly by the player, playerid will be -1.
+
+```lua
+function on_inventory_closed(invid: int, playerid: int)
+```
+
+Called when the inventory is closed.
+
 ## Layout events
 
 Script *layouts/layout_name.xml.lua* events.

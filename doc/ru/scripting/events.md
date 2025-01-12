@@ -126,6 +126,35 @@ function on_block_interact(blockid, x, y, z, playerid) -> bool
 
 Вызывается при нажатии на блок ПКМ. Предотвращает установку блоков, если возвращает `true`
 
+### События чанков (world.lua)
+
+```lua
+function on_chunk_present(x: int, z: int, loaded: bool)
+```
+
+Вызывается после генерации/загрузки чанка. В случае загрузки ранее сохраненного чанка `loaded` будет истинным.
+
+```lua
+function on_chunk_remove(x: int, z: int)
+```
+
+Вызывается при выгрузке чанка из мира.
+
+### События инвентарей (world.lua)
+
+```lua
+function on_inventory_open(invid: int, playerid: int)
+```
+
+Вызывается при открытии инвентаря. Если инвентарь был открыт не напрямую игроком, playerid будет равен -1.
+
+```lua
+function on_inventory_closed(invid: int, playerid: int)
+```
+
+Вызывается при закрытии инвентаря.
+
+
 ## События макета
 
 События прописываются в файле `layouts/имя_макета.xml.lua`.
