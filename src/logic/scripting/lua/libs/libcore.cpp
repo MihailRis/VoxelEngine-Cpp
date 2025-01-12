@@ -55,6 +55,9 @@ static int l_new_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto seed = lua::require_string(L, 2);
     auto generator = lua::require_string(L, 3);
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     auto controller = engine->getController();
     controller->createWorld(name, seed, generator);
     return 0;
@@ -64,7 +67,9 @@ static int l_new_world(lua::State* L) {
 /// @param name Name world
 static int l_open_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
-
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     auto controller = engine->getController();
     controller->openWorld(name, false);
     return 0;

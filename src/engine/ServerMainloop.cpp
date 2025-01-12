@@ -70,7 +70,7 @@ void ServerMainloop::run() {
             begin = system_clock::now();
         }
     }
-    logger.info() << "test finished";
+    logger.info() << "script finished";
 }
 
 void ServerMainloop::setLevel(std::unique_ptr<Level> level) {
