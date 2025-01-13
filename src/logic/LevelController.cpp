@@ -108,6 +108,10 @@ void LevelController::update(float delta, bool pause) {
 
 void LevelController::saveWorld() {
     auto world = level->getWorld();
+    if (world->isNameless()) {
+        logger.info() << "nameless world will not be saved";
+        return;
+    }
     logger.info() << "writing world '" << world->getName() << "'";
     world->wfile->createDirectories();
     scripting::on_world_save();

@@ -140,6 +140,10 @@ public:
     /// @brief Get world generator id
     std::string getGenerator() const;
 
+    bool isNameless() const {
+        return info.name.empty();
+    }
+
     WorldInfo& getInfo() {
         return info;
     }
