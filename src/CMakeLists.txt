@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME} STATIC ${SOURCES} ${HEADERS})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # specific for vcpkg
     find_package(OpenAL CONFIG REQUIRED)
     set(OPENAL_LIBRARY OpenAL::OpenAL)
@@ -20,17 +20,19 @@ endif()
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(CURL REQUIRED)
-if (NOT APPLE)
+if(NOT APPLE)
     find_package(EnTT REQUIRED)
 endif()
 
 set(LIBS "")
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # Use directly linking to lib instead PkgConfig (because pkg-config dont install on windows as default) 
-    # TODO: Do it with findLua.
-    if (MSVC)
-        set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # Use directly linking to lib instead PkgConfig (because pkg-config dont
+    # install on windows as default) TODO: Do it with findLua.
+    if(MSVC)
+        set(LUA_INCLUDE_DIR
+            "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
+        )
         find_package(Lua REQUIRED)
     else()
         # Used for mingw-clang cross compiling from msys2
@@ -49,7 +51,7 @@ elseif(APPLE)
     set(LUA_LIBRARIES "/opt/homebrew/lib/libluajit-5.1.a")
     message(STATUS "LUA Libraries: ${LUA_LIBRARIES}")
     message(STATUS "LUA Include Dir: ${LUA_INCLUDE_DIR}")
-    
+
     set(VORBISLIB ${VORBIS_LDFLAGS})
     message(STATUS "Vorbis Lib: ${VORBIS_LDFLAGS}")
 else()
@@ -70,4 +72,16 @@ endif()
 include_directories(${LUA_INCLUDE_DIR})
 include_directories(${CURL_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB PNG::PNG CURL::libcurl ${VORBISLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(
+    ${PROJECT_NAME}
+    ${LIBS}
+    glfw
+    OpenGL::GL
+    ${OPENAL_LIBRARY}
+    GLEW::GLEW
+    ZLIB::ZLIB
+    PNG::PNG
+    CURL::libcurl
+    ${VORBISLIB}
+    ${LUA_LIBRARIES}
+    ${CMAKE_DL_LIBS})

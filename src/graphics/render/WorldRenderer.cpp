@@ -89,7 +89,7 @@ WorldRenderer::WorldRenderer(
       ) {
     auto& settings = engine.getSettings();
     level.events->listen(
-        EVT_CHUNK_HIDDEN,
+        LevelEventType::CHUNK_HIDDEN,
         [this](LevelEventType, Chunk* chunk) { chunks->unload(chunk); }
     );
     auto assets = engine.getAssets();

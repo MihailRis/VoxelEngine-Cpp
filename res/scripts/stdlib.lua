@@ -39,6 +39,7 @@ local function complete_app_lib(app)
     app.get_setting_info = core.get_setting_info
     app.load_content = core.load_content
     app.reset_content = core.reset_content
+    app.is_content_loaded = core.is_content_loaded
     
     function app.config_packs(packs_list)
         -- Check if packs are valid and add dependencies to the configuration
@@ -374,6 +375,14 @@ function __vc_on_hud_open()
         end
         time.post_runnable(function()
             hud.show_overlay("core:console", false, {"console"})
+        end)
+    end)
+    input.add_callback("hud.chat", function()
+        if hud.is_paused() then
+            return
+        end
+        time.post_runnable(function()
+            hud.show_overlay("core:console", false, {"chat"})
         end)
     end)
 end

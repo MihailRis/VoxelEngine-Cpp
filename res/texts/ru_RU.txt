@@ -103,6 +103,7 @@ movement.sprint=Ускорение
 movement.crouch=Красться
 movement.cheat=Чит
 hud.inventory=Инвентарь
+hud.chat=Чат
 player.pick=Подобрать Блок
 player.attack=Атаковать
 player.destroy=Сломать

@@ -47,4 +47,18 @@ world.is_night() -> bool
 
 -- Returns the total number of chunks loaded into memory
 world.count_chunks() -> int
+
+-- Returns the compressed chunk data to send.
+-- Currently includes:
+-- 1. Voxel data (id and state)
+-- 2. Voxel metadata (fields)
+world.get_chunk_data(x: int, z: int) -> Bytearray
+
+-- Modifies the chunk based on the compressed data.
+-- Returns true if the chunk exists.
+world.set_chunk_data(
+    x: int, z: int,
+    -- compressed chunk data
+    data: Bytearray
+) -> bool
 ```
