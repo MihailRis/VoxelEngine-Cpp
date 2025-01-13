@@ -4,6 +4,7 @@
 #include "assets/assets_util.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
+#include "lighting/Lightmap.hpp"
 #include "maths/util.hpp"
 #include "window/Camera.hpp"
 #include "world/Level.hpp"
@@ -40,6 +41,15 @@ int PrecipitationRenderer::getHeightAt(int x, int z) {
     return y;
 }
 
+static inline glm::vec4 light_at(const Chunks& chunks, int x, int y, int z) {
+    light_t lightval = chunks.getLight(x, y, z);
+    return glm::vec4(
+        Lightmap::extract(lightval, 0) / 15.f,
+        Lightmap::extract(lightval, 1) / 15.f,
+        Lightmap::extract(lightval, 2) / 15.f,
+        1
+    );
+}
 
 void PrecipitationRenderer::render(const Camera& camera, float delta) {
     timer += delta * 0.5f;
@@ -56,10 +66,11 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
     batch->setTexture(&texture, {});
 
     const auto& front = camera.front;
-    glm::vec2 size {1, 40};
-    glm::vec4 light(0, 0, 0, 1);
+    glm::ivec2 size {1, 16};
 
     float horizontal = 0.5f;
+
+    glm::vec4 light = light_at(chunks, x, y, z);
 
     int radius = 6;
     int depth = 12;
@@ -68,11 +79,12 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
     float k = 21.41149;
     for (int lx = -radius; lx <= radius; lx++) {
         for (int lz = -depth; lz < 0; lz++) {
+            glm::vec4 light = light_at(chunks, x + lx, y, z + lz);
             random.setSeed(lx + x, lz + z);
             float hspeed = (random.randFloat() * 2.0f - 1.0f) * horizontal;
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - size.y / 2, getHeightAt(x + lx, z + lz)) + size.y / 2 + 1,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -85,18 +97,19 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                     (lx + x) * scale + timer * hspeed,
                     timer + y * scale + (z + lz) * k,
                     (lx + x + 1) * scale + timer * hspeed,
-                    timer + (40 + y) * scale + (z + lz) * k
+                    timer + (size.y + y) * scale + (z + lz) * k
                 )
             );
         }
     }
     for (int lx = -radius; lx <= radius; lx++) {
         for (int lz = depth; lz > 0; lz--) {
+            glm::vec4 light = light_at(chunks, x + lx, y, z + lz);
             random.setSeed(lx + x, lz + z);
             float hspeed = (random.randFloat() * 2.0f - 1.0f) * horizontal;
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - size.y / 2, getHeightAt(x + lx, z + lz)) + size.y / 2 + 1,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -109,18 +122,19 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                     (lx + x) * scale + timer * hspeed,
                     timer + y * scale + (z + lz) * k,
                     (lx + x + 1) * scale + timer * hspeed,
-                    timer + (40 + y) * scale + (z + lz) * k
+                    timer + (size.y + y) * scale + (z + lz) * k
                 )
             );
         }
     }
     for (int lz = -radius; lz <= radius; lz++) {
         for (int lx = -depth; lx < 0; lx++) {
+            glm::vec4 light = light_at(chunks, x + lx, y, z + lz);
             random.setSeed(lx + x, lz + z);
             float hspeed = (random.randFloat() * 2.0f - 1.0f) * horizontal;
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - size.y / 2, getHeightAt(x + lx, z + lz)) + size.y / 2 + 1,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -133,18 +147,19 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                     (lz + z) * scale + timer * hspeed,
                     timer + y * scale + (x + lx) * k,
                     (lz + z + 1) * scale + timer * hspeed,
-                    timer + (40 + y) * scale + (x + lx) * k
+                    timer + (size.y + y) * scale + (x + lx) * k
                 )
             );
         }
     }
     for (int lz = -radius; lz <= radius; lz++) {
         for (int lx = depth; lx > 0; lx--) {
+            glm::vec4 light = light_at(chunks, x + lx, y, z + lz);
             random.setSeed(lx + x, lz + z);
             float hspeed = (random.randFloat() * 2.0f - 1.0f) * horizontal;
             glm::vec3 pos {
                 x + lx + 0.5f,
-                glm::max(y - 20, getHeightAt(x + lx, z + lz)) + 21,
+                glm::max(y - size.y / 2, getHeightAt(x + lx, z + lz)) + size.y / 2 + 1,
                 z + lz + 0.5f};
             batch->quad(
                 pos,
@@ -157,7 +172,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
                     (lz + z) * scale + timer * hspeed,
                     timer + y * scale + (x + lx) * k,
                     (lz + z + 1) * scale + timer * hspeed,
-                    timer + (40 + y) * scale + (x + lx) * k
+                    timer + (size.y + y) * scale + (x + lx) * k
                 )
             );
         }
