@@ -194,7 +194,7 @@ void WorldRenderer::renderLevel(
 
     setupWorldShader(entityShader, camera, settings, fogFactor);
     entityShader.uniform1i("u_alphaClip", false);
-    precipitation->render(camera, delta);
+    precipitation->render(camera, pause ? 0.0f : delta);
 
     skybox->unbind();
 }
