@@ -268,9 +268,9 @@ KeyCallback lua::create_simple_handler(State* L) {
 scripting::common_func lua::create_lambda(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {
-        int top = gettop(L) + 1;
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return nullptr;
+        int top = gettop(L) + 1;
         for (const auto& arg : args) {
             pushvalue(L, arg);
         }
@@ -290,9 +290,9 @@ scripting::common_func lua::create_lambda(State* L) {
 scripting::common_func lua::create_lambda_nothrow(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {
-        int top = gettop(L) - 1;
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return nullptr;
+        int top = gettop(L) - 1;
         for (const auto& arg : args) {
             pushvalue(L, arg);
         }
