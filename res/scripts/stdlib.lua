@@ -413,15 +413,9 @@ end
 local __vc_coroutines = {}
 local __vc_named_coroutines = {}
 local __vc_next_coroutine = 1
-local __vc_coroutine_error = nil
 
 function __vc_start_coroutine(chunk)
-    local co = coroutine.create(function()
-        local status, err = pcall(chunk)
-        if not status then
-            __vc_coroutine_error = err
-        end
-    end)
+    local co = coroutine.create(chunk)
     local id = __vc_next_coroutine
     __vc_next_coroutine = __vc_next_coroutine + 1
     __vc_coroutines[id] = co
@@ -431,10 +425,10 @@ end
 function __vc_resume_coroutine(id)
     local co = __vc_coroutines[id]
     if co then
-        coroutine.resume(co)
-        if __vc_coroutine_error then
-            debug.error(__vc_coroutine_error)
-            error(__vc_coroutine_error)
+        local success, err = coroutine.resume(co)
+        if not success then
+            debug.error(err)
+            error(err)
         end
         return coroutine.status(co) ~= "dead"
     end
