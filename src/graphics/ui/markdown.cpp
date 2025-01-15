@@ -56,7 +56,22 @@ static inline void apply_color(const std::basic_string_view<CharT>& color_code, 
     styles.palette.push_back(style);
 }
 
-// TODO: Refactor md code processing
+template <typename CharT>
+static inline void restyle(
+    CharT c,
+    FontStyle& style,
+    FontStylesScheme& styles,
+    std::basic_stringstream<CharT>& ss,
+    int& pos,
+    bool eraseMarkdown
+) {
+    styles.palette.push_back(style);
+    if (!eraseMarkdown) {
+        emit_md(c, styles, ss);
+    }
+    pos++;
+}
+
 template <typename CharT>
 Result<CharT> process_markdown(
     std::basic_string_view<CharT> source, bool eraseMarkdown
@@ -101,33 +116,32 @@ Result<CharT> process_markdown(
                 pos--;
             }
         } else if (first == '*') {
-            if (pos + 1 < source.size() && source[pos + 1] == '*') {
+            if (pos + 1 < source.size() && source[pos+1] == '*') {
                 pos++;
                 if (!eraseMarkdown)
                     emit_md(first, styles, ss);
                 style.bold = !style.bold;
-                styles.palette.push_back(style);
+                restyle(first, style, styles, ss, pos, eraseMarkdown);
                 continue;
             }
             style.italic = !style.italic;
-            styles.palette.push_back(style);
+            restyle(first, style, styles, ss, pos, eraseMarkdown);
             continue;
-        } else if (first == '_' && pos + 1 < source.size() && source[pos + 1] == '_') {
+        } else if (first == '_' && pos + 1 < source.size() && source[pos+1] == '_') {
             pos++;
             if (!eraseMarkdown)
                 emit_md(first, styles, ss);
             style.underline = !style.underline;
-            styles.palette.push_back(style);
+            restyle(first, style, styles, ss, pos, eraseMarkdown);
             continue;
-        } else if (first == '~' && pos + 1 < source.size() && source[pos + 1] == '~') {
+        } else if (first == '~' && pos + 1 < source.size() && source[pos+1] == '~') {
             pos++;
             if (!eraseMarkdown)
                 emit_md(first, styles, ss);
             style.strikethrough = !style.strikethrough;
-            styles.palette.push_back(style);
+            restyle(first, style, styles, ss, pos, eraseMarkdown);
             continue;
         }
-
         if (first == '\n') {
             styles.palette.push_back(styles.palette.at(1));
         }
