@@ -1,14 +1,8 @@
 #include "markdown.hpp"
+#include "coders/commons.hpp"
 #include "graphics/core/Font.hpp"
 
 using namespace markdown;
-
-static inline int hexchar2int(char c) {
-    if (c >= '0' && c <= '9') return c - '0';
-    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-    return -1;
-}
 
 template <typename CharT>
 static inline void emit(
@@ -28,7 +22,7 @@ static inline void emit_md(
 
 template <typename CharT>
 static glm::vec4 parse_color(const std::basic_string_view<CharT>& color_code) {
-    if (color_code.size() != 9 || color_code[0] != '#') {
+    if (color_code.size() != 8 || color_code[0] != '#') {
         return glm::vec4(1, 1, 1, 1); // default to white
     }
 
@@ -45,7 +39,7 @@ static glm::vec4 parse_color(const std::basic_string_view<CharT>& color_code) {
         hex_to_float(color_code[1], color_code[2]),
         hex_to_float(color_code[3], color_code[4]),
         hex_to_float(color_code[5], color_code[6]),
-        hex_to_float(color_code[7], color_code[8])
+        1
     );
 }
 
@@ -87,15 +81,15 @@ Result<CharT> process_markdown(
     while (pos < source.size()) {
         CharT first = source[pos];
 
-        if (first == '[' && pos + 10 < source.size() && source[pos + 1] == '#' && source[pos + 9] == ']') {
-            std::basic_string_view<CharT> color_code = source.substr(pos + 1, 9);
+        if (first == '[' && pos + 9 < source.size() && source[pos + 1] == '#' && source[pos + 8] == ']') {
+            std::basic_string_view<CharT> color_code = source.substr(pos + 1, 8);
             apply_color(color_code, styles);
             if (!eraseMarkdown) {
-                for (int i = 0; i < 10; ++i) {
+                for (int i = 0; i < 9; ++i) {
                     emit_md(source[pos + i], styles, ss);
                 }
             }
-            pos += 10; // Skip past the color code
+            pos += 9; // Skip past the color code
             continue;
         }
 
