@@ -4,6 +4,7 @@
 #include "items/Inventories.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "objects/Entities.hpp"
 
 Players::Players(Level& level) : level(level) {}
 
@@ -34,6 +35,26 @@ Player* Players::create() {
 
     level.inventories->store(player->getInventory());
     return player;
+}
+
+void Players::suspend(int64_t id) {
+    if (auto player = get(id)) {
+        if (player->isSuspended()) {
+            return;
+        }
+        player->setSuspended(true);
+        level.entities->despawn(player->getEntity());
+        player->setEntity(0);
+    }
+}
+
+void Players::resume(int64_t id) {
+    if (auto player = get(id)) {
+        if (!player->isSuspended()) {
+            return;
+        }
+        player->setSuspended(false);
+    }
 }
 
 void Players::remove(int64_t id) {

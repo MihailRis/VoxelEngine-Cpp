@@ -47,6 +47,7 @@ class Player : public Serializable {
     glm::vec3 position;
     glm::vec3 spawnpoint {};
     std::shared_ptr<Inventory> inventory;
+    bool suspended = false;
     bool flight = false;
     bool noclip = false;
     bool infiniteItems = true;
@@ -84,6 +85,9 @@ public:
 
     int getChosenSlot() const;
     float getSpeed() const;
+
+    bool isSuspended() const;
+    void setSuspended(bool flag);
 
     bool isFlight() const;
     void setFlight(bool flag);

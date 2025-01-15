@@ -284,6 +284,20 @@ static int l_delete(lua::State* L) {
     return 0;
 }
 
+static int l_is_suspended(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        return lua::pushboolean(L, player->isSuspended());
+    }
+    return 0;
+}
+
+static int l_set_suspended(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        player->setSuspended(lua::toboolean(L, 2));
+    }
+    return 0;
+}
+
 const luaL_Reg playerlib[] = {
     {"get_pos", lua::wrap<l_get_pos>},
     {"set_pos", lua::wrap<l_set_pos>},
@@ -293,6 +307,8 @@ const luaL_Reg playerlib[] = {
     {"set_rot", lua::wrap<l_set_rot>},
     {"get_dir", lua::wrap<l_get_dir>},
     {"get_inventory", lua::wrap<l_get_inv>},
+    {"is_suspended", lua::wrap<l_is_suspended>},
+    {"set_suspended", lua::wrap<l_set_suspended>},
     {"is_flight", lua::wrap<l_is_flight>},
     {"set_flight", lua::wrap<l_set_flight>},
     {"is_noclip", lua::wrap<l_is_noclip>},

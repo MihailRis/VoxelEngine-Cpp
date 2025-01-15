@@ -224,6 +224,14 @@ float Player::getSpeed() const {
     return speed;
 }
 
+bool Player::isSuspended() const {
+    return suspended;
+}
+
+void Player::setSuspended(bool flag) {
+    suspended = flag;
+}
+
 bool Player::isFlight() const {
     return flight;
 }

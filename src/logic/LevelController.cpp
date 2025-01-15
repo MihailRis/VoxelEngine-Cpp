@@ -66,6 +66,9 @@ LevelController::LevelController(
 
 void LevelController::update(float delta, bool pause) {
     for (const auto& [_, player] : *level->players) {
+        if (player->isSuspended()) {
+            continue;
+        }
         glm::vec3 position = player->getPosition();
         player->chunks->configure(
             position.x,
@@ -85,6 +88,9 @@ void LevelController::update(float delta, bool pause) {
         level->entities->updatePhysics(delta);
         level->entities->update(delta);
         for (const auto& [_, player] : *level->players) {
+            if (player->isSuspended()) {
+                continue;
+            }
             if (playerTickClock.update(delta)) {
                 if (player->getId() % playerTickClock.getParts() ==
                     playerTickClock.getPart()) {

@@ -25,6 +25,10 @@ public:
 
     Player* create();
 
+    void suspend(int64_t id);
+
+    void resume(int64_t id);
+
     void remove(int64_t id);
 
     dv::value serialize() const override;
