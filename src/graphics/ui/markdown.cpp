@@ -114,10 +114,8 @@ Result<CharT> process_markdown(
                 }
                 pos--;
             }
-        } else if (first == '[' && pos + 9 < source.size() &&
-                   source[pos + 1] == '#' && source[pos + 8] == ']') {
-            std::basic_string_view<CharT> color_code =
-                source.substr(pos + 1, 8);
+        } else if (first == '[' && pos + 9 <= source.size() && source[pos + 1] == '#' && source[pos + 8] == ']') {
+            std::basic_string_view<CharT> color_code = source.substr(pos + 1, 8);
             apply_color(color_code, styles);
             if (!eraseMarkdown) {
                 for (int i = 0; i < 9; ++i) {
