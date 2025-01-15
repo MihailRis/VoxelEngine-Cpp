@@ -12,7 +12,7 @@ local function refresh_model(id)
 end
 
 function on_render()
-    local invid, slotid = player.get_inventory()
+    local invid, slotid = player.get_inventory(hud.get_player())
     local id, _ = inventory.get(invid, slotid)
     if id ~= itemid then
         refresh_model(id)
