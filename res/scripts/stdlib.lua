@@ -480,7 +480,10 @@ function __process_post_runnables()
 
     local dead = {}
     for name, co in pairs(__vc_named_coroutines) do
-        coroutine.resume(co)
+        local success, err = coroutine.resume(co)
+        if not success then
+            debug.error(err)
+        end
         if coroutine.status(co) == "dead" then
             table.insert(dead, name)
         end
