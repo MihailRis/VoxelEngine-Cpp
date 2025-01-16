@@ -385,6 +385,15 @@ function __vc_on_hud_open()
             hud.show_overlay("core:console", false, {"chat"})
         end)
     end)
+    input.add_callback("key:escape", function()
+        if hud.is_paused() then
+            hud.resume()
+        elseif hud.is_inventory_open() then
+            hud.close_inventory()
+        else
+            hud.pause()
+        end
+    end)
 end
 
 local RULES_FILE = "world:rules.toml"
