@@ -170,8 +170,8 @@ void CameraControl::update(
         switchCamera();
     }
 
-    auto& spCamera = player.spCamera;
-    auto& tpCamera = player.tpCamera;
+    const auto& spCamera = player.spCamera;
+    const auto& tpCamera = player.tpCamera;
 
     refresh();
 
@@ -316,15 +316,15 @@ static int determine_rotation(
         if (name == "pipe") {
             if (norm.x < 0.0f)
                 return BLOCK_DIR_WEST;
-            else if (norm.x > 0.0f)
+            if (norm.x > 0.0f)
                 return BLOCK_DIR_EAST;
-            else if (norm.y > 0.0f)
+            if (norm.y > 0.0f)
                 return BLOCK_DIR_UP;
-            else if (norm.y < 0.0f)
+            if (norm.y < 0.0f)
                 return BLOCK_DIR_DOWN;
-            else if (norm.z > 0.0f)
+            if (norm.z > 0.0f)
                 return BLOCK_DIR_NORTH;
-            else if (norm.z < 0.0f)
+            if (norm.z < 0.0f)
                 return BLOCK_DIR_SOUTH;
         } else if (name == "pane") {
             if (abs(camDir.x) > abs(camDir.z)) {
