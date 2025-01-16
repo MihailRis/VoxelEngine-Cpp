@@ -54,7 +54,7 @@ static int l_get_def(lua::State* L) {
     return 0;
 }
 
-static int l_show(lua::State* L) {
+static int l_spawn(lua::State* L) {
     auto level = controller->getLevel();
     auto defname = lua::tostring(L, 1);
     auto& def = content->entities.require(defname);
@@ -77,6 +77,15 @@ static int l_despawn(lua::State* L) {
 static int l_get_skeleton(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
         return lua::pushstring(L, entity->getSkeleton().config->getName());
+    }
+    return 0;
+}
+
+static int l_get_player(lua::State* L) {
+    entityid_t eid = lua::touinteger(L, 1);
+    auto level = controller->getLevel();
+    if (auto entity = level->entities->get(eid)) {
+        return lua::pushinteger(L, entity->getPlayer());
     }
     return 0;
 }
@@ -221,10 +230,11 @@ const luaL_Reg entitylib[] = {
     {"def_hitbox", lua::wrap<l_def_hitbox>},
     {"get_def", lua::wrap<l_get_def>},
     {"defs_count", lua::wrap<l_defs_count>},
-    {"spawn", lua::wrap<l_show>},
+    {"spawn", lua::wrap<l_spawn>},
     {"despawn", lua::wrap<l_despawn>},
     {"get_skeleton", lua::wrap<l_get_skeleton>},
     {"set_skeleton", lua::wrap<l_set_skeleton>},
+    {"get_player", lua::wrap<l_get_player>},
     {"get_all_in_box", lua::wrap<l_get_all_in_box>},
     {"get_all_in_radius", lua::wrap<l_get_all_in_radius>},
     {"raycast", lua::wrap<l_raycast>},

@@ -65,8 +65,14 @@ void Player::updateEntity() {
     if (eid == 0) {
         auto& def = level.content.entities.require("base:player");
         eid = level.entities->spawn(def, getPosition());
+        if (auto entity = level.entities->get(eid)) {
+            entity->setPlayer(id);
+        }
     } else if (auto entity = level.entities->get(eid)) {
         position = entity->getTransform().pos;
+        if (auto entity = level.entities->get(eid)) {
+            entity->setPlayer(id);
+        }
     } else if (chunks->getChunkByVoxel(position)) {
         logger.error() << "player entity despawned or deleted; "
                           "will be respawned";

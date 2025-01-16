@@ -66,6 +66,7 @@ local Entity = {__index={
     get_uid=function(self) return self.eid end,
     def_index=function(self) return entities.get_def(self.eid) end,
     def_name=function(self) return entities.def_name(entities.get_def(self.eid)) end,
+    get_player=function(self) return entities.get_player(self.eid) end,
 }}
 
 local entities = {}

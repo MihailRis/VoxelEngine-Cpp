@@ -34,6 +34,7 @@ struct EntityId {
     entityid_t uid;
     const EntityDef& def;
     bool destroyFlag = false;
+    int64_t player = -1;
 };
 
 struct Transform {
@@ -159,6 +160,14 @@ public:
 
     entt::entity getHandler() const {
         return entity;
+    }
+
+    int64_t getPlayer() const {
+        return registry.get<EntityId>(entity).player;
+    }
+
+    void setPlayer(int64_t id) {
+        registry.get<EntityId>(entity).player = id;
     }
 
     void destroy();
