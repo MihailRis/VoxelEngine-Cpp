@@ -54,7 +54,7 @@ void CameraControl::refresh() {
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
-    glm::vec3& rotation = player.rotation;
+    glm::vec3 rotation = player.getRotation();
 
     float sensitivity =
         (input.zoom ? settings.sensitivity.get() / 4.f
@@ -74,6 +74,8 @@ void CameraControl::updateMouse(PlayerInput& input) {
     } else if (rotation.x < -180.f) {
         rotation.x += 360.f;
     }
+
+    player.setRotation(rotation);
 
     camera->rotation = glm::mat4(1.0f);
     camera->rotate(

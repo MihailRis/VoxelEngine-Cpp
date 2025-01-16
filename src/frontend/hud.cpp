@@ -223,7 +223,8 @@ void Hud::cleanup() {
 }
 
 void Hud::processInput(bool visible) {
-    if (!Window::isFocused() && !pause && !isInventoryOpen()) {
+    auto menu = gui.getMenu();
+    if (!Window::isFocused() && !menu->hasOpenPage() && !isInventoryOpen()) {
         setPause(true);
     }
     if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
@@ -318,14 +319,13 @@ void Hud::update(bool visible) {
     if (!visible && inventoryOpen) {
         closeInventory();
     }
-    if (pause && menu->getCurrent().panel == nullptr) {
+    if (pause && !menu->hasOpenPage()) {
         setPause(false);
     }
-
     if (!gui.isFocusCaught()) {
         processInput(visible);
     }
-    if ((pause || inventoryOpen) == Events::_cursor_locked) {
+    if ((menu->hasOpenPage() || inventoryOpen) == Events::isCursorLocked()) {
         Events::toggleCursor();
     }
 
@@ -590,7 +590,9 @@ void Hud::draw(const DrawContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
+    auto menu = gui.getMenu();
 
+    darkOverlay->setVisible(menu->hasOpenPage());
     updateElementsPosition(viewport);
 
     uicamera->setFov(height);
@@ -676,19 +678,20 @@ void Hud::setPause(bool pause) {
     if (this->pause == pause) {
         return;
     }
-    this->pause = pause;
+    if (allowPause) {
+        this->pause = pause;
+    }
 
     if (inventoryOpen) {
         closeInventory();
     }
     
     const auto& menu = gui.getMenu();
-    if (pause) {
-        menu->setPage("pause");
-    } else {
+    if (menu->hasOpenPage()) {
         menu->reset();
+    } else {
+        menu->setPage("pause");
     }
-    darkOverlay->setVisible(pause);
     menu->setVisible(pause);
 }
 
@@ -720,4 +723,13 @@ void Hud::setDebugCheats(bool flag) {
     );
     debugPanel->setZIndex(2);
     gui.add(debugPanel);
+}
+
+void Hud::setAllowPause(bool flag) {
+    if (pause) {
+        auto menu = gui.getMenu();
+        setPause(false);
+        menu->setPage("pause", true);
+    }
+    allowPause = flag;
 }

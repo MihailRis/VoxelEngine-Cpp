@@ -19,7 +19,7 @@ function on_render()
         return
     end
     
-    local rx, ry, rz = player.get_rot(pid)
+    local rx, ry, rz = player.get_rot(pid, true)
     rig:set_matrix(headIndex, mat4.rotate({1, 0, 0}, ry))
     rig:set_matrix(bodyIndex, mat4.rotate({0, 1, 0}, rx))
 

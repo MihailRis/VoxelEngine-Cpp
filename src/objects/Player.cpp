@@ -181,6 +181,7 @@ void Player::teleport(glm::vec3 position) {
     if (auto entity = level.entities->get(eid)) {
         entity->getRigidbody().hitbox.position = position;
         entity->getTransform().setPos(position);
+        entity->setInterpolatedPosition(position);
     }
 }
 
@@ -294,6 +295,18 @@ void Player::setSpawnPoint(glm::vec3 spawnpoint) {
 
 glm::vec3 Player::getSpawnPoint() const {
     return spawnpoint;
+}
+
+glm::vec3 Player::getRotation(bool interpolated) const {
+    if (interpolated) {
+        return rotationInterpolation.getCurrent();
+    }
+    return rotation;
+}
+
+void Player::setRotation(const glm::vec3& rotation) {
+    this->rotation = rotation;
+    rotationInterpolation.refresh(rotation);
 }
 
 dv::value Player::serialize() const {

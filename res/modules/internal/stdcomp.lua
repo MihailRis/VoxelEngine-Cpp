@@ -49,6 +49,7 @@ local Skeleton = {__index={
     set_visible=function(self, i, b) return __skeleton.set_visible(self.eid, i, b) end,
     get_color=function(self) return __skeleton.get_color(self.eid) end,
     set_color=function(self, color) return __skeleton.set_color(self.eid, color) end,
+    set_interpolated=function(self, b) return __skeleton.set_interpolated(self.eid, b) end,
 }}
 
 local function new_Skeleton(eid)

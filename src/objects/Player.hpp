@@ -7,6 +7,7 @@
 #include "interfaces/Serializable.hpp"
 #include "settings.hpp"
 #include "voxels/voxel.hpp"
+#include "util/Interpolation.hpp"
 
 class Chunks;
 class Camera;
@@ -55,11 +56,15 @@ class Player : public Serializable {
     bool loadingChunks = true;
     entityid_t eid;
     entityid_t selectedEid = 0;
+
+    glm::vec3 rotation {};
 public:
+    util::VecInterpolation<3, float, true> rotationInterpolation {true};
+
     std::unique_ptr<Chunks> chunks;
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
-    glm::vec3 rotation {};
+    
     CursorSelection selection {};
 
     Player(
@@ -122,6 +127,9 @@ public:
 
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;
+
+    glm::vec3 getRotation(bool interpolated=false) const;
+    void setRotation(const glm::vec3& rotation);
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;

@@ -168,8 +168,9 @@ void LevelScreen::updateHotkeys() {
 
 void LevelScreen::update(float delta) {
     gui::GUI* gui = engine.getGUI();
+    auto menu = gui->getMenu();
     
-    bool inputLocked = hud->isPause() || 
+    bool inputLocked = menu->hasOpenPage() ||
                        hud->isInventoryOpen() || 
                        gui->isFocusCaught();
     if (!gui->isFocusCaught()) {

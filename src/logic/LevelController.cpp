@@ -73,6 +73,7 @@ void LevelController::update(float delta, bool pause) {
         if (player->isSuspended()) {
             continue;
         }
+        player->rotationInterpolation.updateTimer(delta);
         player->updateEntity();
         glm::vec3 position = player->getPosition();
         player->chunks->configure(
