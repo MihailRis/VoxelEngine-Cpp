@@ -14,6 +14,9 @@ class Level;
 class Player;
 
 class Players : public Serializable {
+public:
+    static inline int64_t NONE = -1;
+private:
     Level& level;
     std::unordered_map<int64_t, std::unique_ptr<Player>> players;
 
@@ -23,7 +26,7 @@ public:
 
     Player* get(int64_t id) const;
 
-    Player* create();
+    Player* create(int64_t id=NONE);
 
     void suspend(int64_t id);
 

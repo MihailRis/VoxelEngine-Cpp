@@ -305,7 +305,6 @@ void PlayerController::resetKeyboard() {
 }
 
 void PlayerController::updatePlayer(float delta) {
-    player.updateEntity();
     player.updateInput(input, delta);
 }
 

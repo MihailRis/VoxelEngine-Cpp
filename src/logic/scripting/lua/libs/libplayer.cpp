@@ -52,6 +52,7 @@ static int l_set_vel(lua::State* L) {
     auto x = lua::tonumber(L, 2);
     auto y = lua::tonumber(L, 3);
     auto z = lua::tonumber(L, 4);
+    
     if (auto hitbox = player->getHitbox()) {
         hitbox->velocity = glm::vec3(x, y, z);
     }
@@ -272,15 +273,19 @@ static int l_set_name(lua::State* L) {
 }
 
 static int l_create(lua::State* L) {
-    auto player = level->players->create();
-    if (lua::isstring(L, 1)) {
-        player->setName(lua::require_string(L, 1));
+    int64_t playerId = Players::NONE;
+    if (lua::gettop(L) >= 2) {
+        playerId = lua::tointeger(L, 2);
     }
+    auto player = level->players->create(playerId);
+    player->setName(lua::require_string(L, 1));
     return lua::pushinteger(L, player->getId());
 }
 
 static int l_delete(lua::State* L) {
-    level->players->remove(lua::tointeger(L, 1));
+    auto id = lua::tointeger(L, 1);
+    level->players->suspend(id);
+    level->players->remove(id);
     return 0;
 }
 

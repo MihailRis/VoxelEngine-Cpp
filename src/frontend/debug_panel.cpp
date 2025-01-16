@@ -14,6 +14,7 @@
 #include "graphics/render/ChunksRenderer.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "objects/Entities.hpp"
 #include "objects/EntityDef.hpp"
 #include "physics/Hitbox.hpp"
@@ -40,6 +41,7 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
 }
 
 // TODO: move to xml
+// TODO: move to xml finally
 // TODO: move to xml finally
 std::shared_ptr<UINode> create_debug_panel(
     Engine& engine, 
@@ -102,6 +104,10 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([&]() {
         return L"entities: "+std::to_wstring(level.entities->size())+L" next: "+
                std::to_wstring(level.entities->peekNextID());
+    }));
+    panel->add(create_label([&]() {
+        return L"players: "+std::to_wstring(level.players->size())+L" local: "+
+               std::to_wstring(player.getId());
     }));
     panel->add(create_label([&]() -> std::wstring {
         const auto& vox = player.selection.vox;
