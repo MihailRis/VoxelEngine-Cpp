@@ -64,5 +64,7 @@ namespace gui {
     
         /// @brief Get current page
         Page& getCurrent();
+
+        bool hasOpenPage() const;
     };
 }

@@ -166,7 +166,7 @@ void GUI::actFocused() {
         focus->keyPressed(key);
     }
 
-    if (!Events::_cursor_locked) {
+    if (!Events::isCursorLocked()) {
         if (Events::clicked(mousecode::BUTTON_1) && 
             (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x || Events::delta.y))
         {
@@ -189,7 +189,7 @@ void GUI::act(float delta, const Viewport& vp) {
     auto prevfocus = focus;
 
     updateTooltip(delta);
-    if (!Events::_cursor_locked) {
+    if (!Events::isCursorLocked()) {
         actMouse(delta);
     } else {
         if (hover) {

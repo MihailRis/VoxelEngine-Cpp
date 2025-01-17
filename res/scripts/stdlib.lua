@@ -201,7 +201,7 @@ _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu
 menu = _MENU
 
-local gui_util = require "core:gui_util"
+gui_util = require "core:gui_util"
 __vc_page_loader = gui_util.load_page
 
 ---  Console library extension ---
@@ -385,6 +385,15 @@ function __vc_on_hud_open()
             hud.show_overlay("core:console", false, {"chat"})
         end)
     end)
+    input.add_callback("key:escape", function()
+        if hud.is_paused() then
+            hud.resume()
+        elseif hud.is_inventory_open() then
+            hud.close_inventory()
+        else
+            hud.pause()
+        end
+    end)
 end
 
 local RULES_FILE = "world:rules.toml"
@@ -408,6 +417,7 @@ end
 
 function __vc_on_world_quit()
     _rules.clear()
+    gui_util:reset_local()
 end
 
 local __vc_coroutines = {}
@@ -470,7 +480,10 @@ function __process_post_runnables()
 
     local dead = {}
     for name, co in pairs(__vc_named_coroutines) do
-        coroutine.resume(co)
+        local success, err = coroutine.resume(co)
+        if not success then
+            debug.error(err)
+        end
         if coroutine.status(co) == "dead" then
             table.insert(dead, name)
         end
