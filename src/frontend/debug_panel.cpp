@@ -13,6 +13,7 @@
 #include "graphics/render/ParticlesRenderer.hpp"
 #include "graphics/render/ChunksRenderer.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "network/Network.hpp"
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
 #include "objects/Entities.hpp"
@@ -58,6 +59,10 @@ std::shared_ptr<UINode> create_debug_panel(
     static int fpsMax = fps;
     static std::wstring fpsString = L"";
 
+    static size_t lastTotalDownload = 0;
+    static size_t lastTotalUpload = 0;
+    static std::wstring netSpeedString = L"";
+
     panel->listenInterval(0.016f, [&engine]() {
         fps = 1.0f / engine.getTime().getDelta();
         fpsMin = std::min(fps, fpsMin);
@@ -69,6 +74,19 @@ std::shared_ptr<UINode> create_debug_panel(
         fpsMin = fps;
         fpsMax = fps;
     });
+
+    panel->listenInterval(1.0f, [&engine]() {
+        const auto& network = engine.getNetwork();
+        size_t totalDownload = network.getTotalDownload();
+        size_t totalUpload = network.getTotalUpload();
+        netSpeedString =
+            L"download: " + std::to_wstring(totalDownload - lastTotalDownload) +
+            L" B/s upload: " + std::to_wstring(totalUpload - lastTotalUpload) +
+            L" B/s";
+        lastTotalDownload = totalDownload;
+        lastTotalUpload = totalUpload;
+    });
+
     panel->add(create_label([]() { return L"fps: "+fpsString;}));
    
     panel->add(create_label([]() {
@@ -86,6 +104,7 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([]() {
         return L"lua-stack: " + std::to_wstring(scripting::get_values_on_stack());
     }));
+    panel->add(create_label([]() { return netSpeedString; }));
     panel->add(create_label([&engine]() {
         auto& settings = engine.getSettings();
         bool culling = settings.graphics.frustumCulling.get();
