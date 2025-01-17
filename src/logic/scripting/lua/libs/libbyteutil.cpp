@@ -198,8 +198,8 @@ static int l_tpack(lua::State* L) {
 }
 
 const luaL_Reg byteutillib[] = {
-    {"pack", l_pack},
-    {"tpack", l_tpack},
-    {"unpack", l_unpack},
+    {"pack", lua::wrap<l_pack>},
+    {"tpack", lua::wrap<l_tpack>},
+    {"unpack", lua::wrap<l_unpack>},
     {NULL, NULL}
 };
