@@ -101,6 +101,12 @@ static int l_node_destruct(lua::State* L) {
     return 0;
 }
 
+static int l_node_reposition(lua::State* L) {
+    auto docnode = get_document_node(L);
+    docnode.node->reposition();
+    return 0;
+}
+
 static int l_container_clear(lua::State* L) {
     auto node = get_document_node(L, 1);
     if (auto container = std::dynamic_pointer_cast<Container>(node.node)) {
@@ -328,6 +334,10 @@ static int p_get_destruct(UINode*, lua::State* L) {
     return lua::pushcfunction(L, lua::wrap<l_node_destruct>);
 }
 
+static int p_get_reposition(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, lua::wrap<l_node_reposition>);
+}
+
 static int p_get_clear(UINode* node, lua::State* L) {
     if (dynamic_cast<Container*>(node)) {
         return lua::pushcfunction(L, lua::wrap<l_container_clear>);
@@ -424,6 +434,7 @@ static int l_gui_getattr(lua::State* L) {
             {"moveInto", p_move_into},
             {"add", p_get_add},
             {"destruct", p_get_destruct},
+            {"reposition", p_get_reposition},
             {"clear", p_get_clear},
             {"setInterval", p_set_interval},
             {"placeholder", p_get_placeholder},

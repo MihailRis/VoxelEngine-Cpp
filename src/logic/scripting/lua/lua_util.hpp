@@ -19,6 +19,7 @@ namespace lua {
     int userdata_destructor(lua::State* L);
 
     std::string env_name(int env);
+    void dump_stack(lua::State*);
 
     inline bool getglobal(lua::State* L, const std::string& name) {
         lua_getglobal(L, name.c_str());
@@ -208,7 +209,7 @@ namespace lua {
         return lua_isnumber(L, idx);
     }
     inline bool isstring(lua::State* L, int idx) {
-        return lua_isstring(L, idx);
+        return lua_type(L, idx) == LUA_TSTRING;
     }
     inline bool istable(lua::State* L, int idx) {
         return lua_istable(L, idx);
@@ -226,6 +227,11 @@ namespace lua {
         return lua_toboolean(L, idx);
     }
     inline lua::Integer tointeger(lua::State* L, int idx) {
+#ifndef NDEBUG
+        if (lua_type(L, idx) == LUA_TSTRING) {
+            throw std::runtime_error("integer expected, got string");
+        }
+#endif
         return lua_tointeger(L, idx);
     }
     inline uint64_t touinteger(lua::State* L, int idx) {
@@ -236,6 +242,11 @@ namespace lua {
         return static_cast<uint64_t>(val);
     }
     inline lua::Number tonumber(lua::State* L, int idx) {
+#ifndef NDEBUG
+        if (lua_type(L, idx) != LUA_TNUMBER && !lua_isnoneornil(L, idx)) {
+            throw std::runtime_error("integer expected");
+        }
+#endif
         return lua_tonumber(L, idx);
     }
     inline const char* tostring(lua::State* L, int idx) {
@@ -588,7 +599,6 @@ namespace lua {
     }
     int create_environment(lua::State*, int parent);
     void remove_environment(lua::State*, int id);
-    void dump_stack(lua::State*);
 
     inline void close(lua::State* L) {
         lua_close(L);

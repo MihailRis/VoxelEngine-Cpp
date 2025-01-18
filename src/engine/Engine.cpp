@@ -217,6 +217,7 @@ void Engine::renderFrame() {
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, nullptr);
     gui->draw(ctx, *assets);
+    gui->postAct();
 }
 
 void Engine::saveSettings() {
@@ -272,7 +273,7 @@ PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     return manager;
 }
 
-void Engine::setLevelConsumer(consumer<std::unique_ptr<Level>> levelConsumer) {
+void Engine::setLevelConsumer(OnWorldOpen levelConsumer) {
     this->levelConsumer = std::move(levelConsumer);
 }
 
@@ -446,14 +447,14 @@ void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
 }
 
-void Engine::onWorldOpen(std::unique_ptr<Level> level) {
+void Engine::onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer) {
     logger.info() << "world open";
-    levelConsumer(std::move(level));
+    levelConsumer(std::move(level), localPlayer);
 }
 
 void Engine::onWorldClosed() {
     logger.info() << "world closed";
-    levelConsumer(nullptr);
+    levelConsumer(nullptr, -1);
 }
 
 void Engine::quit() {

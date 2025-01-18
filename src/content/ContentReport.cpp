@@ -76,8 +76,7 @@ std::shared_ptr<ContentReport> ContentReport::create(
     }
 
     auto root = files::read_json(filename);
-    // TODO: remove default value 2 in 0.24
-    uint regionsVersion = 2U;
+    uint regionsVersion = 2U; // old worlds compatibility (pre 0.23)
     root.at("region-version").get(regionsVersion);
     auto& blocklist = root["blocks"];
     auto& itemlist = root["items"];

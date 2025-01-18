@@ -92,7 +92,7 @@ bool ChunksController::loadVisible(const Player& player, uint padding) const {
     }
 
     const auto& chunk = chunks.getChunks()[nearZ * sizeX + nearX];
-    if (chunk != nullptr || !assigned) {
+    if (chunk != nullptr || !assigned || !player.isLoadingChunks()) {
         return false;
     }
     int offsetX = chunks.getOffsetX();
@@ -101,7 +101,9 @@ bool ChunksController::loadVisible(const Player& player, uint padding) const {
     return true;
 }
 
-bool ChunksController::buildLights(const Player& player, const std::shared_ptr<Chunk>& chunk) const {
+bool ChunksController::buildLights(
+    const Player& player, const std::shared_ptr<Chunk>& chunk
+) const {
     int surrounding = 0;
     for (int oz = -1; oz <= 1; oz++) {
         for (int ox = -1; ox <= 1; ox++) {

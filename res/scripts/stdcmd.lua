@@ -260,7 +260,7 @@ console.add_command(
     "chat text:str",
     "Send chat message",
     function (args, kwargs)
-        console.log("[you] "..args[1])
+        console.chat("[you] "..args[1])
     end
 )
 

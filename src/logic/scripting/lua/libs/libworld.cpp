@@ -160,13 +160,13 @@ static void integrate_chunk_client(Chunk& chunk) {
 static int l_set_chunk_data(lua::State* L) {
     int x = static_cast<int>(lua::tointeger(L, 1));
     int z = static_cast<int>(lua::tointeger(L, 2));
-    auto buffer = lua::touserdata<lua::LuaBytearray>(L, 3);
+    auto buffer = lua::require_bytearray(L, 3);
     auto chunk = level->chunks->getChunk(x, z);
     if (chunk == nullptr) {
-        return 0;
+        return lua::pushboolean(L, false);
     }
     compressed_chunks::decode(
-        *chunk, buffer->data().data(), buffer->data().size()
+        *chunk, buffer.data(), buffer.size()
     );
     if (controller->getChunksController()->lighting == nullptr) {
         return lua::pushboolean(L, true);
