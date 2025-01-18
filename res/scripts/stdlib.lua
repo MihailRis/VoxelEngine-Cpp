@@ -225,6 +225,11 @@ function console.log(...)
     log_element:paste(text)
 end
 
+function console.chat(...)
+    console.log(...)
+    events.emit("core:chat", ...)
+end
+
 function gui.template(name, params)
     local text = file.read(file.find("layouts/templates/"..name..".xml"))
     for k,v in pairs(params) do
