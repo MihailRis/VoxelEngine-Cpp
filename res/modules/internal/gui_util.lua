@@ -95,7 +95,7 @@ function RadioGroup:__call(elements, onset, default)
         elements=elements, 
         callback=onset, 
         current=nil
-    }, {__index=RadioGroup})
+    }, {__index=self})
     group:set(default)
     return group
 end

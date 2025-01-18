@@ -25,6 +25,7 @@ namespace gui {
         Orientation getOrientation() const;
 
         virtual void add(const std::shared_ptr<UINode>& node) override;
+        virtual void remove(const std::shared_ptr<UINode>& node) override;
 
         virtual void refresh() override;
         virtual void fullRefresh() override;

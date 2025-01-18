@@ -217,6 +217,7 @@ void Engine::renderFrame() {
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, nullptr);
     gui->draw(ctx, *assets);
+    gui->postAct();
 }
 
 void Engine::saveSettings() {

@@ -351,6 +351,7 @@ function __vc_on_hud_open()
             hud.pause()
         end
     end)
+    hud.open_permanent("core:ingame_chat")
 end
 
 local RULES_FILE = "world:rules.toml"

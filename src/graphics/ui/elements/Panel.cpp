@@ -62,6 +62,11 @@ void Panel::add(const std::shared_ptr<UINode> &node) {
     fullRefresh();
 }
 
+void Panel::remove(const std::shared_ptr<UINode> &node) {
+    Container::remove(node);
+    fullRefresh();
+}
+
 void Panel::refresh() {
     UINode::refresh();
     std::stable_sort(nodes.begin(), nodes.end(), [](auto a, auto b) {

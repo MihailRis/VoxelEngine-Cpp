@@ -134,6 +134,10 @@ function add_to_history(text)
 end
 
 function submit(text)
+    if #text == 0 then
+        document.prompt.focused = true
+        return
+    end
     text = text:trim()
     add_to_history(text)
 
@@ -204,4 +208,11 @@ function on_open(mode)
     elseif mode then
         modes:set(mode)
     end
+    hud.close("core:ingame_chat")
+end
+
+function on_close()
+    time.post_runnable(function()
+        hud.open_permanent("core:ingame_chat")
+    end)
 end
