@@ -178,12 +178,6 @@ void GUI::actFocused() {
 }
 
 void GUI::act(float delta, const Viewport& vp) {
-    while (!postRunnables.empty()) {
-        runnable callback = postRunnables.back();
-        postRunnables.pop();
-        callback();
-    }
-
     container->setSize(vp.size());
     container->act(delta);
     auto prevfocus = focus;
@@ -203,6 +197,14 @@ void GUI::act(float delta, const Viewport& vp) {
     }
     if (focus && !focus->isFocused()) {
         focus = nullptr;
+    }
+}
+
+void GUI::postAct() {
+    while (!postRunnables.empty()) {
+        runnable callback = postRunnables.back();
+        postRunnables.pop();
+        callback();
     }
 }
 
