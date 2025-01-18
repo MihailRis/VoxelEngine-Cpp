@@ -133,6 +133,13 @@ dv::value lua::tovalue(State* L, int idx) {
                 return map;
             }
         }
+        case LUA_TUSERDATA: {
+            if (auto bytes = touserdata<LuaBytearray>(L, idx)) {
+                const auto& data = bytes->data();
+                return std::make_shared<dv::objects::Bytes>(data.data(), data.size());
+            }
+            [[fallthrough]];
+        }
         default:
             throw std::runtime_error(
                 "lua type " + std::string(lua_typename(L, type)) +
