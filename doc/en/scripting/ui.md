@@ -56,6 +56,7 @@ Common element methods:
 | ------------------- | ----------------------------------------------------------------------------------- |
 | moveInto(container) | moves the element to the specified container (the element is specified, not the id) |
 | destruct()          | removes element                                                                     |
+| reposition()        | updates the element position based on the `positionfunc`                            |
 
 ## Containers
 
