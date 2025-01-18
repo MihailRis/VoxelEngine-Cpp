@@ -65,6 +65,7 @@ Buttons and panels are also containers.
 Buttons are also panels.
 
 - `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
+- `min-length` - minimal length of panel. Type: number
 - `orientation` - panel orientation: horizontal/vertical.
 
 # Common elements

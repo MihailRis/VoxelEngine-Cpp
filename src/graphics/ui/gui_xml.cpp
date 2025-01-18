@@ -220,6 +220,9 @@ static void _readPanel(UiXmlReader& reader, const xml::xmlelement& element, Pane
     if (element.has("max-length")) {
         panel.setMaxLength(element.attr("max-length").asInt());
     }
+    if (element.has("min-length")) {
+        panel.setMinLength(element.attr("min-length").asInt());
+    }
     if (element.has("orientation")) {
         auto &oname = element.attr("orientation").getText();
         if (oname == "horizontal") {

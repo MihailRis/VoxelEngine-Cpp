@@ -289,11 +289,11 @@ const std::string& UINode::getId() const {
 }
 
 void UINode::reposition() {
-    if (positionfunc) {
-        setPos(positionfunc());
-    }
     if (sizefunc) {
         setSize(sizefunc());
+    }
+    if (positionfunc) {
+        setPos(positionfunc());
     }
 }
 
