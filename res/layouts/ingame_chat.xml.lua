@@ -42,7 +42,7 @@ function on_open()
     if not initialized then
         initialized = true
         
-        document.root:setInterval(1/animation_fps, function ()
+        document.root:setInterval(1/animation_fps * 1000, function ()
             local uptime = time.uptime()
             for _, line in ipairs(lines) do
                 update_line(line, uptime)
