@@ -146,7 +146,7 @@ function events.emit(event, ...)
     return result
 end
 
-gui_util = require "core:gui_util"
+gui_util = require "core:internal/gui_util"
 
 Document = gui_util.Document
 RadioGroup = gui_util.RadioGroup
