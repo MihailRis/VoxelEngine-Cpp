@@ -3,6 +3,7 @@
 #include "coders/rle.hpp"
 #include "coders/gzip.hpp"
 #include "coders/byte_utils.hpp"
+#include "files/WorldFiles.hpp"
 #include "voxels/Chunk.hpp"
 
 inline constexpr int HAS_VOXELS = 0x1;
@@ -34,6 +35,15 @@ std::vector<ubyte> compressed_chunks::encode(const Chunk& chunk) {
     return builder.build();
 }
 
+static void read_voxel_data(ByteReader& reader, util::Buffer<ubyte>& dst) {
+    size_t gzipCompressedSize = reader.getInt32();
+        
+    auto rleData = gzip::decompress(reader.pointer(), gzipCompressedSize);
+    reader.skip(gzipCompressedSize);
+
+    extrle::decode16(rleData.data(), rleData.size(), dst.data());
+}
+
 void compressed_chunks::decode(Chunk& chunk, const ubyte* src, size_t size) {
     ByteReader reader(src, size);
 
@@ -41,14 +51,9 @@ void compressed_chunks::decode(Chunk& chunk, const ubyte* src, size_t size) {
     reader.skip(1); // reserved byte
 
     if (flags & HAS_VOXELS) {
-        size_t gzipCompressedSize = reader.getInt32();
-        
-        auto rleData = gzip::decompress(reader.pointer(), gzipCompressedSize);
-        reader.skip(gzipCompressedSize);
-
         /// world.get_chunk_data is only available in the main Lua state
         static util::Buffer<ubyte> voxelData (CHUNK_DATA_LEN);
-        extrle::decode16(rleData.data(), rleData.size(), voxelData.data());
+        read_voxel_data(reader, voxelData);
         chunk.decode(voxelData.data());
         chunk.updateHeights();
     }
@@ -58,4 +63,31 @@ void compressed_chunks::decode(Chunk& chunk, const ubyte* src, size_t size) {
         reader.skip(metadataSize);
     }
     chunk.setModifiedAndUnsaved();
+}
+
+void compressed_chunks::save(
+    int x, int z, std::vector<ubyte> bytes, WorldRegions& regions
+) {
+    ByteReader reader(bytes.data(), bytes.size());
+
+    ubyte flags = reader.get();
+    reader.skip(1); // reserved byte
+    if (flags & HAS_VOXELS) {
+        util::Buffer<ubyte> voxelData (CHUNK_DATA_LEN);
+        read_voxel_data(reader, voxelData);
+        regions.put(
+            x, z, REGION_LAYER_VOXELS, voxelData.release(), CHUNK_DATA_LEN
+        );
+    }
+    if (flags & HAS_METADATA) {
+        size_t metadataSize = reader.getInt32();
+        regions.put(
+            x,
+            z,
+            REGION_LAYER_BLOCKS_DATA,
+            util::Buffer<ubyte>(reader.pointer(), metadataSize).release(),
+            metadataSize
+        );
+        reader.skip(metadataSize);
+    }
 }
