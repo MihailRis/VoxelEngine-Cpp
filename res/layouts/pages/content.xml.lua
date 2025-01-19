@@ -34,33 +34,59 @@ function apply()
     end
 end
 
-function refresh_search()
+function reposition_func(pack)
+    local INTERVAL = 2
+    local STEP = -1
+    local SIZE = 80
+
+    local tbl = packs_excluded
+    if table.has(packs_included, pack) then
+        tbl = packs_included
+    end
+
+    local indx = table.index(tbl, pack) - 1
+    local pos = {0, (SIZE + INTERVAL) * indx - STEP}
+
+    return pos
+end
+
+
+function refresh_search() 
     local search_text = document.search_textbox.text:lower()
-    local interval = 2
-    local step = -1
 
-    for _, packs in ipairs({packs_excluded, packs_included}) do
-        local visible = 0
+    local new_included = table.copy(packs_included)
+    local new_excluded = table.copy(packs_excluded)
 
-        for i, v in ipairs(packs) do
-            local info = packs_info[v]
+    local function score(package_name)
+        if package_name:lower():find(search_text) then
+            return 1
+        end
+        return 0
+    end
 
-            local id = info[1]
-            local title = info[2]
+    local function sorting(a, b)
+        local score_a = score(packs_info[a][2])
+        local score_b = score(packs_info[b][2])
 
-            local content = document["pack_" .. id]
-            local pos = content.pos
-            local size = content.size
-
-            if title:lower():find(search_text) or search_text == '' then
-                content.pos = {pos[1], visible * (size[2] + interval) - step}
-                visible = visible + 1
-            else
-                content.pos = {pos[1], (visible + #packs - i) * (size[2] + interval) - step}
-            end
+        if score_a ~= score_b then
+            return score_a > score_b
+        else
+            return packs_info[a][2] < packs_info[b][2]
         end
     end
+
+    table.sort(new_included, sorting)
+    table.sort(new_excluded, sorting)
+
+    packs_included = new_included
+    packs_excluded = new_excluded
+
+    for _, id in ipairs(table.merge(table.copy(packs_included), packs_excluded)) do
+        local content = document["pack_" .. id]
+        content:reposition()
+    end
 end
+
 
 function refresh_changes()
     document.apply_btn.enabled = (#add_packs>0) or (#rem_packs>0)
@@ -126,7 +152,7 @@ function move_right()
     refresh_changes()
 end
 
-function place_pack(panel, packinfo, callback)
+function place_pack(panel, packinfo, callback, position_func)
     if packinfo.error then
         callback = nil
     end
@@ -136,6 +162,7 @@ function place_pack(panel, packinfo, callback)
         packinfo.id_verbose = packinfo.id
     end
     packinfo.callback = callback
+    packinfo.position_func = position_func or function () end
     panel:add(gui.template("pack", packinfo))
     if not callback then
         document["pack_"..packinfo.id].enabled = false
@@ -191,22 +218,6 @@ function refresh()
     end
     local packinfos = pack.get_info(packids)
 
-    for i,id in ipairs(packs_installed) do
-        local packinfo = packinfos[id]
-        packinfo.index = i
-        callback = not table.has(base_packs, id) and string.format('move_pack("%s")', id) or nil
-        packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_cur, packinfo, callback)
-    end
-
-    for i,id in ipairs(packs_available) do
-        local packinfo = packinfos[id]
-        packinfo.index = i
-        callback = string.format('move_pack("%s")', id)
-        packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_add, packinfo, callback)
-    end
-
     for _,id in ipairs(base_packs) do
         local packinfo = pack.get_info(id)
         packs_info[id] = {packinfo.id, packinfo.title}
@@ -225,6 +236,22 @@ function refresh()
 
     if #packs_excluded == 0 then packs_excluded = table.copy(packs_available) end
     if #packs_included == 0 then packs_included = table.copy(packs_installed) end
+
+    for i,id in ipairs(packs_installed) do
+        local packinfo = packinfos[id]
+        packinfo.index = i
+        callback = not table.has(base_packs, id) and string.format('move_pack("%s")', id) or nil
+        packinfo.error = check_dependencies(packinfo)
+        place_pack(packs_cur, packinfo, callback, string.format('reposition_func("%s")[1],reposition_func("%s")[2]', packinfo.id, packinfo.id))
+    end
+
+    for i,id in ipairs(packs_available) do
+        local packinfo = packinfos[id]
+        packinfo.index = i
+        callback = string.format('move_pack("%s")', id)
+        packinfo.error = check_dependencies(packinfo)
+        place_pack(packs_add, packinfo, callback, string.format('reposition_func("%s")[1],reposition_func("%s")[2]', packinfo.id, packinfo.id))
+    end
 
     apply_movements(packs_cur, packs_add)
     refresh_changes()

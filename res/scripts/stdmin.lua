@@ -113,6 +113,18 @@ function table.shuffle(t)
     return t
 end
 
+function table.merge(t1, t2)
+    for i, v in pairs(t2) do
+        if type(i) == "number" then
+            t1[#t1 + 1] = v
+        elseif t1[i] == nil then
+            t1[i] = v
+        end
+    end
+
+    return t1
+end
+
 ----------------------------------------------
 
 local pattern_escape_replacements = {
