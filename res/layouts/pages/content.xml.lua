@@ -36,7 +36,7 @@ end
 
 function reposition_func(pack)
     local INTERVAL = 2
-    local STEP = -1
+    local STEP = 1
     local SIZE = 80
 
     local tbl = packs_excluded
@@ -45,20 +45,20 @@ function reposition_func(pack)
     end
 
     local indx = table.index(tbl, pack) - 1
-    local pos = {0, (SIZE + INTERVAL) * indx - STEP}
+    local pos = {0, (SIZE + INTERVAL) * indx + STEP}
 
     return pos
 end
 
 
-function refresh_search() 
+function refresh_search()
     local search_text = document.search_textbox.text:lower()
 
     local new_included = table.copy(packs_included)
     local new_excluded = table.copy(packs_excluded)
 
-    local function score(package_name)
-        if package_name:lower():find(search_text) then
+    local function score(pack_name)
+        if pack_name:lower():find(search_text) then
             return 1
         end
         return 0
