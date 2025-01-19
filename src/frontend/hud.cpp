@@ -687,9 +687,10 @@ void Hud::setPause(bool pause) {
     }
     
     const auto& menu = gui.getMenu();
-    if (menu->hasOpenPage()) {
+    if (!pause && menu->hasOpenPage()) {
         menu->reset();
-    } else {
+    }
+    if (pause && !menu->hasOpenPage()) {
         menu->setPage("pause");
     }
     menu->setVisible(pause);
