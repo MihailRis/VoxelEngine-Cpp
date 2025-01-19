@@ -35,6 +35,7 @@ Examples:
 - `margin` - element margin. Type: 4D vector
   *left, top, right, bottom*
 - `visible` - element visibility. Type: boolean (true/false)
+- `min-size` - minimal element size. Type: 2D vector.
 - `position-func` - position supplier for an element (two numbers), called on every parent container size update or on element adding on a container. May be called before *on_hud_open*
 - `size-func` - element size provider (two numbers), called when the size of the container in which the element is located changes, or when an element is added to the container. Can be called before on_hud_open is called.
 - `onclick` - lua function called when an element is clicked.
@@ -65,6 +66,7 @@ Buttons and panels are also containers.
 Buttons are also panels.
 
 - `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
+- `min-length` - minimal length of panel. Type: number
 - `orientation` - panel orientation: horizontal/vertical.
 
 # Common elements

@@ -12,6 +12,7 @@ class LevelController;
 class EngineController {
     Engine& engine;
 
+    int64_t localPlayer = -1;
     void onMissingContent(const std::shared_ptr<ContentReport>& report);
 public:
     EngineController(Engine& engine);
@@ -36,6 +37,8 @@ public:
         const std::string& seedstr,
         const std::string& generatorID
     );
+
+    void setLocalPlayer(int64_t player);
 
     void reopenWorld(World* world);
 };

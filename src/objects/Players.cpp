@@ -4,6 +4,7 @@
 #include "items/Inventories.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
+#include "objects/Entities.hpp"
 
 Players::Players(Level& level) : level(level) {}
 
@@ -19,10 +20,19 @@ Player* Players::get(int64_t id) const {
     return found->second.get();
 }
 
-Player* Players::create() {
+Player* Players::create(int64_t id) {
+    int64_t& nextPlayerID = level.getWorld()->getInfo().nextPlayerId;
+    if (id == NONE) {
+        id = nextPlayerID++;
+    } else {
+        if (auto player = get(id)) {
+            return player;
+        }
+        nextPlayerID = std::max(id + 1, nextPlayerID);
+    }
     auto playerPtr = std::make_unique<Player>(
         level,
-        level.getWorld()->getInfo().nextPlayerId++,
+        id,
         "",
         glm::vec3(0, DEF_PLAYER_Y, 0),
         DEF_PLAYER_SPEED,
@@ -34,6 +44,26 @@ Player* Players::create() {
 
     level.inventories->store(player->getInventory());
     return player;
+}
+
+void Players::suspend(int64_t id) {
+    if (auto player = get(id)) {
+        if (player->isSuspended()) {
+            return;
+        }
+        player->setSuspended(true);
+        level.entities->despawn(player->getEntity());
+        player->setEntity(0);
+    }
+}
+
+void Players::resume(int64_t id) {
+    if (auto player = get(id)) {
+        if (!player->isSuspended()) {
+            return;
+        }
+        player->setSuspended(false);
+    }
 }
 
 void Players::remove(int64_t id) {

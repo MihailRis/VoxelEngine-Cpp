@@ -52,6 +52,7 @@ static int l_set_vel(lua::State* L) {
     auto x = lua::tonumber(L, 2);
     auto y = lua::tonumber(L, 3);
     auto z = lua::tonumber(L, 4);
+    
     if (auto hitbox = player->getHitbox()) {
         hitbox->velocity = glm::vec3(x, y, z);
     }
@@ -60,7 +61,7 @@ static int l_set_vel(lua::State* L) {
 
 static int l_get_rot(lua::State* L) {
     if (auto player = get_player(L, 1)) {
-        return lua::pushvec_stack(L, player->rotation);
+        return lua::pushvec_stack(L, player->getRotation(lua::toboolean(L, 2)));
     }
     return 0;
 }
@@ -70,7 +71,7 @@ static int l_set_rot(lua::State* L) {
     if (!player) {
         return 0;
     }
-    glm::vec3& rotation = player->rotation;
+    glm::vec3 rotation = player->getRotation();
 
     auto x = lua::tonumber(L, 2);
     auto y = lua::tonumber(L, 3);
@@ -81,6 +82,7 @@ static int l_set_rot(lua::State* L) {
     rotation.x = x;
     rotation.y = y;
     rotation.z = z;
+    player->setRotation(rotation);
     return 0;
 }
 
@@ -272,15 +274,33 @@ static int l_set_name(lua::State* L) {
 }
 
 static int l_create(lua::State* L) {
-    auto player = level->players->create();
-    if (lua::isstring(L, 1)) {
-        player->setName(lua::require_string(L, 1));
+    int64_t playerId = Players::NONE;
+    if (lua::gettop(L) >= 2) {
+        playerId = lua::tointeger(L, 2);
     }
+    auto player = level->players->create(playerId);
+    player->setName(lua::require_string(L, 1));
     return lua::pushinteger(L, player->getId());
 }
 
 static int l_delete(lua::State* L) {
-    level->players->remove(lua::tointeger(L, 1));
+    auto id = lua::tointeger(L, 1);
+    level->players->suspend(id);
+    level->players->remove(id);
+    return 0;
+}
+
+static int l_is_suspended(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        return lua::pushboolean(L, player->isSuspended());
+    }
+    return 0;
+}
+
+static int l_set_suspended(lua::State* L) {
+    if (auto player = get_player(L, 1)) {
+        player->setSuspended(lua::toboolean(L, 2));
+    }
     return 0;
 }
 
@@ -293,6 +313,8 @@ const luaL_Reg playerlib[] = {
     {"set_rot", lua::wrap<l_set_rot>},
     {"get_dir", lua::wrap<l_get_dir>},
     {"get_inventory", lua::wrap<l_get_inv>},
+    {"is_suspended", lua::wrap<l_is_suspended>},
+    {"set_suspended", lua::wrap<l_set_suspended>},
     {"is_flight", lua::wrap<l_is_flight>},
     {"set_flight", lua::wrap<l_set_flight>},
     {"is_noclip", lua::wrap<l_is_noclip>},

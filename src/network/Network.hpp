@@ -49,7 +49,7 @@ namespace network {
         virtual void connect(runnable callback) = 0;
         virtual int recv(char* buffer, size_t length) = 0;
         virtual int send(const char* buffer, size_t length) = 0;
-        virtual void close() = 0;
+        virtual void close(bool discardAll=false) = 0;
         virtual int available() = 0;
 
         virtual size_t pullUpload() = 0;

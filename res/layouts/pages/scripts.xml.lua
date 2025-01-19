@@ -37,4 +37,6 @@ end
 
 function on_open()
     refresh()
+
+    input.add_callback("key:f5", refresh, document.root)
 end
