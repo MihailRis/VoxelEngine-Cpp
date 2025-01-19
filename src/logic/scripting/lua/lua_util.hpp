@@ -274,7 +274,7 @@ namespace lua {
     inline int newuserdata(lua::State* L, Args&&... args) {
         const auto& found = usertypeNames.find(typeid(T));
         void* ptr = lua_newuserdata(L, sizeof(T));
-        new (ptr) T(args...);
+        new (ptr) T(std::forward<Args>(args)...);
 
         if (found == usertypeNames.end()) {
             log_error(
