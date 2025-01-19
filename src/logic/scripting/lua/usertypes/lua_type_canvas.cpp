@@ -36,36 +36,36 @@ static RGBA* get_at(State* L, uint x, uint y) {
 }
 
 static int l_at(State* L) {
-    auto x = static_cast<uint>(tonumber(L, 2));
-    auto y = static_cast<uint>(tonumber(L, 3));
+    auto x = static_cast<uint>(tointeger(L, 2));
+    auto y = static_cast<uint>(tointeger(L, 3));
 
     if (auto pixel = get_at(L, x, y)) {
-        return pushnumber(L, pixel->raw);
+        return pushinteger(L, pixel->raw);
     }
 
     return 0;
 }
 
 static int l_set(State* L) {
-    auto x = static_cast<uint>(tonumber(L, 2));
-    auto y = static_cast<uint>(tonumber(L, 3));
+    auto x = static_cast<uint>(tointeger(L, 2));
+    auto y = static_cast<uint>(tointeger(L, 3));
 
     if (auto pixel = get_at(L, x, y)) {
         switch (gettop(L)) {
             case 4:
-                pixel->raw = static_cast<uint>(tonumber(L, 4));
+                pixel->raw = static_cast<uint>(tointeger(L, 4));
                 return 1;
             case 6:
-                pixel->rgba[0] = static_cast<ubyte>(tonumber(L, 4));
-                pixel->rgba[1] = static_cast<ubyte>(tonumber(L, 5));
-                pixel->rgba[2] = static_cast<ubyte>(tonumber(L, 6));
+                pixel->rgba[0] = static_cast<ubyte>(tointeger(L, 4));
+                pixel->rgba[1] = static_cast<ubyte>(tointeger(L, 5));
+                pixel->rgba[2] = static_cast<ubyte>(tointeger(L, 6));
                 pixel->rgba[3] = 255;
                 return 1;
             case 7:
-                pixel->rgba[0] = static_cast<ubyte>(tonumber(L, 4));
-                pixel->rgba[1] = static_cast<ubyte>(tonumber(L, 5));
-                pixel->rgba[2] = static_cast<ubyte>(tonumber(L, 6));
-                pixel->rgba[3] = static_cast<ubyte>(tonumber(L, 7));
+                pixel->rgba[0] = static_cast<ubyte>(tointeger(L, 4));
+                pixel->rgba[1] = static_cast<ubyte>(tointeger(L, 5));
+                pixel->rgba[2] = static_cast<ubyte>(tointeger(L, 6));
+                pixel->rgba[3] = static_cast<ubyte>(tointeger(L, 7));
                 return 1;
             default:
                 return 0;
@@ -95,7 +95,7 @@ static int l_meta_index(State* L) {
     }
     auto& data = texture->data();
     if (isnumber(L, 2)) {
-        if (auto pixel = get_at(data, static_cast<uint>(tonumber(L, 2)))) {
+        if (auto pixel = get_at(data, static_cast<uint>(tointeger(L, 2)))) {
             return pushinteger(L, pixel->raw);
         }
     }
@@ -121,8 +121,8 @@ static int l_meta_newindex(State* L) {
     }
     auto& data = texture->data();
     if (isnumber(L, 2) && isnumber(L, 3)) {
-        if (auto pixel = get_at(data, static_cast<uint>(tonumber(L, 2)))) {
-            pixel->raw = static_cast<uint>(tonumber(L, 3));
+        if (auto pixel = get_at(data, static_cast<uint>(tointeger(L, 2)))) {
+            pixel->raw = static_cast<uint>(tointeger(L, 3));
             return 1;
         }
         return 1;
