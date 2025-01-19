@@ -3,6 +3,7 @@
 #include "engine/Engine.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/ui/elements/Button.hpp"
+#include "graphics/ui/elements/Canvas.hpp"
 #include "graphics/ui/elements/CheckBox.hpp"
 #include "graphics/ui/elements/Image.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
@@ -323,6 +324,13 @@ static int p_get_src(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_data(UINode* node, lua::State* L) {
+    if (auto canvas = dynamic_cast<Canvas*>(node)) {
+        return lua::newuserdata<lua::LuaCanvas>(L, canvas->texture());
+    }
+    return 0;
+}
+
 static int p_get_add(UINode* node, lua::State* L) {
     if (dynamic_cast<Container*>(node)) {
         return lua::pushcfunction(L, lua::wrap<l_container_add>);
@@ -464,6 +472,7 @@ static int l_gui_getattr(lua::State* L) {
             {"inventory", p_get_inventory},
             {"focused", p_get_focused},
             {"cursor", p_get_cursor},
+            {"data", p_get_data},
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {
