@@ -156,6 +156,25 @@ Properties:
 | ----- | ------ | ---- | ----- | ------------ |
 | src   | string | yes  | yes   | texture name |
 
+## Canvas
+
+Properties:
+
+| Title | Type   | Read | Write | Description |
+|-------|--------| ---- |-------|-------------|
+| data  | Canvas | yes  | no    | canvas data |
+
+Methods:
+
+| Method                                                   | Description                                             |
+|----------------------------------------------------------|---------------------------------------------------------|
+| data:at(x: int, y: int)                                  | returns an RGBA pixel at the given coordinates          |
+| data:set(x: int, y: int, rgba: int)                      | updates an RGBA pixel at the given coordinates          |
+| data:set(x: int, y: int, r: int, g: int, b: int)         | updates an RGBA pixel at the given coordinates          |
+| data:set(x: int, y: int, r: int, g: int, b: int, a: int) | updates an RGBA pixel at the given coordinates          |
+| data:update()                                            | applies changes to the canvas and uploads it to the GPU |
+
+
 ## Inventory
 
 Properties:
