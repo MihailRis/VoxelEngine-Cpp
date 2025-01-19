@@ -47,7 +47,7 @@ function reposition_func(pack)
     local indx = table.index(tbl, pack) - 1
     local pos = {0, (SIZE + INTERVAL) * indx + STEP}
 
-    return pos
+    return pos[1], pos[2]
 end
 
 
@@ -242,7 +242,7 @@ function refresh()
         packinfo.index = i
         callback = not table.has(base_packs, id) and string.format('move_pack("%s")', id) or nil
         packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_cur, packinfo, callback, string.format('reposition_func("%s")[1],reposition_func("%s")[2]', packinfo.id, packinfo.id))
+        place_pack(packs_cur, packinfo, callback, string.format('reposition_func("%s")', packinfo.id))
     end
 
     for i,id in ipairs(packs_available) do
@@ -250,7 +250,7 @@ function refresh()
         packinfo.index = i
         callback = string.format('move_pack("%s")', id)
         packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_add, packinfo, callback, string.format('reposition_func("%s")[1],reposition_func("%s")[2]', packinfo.id, packinfo.id))
+        place_pack(packs_add, packinfo, callback, string.format('reposition_func("%s")', packinfo.id))
     end
 
     apply_movements(packs_cur, packs_add)
