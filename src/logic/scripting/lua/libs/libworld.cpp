@@ -126,11 +126,21 @@ static int l_get_chunk_data(lua::State* L) {
     int x = static_cast<int>(lua::tointeger(L, 1));
     int z = static_cast<int>(lua::tointeger(L, 2));
     const auto& chunk = level->chunks->getChunk(x, z);
+
+    std::vector<ubyte> chunkData;
     if (chunk == nullptr) {
-        lua::pushnil(L);
-        return 0;
+        auto& regions = level->getWorld()->wfile->getRegions();
+        auto voxelData = regions.getVoxels(x, z);
+        if (voxelData == nullptr) {
+            return 0;
+        }
+        static util::Buffer<ubyte> rleBuffer(CHUNK_DATA_LEN * 2);
+        auto metadata = regions.getBlocksData(x, z);
+        chunkData =
+            compressed_chunks::encode(voxelData.get(), metadata, rleBuffer);
+    } else {
+        chunkData = compressed_chunks::encode(*chunk);
     }
-    auto chunkData = compressed_chunks::encode(*chunk);
     return lua::newuserdata<lua::LuaBytearray>(L, std::move(chunkData));
 }
 
