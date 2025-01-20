@@ -313,8 +313,8 @@ function bit_converter.bytes_to_uint16(bytes, order)
 
      return
      bit.bor(
-     bit.lshift(bytes[1], 8),
-     bytes[2], 0)
+     bit.lshift(bytes[2], 8),
+     bytes[1], 0)
 end
 
 function bit_converter.bytes_to_int64(bytes, order)
