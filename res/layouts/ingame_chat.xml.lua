@@ -9,7 +9,9 @@ local animation_fps = 30
 
 local function remove_line(line)
     document[line[1]]:destruct()
-    time.post_runnable(function() document.root:reposition() end)
+    time.post_runnable(function() 
+        if world.is_open() then document.root:reposition() end
+    end)
 end
 
 local function update_line(line, uptime)

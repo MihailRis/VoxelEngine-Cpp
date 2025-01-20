@@ -343,8 +343,8 @@ function __vc_on_hud_open()
         end)
     end)
     input.add_callback("key:escape", function()
-        if hud.is_paused() then
-            hud.resume()
+        if menu.page ~= "" then
+            menu:reset()
         elseif hud.is_inventory_open() then
             hud.close_inventory()
         else
@@ -375,7 +375,8 @@ end
 
 function __vc_on_world_quit()
     _rules.clear()
-    gui_util:reset_local()
+    gui_util:__reset_local()
+    stdcomp.__reset()
 end
 
 local __vc_coroutines = {}

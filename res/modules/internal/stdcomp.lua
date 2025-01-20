@@ -132,5 +132,8 @@ return {
             end
             return values
         end
+    end,
+    __reset = function()
+        entities = {}
     end
 }
