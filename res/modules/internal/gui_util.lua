@@ -47,7 +47,7 @@ function gui_util.add_page_dispatcher(dispatcher)
     table.insert(gui_util.local_dispatchers, dispatcher)
 end
 
-function gui_util.reset_local()
+function gui_util.__reset_local()
     gui_util.local_dispatchers = {}
 end
 

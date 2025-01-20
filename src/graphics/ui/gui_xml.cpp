@@ -4,6 +4,7 @@
 #include "elements/Image.hpp"
 #include "elements/Menu.hpp"
 #include "elements/Button.hpp"
+#include "elements/Canvas.hpp"
 #include "elements/CheckBox.hpp"
 #include "elements/TextBox.hpp"
 #include "elements/TrackBar.hpp"
@@ -455,6 +456,18 @@ static std::shared_ptr<UINode> readImage(
     return image;
 }
 
+static std::shared_ptr<UINode> readCanvas(
+    const UiXmlReader& reader, const xml::xmlelement& element
+) {
+    auto size = glm::uvec2{32, 32};
+    if (element.has("size")) {
+        size = element.attr("size").asVec2();
+    }
+    auto image = std::make_shared<Canvas>(ImageFormat::rgba8888, size);
+    _readUINode(reader, element, *image);
+    return image;
+}
+
 static std::shared_ptr<UINode> readTrackBar(
     const UiXmlReader& reader, const xml::xmlelement& element
 ) {
@@ -634,6 +647,7 @@ static std::shared_ptr<UINode> readPageBox(UiXmlReader& reader, const xml::xmlel
 UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
     contextStack.emplace("");
     add("image", readImage);
+    add("canvas", readCanvas);
     add("label", readLabel);
     add("panel", readPanel);
     add("button", readButton);

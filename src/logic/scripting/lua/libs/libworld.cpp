@@ -6,6 +6,7 @@
 #include "assets/AssetsLoader.hpp"
 #include "coders/json.hpp"
 #include "engine/Engine.hpp"
+#include "files/WorldFiles.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "lighting/Lighting.hpp"
@@ -125,11 +126,21 @@ static int l_get_chunk_data(lua::State* L) {
     int x = static_cast<int>(lua::tointeger(L, 1));
     int z = static_cast<int>(lua::tointeger(L, 2));
     const auto& chunk = level->chunks->getChunk(x, z);
+
+    std::vector<ubyte> chunkData;
     if (chunk == nullptr) {
-        lua::pushnil(L);
-        return 0;
+        auto& regions = level->getWorld()->wfile->getRegions();
+        auto voxelData = regions.getVoxels(x, z);
+        if (voxelData == nullptr) {
+            return 0;
+        }
+        static util::Buffer<ubyte> rleBuffer(CHUNK_DATA_LEN * 2);
+        auto metadata = regions.getBlocksData(x, z);
+        chunkData =
+            compressed_chunks::encode(voxelData.get(), metadata, rleBuffer);
+    } else {
+        chunkData = compressed_chunks::encode(*chunk);
     }
-    auto chunkData = compressed_chunks::encode(*chunk);
     return lua::newuserdata<lua::LuaBytearray>(L, std::move(chunkData));
 }
 
@@ -158,9 +169,14 @@ static void integrate_chunk_client(Chunk& chunk) {
 }
 
 static int l_set_chunk_data(lua::State* L) {
+    if (level == nullptr) {
+        throw std::runtime_error("no open world");
+    }
+
     int x = static_cast<int>(lua::tointeger(L, 1));
     int z = static_cast<int>(lua::tointeger(L, 2));
     auto buffer = lua::require_bytearray(L, 3);
+
     auto chunk = level->chunks->getChunk(x, z);
     if (chunk == nullptr) {
         return lua::pushboolean(L, false);
@@ -173,6 +189,21 @@ static int l_set_chunk_data(lua::State* L) {
     }
     integrate_chunk_client(*chunk);
     return lua::pushboolean(L, true);
+}
+
+static int l_save_chunk_data(lua::State* L) {
+    if (level == nullptr) {
+        throw std::runtime_error("no open world");
+    }
+
+    int x = static_cast<int>(lua::tointeger(L, 1));
+    int z = static_cast<int>(lua::tointeger(L, 2));
+    auto buffer = lua::require_bytearray(L, 3);
+
+    compressed_chunks::save(
+        x, z, std::move(buffer), level->getWorld()->wfile->getRegions()
+    );
+    return 0;
 }
 
 static int l_count_chunks(lua::State* L) {
@@ -197,6 +228,7 @@ const luaL_Reg worldlib[] = {
     {"exists", lua::wrap<l_exists>},
     {"get_chunk_data", lua::wrap<l_get_chunk_data>},
     {"set_chunk_data", lua::wrap<l_set_chunk_data>},
+    {"save_chunk_data", lua::wrap<l_save_chunk_data>},
     {"count_chunks", lua::wrap<l_count_chunks>},
     {NULL, NULL}
 };

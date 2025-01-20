@@ -97,7 +97,11 @@ Inner text is a button text.
 - `src` - name of an image stored in textures folder. Extension is not specified. Type: string.
   Example: *gui/error*
 
-  ## *textbox*
+## *canvas*
+
+- _No additional attributes_
+
+## *textbox*
 
 Inner text - initially entered text
 
