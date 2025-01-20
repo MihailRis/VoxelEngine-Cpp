@@ -5,8 +5,27 @@ function on_open(params)
     refresh()
 end
 
+-- add - packs to be added to the world (after apply)
+-- rem - packs that should be removed from the world (after apply)
 add_packs = {}
 rem_packs = {}
+
+-- included - connected packs to the world
+-- excluded - packs that are not connected to the world
+packs_included = {}
+packs_excluded = {}
+
+packs_info = {}
+
+local function include(id, is_include)
+    if is_include then
+        table.insert(packs_included, id)
+        table.remove_value(packs_excluded, id)
+    else
+        table.insert(packs_excluded, id)
+        table.remove_value(packs_included, id)
+    end
+end
 
 function apply()
     core.reconfig_packs(add_packs, rem_packs)
@@ -15,8 +34,63 @@ function apply()
     end
 end
 
+function reposition_func(pack)
+    local INTERVAL = 2
+    local STEP = 1
+    local SIZE = 80
+
+    local tbl = packs_excluded
+    if table.has(packs_included, pack) then
+        tbl = packs_included
+    end
+
+    local indx = table.index(tbl, pack) - 1
+    local pos = {0, (SIZE + INTERVAL) * indx + STEP}
+
+    return pos[1], pos[2]
+end
+
+
+function refresh_search()
+    local search_text = document.search_textbox.text:lower()
+
+    local new_included = table.copy(packs_included)
+    local new_excluded = table.copy(packs_excluded)
+
+    local function score(pack_name)
+        if pack_name:lower():find(search_text) then
+            return 1
+        end
+        return 0
+    end
+
+    local function sorting(a, b)
+        local score_a = score(packs_info[a][2])
+        local score_b = score(packs_info[b][2])
+
+        if score_a ~= score_b then
+            return score_a > score_b
+        else
+            return packs_info[a][2] < packs_info[b][2]
+        end
+    end
+
+    table.sort(new_included, sorting)
+    table.sort(new_excluded, sorting)
+
+    packs_included = new_included
+    packs_excluded = new_excluded
+
+    for _, id in ipairs(table.merge(table.copy(packs_included), packs_excluded)) do
+        local content = document["pack_" .. id]
+        content:reposition()
+    end
+end
+
+
 function refresh_changes()
     document.apply_btn.enabled = (#add_packs>0) or (#rem_packs>0)
+    refresh_search()
 end
 
 function move_pack(id)
@@ -24,23 +98,61 @@ function move_pack(id)
     if table.has(add_packs, id) then
         document["pack_"..id]:moveInto(document.packs_add)
         table.remove_value(add_packs, id)
+        include(id, false)
     -- cancel pack removal
     elseif table.has(rem_packs, id) then
         document["pack_"..id]:moveInto(document.packs_cur)
         table.remove_value(rem_packs, id)
+        include(id, true)
     -- add pack
     elseif table.has(packs_installed, id) then
         document["pack_"..id]:moveInto(document.packs_add)
         table.insert(rem_packs, id)
+        include(id, false)
     -- remove pack
     else
         document["pack_"..id]:moveInto(document.packs_cur)
         table.insert(add_packs, id)
+        include(id, true)
     end
     refresh_changes()
 end
 
-function place_pack(panel, packinfo, callback)
+function move_left()
+    for _, id in pairs(table.copy(packs_excluded)) do
+        if not document["pack_"..id].enabled then goto continue end
+
+        include(id, true)
+        table.insert(add_packs, id)
+        table.remove_value(rem_packs, id)
+        document["pack_"..id]:moveInto(document.packs_cur)
+
+        ::continue::
+    end
+
+    refresh_changes()
+end
+
+function move_right()
+    for _, id in pairs(table.copy(packs_included)) do
+        if not document["pack_"..id].enabled then goto continue end
+
+        include(id, false)
+
+        if table.has(packs_installed, id) then
+            table.insert(rem_packs, id)
+        end
+
+        table.remove_value(add_packs, id)
+        document["pack_"..id]:moveInto(document.packs_add)
+
+        ::continue::
+    end
+
+    refresh_changes()
+end
+
+function place_pack(panel, packinfo, callback, position_func)
     if packinfo.error then
         callback = nil
     end
@@ -50,6 +162,7 @@ function place_pack(panel, packinfo, callback)
         packinfo.id_verbose = packinfo.id
     end
     packinfo.callback = callback
+    packinfo.position_func = position_func or function () end
     panel:add(gui.template("pack", packinfo))
     if not callback then
         document["pack_"..packinfo.id].enabled = false
@@ -105,12 +218,31 @@ function refresh()
     end
     local packinfos = pack.get_info(packids)
 
+    for _,id in ipairs(base_packs) do
+        local packinfo = pack.get_info(id)
+        packs_info[id] = {packinfo.id, packinfo.title}
+    end
+
+    for _,id in ipairs(packs_all) do
+        local packinfo = pack.get_info(id)
+        packs_info[id] = {packinfo.id, packinfo.title}
+    end
+
+    for i,id in ipairs(packs_installed) do
+        if table.has(required, id) then
+            document["pack_"..id].enabled = false
+        end
+    end
+
+    if #packs_excluded == 0 then packs_excluded = table.copy(packs_available) end
+    if #packs_included == 0 then packs_included = table.copy(packs_installed) end
+
     for i,id in ipairs(packs_installed) do
         local packinfo = packinfos[id]
         packinfo.index = i
         callback = not table.has(base_packs, id) and string.format('move_pack("%s")', id) or nil
         packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_cur, packinfo, callback)
+        place_pack(packs_cur, packinfo, callback, string.format('reposition_func("%s")', packinfo.id))
     end
 
     for i,id in ipairs(packs_available) do
@@ -118,13 +250,7 @@ function refresh()
         packinfo.index = i
         callback = string.format('move_pack("%s")', id)
         packinfo.error = check_dependencies(packinfo)
-        place_pack(packs_add, packinfo, callback)
-    end
-
-    for i,id in ipairs(packs_installed) do
-        if table.has(required, id) then
-            document["pack_"..id].enabled = false
-        end
+        place_pack(packs_add, packinfo, callback, string.format('reposition_func("%s")', packinfo.id))
     end
 
     apply_movements(packs_cur, packs_add)

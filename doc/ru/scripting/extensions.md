@@ -52,6 +52,11 @@ table.shuffle(t: table) -> table
 
 Перемешивает значения в таблице.
 
+```lua
+table.merge(t1: table, t2: table) -> table
+```
+
+Возвращает объединённую таблицу t1 с t2.
 
 ```lua
 table.tostring(t: table) -> string
