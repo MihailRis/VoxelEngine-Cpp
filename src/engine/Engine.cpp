@@ -199,6 +199,7 @@ void Engine::updateFrontend() {
     audio::update(delta);
     gui->act(delta, Viewport(Window::width, Window::height));
     screen->update(delta);
+    gui->postAct();
 }
 
 void Engine::nextFrame() {
@@ -217,7 +218,6 @@ void Engine::renderFrame() {
     Viewport viewport(Window::width, Window::height);
     DrawContext ctx(nullptr, viewport, nullptr);
     gui->draw(ctx, *assets);
-    gui->postAct();
 }
 
 void Engine::saveSettings() {
