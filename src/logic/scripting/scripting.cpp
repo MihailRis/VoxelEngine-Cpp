@@ -614,6 +614,10 @@ static void process_entity_callback(
 ) {
     auto L = lua::get_main_state();
     lua::pushenv(L, *env);
+    if (lua::hasfield(L, "__disabled")) {
+        lua::pop(L);
+        return;
+    }
     if (lua::getfield(L, name)) {
         if (args) {
             lua::call_nothrow(L, args(L), 0);
