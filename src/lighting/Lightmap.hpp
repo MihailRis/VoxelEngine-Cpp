@@ -4,6 +4,7 @@
 #include "typedefs.hpp"
 
 #include <memory>
+#include <cstring>
 
 inline constexpr int LIGHTMAP_DATA_LEN = CHUNK_VOL/2;
 
@@ -16,6 +17,10 @@ public:
     void set(const Lightmap* lightmap);
 
     void set(const light_t* map);
+
+    void clear() {
+        std::memset(map, 0, sizeof(map));
+    }
 
     inline unsigned short get(int x, int y, int z) const {
         return (map[y*CHUNK_D*CHUNK_W+z*CHUNK_W+x]);
