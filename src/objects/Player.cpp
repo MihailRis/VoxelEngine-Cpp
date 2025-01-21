@@ -76,7 +76,7 @@ void Player::updateEntity() {
     } else if (chunks->getChunkByVoxel(position) && eid != ENTITY_NONE) {
         logger.error() << "player entity despawned or deleted; "
                           "will be respawned";
-        eid = 0;
+        eid = ENTITY_AUTO;
     }
 }
 

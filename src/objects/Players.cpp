@@ -37,7 +37,7 @@ Player* Players::create(int64_t id) {
         glm::vec3(0, DEF_PLAYER_Y, 0),
         DEF_PLAYER_SPEED,
         level.inventories->create(DEF_PLAYER_INVENTORY_SIZE),
-        0
+        ENTITY_AUTO
     );
     auto player = playerPtr.get();
     add(std::move(playerPtr));
@@ -92,7 +92,7 @@ void Players::deserialize(const dv::value& src) {
             glm::vec3(0, DEF_PLAYER_Y, 0),
             DEF_PLAYER_SPEED,
             level.inventories->create(DEF_PLAYER_INVENTORY_SIZE),
-            0
+            ENTITY_AUTO
         );
         auto player = playerPtr.get();
         player->deserialize(playerMap);
