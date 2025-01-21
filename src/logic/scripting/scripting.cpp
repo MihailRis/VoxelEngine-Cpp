@@ -86,7 +86,10 @@ public:
     }
     
     void update() override {
-        if (lua::getglobal(L, "__vc_resume_coroutine")) {
+        if (id == 0) {
+            return;
+        }
+        if (lua::requireglobal(L, "__vc_resume_coroutine")) {
             lua::pushinteger(L, id);
             if (lua::call(L, 1)) {
                 alive = lua::toboolean(L, -1);
@@ -102,10 +105,10 @@ public:
     }
     
     void terminate() override {
-        if (lua::getglobal(L, "__vc_stop_coroutine")) {
-            lua::pushinteger(L, id);
-            lua::pop(L, lua::call(L, 1));
-        }
+        lua::requireglobal(L, "__vc_stop_coroutine");
+        lua::pushinteger(L, id);
+        lua::pop(L, lua::call(L, 1));
+        id = 0;
     }
 };
 
