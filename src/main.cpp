@@ -21,11 +21,15 @@ int main(int argc, char** argv) {
 
     debug::Logger::init(coreParameters.userFolder.string()+"/latest.log");
     platform::configure_encoding();
+
+    auto& engine = Engine::getInstance();
     try {
-        Engine(std::move(coreParameters)).run();
+        engine.initialize(std::move(coreParameters));
+        engine.run();
     } catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();
     }
+    Engine::terminate();
 #if defined(NDEBUG) and defined(_WIN32)
     catch (const std::exception& err) {
         logger.error() << "uncaught exception: " << err.what();

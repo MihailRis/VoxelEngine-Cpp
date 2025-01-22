@@ -637,8 +637,9 @@ static std::shared_ptr<UINode> readInventory(UiXmlReader& reader, const xml::xml
 
 static std::shared_ptr<UINode> readPageBox(UiXmlReader& reader, const xml::xmlelement& element) {
     auto menu = std::make_shared<Menu>();
-    // FIXME
-    menu->setPageLoader(scripting::engine->getGUI()->getMenu()->getPageLoader());
+    menu->setPageLoader(
+        Engine::getInstance().getGUI()->getMenu()->getPageLoader()
+    );
     _readContainer(reader, element, *menu);
 
     return menu;
