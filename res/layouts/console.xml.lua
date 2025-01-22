@@ -101,7 +101,7 @@ function setup_variables()
     console.set('pos.y', y)
     console.set('pos.z', z)
     local pentity = player.get_entity(pid)
-    if pentity ~= 0 then
+    if pentity > 0 then
         console.set('entity.id', pentity)
     end
     local sentity = player.get_selected_entity(pid)
@@ -148,8 +148,6 @@ function submit(text)
             text = text:sub(2)
         end
     end
-
-    setup_variables()
     
     local name
     for s in text:gmatch("%S+") do
@@ -167,12 +165,19 @@ function submit(text)
     end
     
     document.log.caret = -1
-    local status, result = pcall(console.execute, text)
-    if result then
-        console.log(result)
-    end
     document.prompt.text = ""
     document.prompt.focused = true
+
+    setup_variables()
+
+    if console.submit then
+        console.submit(text)
+    else    
+        local status, result = pcall(console.execute, text)
+        if result then
+            console.log(result)
+        end
+    end
 end
 
 function set_mode(mode)
