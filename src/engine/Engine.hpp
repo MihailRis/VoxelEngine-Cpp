@@ -58,9 +58,9 @@ using OnWorldOpen = std::function<void(std::unique_ptr<Level>, int64_t)>;
 class Engine : public util::ObjectsKeeper {
     CoreParameters params;
     EngineSettings settings;
-    SettingsHandler settingsHandler;
     EnginePaths paths;
 
+    std::unique_ptr<SettingsHandler> settingsHandler;
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
     std::vector<ContentPack> contentPacks;
@@ -82,8 +82,14 @@ class Engine : public util::ObjectsKeeper {
     void updateHotkeys();
     void loadAssets();
 public:
-    Engine(CoreParameters coreParameters);
+    Engine();
     ~Engine();
+
+    static Engine& getInstance();
+
+    void initialize(CoreParameters coreParameters);
+
+    static void terminate();
 
     /// @brief Start the engine
     void run();
