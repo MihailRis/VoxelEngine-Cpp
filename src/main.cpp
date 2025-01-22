@@ -35,7 +35,6 @@ int main(int argc, char** argv) {
     } catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();
     }
-    Engine::terminate();
 #if defined(NDEBUG) and defined(_WIN32)
     catch (const std::exception& err) {
         logger.error() << "uncaught exception: " << err.what();
@@ -43,5 +42,6 @@ int main(int argc, char** argv) {
         throw;
     }
 #endif
+    Engine::terminate();
     return EXIT_SUCCESS;
 }
