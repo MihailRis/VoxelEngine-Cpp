@@ -46,9 +46,10 @@ static glm::vec4 parse_color(const std::basic_string_view<CharT>& color_code) {
 
 template <typename CharT>
 static inline void apply_color(
-    const std::basic_string_view<CharT>& color_code, FontStylesScheme& styles
+    const std::basic_string_view<CharT>& color_code, 
+    FontStylesScheme& styles,
+    FontStyle& style
 ) {
-    FontStyle style = styles.palette.back();
     style.color = parse_color(color_code);
     styles.palette.push_back(style);
 }
@@ -116,7 +117,7 @@ Result<CharT> process_markdown(
             }
         } else if (first == '[' && pos + 9 <= source.size() && source[pos + 1] == '#' && source[pos + 8] == ']') {
             std::basic_string_view<CharT> color_code = source.substr(pos + 1, 8);
-            apply_color(color_code, styles);
+            apply_color(color_code, styles, style);
             if (!eraseMarkdown) {
                 for (int i = 0; i < 9; ++i) {
                     emit_md(source[pos + i], styles, ss);
