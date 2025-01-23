@@ -62,4 +62,7 @@ hud.is_paused() -> bool
 
 -- Returns true if inventory is open or overlay is shown.
 hud.is_inventory_open() -> bool
+
+-- Sets whether to allow pausing. If false, the pause menu will not pause the game.
+hud.set_allow_pause(flag: bool)
 ```

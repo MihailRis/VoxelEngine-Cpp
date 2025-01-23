@@ -13,7 +13,9 @@
 #include "graphics/render/ParticlesRenderer.hpp"
 #include "graphics/render/ChunksRenderer.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "network/Network.hpp"
 #include "objects/Player.hpp"
+#include "objects/Players.hpp"
 #include "objects/Entities.hpp"
 #include "objects/EntityDef.hpp"
 #include "physics/Hitbox.hpp"
@@ -41,6 +43,7 @@ static std::shared_ptr<Label> create_label(wstringsupplier supplier) {
 
 // TODO: move to xml
 // TODO: move to xml finally
+// TODO: move to xml finally
 std::shared_ptr<UINode> create_debug_panel(
     Engine& engine, 
     Level& level, 
@@ -56,6 +59,10 @@ std::shared_ptr<UINode> create_debug_panel(
     static int fpsMax = fps;
     static std::wstring fpsString = L"";
 
+    static size_t lastTotalDownload = 0;
+    static size_t lastTotalUpload = 0;
+    static std::wstring netSpeedString = L"";
+
     panel->listenInterval(0.016f, [&engine]() {
         fps = 1.0f / engine.getTime().getDelta();
         fpsMin = std::min(fps, fpsMin);
@@ -67,6 +74,19 @@ std::shared_ptr<UINode> create_debug_panel(
         fpsMin = fps;
         fpsMax = fps;
     });
+
+    panel->listenInterval(1.0f, [&engine]() {
+        const auto& network = engine.getNetwork();
+        size_t totalDownload = network.getTotalDownload();
+        size_t totalUpload = network.getTotalUpload();
+        netSpeedString =
+            L"download: " + std::to_wstring(totalDownload - lastTotalDownload) +
+            L" B/s upload: " + std::to_wstring(totalUpload - lastTotalUpload) +
+            L" B/s";
+        lastTotalDownload = totalDownload;
+        lastTotalUpload = totalUpload;
+    });
+
     panel->add(create_label([]() { return L"fps: "+fpsString;}));
    
     panel->add(create_label([]() {
@@ -84,6 +104,7 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([]() {
         return L"lua-stack: " + std::to_wstring(scripting::get_values_on_stack());
     }));
+    panel->add(create_label([]() { return netSpeedString; }));
     panel->add(create_label([&engine]() {
         auto& settings = engine.getSettings();
         bool culling = settings.graphics.frustumCulling.get();
@@ -102,6 +123,10 @@ std::shared_ptr<UINode> create_debug_panel(
     panel->add(create_label([&]() {
         return L"entities: "+std::to_wstring(level.entities->size())+L" next: "+
                std::to_wstring(level.entities->peekNextID());
+    }));
+    panel->add(create_label([&]() {
+        return L"players: "+std::to_wstring(level.players->size())+L" local: "+
+               std::to_wstring(player.getId());
     }));
     panel->add(create_label([&]() -> std::wstring {
         const auto& vox = player.selection.vox;

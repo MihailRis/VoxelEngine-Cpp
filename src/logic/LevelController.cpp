@@ -14,6 +14,7 @@
 #include "scripting/scripting.hpp"
 #include "lighting/Lighting.hpp"
 #include "settings.hpp"
+#include "world/LevelEvents.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
@@ -26,6 +27,14 @@ LevelController::LevelController(
       level(std::move(levelPtr)),
       chunks(std::make_unique<ChunksController>(*level)),
       playerTickClock(20, 3) {
+    
+    level->events->listen(LevelEventType::CHUNK_PRESENT, [](auto, Chunk* chunk) {
+        scripting::on_chunk_present(*chunk, chunk->flags.loaded);
+    });
+    level->events->listen(LevelEventType::CHUNK_UNLOAD, [](auto, Chunk* chunk) {
+        scripting::on_chunk_remove(*chunk);
+    });
+
     if (clientPlayer) {
         chunks->lighting = std::make_unique<Lighting>(
             level->content, *clientPlayer->chunks
@@ -41,6 +50,10 @@ LevelController::LevelController(
     do {
         confirmed = 0;
         for (const auto& [_, player] : *level->players) {
+            if (!player->isLoadingChunks()) {
+                confirmed++;
+                continue;
+            }
             glm::vec3 position = player->getPosition();
             player->chunks->configure(
                 std::floor(position.x), std::floor(position.z), 1
@@ -57,6 +70,11 @@ LevelController::LevelController(
 
 void LevelController::update(float delta, bool pause) {
     for (const auto& [_, player] : *level->players) {
+        if (player->isSuspended()) {
+            continue;
+        }
+        player->rotationInterpolation.updateTimer(delta);
+        player->updateEntity();
         glm::vec3 position = player->getPosition();
         player->chunks->configure(
             position.x,
@@ -76,6 +94,9 @@ void LevelController::update(float delta, bool pause) {
         level->entities->updatePhysics(delta);
         level->entities->update(delta);
         for (const auto& [_, player] : *level->players) {
+            if (player->isSuspended()) {
+                continue;
+            }
             if (playerTickClock.update(delta)) {
                 if (player->getId() % playerTickClock.getParts() ==
                     playerTickClock.getPart()) {
@@ -99,6 +120,10 @@ void LevelController::update(float delta, bool pause) {
 
 void LevelController::saveWorld() {
     auto world = level->getWorld();
+    if (world->isNameless()) {
+        logger.info() << "nameless world will not be saved";
+        return;
+    }
     logger.info() << "writing world '" << world->getName() << "'";
     world->wfile->createDirectories();
     scripting::on_world_save();

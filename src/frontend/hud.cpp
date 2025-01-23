@@ -201,17 +201,6 @@ Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
             "' pos='0' size='256' gravity='top-right' margin='0,20,0,0'/>"
         );
     add(HudElement(hud_element_mode::permanent, nullptr, debugMinimap, true));
-
-    keepAlive(Events::keyCallbacks[keycode::ESCAPE].add([this]() -> bool {
-        if (pause) {
-            setPause(false);
-        } else if (inventoryOpen) {
-            closeInventory();
-        } else {
-            setPause(true);
-        }
-        return false;
-    }));
 }
 
 Hud::~Hud() {
@@ -234,7 +223,8 @@ void Hud::cleanup() {
 }
 
 void Hud::processInput(bool visible) {
-    if (!Window::isFocused() && !pause && !isInventoryOpen()) {
+    auto menu = gui.getMenu();
+    if (!Window::isFocused() && !menu->hasOpenPage() && !isInventoryOpen()) {
         setPause(true);
     }
     if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
@@ -329,14 +319,13 @@ void Hud::update(bool visible) {
     if (!visible && inventoryOpen) {
         closeInventory();
     }
-    if (pause && menu->getCurrent().panel == nullptr) {
+    if (pause && !menu->hasOpenPage()) {
         setPause(false);
     }
-
     if (!gui.isFocusCaught()) {
         processInput(visible);
     }
-    if ((pause || inventoryOpen) == Events::_cursor_locked) {
+    if ((menu->hasOpenPage() || inventoryOpen) == Events::isCursorLocked()) {
         Events::toggleCursor();
     }
 
@@ -413,6 +402,7 @@ std::shared_ptr<Inventory> Hud::openInventory(
     }
     secondInvView->bind(inv, &content);
     add(HudElement(hud_element_mode::inventory_bound, doc, secondUI, false));
+    scripting::on_inventory_open(&player, *inv);
     return inv;
 }
 
@@ -447,6 +437,8 @@ void Hud::openInventory(
     blockPos = block;
     currentblockid = chunks.require(block.x, block.y, block.z).id;
     add(HudElement(hud_element_mode::inventory_bound, doc, blockUI, false));
+
+    scripting::on_inventory_open(&player, *blockinv);
 }
 
 void Hud::showExchangeSlot() {
@@ -461,7 +453,6 @@ void Hud::showExchangeSlot() {
     exchangeSlot->setInteractive(false);
     exchangeSlot->setZIndex(1);
     gui.store(SlotView::EXCHANGE_SLOT_NAME, exchangeSlot);
-
 }
 
 void Hud::showOverlay(
@@ -517,13 +508,19 @@ void Hud::dropExchangeSlot() {
 }
 
 void Hud::closeInventory() {
+    if (blockUI) {
+        scripting::on_inventory_closed(&player, *blockUI->getInventory());
+        blockUI = nullptr;
+    }
+    if (secondInvView) {
+        scripting::on_inventory_closed(&player, *secondInvView->getInventory());
+    }
     dropExchangeSlot();
     gui.remove(SlotView::EXCHANGE_SLOT_NAME);
     exchangeSlot = nullptr;
     exchangeSlotInv = nullptr;
     inventoryOpen = false;
     inventoryView = nullptr;
-    blockUI = nullptr;
     secondUI = nullptr;
 
     for (auto& element : elements) {
@@ -593,7 +590,9 @@ void Hud::draw(const DrawContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
+    auto menu = gui.getMenu();
 
+    darkOverlay->setVisible(menu->hasOpenPage());
     updateElementsPosition(viewport);
 
     uicamera->setFov(height);
@@ -679,19 +678,21 @@ void Hud::setPause(bool pause) {
     if (this->pause == pause) {
         return;
     }
-    this->pause = pause;
+    if (allowPause) {
+        this->pause = pause;
+    }
 
     if (inventoryOpen) {
         closeInventory();
     }
     
     const auto& menu = gui.getMenu();
-    if (pause) {
-        menu->setPage("pause");
-    } else {
+    if (!pause && menu->hasOpenPage()) {
         menu->reset();
     }
-    darkOverlay->setVisible(pause);
+    if (pause && !menu->hasOpenPage()) {
+        menu->setPage("pause");
+    }
     menu->setVisible(pause);
 }
 
@@ -723,4 +724,13 @@ void Hud::setDebugCheats(bool flag) {
     );
     debugPanel->setZIndex(2);
     gui.add(debugPanel);
+}
+
+void Hud::setAllowPause(bool flag) {
+    if (pause) {
+        auto menu = gui.getMenu();
+        setPause(false);
+        menu->setPage("pause", true);
+    }
+    allowPause = flag;
 }

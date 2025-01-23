@@ -70,13 +70,21 @@ app.config_packs(
 Использует app.reconfig_packs.
 
 ```lua
+app.is_content_loaded() -> bool
+```
+
+Проверяет, загружен ли контент.
+
+```lua
 app.new_world(
-    -- название мира
+    -- название мира, пустая строка приведёт к созданию безымянного мира
     name: str,
     -- зерно генерации
     seed: str,
     -- название генератора
     generator: str
+    -- id локального игрока
+    [опционально] local_player: int=0
 )
 ```
 

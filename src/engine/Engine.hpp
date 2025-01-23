@@ -53,12 +53,14 @@ struct CoreParameters {
     std::filesystem::path scriptFile;
 };
 
+using OnWorldOpen = std::function<void(std::unique_ptr<Level>, int64_t)>;
+
 class Engine : public util::ObjectsKeeper {
     CoreParameters params;
     EngineSettings settings;
-    SettingsHandler settingsHandler;
     EnginePaths paths;
 
+    std::unique_ptr<SettingsHandler> settingsHandler;
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
     std::vector<ContentPack> contentPacks;
@@ -71,7 +73,7 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<gui::GUI> gui;
     PostRunnables postRunnables;
     Time time;
-    consumer<std::unique_ptr<Level>> levelConsumer;
+    OnWorldOpen levelConsumer;
     bool quitSignal = false;
     
     void loadControls();
@@ -80,8 +82,14 @@ class Engine : public util::ObjectsKeeper {
     void updateHotkeys();
     void loadAssets();
 public:
-    Engine(CoreParameters coreParameters);
+    Engine();
     ~Engine();
+
+    static Engine& getInstance();
+
+    void initialize(CoreParameters coreParameters);
+
+    static void terminate();
 
     /// @brief Start the engine
     void run();
@@ -134,7 +142,7 @@ public:
     /// @brief Get engine resource paths controller
     ResPaths* getResPaths();
 
-    void onWorldOpen(std::unique_ptr<Level> level);
+    void onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer);
     void onWorldClosed();
 
     void quit();
@@ -166,7 +174,7 @@ public:
 
     PacksManager createPacksManager(const fs::path& worldFolder);
 
-    void setLevelConsumer(consumer<std::unique_ptr<Level>> levelConsumer);
+    void setLevelConsumer(OnWorldOpen levelConsumer);
 
     SettingsHandler& getSettingsHandler();
 

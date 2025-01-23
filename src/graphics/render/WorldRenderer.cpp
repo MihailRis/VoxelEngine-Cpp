@@ -89,7 +89,7 @@ WorldRenderer::WorldRenderer(
       ) {
     auto& settings = engine.getSettings();
     level.events->listen(
-        EVT_CHUNK_HIDDEN,
+        LevelEventType::CHUNK_HIDDEN,
         [this](LevelEventType, Chunk* chunk) { chunks->unload(chunk); }
     );
     auto assets = engine.getAssets();
@@ -274,8 +274,9 @@ void WorldRenderer::renderHands(
                  glm::mat4(1.0f), -glm::pi<float>() * 0.5f, glm::vec3(0, 1, 0)
              );
     prevRotation = rotation;
+    glm::vec3 cameraRotation = player.getRotation();
     auto offset = -(camera.position - player.getPosition());
-    float angle = glm::radians(player.rotation.x - 90);
+    float angle = glm::radians(cameraRotation.x - 90);
     float cos = glm::cos(angle);
     float sin = glm::sin(angle);
 

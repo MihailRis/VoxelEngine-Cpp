@@ -21,6 +21,14 @@ namespace lua {
     }
 
     inline void pop(lua::State* L, int n = 1) {
+#ifndef NDEBUG
+        if (n < 0) {
+            abort();
+        }
+        if (lua_gettop(L) < n) {
+            abort();
+        }
+#endif
         lua_pop(L, n);
     }
     inline void insert(lua::State* L, int idx) {

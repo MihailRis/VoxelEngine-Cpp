@@ -43,6 +43,10 @@ static int l_reset_content(lua::State* L) {
     return 0;
 }
 
+static int l_is_content_loaded(lua::State* L) {
+    return lua::pushboolean(L, content != nullptr);
+}
+
 /// @brief Creating new world
 /// @param name Name world
 /// @param seed Seed world
@@ -51,7 +55,15 @@ static int l_new_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto seed = lua::require_string(L, 2);
     auto generator = lua::require_string(L, 3);
+    int64_t localPlayer = 0;
+    if (lua::gettop(L) >= 4) {
+        localPlayer = lua::tointeger(L, 4);
+    }
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     auto controller = engine->getController();
+    controller->setLocalPlayer(localPlayer);
     controller->createWorld(name, seed, generator);
     return 0;
 }
@@ -60,8 +72,11 @@ static int l_new_world(lua::State* L) {
 /// @param name Name world
 static int l_open_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
-
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     auto controller = engine->getController();
+    controller->setLocalPlayer(0);
     controller->openWorld(name, false);
     return 0;
 }
@@ -258,6 +273,7 @@ const luaL_Reg corelib[] = {
     {"get_version", lua::wrap<l_get_version>},
     {"load_content", lua::wrap<l_load_content>},
     {"reset_content", lua::wrap<l_reset_content>},
+    {"is_content_loaded", lua::wrap<l_is_content_loaded>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},

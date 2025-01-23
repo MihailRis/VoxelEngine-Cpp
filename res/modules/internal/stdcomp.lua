@@ -49,6 +49,7 @@ local Skeleton = {__index={
     set_visible=function(self, i, b) return __skeleton.set_visible(self.eid, i, b) end,
     get_color=function(self) return __skeleton.get_color(self.eid) end,
     set_color=function(self, color) return __skeleton.set_color(self.eid, color) end,
+    set_interpolated=function(self, b) return __skeleton.set_interpolated(self.eid, b) end,
 }}
 
 local function new_Skeleton(eid)
@@ -66,6 +67,23 @@ local Entity = {__index={
     get_uid=function(self) return self.eid end,
     def_index=function(self) return entities.get_def(self.eid) end,
     def_name=function(self) return entities.def_name(entities.get_def(self.eid)) end,
+    get_player=function(self) return entities.get_player(self.eid) end,
+    set_enabled=function(self, name, flag)
+        local comp = self.components[name] 
+        if comp then
+            if flag then
+                if comp.__disabled and comp.on_enable then
+                    comp.on_enable()
+                end
+                comp.__disabled = nil
+            else
+                if not comp.__disabled and comp.on_disable then
+                    comp.on_disable()
+                end
+                comp.__disabled = true
+            end
+        end
+    end,
 }}
 
 local entities = {}
@@ -97,7 +115,7 @@ return {
             end
             for _, component in pairs(entity.components) do
                 local callback = component.on_update
-                if callback then
+                if not component.__disabled and callback then
                     local result, err = pcall(callback, tps)
                     if err then
                         debug.error(err)
@@ -111,7 +129,7 @@ return {
         for _,entity in pairs(entities) do
             for _, component in pairs(entity.components) do
                 local callback = component.on_render
-                if callback then
+                if not component.__disabled and callback then
                     local result, err = pcall(callback, delta)
                     if err then
                         debug.error(err)
@@ -130,5 +148,8 @@ return {
             end
             return values
         end
+    end,
+    __reset = function()
+        entities = {}
     end
 }

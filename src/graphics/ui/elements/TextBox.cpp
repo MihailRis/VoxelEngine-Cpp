@@ -826,7 +826,7 @@ void TextBox::setCaret(size_t position) {
         scrolled(-glm::ceil(offset/static_cast<double>(scrollStep)+0.5f));
     }
     uint lcaret = caret - label->getTextLineOffset(line);
-    int realoffset = font->calcWidth(input, lcaret)-int(textOffset)+2;
+    int realoffset = font->calcWidth(input, lcaret)-int(textOffset) - padding.x;
     if (realoffset-width > 0) {
         setTextOffset(textOffset + realoffset-width);
     } else if (realoffset < 0) {

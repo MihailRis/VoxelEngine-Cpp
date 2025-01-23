@@ -133,6 +133,13 @@ dv::value lua::tovalue(State* L, int idx) {
                 return map;
             }
         }
+        case LUA_TUSERDATA: {
+            if (auto bytes = touserdata<LuaBytearray>(L, idx)) {
+                const auto& data = bytes->data();
+                return std::make_shared<dv::objects::Bytes>(data.data(), data.size());
+            }
+            [[fallthrough]];
+        }
         default:
             throw std::runtime_error(
                 "lua type " + std::string(lua_typename(L, type)) +
@@ -268,14 +275,15 @@ KeyCallback lua::create_simple_handler(State* L) {
 scripting::common_func lua::create_lambda(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {
-        int top = gettop(L) + 1;
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return nullptr;
+        int top = gettop(L) - 1;
         for (const auto& arg : args) {
             pushvalue(L, arg);
         }
         if (call(L, args.size(), 1)) {
             int nres = gettop(L) - top;
+            assert(nres >= 0);
             if (nres) {
                 auto result = tovalue(L, -1);
                 pop(L, 1 + nres);
@@ -290,9 +298,9 @@ scripting::common_func lua::create_lambda(State* L) {
 scripting::common_func lua::create_lambda_nothrow(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {
-        int top = gettop(L) - 1;
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return nullptr;
+        int top = gettop(L) - 1;
         for (const auto& arg : args) {
             pushvalue(L, arg);
         }

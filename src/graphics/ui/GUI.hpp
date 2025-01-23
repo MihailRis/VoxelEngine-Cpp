@@ -106,6 +106,8 @@ namespace gui {
         /// @param assets active assets storage
         void draw(const DrawContext& pctx, const Assets& assets);
 
+        void postAct();
+
         /// @brief Add element to the main container
         /// @param node UI element
         void add(std::shared_ptr<UINode> node);

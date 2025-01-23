@@ -33,6 +33,7 @@ movement.sprint=Sprint
 movement.crouch=Crouch
 movement.cheat=Cheat
 hud.inventory=Inventory
+hud.chat=Chat
 player.pick=Pick Block
 player.attack=Attack
 player.destroy=Destroy

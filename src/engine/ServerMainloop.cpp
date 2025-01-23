@@ -30,7 +30,7 @@ void ServerMainloop::run() {
         logger.info() << "nothing to do";
         return;
     }
-    engine.setLevelConsumer([this](auto level) {
+    engine.setLevelConsumer([this](auto level, auto) {
         setLevel(std::move(level));
     });
 
@@ -70,7 +70,7 @@ void ServerMainloop::run() {
             begin = system_clock::now();
         }
     }
-    logger.info() << "test finished";
+    logger.info() << "script finished";
 }
 
 void ServerMainloop::setLevel(std::unique_ptr<Level> level) {

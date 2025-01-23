@@ -27,6 +27,7 @@ inline constexpr blockid_t BLOCK_OBSTACLE = 1;
 inline constexpr blockid_t BLOCK_STRUCT_AIR = 2;
 inline constexpr itemid_t ITEM_EMPTY = 0;
 inline constexpr entityid_t ENTITY_NONE = 0;
+inline constexpr entityid_t ENTITY_AUTO = std::numeric_limits<entityid_t>::max();
 
 inline constexpr int CHUNK_W = 16;
 inline constexpr int CHUNK_H = 256;

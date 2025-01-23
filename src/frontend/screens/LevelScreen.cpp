@@ -36,9 +36,10 @@
 
 static debug::Logger logger("level-screen");
 
-LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
- : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) 
-{
+LevelScreen::LevelScreen(
+    Engine& engine, std::unique_ptr<Level> levelPtr, int64_t localPlayer
+)
+    : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) {
     Level* level = levelPtr.get();
 
     auto& settings = engine.getSettings();
@@ -46,7 +47,9 @@ LevelScreen::LevelScreen(Engine& engine, std::unique_ptr<Level> levelPtr)
     auto menu = engine.getGUI()->getMenu();
     menu->reset();
 
-    auto player = level->players->get(0);
+    auto player = level->players->get(localPlayer);
+    assert(player != nullptr);
+    
     controller =
         std::make_unique<LevelController>(&engine, std::move(levelPtr), player);
     playerController = std::make_unique<PlayerController>(
@@ -114,7 +117,9 @@ void LevelScreen::initializePack(ContentPackRuntime* pack) {
 }
 
 LevelScreen::~LevelScreen() {
-    saveWorldPreview();
+    if (!controller->getLevel()->getWorld()->isNameless()) {
+        saveWorldPreview();
+    }
     scripting::on_frontend_close();
     // unblock all bindings
     Events::enableBindings();
@@ -165,14 +170,16 @@ void LevelScreen::updateHotkeys() {
 
 void LevelScreen::update(float delta) {
     gui::GUI* gui = engine.getGUI();
+    auto menu = gui->getMenu();
     
-    bool inputLocked = hud->isPause() || 
+    bool inputLocked = menu->hasOpenPage() ||
                        hud->isInventoryOpen() || 
                        gui->isFocusCaught();
     if (!gui->isFocusCaught()) {
         updateHotkeys();
     }
 
+    auto level = controller->getLevel();
     auto player = playerController->getPlayer();
     auto camera = player->currentCamera;
 
@@ -189,7 +196,6 @@ void LevelScreen::update(float delta) {
         camera->dir, 
         glm::vec3(0, 1, 0)
     );
-    auto level = controller->getLevel();
     const auto& settings = engine.getSettings();
 
     if (!hud->isPause()) {

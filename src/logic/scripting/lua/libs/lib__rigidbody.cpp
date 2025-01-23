@@ -17,7 +17,7 @@ static int l_set_vel(lua::State* L) {
 
 static int l_is_enabled(lua::State* L) {
     if (auto entity = get_entity(L, 1)) {
-        lua::pushboolean(L, entity->getRigidbody().enabled);
+        return lua::pushboolean(L, entity->getRigidbody().enabled);
     }
     return 0;
 }

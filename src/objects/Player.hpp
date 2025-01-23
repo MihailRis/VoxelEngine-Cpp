@@ -7,6 +7,7 @@
 #include "interfaces/Serializable.hpp"
 #include "settings.hpp"
 #include "voxels/voxel.hpp"
+#include "util/Interpolation.hpp"
 
 class Chunks;
 class Camera;
@@ -47,18 +48,23 @@ class Player : public Serializable {
     glm::vec3 position;
     glm::vec3 spawnpoint {};
     std::shared_ptr<Inventory> inventory;
+    bool suspended = false;
     bool flight = false;
     bool noclip = false;
     bool infiniteItems = true;
     bool instantDestruction = true;
     bool loadingChunks = true;
-    entityid_t eid;
+    entityid_t eid = ENTITY_AUTO;
     entityid_t selectedEid = 0;
+
+    glm::vec3 rotation {};
 public:
+    util::VecInterpolation<3, float, true> rotationInterpolation {true};
+
     std::unique_ptr<Chunks> chunks;
     std::shared_ptr<Camera> fpCamera, spCamera, tpCamera;
     std::shared_ptr<Camera> currentCamera;
-    glm::vec3 rotation {};
+    
     CursorSelection selection {};
 
     Player(
@@ -84,6 +90,9 @@ public:
 
     int getChosenSlot() const;
     float getSpeed() const;
+
+    bool isSuspended() const;
+    void setSuspended(bool flag);
 
     bool isFlight() const;
     void setFlight(bool flag);
@@ -118,6 +127,9 @@ public:
 
     void setSpawnPoint(glm::vec3 point);
     glm::vec3 getSpawnPoint() const;
+
+    glm::vec3 getRotation(bool interpolated=false) const;
+    void setRotation(const glm::vec3& rotation);
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
