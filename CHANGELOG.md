@@ -120,6 +120,7 @@ Methods:
 New overloads:
 - block.get_X, block.get_Y, block.get_Z
 - player.get_rot
+- Bytearray:append
 
 ## Fixes
 - [fix on_block_interact & fix segfault after engine finished](https://github.com/MihailRis/VoxelEngine-Cpp/commit/d1f92c21d0bbdf2df0eb3b31c5637bdf7110444c)
