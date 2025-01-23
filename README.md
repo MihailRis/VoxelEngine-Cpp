@@ -116,7 +116,12 @@ cd VoxelEngine-Cpp
 cmake --preset default-vs-msvc-windows
 cmake --build --preset default-vs-msvc-windows
 ```
-
+If you already have a repository, and get error with vcpkg, you need to initialize the git submodules and rerun cmake.
+```PowerShell
+git submodule update --init --recursive
+cmake --preset default-vs-msvc-windows
+cmake --build --preset default-vs-msvc-windows
+```
 ## Build using Docker
 
 ### Step 0. Install docker on your system
