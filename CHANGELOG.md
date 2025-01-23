@@ -11,7 +11,7 @@ Table of contents:
 
 ## Added
 
-- headless mode `--headless
+- headless mode `--headless`
 - script execution mode `--headless --script filename`
 - test execution mode `--headless --test filename`
 - vctest console application
