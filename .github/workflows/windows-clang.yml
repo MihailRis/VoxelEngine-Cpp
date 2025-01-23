@@ -30,25 +30,15 @@ jobs:
                 mingw-w64-clang-x86_64-toolchain 
                 mingw-w64-clang-x86_64-cmake 
                 mingw-w64-clang-x86_64-make 
-                mingw-w64-clang-x86_64-luajit 
-                git
-      - name: Set up vcpkg
-        shell: msys2 {0}
-        run: |
-            git clone https://github.com/microsoft/vcpkg.git
-            cd vcpkg
-            ./bootstrap-vcpkg.bat
-            ./vcpkg integrate install
-            cd ..
+                mingw-w64-clang-x86_64-luajit
       - name: Configure project with CMake and vcpkg
         shell: msys2 {0}
         run: |
             export VCPKG_DEFAULT_TRIPLET=x64-mingw-static
             export VCPKG_DEFAULT_HOST_TRIPLET=x64-mingw-static
-            export VCPKG_ROOT=./vcpkg
             mkdir build
             cd build
-            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake ..
+            cmake -G "MinGW Makefiles" -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_BUILD_TYPE=Release ..
             cmake --build . --config Release
       - name: Package for Windows
         run: |
