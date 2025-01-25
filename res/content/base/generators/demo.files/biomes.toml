@@ -1,7 +1,7 @@
 [forest]
 parameters = [
-    {weight=1, value=0},
-    {weight=0.5, value=0.2}
+    {weight=2, value=0.0},
+    {weight=1.6, value=-0.0}
 ]
 layers = [
     {below-sea-level=false, height=1, block="base:grass_block"},
@@ -28,8 +28,8 @@ structures = [
 
 [desert]
 parameters = [
-    {weight=1.0, value=1},
-    {weight=0.8, value=0}
+    {weight=1.0, value=0.0},
+    {weight=2.0, value=1.1}
 ]
 layers = [
     {height=6, block="base:sand"},
@@ -44,7 +44,7 @@ sea-layers = [
 [plains]
 parameters = [
     {weight=0.8, value=0.5},
-    {weight=0.8, value=0.0}
+    {weight=0.8, value=-0.2}
 ]
 layers = [
     {below-sea-level=false, height=1, block="base:grass_block"},

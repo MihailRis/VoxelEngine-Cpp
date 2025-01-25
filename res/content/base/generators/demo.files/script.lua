@@ -50,14 +50,19 @@ function generate_heightmap(x, y, w, h, s, inputs)
     local vmap = Heightmap(w, h)
     umap.noiseSeed = SEED
     vmap.noiseSeed = SEED
-    vmap:noise({x+521, y+70}, 0.1*s, 3, 25.8)
-    vmap:noise({x+95, y+246}, 0.15*s, 3, 25.8)
+    vmap:noise({x+521, y+70}, 0.1*s, 2, 25.8)
+    vmap:noise({x+95, y+246}, 0.15*s, 2, 25.8)
 
     local map = Heightmap(w, h)
     map.noiseSeed = SEED
-    map:noise({x, y}, 0.8*s, 4, 0.02)
-    map:cellnoise({x, y}, 0.1*s, 3, 0.3, umap, vmap)
-    map:add(0.7)
+    map:noise({x, y}, 0.5*s, 3, -0.1)
+    --map:cellnoise({x, y}, 0.1*s, 3, 0.3, umap, vmap)
+    map:mul(inputs[1])
+    --map:add(1.0)
+    --map:pow(0.2)
+    --map:mul(0.02)
+    map:mul(0.3)
+    map:add(0.3)
 
     local rivermap = Heightmap(w, h)
     rivermap.noiseSeed = SEED
@@ -66,26 +71,25 @@ function generate_heightmap(x, y, w, h, s, inputs)
     rivermap:mul(2.0)
     rivermap:pow(0.15)
     rivermap:max(0.5)
-    map:mul(rivermap)
+    --map:mul(rivermap)
 
     local desertmap = Heightmap(w, h)
     desertmap.noiseSeed = SEED
-    desertmap:cellnoise({x+52, y+326}, 0.3*s, 2, 0.2)
-    desertmap:add(0.5)
-    map:mixin(desertmap, inputs[1])
+    desertmap:cellnoise({x+52, y+326}, 0.3*s, 2, 0.1)
+    desertmap:add(0.35)
+
+    map:mixin(desertmap, inputs[2])
     return map
 end
 
 function generate_biome_parameters(x, y, w, h, s)
     local tempmap = Heightmap(w, h)
     tempmap.noiseSeed = SEED + 5324
-    tempmap:noise({x, y}, 0.08*s, 6)
-    tempmap:mul(0.5)
+    tempmap:noise({x, y}, 0.4*s, 4)
+    tempmap:mul(0.3)
     tempmap:add(0.5)
     local hummap = Heightmap(w, h)
     hummap.noiseSeed = SEED + 953
-    hummap:noise({x, y}, 0.08*s, 6)
-    tempmap:pow(3)
-    hummap:pow(3)
+    hummap:noise({x, y}, 0.2*s, 6)
     return tempmap, hummap
 end
