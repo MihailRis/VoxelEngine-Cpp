@@ -17,7 +17,7 @@ plants = [
     {weight=1, block="base:grass"},
     {weight=0.03, block="base:flower"}
 ]
-structure-chance = 0.032
+structure-chance = 0.026
 structures = [
     {name="tree0", weight=1},
     {name="tree1", weight=1},
@@ -43,8 +43,8 @@ sea-layers = [
 
 [plains]
 parameters = [
-    {weight=0.9, value=0.9},
-    {weight=0.9, value=-0.2}
+    {weight=0.9, value=0.0},
+    {weight=0.9, value=0.0}
 ]
 layers = [
     {below-sea-level=false, height=1, block="base:grass_block"},
