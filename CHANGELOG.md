@@ -47,6 +47,7 @@ Table of contents:
     - add transparent leaves render mode
     - add falling leaves particles
     - 'states' parameter in base:falling_block
+    - added/updated sounds
 - nameless worlds
 - SIGTERM handler
 - project:
@@ -115,8 +116,6 @@ Table of contents:
 Methods:
 - uinode:reposition
 - socket:available
-- textbox:lineAt
-- textbox:linePos
 New overloads:
 - block.get_X, block.get_Y, block.get_Z
 - player.get_rot
