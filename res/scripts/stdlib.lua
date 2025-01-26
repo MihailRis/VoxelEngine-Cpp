@@ -194,8 +194,8 @@ function gui.template(name, params)
     text = text:gsub("if%s*=%s*'%%{%w+}'", "if=''")
     text = text:gsub("if%s*=%s*\"%%{%w+}\"", "if=\"\"")
     -- remove unsolved properties: attr='%{var}'
-    text = text:gsub("%w+%s*=%s*'%%{%w+}'%s?", "")
-    text = text:gsub("%w+%s*=%s*\"%%{%w+}\"%s?", "")
+    text = text:gsub("%s*%S+='%%{[^}]+}'%s*", " ")
+    text = text:gsub('%s*%S+="%%{[^}]+}"%s*', " ")
     return text
 end
 
