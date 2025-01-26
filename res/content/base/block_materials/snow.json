@@ -1,0 +1,5 @@
+{
+    "steps-sound": "steps/snow",
+    "place-sound": "blocks/snow_place",
+    "break-sound": "blocks/snow_break"
+}
