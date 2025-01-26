@@ -113,9 +113,11 @@ Table of contents:
 - file.ext
 - file.prefix
 - hud.set_allow_pause
+
 Methods:
 - uinode:reposition
 - socket:available
+
 New overloads:
 - block.get_X, block.get_Y, block.get_Z
 - player.get_rot
