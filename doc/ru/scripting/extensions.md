@@ -56,7 +56,7 @@ table.shuffle(t: table) -> table
 table.merge(t1: table, t2: table) -> table
 ```
 
-Объединяет таблицу t1 с t2.
+Добавляет в таблицу **t1** значения из таблицы **t2**. Если в таблице **t2** присутствует ключ из **t1**, то значение ключа не будет изменено.
 
 ```lua
 table.map(t: table, func: function(indx, value) ) -> table
@@ -71,10 +71,10 @@ table.filter(t: table, func: function(indx, value) ) -> table
 Проходится по таблице с помощью **func**, которая возвращает **true** если элемент надо сохранить и **false**, если его надо удалить.
 
 ```lua
-table.set_default(t: table, key: number | string, default: any) -> any | nil
+table.set_default(t: table, key: number | string, default: any) -> any | default
 ```
 
-Позволяет получить значение по ключу, если он существует, или установить и вернуть **nil**, если ключ отсутствует.
+Позволяет безопасно получать значение по указанному ключу. Если ключ существует в таблице, метод вернет его значение. Если ключ отсутствует, метод установит его со значением **default** и вернет его.
 
 ```lua
 table.flat(t: table) -> table
@@ -87,6 +87,12 @@ table.deep_flat(t: table) -> table
 ```
 
 Возвращает глубокую "плоскую" версию исходной таблицы.
+
+```lua
+table.sum(t) -> number
+```
+
+Возвращает сумму всех элементов, игнорируя пары ключ-значение.
 
 ```lua
 table.tostring(t: table) -> string
@@ -199,12 +205,6 @@ math.round(num: number, [опционально] places: num) -> number
 ```
 
 Возвращает округлённое значение num до указанного количества знаков после запятой places.
-
-```lua
-math.sum(x: number, ...) -> number
-```
-
-Возвращает сумму всех принимаемых аргументов.
 
 ## Дополнительные глобальные функции
 
