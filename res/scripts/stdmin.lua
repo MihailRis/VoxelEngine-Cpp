@@ -64,6 +64,23 @@ function math.round(num, places)
     return math.floor(num * mult + 0.5) / mult
 end
 
+function math.sum(...)
+    local numbers = nil
+    local sum = 0
+
+    if type(...) == "table" then
+        numbers = ...
+    else
+        numbers = {...}
+    end
+
+    for _, v in ipairs(numbers) do
+        sum = sum + v
+    end
+
+    return sum
+end
+
 ----------------------------------------------
 
 function table.copy(t)
@@ -179,17 +196,6 @@ function table.deep_flat(t)
 
     return flat
 end
-
-function table.sum(t)
-    local sum = 0
-
-    for _, v in ipairs(t) do
-        sum = sum + v
-    end
-
-    return sum
-end
-
 ----------------------------------------------
 
 local pattern_escape_replacements = {
