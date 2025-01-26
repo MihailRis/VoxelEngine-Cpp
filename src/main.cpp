@@ -3,10 +3,15 @@
 #include "util/command_line.hpp"
 #include "debug/Logger.hpp"
 
+#include <csignal>
 #include <iostream>
 #include <stdexcept>
 
 static debug::Logger logger("main");
+
+static void sigterm_handler(int signum) {
+    Engine::getInstance().quit();
+}
 
 int main(int argc, char** argv) {
     CoreParameters coreParameters;
@@ -18,11 +23,15 @@ int main(int argc, char** argv) {
         std::cerr << err.what() << std::endl;
         return EXIT_FAILURE;
     }
-
+    std::signal(SIGTERM, sigterm_handler);
+    
     debug::Logger::init(coreParameters.userFolder.string()+"/latest.log");
     platform::configure_encoding();
+
+    auto& engine = Engine::getInstance();
     try {
-        Engine(std::move(coreParameters)).run();
+        engine.initialize(std::move(coreParameters));
+        engine.run();
     } catch (const initialize_error& err) {
         logger.error() << "could not to initialize engine\n" << err.what();
     }
@@ -33,5 +42,6 @@ int main(int argc, char** argv) {
         throw;
     }
 #endif
+    Engine::terminate();
     return EXIT_SUCCESS;
 }

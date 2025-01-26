@@ -45,11 +45,6 @@ static int l_add_callback(lua::State* L) {
             handler = Events::keyCallbacks[key].add(actual_callback);
         }
     }
-
-    const auto& bind = Events::bindings.find(bindname);
-    if (bind == Events::bindings.end()) {
-        throw std::runtime_error("unknown binding " + util::quote(bindname));
-    }
     auto callback = [=]() -> bool {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
             return actual_callback();
@@ -57,6 +52,10 @@ static int l_add_callback(lua::State* L) {
         return false;
     };
     if (handler == nullptr) {
+        const auto& bind = Events::bindings.find(bindname);
+        if (bind == Events::bindings.end()) {
+            throw std::runtime_error("unknown binding " + util::quote(bindname));
+        }
         handler = bind->second.onactived.add(callback);
     }
 

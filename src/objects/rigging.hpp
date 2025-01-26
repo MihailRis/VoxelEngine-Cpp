@@ -1,12 +1,15 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 #include <memory>
 #include <string>
+#include <cmath>
 #include <unordered_map>
 #include <vector>
 
 #include "typedefs.hpp"
+#include "util/Interpolation.hpp"
 
 class Assets;
 class ModelBatch;
@@ -83,6 +86,8 @@ namespace rigging {
         bool visible;
         glm::vec3 tint {1.0f, 1.0f, 1.0f};
 
+        util::VecInterpolation<3, float> interpolation {false};
+
         Skeleton(const SkeletonConfig* config);
     };
 
@@ -100,7 +105,7 @@ namespace rigging {
         std::vector<Bone*> nodes;
 
         size_t update(
-            size_t index, Skeleton& skeleton, Bone* node, glm::mat4 matrix
+            size_t index, Skeleton& skeleton, Bone* node, const glm::mat4& matrix
         ) const;
     public:
         SkeletonConfig(
@@ -109,12 +114,18 @@ namespace rigging {
             size_t nodesCount
         );
 
-        void update(Skeleton& skeleton, glm::mat4 matrix) const;
+        void update(
+            Skeleton& skeleton,
+            const glm::mat4& matrix,
+            const glm::vec3& position
+        ) const;
+
         void render(
             const Assets& assets,
             ModelBatch& batch,
             Skeleton& skeleton,
-            const glm::mat4& matrix
+            const glm::mat4& matrix,
+            const glm::vec3& position
         ) const;
 
         Skeleton instance() const {

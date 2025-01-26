@@ -49,10 +49,11 @@ world.is_night() -> bool
 world.count_chunks() -> int
 
 -- Returns the compressed chunk data to send.
+-- If the chunk is not loaded, returns the saved data.
 -- Currently includes:
 -- 1. Voxel data (id and state)
 -- 2. Voxel metadata (fields)
-world.get_chunk_data(x: int, z: int) -> Bytearray
+world.get_chunk_data(x: int, z: int) -> Bytearray or nil
 
 -- Modifies the chunk based on the compressed data.
 -- Returns true if the chunk exists.
@@ -61,4 +62,12 @@ world.set_chunk_data(
     -- compressed chunk data
     data: Bytearray
 ) -> bool
+
+-- Saves chunk data to region.
+-- Changes will be written to file only on world save.
+world.save_chunk_data(
+    x: int, z: int,
+    -- compressed chunk data
+    data: Bytearray
+)
 ```

@@ -37,10 +37,10 @@ player.set_vel(playerid: int, x: number, y: number, z: number)
 Устанавливает x, y, z линейной скорости игрока
 
 ```lua
-player.get_rot(playerid: int) -> number, number, number
+player.get_rot(playerid: int, interpolated: bool=false) -> number, number, number
 ```
 
-Возвращает x, y, z вращения камеры (в радианах)
+Возвращает x, y, z вращения камеры (в радианах). Интерполяция актуальна в случаях, когда частота обновления вращения ниже частоты кадров.
 
 ```lua
 player.set_rot(playerid: int, x: number, y: number, z: number)

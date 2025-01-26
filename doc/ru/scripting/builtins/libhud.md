@@ -65,4 +65,7 @@ hud.is_paused() -> bool
 
 -- Возвращает true если открыт инвентарь или оверлей.
 hud.is_inventory_open() -> bool
+
+-- Устанавливает разрешение на паузу. При значении false меню паузы не приостанавливает игру.
+hud.set_allow_pause(flag: bool)
 ```

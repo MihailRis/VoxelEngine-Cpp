@@ -73,7 +73,7 @@ static int l_connect(lua::State* L) {
 static int l_close(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     if (auto connection = engine->getNetwork().getConnection(id)) {
-        connection->close();
+        connection->close(true);
     }
     return 0;
 }
@@ -89,7 +89,8 @@ static int l_closeserver(lua::State* L) {
 static int l_send(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     auto connection = engine->getNetwork().getConnection(id);
-    if (connection == nullptr) {
+    if (connection == nullptr ||
+        connection->getState() == network::ConnectionState::CLOSED) {
         return 0;
     }
     if (lua::istable(L, 2)) {
@@ -167,7 +168,9 @@ static int l_is_alive(lua::State* L) {
     u64id_t id = lua::tointeger(L, 1);
     if (auto connection = engine->getNetwork().getConnection(id)) {
         return lua::pushboolean(
-            L, connection->getState() != network::ConnectionState::CLOSED
+            L,
+            connection->getState() != network::ConnectionState::CLOSED ||
+                connection->available() > 0
         );
     }
     return lua::pushboolean(L, false);

@@ -170,6 +170,11 @@ static int l_set_debug_cheats(lua::State* L) {
     return 0;
 }
 
+static int l_set_allow_pause(lua::State* L) {
+    hud->setAllowPause(lua::toboolean(L, 1));
+    return 0;
+}
+
 const luaL_Reg hudlib[] = {
     {"open_inventory", lua::wrap<l_open_inventory>},
     {"close_inventory", lua::wrap<l_close_inventory>},
@@ -187,5 +192,6 @@ const luaL_Reg hudlib[] = {
     {"_is_content_access", lua::wrap<l_is_content_access>},
     {"_set_content_access", lua::wrap<l_set_content_access>},
     {"_set_debug_cheats", lua::wrap<l_set_debug_cheats>},
+    {"set_allow_pause", lua::wrap<l_set_allow_pause>},
     {NULL, NULL}
 };

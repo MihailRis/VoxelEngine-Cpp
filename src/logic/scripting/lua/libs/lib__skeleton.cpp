@@ -130,6 +130,22 @@ static int l_set_color(lua::State* L) {
     return 0;
 }
 
+static int l_is_interpolated(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& skeleton = entity->getSkeleton();
+        return lua::pushboolean(L, skeleton.interpolation.isEnabled());
+    }
+    return 0;
+}
+
+static int l_set_interpolated(lua::State* L) {
+    if (auto entity = get_entity(L, 1)) {
+        auto& skeleton = entity->getSkeleton();
+        skeleton.interpolation.setEnabled(lua::toboolean(L, 2));
+    }
+    return 0;
+}
+
 const luaL_Reg skeletonlib[] = {
     {"get_model", lua::wrap<l_get_model>},
     {"set_model", lua::wrap<l_set_model>},
@@ -142,4 +158,6 @@ const luaL_Reg skeletonlib[] = {
     {"set_visible", lua::wrap<l_set_visible>},
     {"get_color", lua::wrap<l_get_color>},
     {"set_color", lua::wrap<l_set_color>},
+    {"is_interpolated", lua::wrap<l_is_interpolated>},
+    {"set_interpolated", lua::wrap<l_set_interpolated>},
     {NULL, NULL}};

@@ -8,6 +8,8 @@
 struct fnl_state;
 class Heightmap;
 class VoxelFragment;
+class Texture;
+class ImageData;
 
 namespace lua {
     class Userdata {
@@ -90,4 +92,25 @@ namespace lua {
         inline static std::string TYPENAME = "VoxelFragment";
     };
     static_assert(!std::is_abstract<LuaVoxelFragment>());
+
+    class LuaCanvas : public Userdata {
+    public:
+        explicit LuaCanvas(std::shared_ptr<Texture> inTexture);
+        ~LuaCanvas() override = default;
+
+        const std::string& getTypeName() const override {
+            return TYPENAME;
+        }
+
+        [[nodiscard]] Texture& texture() const { return *mTexture; }
+
+        [[nodiscard]] ImageData& data() const { return *mData; }
+
+        static int createMetatable(lua::State*);
+        inline static std::string TYPENAME = "Canvas";
+    private:
+        std::shared_ptr<Texture> mTexture;
+        std::unique_ptr<ImageData> mData;
+    };
+    static_assert(!std::is_abstract<LuaCanvas>());
 }

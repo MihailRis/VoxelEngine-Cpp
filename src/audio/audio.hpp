@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "typedefs.hpp"
+#include "settings.hpp"
 
 namespace fs = std::filesystem;
 
@@ -357,7 +358,7 @@ namespace audio {
 
     /// @brief Initialize audio system or use no audio mode
     /// @param enabled try to initialize actual audio
-    void initialize(bool enabled);
+    void initialize(bool enabled, AudioSettings& settings);
 
     /// @brief Load audio file info and PCM data
     /// @param file audio file

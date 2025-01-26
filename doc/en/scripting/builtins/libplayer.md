@@ -37,10 +37,10 @@ player.set_vel(playerid: int, x: number, y: number, z: number)
 Sets x, y, z player linear velocity
 
 ```lua
-player.get_rot(playerid: int) -> number, number, number
+player.get_rot(playerid: int, interpolated: bool) -> number, number, number
 ```
 
-Returns x, y, z of camera rotation (radians)
+Returns x, y, z of camera rotation (radians). Interpolation is relevant in cases where the rotation refresh rate is lower than the frame rate.
 
 ```lua
 player.set_rot(playerid: int, x: number, y: number, z: number)

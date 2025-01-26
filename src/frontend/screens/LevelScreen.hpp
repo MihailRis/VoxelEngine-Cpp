@@ -34,7 +34,9 @@ class LevelScreen : public Screen {
     void initializeContent();
     void initializePack(ContentPackRuntime* pack);
 public:
-    LevelScreen(Engine& engine, std::unique_ptr<Level> level);
+    LevelScreen(
+        Engine& engine, std::unique_ptr<Level> level, int64_t localPlayer
+    );
     ~LevelScreen();
 
     void update(float delta) override;

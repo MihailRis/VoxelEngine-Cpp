@@ -113,8 +113,9 @@ public:
             auto start = currentLocation();
             if (is_lua_identifier_start(c)) {
                 auto name = parseLuaName();
+                TokenTag tag = (is_lua_keyword(name) ? TokenTag::KEYWORD : TokenTag::NAME);
                 emitToken(
-                    is_lua_keyword(name) ? TokenTag::KEYWORD : TokenTag::NAME,
+                    tag,
                     std::move(name),
                     start
                 );

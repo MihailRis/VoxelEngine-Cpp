@@ -400,10 +400,15 @@ public:
         return readBatch.size();
     }
 
-    void close() override {
-        if (state != ConnectionState::CLOSED) {
-            shutdown(descriptor, 2);
-            closesocket(descriptor);
+    void close(bool discardAll=false) override {
+        {
+            std::lock_guard lock(mutex);
+            readBatch.clear();
+
+            if (state != ConnectionState::CLOSED) {
+                shutdown(descriptor, 2);
+                closesocket(descriptor);
+            }
         }
         if (thread) {
             thread->join();

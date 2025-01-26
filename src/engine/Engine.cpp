@@ -52,15 +52,6 @@ static debug::Logger logger("engine");
 
 namespace fs = std::filesystem;
 
-static void create_channel(Engine* engine, std::string name, NumberSetting& setting) {
-    if (name != "master") {
-        audio::create_channel(name);
-    }
-    engine->keepAlive(setting.observe([=](auto value) {
-        audio::get_channel(name)->setVolume(value*value);
-    }, true));
-}
-
 static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
     try {
         auto file = resdir / fs::u8path("textures/misc/icon.png");
@@ -73,12 +64,23 @@ static std::unique_ptr<ImageData> load_icon(const fs::path& resdir) {
     return nullptr;
 }
 
-Engine::Engine(CoreParameters coreParameters)
-    : params(std::move(coreParameters)),
-      settings(),
-      settingsHandler({settings}),
-      interpreter(std::make_unique<cmd::CommandsInterpreter>()),
-      network(network::Network::create(settings.network)) {
+Engine::Engine() = default;
+
+static std::unique_ptr<Engine> engine;
+
+Engine& Engine::getInstance() {
+    if (!engine) {
+        engine = std::make_unique<Engine>();
+    }
+    return *engine;
+}
+
+void Engine::initialize(CoreParameters coreParameters) {
+    params = std::move(coreParameters);
+    settingsHandler = std::make_unique<SettingsHandler>(settings);
+    interpreter = std::make_unique<cmd::CommandsInterpreter>();
+    network = network::Network::create(settings.network);
+
     logger.info() << "engine version: " << ENGINE_VERSION_STRING;
     if (params.headless) {
         logger.info() << "headless mode is enabled";
@@ -110,12 +112,7 @@ Engine::Engine(CoreParameters coreParameters)
             menus::create_version_label(*this);
         }
     }
-    audio::initialize(settings.audio.enabled.get() && !params.headless);
-    create_channel(this, "master", settings.audio.volumeMaster);
-    create_channel(this, "regular", settings.audio.volumeRegular);
-    create_channel(this, "music", settings.audio.volumeMusic);
-    create_channel(this, "ambient", settings.audio.volumeAmbient);
-    create_channel(this, "ui", settings.audio.volumeUI);
+    audio::initialize(!params.headless, settings.audio);
 
     bool langNotSet = settings.ui.language.get() == "auto";
     if (langNotSet) {
@@ -140,7 +137,7 @@ void Engine::loadSettings() {
         logger.info() << "loading settings";
         std::string text = files::read_string(settings_file);
         try {
-            toml::parse(settingsHandler, settings_file.string(), text);
+            toml::parse(*settingsHandler, settings_file.string(), text);
         } catch (const parsing_error& err) {
             logger.error() << err.errorLog();
             throw;
@@ -199,6 +196,7 @@ void Engine::updateFrontend() {
     audio::update(delta);
     gui->act(delta, Viewport(Window::width, Window::height));
     screen->update(delta);
+    gui->postAct();
 }
 
 void Engine::nextFrame() {
@@ -221,7 +219,7 @@ void Engine::renderFrame() {
 
 void Engine::saveSettings() {
     logger.info() << "saving settings";
-    files::write_string(paths.getSettingsFile(), toml::stringify(settingsHandler));
+    files::write_string(paths.getSettingsFile(), toml::stringify(*settingsHandler));
     if (!params.headless) {
         logger.info() << "saving bindings";
         files::write_string(paths.getControlsFile(), Events::writeBindings());
@@ -254,6 +252,10 @@ Engine::~Engine() {
     logger.info() << "engine finished";
 }
 
+void Engine::terminate() {
+    engine.reset();
+}
+
 EngineController* Engine::getController() {
     return controller.get();
 }
@@ -272,7 +274,7 @@ PacksManager Engine::createPacksManager(const fs::path& worldFolder) {
     return manager;
 }
 
-void Engine::setLevelConsumer(consumer<std::unique_ptr<Level>> levelConsumer) {
+void Engine::setLevelConsumer(OnWorldOpen levelConsumer) {
     this->levelConsumer = std::move(levelConsumer);
 }
 
@@ -446,14 +448,14 @@ void Engine::setLanguage(std::string locale) {
     langs::setup(paths.getResourcesFolder(), std::move(locale), contentPacks);
 }
 
-void Engine::onWorldOpen(std::unique_ptr<Level> level) {
+void Engine::onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer) {
     logger.info() << "world open";
-    levelConsumer(std::move(level));
+    levelConsumer(std::move(level), localPlayer);
 }
 
 void Engine::onWorldClosed() {
     logger.info() << "world closed";
-    levelConsumer(nullptr);
+    levelConsumer(nullptr, -1);
 }
 
 void Engine::quit() {
@@ -510,7 +512,7 @@ std::shared_ptr<Screen> Engine::getScreen() {
 }
 
 SettingsHandler& Engine::getSettingsHandler() {
-    return settingsHandler;
+    return *settingsHandler;
 }
 
 network::Network& Engine::getNetwork() {

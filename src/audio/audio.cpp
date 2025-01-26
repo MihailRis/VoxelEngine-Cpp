@@ -9,18 +9,20 @@
 #include "AL/ALAudio.hpp"
 #include "NoAudio.hpp"
 #include "debug/Logger.hpp"
+#include "util/ObjectsKeeper.hpp"
 
 static debug::Logger logger("audio");
 
-namespace audio {
+using namespace audio;
+
+namespace {
     static speakerid_t nextId = 1;
     static Backend* backend;
     static std::unordered_map<speakerid_t, std::unique_ptr<Speaker>> speakers;
     static std::unordered_map<speakerid_t, std::shared_ptr<Stream>> streams;
     static std::vector<std::unique_ptr<Channel>> channels;
+    static util::ObjectsKeeper objects_keeper {};
 }
-
-using namespace audio;
 
 Channel::Channel(std::string name) : name(std::move(name)) {
 }
@@ -148,7 +150,8 @@ public:
     }
 };
 
-void audio::initialize(bool enabled) {
+void audio::initialize(bool enabled, AudioSettings& settings) {
+    enabled = enabled && settings.enabled.get();
     if (enabled) {
         logger.info() << "initializing ALAudio backend";
         backend = ALAudio::create().release();
@@ -160,7 +163,22 @@ void audio::initialize(bool enabled) {
         logger.info() << "initializing NoAudio backend";
         backend = NoAudio::create().release();
     }
-    create_channel("master");
+    struct {
+        std::string name;
+        NumberSetting* setting;
+    } builtin_channels[] {
+        {"master", &settings.volumeMaster},
+        {"regular", &settings.volumeRegular},
+        {"music", &settings.volumeMusic},
+        {"ambient", &settings.volumeAmbient},
+        {"ui", &settings.volumeUI}
+    };
+    for (auto& channel : builtin_channels) {
+        create_channel(channel.name);
+        objects_keeper.keepAlive(channel.setting->observe([=](auto value) {
+            audio::get_channel(channel.name)->setVolume(value * value);
+        }, true));
+    }
 }
 
 std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
@@ -442,4 +460,5 @@ void audio::close() {
     speakers.clear();
     delete backend;
     backend = nullptr;
+    objects_keeper.clearKeepedObjects();
 }

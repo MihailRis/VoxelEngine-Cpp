@@ -77,12 +77,14 @@ Checks if content is loaded.
 
 ```lua
 app.new_world(
-    -- world name
+    -- world name, empty string will create a nameless world
     name: str,
     -- generation seed
     seed: str,
     -- generator name
     generator: str
+    -- local player id
+    [optional] local_player: int=0
 )
 ```
 

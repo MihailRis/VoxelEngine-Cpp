@@ -23,6 +23,14 @@ int Panel::getMaxLength() const {
     return maxLength;
 }
 
+void Panel::setMinLength(int value) {
+    minLength = value;
+}
+
+int Panel::getMinLength() const {
+    return minLength;
+}
+
 void Panel::setPadding(glm::vec4 padding) {
     this->padding = padding;
     refresh();
@@ -34,21 +42,29 @@ glm::vec4 Panel::getPadding() const {
 
 void Panel::cropToContent() {
     if (maxLength > 0.0f) {
-        setSize(glm::vec2(getSize().x, glm::min(maxLength, actualLength)));
+        setSize(glm::vec2(
+            getSize().x, glm::max(minLength, glm::min(maxLength, actualLength))
+        ));
     } else {
-        setSize(glm::vec2(getSize().x, actualLength));
+        setSize(glm::vec2(getSize().x, glm::max(minLength, actualLength)));
     }
 }
 
 void Panel::fullRefresh() {
     refresh();
     cropToContent();
+    reposition();
     Container::fullRefresh();
 }
 
 void Panel::add(const std::shared_ptr<UINode> &node) {
     node->setResizing(true);
     Container::add(node);
+    fullRefresh();
+}
+
+void Panel::remove(const std::shared_ptr<UINode> &node) {
+    Container::remove(node);
     fullRefresh();
 }
 

@@ -20,6 +20,9 @@ void main() {
         if (alpha < 0.2f)
             discard;
         alpha = 1.0;
+    } else {
+        if (alpha < 0.002f)
+            discard;
     }
     f_color = mix(a_color * tex_color, vec4(fogColor,1.0), 
               min(1.0, pow(depth*u_fogFactor, u_fogCurve)));

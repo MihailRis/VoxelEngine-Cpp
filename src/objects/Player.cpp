@@ -62,15 +62,21 @@ Player::Player(
 Player::~Player() = default;
 
 void Player::updateEntity() {
-    if (eid == 0) {
+    if (eid == ENTITY_AUTO) {
         auto& def = level.content.entities.require("base:player");
         eid = level.entities->spawn(def, getPosition());
+        if (auto entity = level.entities->get(eid)) {
+            entity->setPlayer(id);
+        }
     } else if (auto entity = level.entities->get(eid)) {
         position = entity->getTransform().pos;
-    } else if (chunks->getChunkByVoxel(position)) {
+        if (auto entity = level.entities->get(eid)) {
+            entity->setPlayer(id);
+        }
+    } else if (chunks->getChunkByVoxel(position) && eid != ENTITY_NONE) {
         logger.error() << "player entity despawned or deleted; "
                           "will be respawned";
-        eid = 0;
+        eid = ENTITY_AUTO;
     }
 }
 
@@ -164,23 +170,9 @@ void Player::postUpdate() {
         }
     }
 
+    // TODO: ERASE & FORGET
     auto& skeleton = entity->getSkeleton();
-
     skeleton.visible = currentCamera != fpCamera;
-
-    auto body = skeleton.config->find("body");
-    auto head = skeleton.config->find("head");
-
-    if (body) {
-        skeleton.pose.matrices[body->getIndex()] = glm::rotate(
-            glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(0, 1, 0)
-        );
-    }
-    if (head) {
-        skeleton.pose.matrices[head->getIndex()] = glm::rotate(
-            glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(1, 0, 0)
-        );
-    }
 }
 
 void Player::teleport(glm::vec3 position) {
@@ -189,6 +181,7 @@ void Player::teleport(glm::vec3 position) {
     if (auto entity = level.entities->get(eid)) {
         entity->getRigidbody().hitbox.position = position;
         entity->getTransform().setPos(position);
+        entity->setInterpolatedPosition(position);
     }
 }
 
@@ -222,6 +215,14 @@ int Player::getChosenSlot() const {
 
 float Player::getSpeed() const {
     return speed;
+}
+
+bool Player::isSuspended() const {
+    return suspended;
+}
+
+void Player::setSuspended(bool flag) {
+    suspended = flag;
 }
 
 bool Player::isFlight() const {
@@ -294,6 +295,18 @@ void Player::setSpawnPoint(glm::vec3 spawnpoint) {
 
 glm::vec3 Player::getSpawnPoint() const {
     return spawnpoint;
+}
+
+glm::vec3 Player::getRotation(bool interpolated) const {
+    if (interpolated) {
+        return rotationInterpolation.getCurrent();
+    }
+    return rotation;
+}
+
+void Player::setRotation(const glm::vec3& rotation) {
+    this->rotation = rotation;
+    rotationInterpolation.refresh(rotation);
 }
 
 dv::value Player::serialize() const {

@@ -34,13 +34,14 @@ void guiutil::alert(
     auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(4.0f), 4.0f);
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
-    auto menu = engine.getGUI()->getMenu();
-    runnable on_hidden_final = [on_hidden, menu, &engine]() {
-        menu->removePage("<alert>");
+    auto menuPtr = engine.getGUI()->getMenu();
+    auto& menu = *menuPtr;
+    runnable on_hidden_final = [on_hidden, &menu, &engine]() {
+        menu.removePage("<alert>");
         if (on_hidden) {
             on_hidden();
         } else {
-            menu->back();
+            menu.back();
         }
     };
     
@@ -50,21 +51,21 @@ void guiutil::alert(
     panel->add(label);
     panel->add(std::make_shared<Button>(
         langs::get(L"Ok"), glm::vec4(10.f), 
-        [=](GUI*) {
+        [on_hidden_final](GUI*) {
             on_hidden_final();
         }
     ));
     panel->refresh();
-    panel->keepAlive(Events::keyCallbacks[keycode::ENTER].add([=](){
+    panel->keepAlive(Events::keyCallbacks[keycode::ENTER].add([on_hidden_final](){
         on_hidden_final();
         return true;
     }));
-    panel->keepAlive(Events::keyCallbacks[keycode::ESCAPE].add([=](){
+    panel->keepAlive(Events::keyCallbacks[keycode::ESCAPE].add([on_hidden_final](){
         on_hidden_final();
         return true;
     }));
-    menu->addPage("<alert>", panel, true);
-    menu->setPage("<alert>");
+    menu.addPage("<alert>", panel, true);
+    menu.setPage("<alert>");
 }
 
 void guiutil::confirm(

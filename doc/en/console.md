@@ -2,6 +2,13 @@
 
 To work with the command interpreter, use the **console** library.
 
+When sending a command via the standard console (core:console layout):
+1. the `allow-cheats` rule is checked
+2. the `player`, `pos.x|y|z`, `entity.id`, `entity.selected` variables are automatically set.
+3. the command handler is called - console.submit or the default one.
+
+The default handler calls console.execute, passing the result to the console.log call.
+
 ## Commands creation
 
 To create a console command, use the following function:

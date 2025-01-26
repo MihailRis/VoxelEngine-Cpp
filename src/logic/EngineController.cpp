@@ -143,7 +143,9 @@ static bool load_world_content(Engine& engine, const fs::path& folder) {
 }
 
 static void load_world(
-    Engine& engine, const std::shared_ptr<WorldFiles>& worldFiles
+    Engine& engine,
+    const std::shared_ptr<WorldFiles>& worldFiles,
+    int64_t localPlayer
 ) {
     try {
         auto content = engine.getContent();
@@ -151,7 +153,7 @@ static void load_world(
         auto& settings = engine.getSettings();
 
         auto level = World::load(worldFiles, settings, *content, packs);
-        engine.onWorldOpen(std::move(level));
+        engine.onWorldOpen(std::move(level), localPlayer);
     } catch (const world_load_error& error) {
         guiutil::alert(
             engine,
@@ -233,7 +235,7 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
         }
         return;
     }
-    load_world(engine, std::move(worldFiles));
+    load_world(engine, std::move(worldFiles), localPlayer);
 }
 
 inline uint64_t str2seed(const std::string& seedstr) {
@@ -279,9 +281,13 @@ void EngineController::createWorld(
         engine.getContentPacks()
     );
     if (!engine.isHeadless()) {
-        level->players->create();
+        level->players->create(localPlayer);
     }
-    engine.onWorldOpen(std::move(level));
+    engine.onWorldOpen(std::move(level), localPlayer);
+}
+
+void EngineController::setLocalPlayer(int64_t player) {
+    localPlayer = player;
 }
 
 void EngineController::reopenWorld(World* world) {

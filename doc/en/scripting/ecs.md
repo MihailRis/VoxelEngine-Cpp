@@ -26,6 +26,9 @@ entity:get_uid() -> int
 entity:get_component(name: str) -> component or nil
 -- Checks for the presence of a component by name
 entity:has_component(name: str) -> bool
+
+-- Enables/disables the component
+entity:set_enabled(name: str, enable: bool)
 ```
 
 ## Built-in components

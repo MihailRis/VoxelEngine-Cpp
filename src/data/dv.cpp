@@ -104,6 +104,9 @@ namespace dv {
     }
 
     boolean_t value::asBoolean() const {
+        if (type == value_type::none) {
+            return false;
+        }
         check_type(type, value_type::boolean);
         return val.boolean;
     }

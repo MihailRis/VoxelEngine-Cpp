@@ -3,6 +3,7 @@
 #include "engine/Engine.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/ui/elements/Button.hpp"
+#include "graphics/ui/elements/Canvas.hpp"
 #include "graphics/ui/elements/CheckBox.hpp"
 #include "graphics/ui/elements/Image.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
@@ -98,6 +99,12 @@ static int l_node_destruct(lua::State* L) {
             container->remove(node);
         }
     });
+    return 0;
+}
+
+static int l_node_reposition(lua::State* L) {
+    auto docnode = get_document_node(L);
+    docnode.node->reposition();
     return 0;
 }
 
@@ -317,6 +324,13 @@ static int p_get_src(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_data(UINode* node, lua::State* L) {
+    if (auto canvas = dynamic_cast<Canvas*>(node)) {
+        return lua::newuserdata<lua::LuaCanvas>(L, canvas->texture());
+    }
+    return 0;
+}
+
 static int p_get_add(UINode* node, lua::State* L) {
     if (dynamic_cast<Container*>(node)) {
         return lua::pushcfunction(L, lua::wrap<l_container_add>);
@@ -326,6 +340,10 @@ static int p_get_add(UINode* node, lua::State* L) {
 
 static int p_get_destruct(UINode*, lua::State* L) {
     return lua::pushcfunction(L, lua::wrap<l_node_destruct>);
+}
+
+static int p_get_reposition(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, lua::wrap<l_node_reposition>);
 }
 
 static int p_get_clear(UINode* node, lua::State* L) {
@@ -424,6 +442,7 @@ static int l_gui_getattr(lua::State* L) {
             {"moveInto", p_move_into},
             {"add", p_get_add},
             {"destruct", p_get_destruct},
+            {"reposition", p_get_reposition},
             {"clear", p_get_clear},
             {"setInterval", p_set_interval},
             {"placeholder", p_get_placeholder},
@@ -453,6 +472,7 @@ static int l_gui_getattr(lua::State* L) {
             {"inventory", p_get_inventory},
             {"focused", p_get_focused},
             {"cursor", p_get_cursor},
+            {"data", p_get_data},
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {

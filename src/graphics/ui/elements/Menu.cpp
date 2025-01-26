@@ -91,6 +91,10 @@ Page& Menu::getCurrent() {
     return current;
 }
 
+bool Menu::hasOpenPage() const {
+    return current.panel != nullptr;
+}
+
 void Menu::clearHistory() {
     pageStack = std::stack<Page>();
 }
