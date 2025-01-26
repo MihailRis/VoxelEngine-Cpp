@@ -64,6 +64,16 @@ function math.round(num, places)
     return math.floor(num * mult + 0.5) / mult
 end
 
+function math.sum(...)
+    local sum = 0
+
+    for _, v in ipairs({...}) do
+        sum = sum + v
+    end
+
+    return sum
+end
+
 ----------------------------------------------
 
 function table.copy(t)
@@ -113,6 +123,72 @@ function table.shuffle(t)
     return t
 end
 
+function table.merge(t1, t2)
+    for i, v in pairs(t2) do
+        if type(i) == "number" then
+            t1[#t1 + 1] = v
+        elseif t1[i] == nil then
+            t1[i] = v
+        end
+    end
+
+    return t1
+end
+
+function table.map(t, func)
+    for i, v in pairs(t) do
+        t[i] = func(i, v)
+    end
+
+    return t
+end
+
+function table.filter(t, func)
+    for i, v in pairs(t) do
+        if not func(i, v) then
+            t[i] = nil
+        end
+    end
+
+    return t
+end
+
+function table.set_default(t, indx, default)
+    if t[indx] == nil then
+        t[indx] = default
+        return
+    end
+
+    return t[indx]
+end
+
+function table.flat(t)
+    local flat = {}
+
+    for _, v in pairs(t) do
+        if type(v) == "table" then
+            table.merge(flat, v)
+        else
+            table.insert(flat, v)
+        end
+    end
+
+    return flat
+end
+
+function table.deep_flat(t)
+    local flat = {}
+
+    for _, v in pairs(t) do
+        if type(v) == "table" then
+            table.merge(flat, table.deep_flat(v))
+        else
+            table.insert(flat, v)
+        end
+    end
+
+    return flat
+end
 ----------------------------------------------
 
 local pattern_escape_replacements = {
