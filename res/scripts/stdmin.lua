@@ -153,13 +153,13 @@ function table.filter(t, func)
     return t
 end
 
-function table.set_default(t, indx, default)
-    if t[indx] == nil then
-        t[indx] = default
+function table.set_default(t, key, default)
+    if t[key] == nil then
+        t[key] = default
         return
     end
 
-    return t[indx]
+    return t[key]
 end
 
 function table.flat(t)
