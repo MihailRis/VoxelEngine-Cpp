@@ -231,7 +231,13 @@ static int l_pack_assemble(lua::State* L) {
     }
     auto manager = engine->createPacksManager(worldFolder);
     manager.scan();
-    ids = std::move(manager.assemble(ids));
+    try {
+        ids = std::move(manager.assemble(ids));
+    } catch (const contentpack_error& err) {
+        throw std::runtime_error(
+            std::string(err.what()) + " [" + err.getPackId() + "]"
+        );
+    }
 
     lua::createtable(L, ids.size(), 0);
     for (size_t i = 0; i < ids.size(); i++) {
