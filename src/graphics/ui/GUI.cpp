@@ -202,7 +202,7 @@ void GUI::act(float delta, const Viewport& vp) {
 
 void GUI::postAct() {
     while (!postRunnables.empty()) {
-        runnable callback = postRunnables.back();
+        runnable callback = postRunnables.front();
         postRunnables.pop();
         callback();
     }

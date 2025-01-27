@@ -37,7 +37,10 @@ local function complete_app_lib(app)
     app.tick = coroutine.yield
     app.get_version = core.get_version
     app.get_setting_info = core.get_setting_info
-    app.load_content = core.load_content
+    app.load_content = function()
+        core.load_content()
+        app.tick()
+    end
     app.reset_content = core.reset_content
     app.is_content_loaded = core.is_content_loaded
     
@@ -191,8 +194,8 @@ function gui.template(name, params)
     text = text:gsub("if%s*=%s*'%%{%w+}'", "if=''")
     text = text:gsub("if%s*=%s*\"%%{%w+}\"", "if=\"\"")
     -- remove unsolved properties: attr='%{var}'
-    text = text:gsub("%w+%s*=%s*'%%{%w+}'%s?", "")
-    text = text:gsub("%w+%s*=%s*\"%%{%w+}\"%s?", "")
+    text = text:gsub("%s*%S+='%%{[^}]+}'%s*", " ")
+    text = text:gsub('%s*%S+="%%{[^}]+}"%s*', " ")
     return text
 end
 
@@ -343,8 +346,8 @@ function __vc_on_hud_open()
         end)
     end)
     input.add_callback("key:escape", function()
-        if hud.is_paused() then
-            hud.resume()
+        if menu.page ~= "" then
+            menu:reset()
         elseif hud.is_inventory_open() then
             hud.close_inventory()
         else
@@ -375,7 +378,8 @@ end
 
 function __vc_on_world_quit()
     _rules.clear()
-    gui_util:reset_local()
+    gui_util:__reset_local()
+    stdcomp.__reset()
 end
 
 local __vc_coroutines = {}
@@ -415,7 +419,18 @@ end
 
 function start_coroutine(chunk, name)
     local co = coroutine.create(function()
-        local status, error = xpcall(chunk, __vc__error)
+        local status, error = xpcall(chunk, function(...)
+            gui.alert(debug.traceback(), function()
+                if world.is_open() then
+                    __vc_app.close_world()
+                else
+                    __vc_app.reset_content()
+                    menu:reset()
+                    menu.page = "main"
+                end
+            end)
+            return ...
+        end)
         if not status then
             debug.error(error)
         end

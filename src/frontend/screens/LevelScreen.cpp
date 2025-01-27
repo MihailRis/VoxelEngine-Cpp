@@ -117,7 +117,9 @@ void LevelScreen::initializePack(ContentPackRuntime* pack) {
 }
 
 LevelScreen::~LevelScreen() {
-    saveWorldPreview();
+    if (!controller->getLevel()->getWorld()->isNameless()) {
+        saveWorldPreview();
+    }
     scripting::on_frontend_close();
     // unblock all bindings
     Events::enableBindings();

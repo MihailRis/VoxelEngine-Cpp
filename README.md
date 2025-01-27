@@ -3,7 +3,7 @@
 ## Latest release
 
 - [Download](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest) | [Скачать](https://github.com/MihailRis/VoxelEngine-Cpp/releases/latest)
-- [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.25/doc/en/main-page.md) | [Документация](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.25/doc/ru/main-page.md)
+- [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.26/doc/en/main-page.md) | [Документация](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.26/doc/ru/main-page.md)
 
 ## Build project in Linux
 
@@ -14,7 +14,7 @@
 ```sh
 git clone https://github.com/skypjack/entt.git
 cd entt/build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release -DENTT_INSTALL=on ..
 sudo make install
 ```
 

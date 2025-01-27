@@ -7,16 +7,11 @@ local initialized = false
 local max_lines = 15
 local animation_fps = 30
 
-local function remove_line(line)
-    document[line[1]]:destruct()
-    time.post_runnable(function() document.root:reposition() end)
-end
-
 local function update_line(line, uptime)
     local diff = uptime - line[2]
     if diff > timeout then
-        remove_line(line)
-        table.insert(dead_lines, i)
+        document[line[1]]:destruct()
+        table.insert(dead_lines, table.index(lines, line))
     elseif diff > timeout-fadeout then
         local opacity = (timeout - diff) / fadeout
         document[line[1]].color = {0, 0, 0, opacity * 80}
@@ -25,16 +20,16 @@ local function update_line(line, uptime)
 end
 
 events.on("core:chat", function(message)
+    while #lines >= max_lines do
+        document[lines[1][1]]:destruct()
+        table.remove(lines, 1)
+    end
     local current_time = time.uptime()
     local id = 'l'..tostring(nextid)
     document.root:add(gui.template("chat_line", {id=id}))
     document.root:reposition()
     document[id.."L"].text = message
     nextid = nextid + 1
-    if #lines == max_lines then
-        remove_line(lines[1])
-        table.remove(lines, 1)
-    end
     table.insert(lines, {id, current_time})
 end)
 
