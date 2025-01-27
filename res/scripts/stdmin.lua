@@ -9,6 +9,10 @@ function is_array(x)
     return true
 end
 
+function is_array_perf(tbl)
+    return tbl[1] and true or false
+end
+
 -- Get entry-point and filename from `entry-point:filename` path 
 function parse_path(path)
     local index = string.find(path, ':')
