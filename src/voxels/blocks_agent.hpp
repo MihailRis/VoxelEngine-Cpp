@@ -14,6 +14,7 @@
 #include "maths/voxmaths.hpp"
 
 #include <set>
+#include <algorithm>
 #include <stdint.h>
 #include <stdexcept>
 #include <glm/glm.hpp>
