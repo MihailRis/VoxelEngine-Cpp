@@ -55,7 +55,7 @@ static int l_get_list(lua::State* L) {
 
         auto assets = engine->getAssets();
         std::string icon = "world#" + name + ".icon";
-        if (!AssetsLoader::loadExternalTexture(
+        if (!engine->isHeadless() && !AssetsLoader::loadExternalTexture(
                 assets,
                 icon,
                 {worlds[i] / fs::path("icon.png"),
