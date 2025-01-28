@@ -14,6 +14,9 @@ LuaBytearray::LuaBytearray(size_t capacity) : buffer(capacity) {
 LuaBytearray::LuaBytearray(std::vector<ubyte> buffer) : buffer(std::move(buffer)) {
 }
 
+LuaBytearray::LuaBytearray(const ubyte* data, size_t size) : buffer(data, data + size) {
+}
+
 LuaBytearray::~LuaBytearray() {
 }
 
