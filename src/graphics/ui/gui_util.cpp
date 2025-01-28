@@ -32,7 +32,13 @@ void guiutil::alert(
     const runnable& on_hidden
 ) {
     auto panel = std::make_shared<Panel>(
-        glm::vec2(glm::min(650UL, glm::max(text.length() * 10, 200UL)), 300),
+        glm::vec2(
+            glm::min(
+                static_cast<size_t>(650),
+                glm::max(text.length() * 10, static_cast<size_t>(200))
+            ),
+            300
+        ),
         glm::vec4(4.0f),
         4.0f
     );
