@@ -1,5 +1,5 @@
 -- Check if given table is an array
-function is_array(x)
+function is_array(tbl)
     return tbl[1] and true or false
 end
 
