@@ -46,7 +46,9 @@ function reposition_func(_pack)
         tbl = packs_excluded
     else
         tbl = packs_excluded
-        table.insert(packs_excluded, pack.get_info(_pack))
+        local packinfo = pack.get_info(_pack)
+        packinfo[packinfo.id] = {packinfo.id, packinfo.title}
+        table.insert(packs_excluded, packinfo.id)
     end
 
     local indx = table.index(tbl, _pack) - 1
