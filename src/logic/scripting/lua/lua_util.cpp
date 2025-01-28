@@ -60,13 +60,7 @@ int lua::pushvalue(State* L, const dv::value& value) {
             break;
         case value_type::bytes: {
             const auto& bytes = value.asBytes();
-            createtable(L, 0, bytes.size());
-            size_t size = bytes.size();
-            for (size_t i = 0; i < size;) {
-                pushinteger(L, bytes[i]);
-                i++;
-                rawseti(L, i);
-            }
+            newuserdata<LuaBytearray>(L, bytes.data(), bytes.size());
             break;
         }
     }
