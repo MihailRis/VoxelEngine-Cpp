@@ -196,15 +196,30 @@ function check_dependencies(packinfo)
     return
 end
 
+function check_deleted()
+    for i = 1, math.max(#packs_included, #packs_excluded) do
+        local pack = packs_included[i]
+        if pack and not table.has(packs_all, pack) then
+            table.remove(packs_included, i)
+            table.insert(rem_packs, pack)
+        end
+
+        pack = packs_excluded[i]
+        if pack and not table.has(packs_all, pack) then
+            table.remove(packs_excluded, i)
+            table.insert(rem_packs, pack)
+        end
+    end
+end
+
 function refresh()
     packs_installed = pack.get_installed()
     packs_available = pack.get_available()
     base_packs = pack.get_base_packs()
     packs_all = {unpack(packs_installed)}
     required = {}
-    for i,k in ipairs(packs_available) do
-        table.insert(packs_all, k)
-    end
+
+    table.merge(packs_all, packs_available)
 
     local packs_cur = document.packs_cur
     local packs_add = document.packs_add
@@ -260,6 +275,7 @@ function refresh()
         place_pack(packs_add, packinfo, callback, string.format('reposition_func("%s")', packinfo.id))
     end
 
+    check_deleted()
     apply_movements(packs_cur, packs_add)
     refresh_changes()
 end
