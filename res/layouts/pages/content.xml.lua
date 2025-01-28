@@ -34,17 +34,22 @@ function apply()
     end
 end
 
-function reposition_func(pack)
+function reposition_func(_pack)
     local INTERVAL = 2
     local STEP = 1
     local SIZE = 80
 
-    local tbl = packs_excluded
-    if table.has(packs_included, pack) then
+    local tbl = nil
+    if table.has(packs_included, _pack) then
         tbl = packs_included
+    elseif table.has(packs_excluded, _pack) then
+        tbl = packs_excluded
+    else
+        tbl = packs_excluded
+        table.insert(packs_excluded, pack.get_info(_pack))
     end
 
-    local indx = table.index(tbl, pack) - 1
+    local indx = table.index(tbl, _pack) - 1
     local pos = {0, (SIZE + INTERVAL) * indx + STEP}
 
     return pos[1], pos[2]
