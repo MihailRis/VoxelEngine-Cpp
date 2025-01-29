@@ -1,4 +1,5 @@
 #include "lua_util.hpp"
+#include "lua_engine.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -228,6 +229,7 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
     return std::shared_ptr<std::string>(
         new std::string(name),
         [=](std::string* name) {
+            auto L = lua::get_main_state();
             requireglobal(L, LAMBDAS_TABLE);
             pushnil(L);
             setfield(L, *name);
@@ -240,6 +242,7 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
 runnable lua::create_runnable(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=]() {
+        auto L = lua::get_main_state();
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return;
         call_nothrow(L, 0, 0);
