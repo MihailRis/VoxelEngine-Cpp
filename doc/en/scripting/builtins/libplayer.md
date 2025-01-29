@@ -97,6 +97,15 @@ player.get_spawnpoint(playerid: int) -> number, number, number
 Spawn point setter and getter
 
 ```lua
+player.is_suspended(pid: int) -> bool
+player.set_suspended(pid: int, suspended: bool)
+```
+
+Setter and getter for the player's suspended status.
+
+When suspended, the entity is deleted and the player is disabled from the world simulation.
+
+```lua
 player.set_name(playerid: int, name: str)
 player.get_name(playerid: int) -> str
 ```

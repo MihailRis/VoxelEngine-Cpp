@@ -9,7 +9,7 @@
 #include "lighting/Lightmap.hpp"
 #include "frontend/ContentGfxCache.hpp"
 
-const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
+const glm::vec3 BlocksRenderer::SUN_VECTOR (0.2275f,0.9388f,-0.1005f);
 
 BlocksRenderer::BlocksRenderer(
     size_t capacity,
@@ -129,7 +129,7 @@ void BlocksRenderer::faceAO(
     float s = 0.5f;
     if (lights) {
         float d = glm::dot(glm::normalize(Z), SUN_VECTOR);
-        d = 0.8f + d * 0.2f;
+        d = 0.7f + d * 0.3f;
 
         auto axisX = glm::normalize(X);
         auto axisY = glm::normalize(Y);
@@ -167,7 +167,7 @@ void BlocksRenderer::face(
     float s = 0.5f;
     if (lights) {
         float d = glm::dot(glm::normalize(Z), SUN_VECTOR);
-        d = 0.8f + d * 0.2f;
+        d = 0.7f + d * 0.3f;
         tint *= d;
     }
     vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint);

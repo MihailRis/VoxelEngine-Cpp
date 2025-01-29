@@ -23,6 +23,7 @@ namespace lua {
     public:
         LuaBytearray(size_t capacity);
         LuaBytearray(std::vector<ubyte> buffer);
+        LuaBytearray(const ubyte* data, size_t size);
         virtual ~LuaBytearray();
 
         const std::string& getTypeName() const override {
