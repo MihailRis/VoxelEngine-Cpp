@@ -8,7 +8,7 @@
 #include "items/ItemDef.hpp"
 #include "voxels/Block.hpp"
 #include "world/World.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "Content.hpp"
 
 ContentReport::ContentReport(

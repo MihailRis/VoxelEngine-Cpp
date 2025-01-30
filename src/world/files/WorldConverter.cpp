@@ -6,7 +6,7 @@
 #include <utility>
 
 #include "content/ContentReport.hpp"
-#include "files/compatibility.hpp"
+#include "compatibility.hpp"
 #include "debug/Logger.hpp"
 #include "files/files.hpp"
 #include "objects/Player.hpp"

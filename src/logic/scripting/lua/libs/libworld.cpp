@@ -6,7 +6,7 @@
 #include "assets/AssetsLoader.hpp"
 #include "coders/json.hpp"
 #include "engine/Engine.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "files/engine_paths.hpp"
 #include "files/files.hpp"
 #include "lighting/Lighting.hpp"

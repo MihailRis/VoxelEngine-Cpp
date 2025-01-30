@@ -13,7 +13,7 @@
 #include "voxels/Chunk.hpp"
 #include "maths/voxmaths.hpp"
 #include "coders/compression.hpp"
-#include "files.hpp"
+#include "files/files.hpp"
 #include "world_regions_fwd.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL

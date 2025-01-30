@@ -9,7 +9,7 @@
 #include "util/stringutil.hpp"
 #include <utility>
 
-#include "WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "debug/Logger.hpp"
 
 static debug::Logger logger("engine-paths");

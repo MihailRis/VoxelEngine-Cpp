@@ -11,7 +11,7 @@
 #include "typedefs.hpp"
 #include "Content.hpp"
 #include "data/StructLayout.hpp"
-#include "files/world_regions_fwd.hpp"
+#include "world/files/world_regions_fwd.hpp"
 
 namespace fs = std::filesystem;
 

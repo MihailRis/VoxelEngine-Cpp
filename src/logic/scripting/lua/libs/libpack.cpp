@@ -7,7 +7,7 @@
 #include "assets/AssetsLoader.hpp"
 #include "content/Content.hpp"
 #include "engine/Engine.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "files/engine_paths.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"

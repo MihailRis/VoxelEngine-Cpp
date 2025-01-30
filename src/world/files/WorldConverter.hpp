@@ -6,7 +6,7 @@
 
 #include "delegates.hpp"
 #include "interfaces/Task.hpp"
-#include "files/world_regions_fwd.hpp"
+#include "world/files/world_regions_fwd.hpp"
 #include "typedefs.hpp"
 
 namespace fs = std::filesystem;
