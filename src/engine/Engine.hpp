@@ -14,7 +14,6 @@
 #include "PostRunnables.hpp"
 #include "Time.hpp"
 
-#include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -48,8 +47,8 @@ public:
 struct CoreParameters {
     bool headless = false;
     bool testMode = false;
-    std::filesystem::path resFolder {"res"};
-    std::filesystem::path userFolder {"."};
+    std::filesystem::path resFolder = "res";
+    std::filesystem::path userFolder = ".";
     std::filesystem::path scriptFile;
 };
 
@@ -122,7 +121,7 @@ public:
     /// @brief Collect world content-packs and load content
     /// @see loadContent
     /// @param folder world folder
-    void loadWorldContent(const fs::path& folder);
+    void loadWorldContent(const io::path& folder);
 
     /// @brief Collect all available content-packs from res/content
     void loadAllPacks();
@@ -172,7 +171,7 @@ public:
     EngineController* getController();
     cmd::CommandsInterpreter* getCommandsInterpreter();
 
-    PacksManager createPacksManager(const fs::path& worldFolder);
+    PacksManager createPacksManager(const io::path& worldFolder);
 
     void setLevelConsumer(OnWorldOpen levelConsumer);
 

@@ -1,15 +1,14 @@
 #pragma once
 
-#include <filesystem>
 #include <stdexcept>
 #include <optional>
 #include <string>
 #include <vector>
 #include <tuple>
 
+#include "io.hpp"
 #include "data/dv.hpp"
 #include "content/ContentPack.hpp"
-
 
 class files_access_error : public std::runtime_error {
 public:
@@ -22,29 +21,29 @@ public:
     void prepare();
 
     void setUserFilesFolder(std::filesystem::path folder);
-    std::filesystem::path getUserFilesFolder() const;
+    const std::filesystem::path& getUserFilesFolder() const;
 
     void setResourcesFolder(std::filesystem::path folder);
-    std::filesystem::path getResourcesFolder() const;
+    const std::filesystem::path& getResourcesFolder() const;
 
     void setScriptFolder(std::filesystem::path folder);
 
-    std::filesystem::path getWorldFolderByName(const std::string& name);
-    std::filesystem::path getWorldsFolder() const;
-    std::filesystem::path getConfigFolder() const;
+    io::path getWorldFolderByName(const std::string& name);
+    io::path getWorldsFolder() const;
+    io::path getConfigFolder() const;
 
-    void setCurrentWorldFolder(std::filesystem::path folder);
-    std::filesystem::path getCurrentWorldFolder();
+    void setCurrentWorldFolder(io::path folder);
+    io::path getCurrentWorldFolder();
     
-    std::filesystem::path getNewScreenshotFile(const std::string& ext);
-    std::filesystem::path getControlsFile() const;
-    std::filesystem::path getSettingsFile() const;
+    io::path getNewScreenshotFile(const std::string& ext);
+    io::path getControlsFile() const;
+    io::path getSettingsFile() const;
 
     void setContentPacks(std::vector<ContentPack>* contentPacks);
 
-    std::vector<std::filesystem::path> scanForWorlds() const;
+    std::vector<io::path> scanForWorlds() const;
 
-    std::filesystem::path resolve(const std::string& path, bool throwErr = true) const;
+    io::path resolve(const std::string& path, bool throwErr = true) const;
 
     static std::tuple<std::string, std::string> parsePath(std::string_view view);
 
@@ -53,23 +52,23 @@ public:
 private:
     std::filesystem::path userFilesFolder {"."};
     std::filesystem::path resourcesFolder {"res"};
-    std::filesystem::path currentWorldFolder;
+    io::path currentWorldFolder;
     std::optional<std::filesystem::path> scriptFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
 };
 
 struct PathsRoot {
     std::string name;
-    std::filesystem::path path;
+    io::path path;
 };
 
 class ResPaths {
 public:
-    ResPaths(std::filesystem::path mainRoot, std::vector<PathsRoot> roots);
+    ResPaths(io::path mainRoot, std::vector<PathsRoot> roots);
 
-    std::filesystem::path find(const std::string& filename) const;
+    io::path find(const std::string& filename) const;
     std::string findRaw(const std::string& filename) const;
-    std::vector<std::filesystem::path> listdir(const std::string& folder) const;
+    std::vector<io::path> listdir(const std::string& folder) const;
     std::vector<std::string> listdirRaw(const std::string& folder) const;
 
     /// @brief Read all found list versions from all packs and combine into a
@@ -79,9 +78,9 @@ public:
 
     dv::value readCombinedObject(const std::string& file) const;
 
-    const std::filesystem::path& getMainRoot() const;
+    const io::path& getMainRoot() const;
 
 private:
-    std::filesystem::path mainRoot;
+    io::path mainRoot;
     std::vector<PathsRoot> roots;
 };

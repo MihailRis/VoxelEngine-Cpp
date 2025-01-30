@@ -260,7 +260,7 @@ static int l_load_texture(lua::State* L) {
 
 static int l_open_folder(lua::State* L) {
     auto path = engine->getPaths().resolve(lua::require_string(L, 1));
-    platform::open_folder(path);
+    platform::open_folder(io::resolve(path));
     return 0;
 }
 

@@ -49,7 +49,7 @@ static int l_get_list(lua::State* L) {
         int versionMajor = versionMap["major"].asInteger();
         int versionMinor = versionMap["minor"].asInteger();
 
-        auto name = folder.filename().u8string();
+        auto name = folder.name();
         lua::pushstring(L, name);
         lua::setfield(L, "name");
 
@@ -105,7 +105,7 @@ static int l_get_seed(lua::State* L) {
 static int l_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto worldsDir = engine->getPaths().getWorldFolderByName(name);
-    return lua::pushboolean(L, fs::is_directory(worldsDir));
+    return lua::pushboolean(L, io::is_directory(worldsDir));
 }
 
 static int l_is_day(lua::State* L) {

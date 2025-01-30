@@ -13,13 +13,13 @@
 namespace fs = std::filesystem;
 using namespace scripting;
 
-static fs::path resolve_path(const std::string& path) {
+static io::path resolve_path(const std::string& path) {
     return engine->getPaths().resolve(path);
 }
 
-static fs::path resolve_path_soft(const std::string& path) {
+static io::path resolve_path_soft(const std::string& path) {
     if (path.find(':') == std::string::npos) {
-        return fs::u8path("");
+        return "";
     }
     return engine->getPaths().resolve(path, false);
 }
@@ -34,17 +34,17 @@ static int l_find(lua::State* L) {
 }
 
 static int l_resolve(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
-    return lua::pushstring(L, path.u8string());
+    io::path path = resolve_path(lua::require_string(L, 1));
+    return lua::pushstring(L, path.string());
 }
 
 static int l_read(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
-    if (fs::is_regular_file(path)) {
+    io::path path = resolve_path(lua::require_string(L, 1));
+    if (io::is_regular_file(path)) {
         return lua::pushstring(L, io::read_string(path));
     }
     throw std::runtime_error(
-        "file does not exists " + util::quote(path.u8string())
+        "file does not exists " + util::quote(path.string())
     );
 }
 
@@ -52,9 +52,9 @@ static std::set<std::string> writeable_entry_points {
     "world", "export", "config"
 };
 
-static fs::path get_writeable_path(lua::State* L) {
+static io::path get_writeable_path(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
-    fs::path path = resolve_path(rawpath);
+    io::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
         throw std::runtime_error("access denied");
@@ -63,7 +63,7 @@ static fs::path get_writeable_path(lua::State* L) {
 }
 
 static int l_write(lua::State* L) {
-    fs::path path = get_writeable_path(L);
+    io::path path = get_writeable_path(L);
     std::string text = lua::require_string(L, 2);
     io::write_string(path, text);
     return 1;
@@ -71,62 +71,62 @@ static int l_write(lua::State* L) {
 
 static int l_remove(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
-    fs::path path = resolve_path(rawpath);
+    io::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
         throw std::runtime_error("access denied");
     }
-    return lua::pushboolean(L, fs::remove(path));
+    return lua::pushboolean(L, io::remove(path));
 }
 
 static int l_remove_tree(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
-    fs::path path = resolve_path(rawpath);
+    io::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
         throw std::runtime_error("access denied");
     }
-    return lua::pushinteger(L, fs::remove_all(path));
+    return lua::pushinteger(L, io::remove_all(path));
 }
 
 static int l_exists(lua::State* L) {
-    fs::path path = resolve_path_soft(lua::require_string(L, 1));
-    return lua::pushboolean(L, fs::exists(path));
+    io::path path = resolve_path_soft(lua::require_string(L, 1));
+    return lua::pushboolean(L, io::exists(path));
 }
 
 static int l_isfile(lua::State* L) {
-    fs::path path = resolve_path_soft(lua::require_string(L, 1));
-    return lua::pushboolean(L, fs::is_regular_file(path));
+    io::path path = resolve_path_soft(lua::require_string(L, 1));
+    return lua::pushboolean(L, io::is_regular_file(path));
 }
 
 static int l_isdir(lua::State* L) {
-    fs::path path = resolve_path_soft(lua::require_string(L, 1));
-    return lua::pushboolean(L, fs::is_directory(path));
+    io::path path = resolve_path_soft(lua::require_string(L, 1));
+    return lua::pushboolean(L, io::is_directory(path));
 }
 
 static int l_length(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
-    if (fs::exists(path)) {
-        return lua::pushinteger(L, fs::file_size(path));
+    io::path path = resolve_path(lua::require_string(L, 1));
+    if (io::exists(path)) {
+        return lua::pushinteger(L, io::file_size(path));
     } else {
         return lua::pushinteger(L, -1);
     }
 }
 
 static int l_mkdir(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
-    return lua::pushboolean(L, fs::create_directory(path));
+    io::path path = resolve_path(lua::require_string(L, 1));
+    return lua::pushboolean(L, io::create_directories(path)); // FIXME
 }
 
 static int l_mkdirs(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
-    return lua::pushboolean(L, fs::create_directories(path));
+    io::path path = resolve_path(lua::require_string(L, 1));
+    return lua::pushboolean(L, io::create_directories(path));
 }
 
 static int l_read_bytes(lua::State* L) {
-    fs::path path = resolve_path(lua::require_string(L, 1));
-    if (fs::is_regular_file(path)) {
-        size_t length = static_cast<size_t>(fs::file_size(path));
+    io::path path = resolve_path(lua::require_string(L, 1));
+    if (io::is_regular_file(path)) {
+        size_t length = static_cast<size_t>(io::file_size(path));
 
         auto bytes = io::read_bytes(path, length);
 
@@ -140,12 +140,12 @@ static int l_read_bytes(lua::State* L) {
         return 1;
     }
     throw std::runtime_error(
-        "file does not exists " + util::quote(path.u8string())
+        "file does not exists " + util::quote(path.string())
     );
 }
 
 static int l_write_bytes(lua::State* L) {
-    fs::path path = get_writeable_path(L);
+    io::path path = get_writeable_path(L);
 
     if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, 2)) {
         auto& bytes = bytearray->data();
@@ -176,15 +176,15 @@ static int l_list(lua::State* L) {
     if (dirname.find(':') == std::string::npos) {
         return l_list_all_res(L, dirname);
     }
-    fs::path path = resolve_path(dirname);
-    if (!fs::is_directory(path)) {
+    io::path path = resolve_path(dirname);
+    if (!io::is_directory(path)) {
         throw std::runtime_error(
-            util::quote(path.u8string()) + " is not a directory"
+            util::quote(path.string()) + " is not a directory"
         );
     }
     lua::createtable(L, 0, 0);
     size_t index = 1;
-    for (auto& entry : fs::directory_iterator(path)) {
+    for (auto& entry : fs::directory_iterator(io::resolve(path))) {
         auto name = entry.path().filename().u8string();
         auto file = dirname + "/" + name;
         lua::pushstring(L, file);
@@ -240,7 +240,7 @@ static int l_read_combined_object(lua::State* L) {
 
 static int l_is_writeable(lua::State* L) {
     std::string rawpath = lua::require_string(L, 1);
-    fs::path path = resolve_path(rawpath);
+    io::path path = resolve_path(rawpath);
     auto entryPoint = rawpath.substr(0, rawpath.find(':'));
     if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
         return lua::pushboolean(L, false);

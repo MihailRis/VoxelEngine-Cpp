@@ -105,8 +105,8 @@ void LevelScreen::initializeContent() {
 
 void LevelScreen::initializePack(ContentPackRuntime* pack) {
     const ContentPack& info = pack->getInfo();
-    fs::path scriptFile = info.folder/fs::path("scripts/hud.lua");
-    if (fs::is_regular_file(scriptFile)) {
+    io::path scriptFile = info.folder / "scripts/hud.lua";
+    if (io::is_regular_file(scriptFile)) {
         scripting::load_hud_script(
             pack->getEnvironment(),
             info.id,
@@ -124,7 +124,7 @@ LevelScreen::~LevelScreen() {
     // unblock all bindings
     Events::enableBindings();
     controller->onWorldQuit();
-    engine.getPaths().setCurrentWorldFolder(fs::path());
+    engine.getPaths().setCurrentWorldFolder("");
 }
 
 void LevelScreen::saveWorldPreview() {
@@ -147,7 +147,7 @@ void LevelScreen::saveWorldPreview() {
         worldRenderer->draw(ctx, camera, false, true, 0.0f, postProcessing.get());
         auto image = postProcessing->toImage();
         image->flipY();
-        imageio::write(paths.resolve("world:preview.png").u8string(), image.get());
+        imageio::write(paths.resolve("world:preview.png").string(), image.get());
     } catch (const std::exception& err) {
         logger.error() << err.what();
     }

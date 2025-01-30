@@ -38,8 +38,8 @@ static int l_load_fragment(lua::State* L) {
     const auto& paths = engine->getPaths();
     auto filename = lua::require_string(L, 1);
     auto path = paths.resolve(filename);
-    if (!std::filesystem::exists(path)) {
-        throw std::runtime_error("file "+path.u8string()+" does not exist");
+    if (!io::exists(path)) {
+        throw std::runtime_error("file "+path.string()+" does not exist");
     }
     auto map = io::read_binary_json(path);
 

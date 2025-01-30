@@ -68,7 +68,7 @@ static int l_dump(lua::State* L) {
                 raster[i*3 + 2] = val;
             }
         }
-        imageio::write(file.u8string(), &image);
+        imageio::write(file, &image);
     }
     return 0;
 }

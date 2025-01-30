@@ -125,7 +125,7 @@ void lua::initialize(const EnginePaths& paths, const CoreParameters& params) {
     main_thread = create_state(
         paths, params.headless ? StateType::SCRIPT : StateType::BASE
     );
-    lua::pushstring(main_thread, params.scriptFile.stem().u8string());
+    lua::pushstring(main_thread, params.scriptFile.stem());
     lua::setglobal(main_thread, "__VC_SCRIPT_NAME");
 }
 
@@ -159,8 +159,7 @@ State* lua::create_state(const EnginePaths& paths, StateType stateType) {
     }
     init_state(L, stateType);
     
-    auto resDir = paths.getResourcesFolder();
-    auto file = resDir / fs::u8path("scripts/stdmin.lua");
+    auto file = "res:scripts/stdmin.lua";
     auto src = io::read_string(file);
     lua::pop(L, lua::execute(L, 0, src, "core:scripts/stdmin.lua"));
     return L;

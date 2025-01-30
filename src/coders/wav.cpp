@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "io/io.hpp"
 #include "audio/audio.hpp"
 #include "debug/Logger.hpp"
 
@@ -118,11 +119,11 @@ public:
     }
 };
 
-std::unique_ptr<audio::PCMStream> wav::create_stream(const fs::path& file) {
-    std::ifstream in(file, std::ios::binary);
+std::unique_ptr<audio::PCMStream> wav::create_stream(const io::path& file) {
+    std::ifstream in(io::resolve(file), std::ios::binary);
     if (!in.is_open()) {
         throw std::runtime_error(
-            "could not to open file '" + file.u8string() + "'"
+            "could not to open file '" + file.string() + "'"
         );
     }
 
@@ -234,7 +235,7 @@ std::unique_ptr<audio::PCMStream> wav::create_stream(const fs::path& file) {
 }
 
 std::unique_ptr<audio::PCM> wav::load_pcm(
-    const fs::path& file, bool headerOnly
+    const io::path& file, bool headerOnly
 ) {
     auto stream = wav::create_stream(file);
 

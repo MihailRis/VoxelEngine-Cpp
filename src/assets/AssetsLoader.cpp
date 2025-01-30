@@ -20,6 +20,8 @@
 #include "Assets.hpp"
 #include "assetload_funcs.hpp"
 
+namespace fs = std::filesystem;
+
 static debug::Logger logger("assets-loader");
 
 AssetsLoader::AssetsLoader(Assets* assets, const ResPaths* paths)
@@ -83,22 +85,22 @@ void AssetsLoader::loadNext() {
     }
 }
 
-void addLayouts(
+static void add_layouts(
     const scriptenv& env,
     const std::string& prefix,
-    const fs::path& folder,
+    const io::path& folder,
     AssetsLoader& loader
 ) {
-    if (!fs::is_directory(folder)) {
+    if (!io::is_directory(folder)) {
         return;
     }
-    for (auto& entry : fs::directory_iterator(folder)) {
-        const fs::path& file = entry.path();
-        if (file.extension().u8string() != ".xml") continue;
-        std::string name = prefix + ":" + file.stem().u8string();
+    for (auto& entry : fs::directory_iterator(io::resolve(folder))) {
+        io::path file = folder / entry.path().filename().u8string();
+        if (file.extension() != ".xml") continue;
+        std::string name = prefix + ":" + file.stem();
         loader.add(
             AssetType::LAYOUT,
-            file.u8string(),
+            file.string(),
             name,
             std::make_shared<LayoutCfg>(env)
         );
@@ -186,7 +188,7 @@ void AssetsLoader::processPreloadList(AssetType tag, const dv::value& list) {
     }
 }
 
-void AssetsLoader::processPreloadConfig(const fs::path& file) {
+void AssetsLoader::processPreloadConfig(const io::path& file) {
     auto root = io::read_json(file);
     processPreloadList(AssetType::ATLAS, root["atlases"]);
     processPreloadList(AssetType::FONT, root["fonts"]);
@@ -198,8 +200,8 @@ void AssetsLoader::processPreloadConfig(const fs::path& file) {
 }
 
 void AssetsLoader::processPreloadConfigs(const Content* content) {
-    auto preloadFile = paths->getMainRoot() / fs::path("preload.json");
-    if (fs::exists(preloadFile)) {
+    auto preloadFile = paths->getMainRoot() / "preload.json";
+    if (io::exists(preloadFile)) {
         processPreloadConfig(preloadFile);
     }
     if (content == nullptr) {
@@ -210,8 +212,8 @@ void AssetsLoader::processPreloadConfigs(const Content* content) {
             continue;
         }
         const auto& pack = entry.second;
-        auto preloadFile = pack->getInfo().folder / fs::path("preload.json");
-        if (fs::exists(preloadFile)) {
+        auto preloadFile = pack->getInfo().folder / "preload.json";
+        if (io::exists(preloadFile)) {
             processPreloadConfig(preloadFile);
         }
     }
@@ -230,8 +232,8 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
         for (auto& entry : content->getPacks()) {
             auto pack = entry.second.get();
             auto& info = pack->getInfo();
-            fs::path folder = info.folder / fs::path("layouts");
-            addLayouts(pack->getEnvironment(), info.id, folder, loader);
+            io::path folder = info.folder / "layouts";
+            add_layouts(pack->getEnvironment(), info.id, folder, loader);
         }
 
         for (auto& entry : content->getSkeletons()) {
@@ -274,20 +276,20 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
 bool AssetsLoader::loadExternalTexture(
     Assets* assets,
     const std::string& name,
-    const std::vector<std::filesystem::path>& alternatives
+    const std::vector<io::path>& alternatives
 ) {
     if (assets->get<Texture>(name) != nullptr) {
         return true;
     }
     for (auto& path : alternatives) {
-        if (fs::exists(path)) {
+        if (io::exists(path)) {
             try {
                 auto image = imageio::read(path);
                 assets->store(Texture::from(image.get()), name);
                 return true;
             } catch (const std::exception& err) {
                 logger.error() << "error while loading external "
-                               << path.u8string() << ": " << err.what();
+                               << path.string() << ": " << err.what();
             }
         }
     }

@@ -7,7 +7,7 @@
 
 TEST(lua_parsing, Tokenizer) {
     auto filename = "../../res/scripts/stdlib.lua";
-    auto source = io::read_string(std::filesystem::u8path(filename));
+    auto source = io::read_string(filename);
     try {
         auto tokens = lua::tokenize(filename, source);
         for (const auto& token : tokens) {

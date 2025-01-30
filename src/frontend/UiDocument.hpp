@@ -4,10 +4,9 @@
 
 #include <string>
 #include <memory>
-#include <filesystem>
 #include <unordered_map>
 
-namespace fs = std::filesystem;
+#include "io/fwd.hpp"
 
 namespace gui {
     class UINode;
@@ -48,10 +47,10 @@ public:
     static std::unique_ptr<UiDocument> read(
         const scriptenv& parent_env,
         const std::string& name,
-        const fs::path& file,
+        const io::path& file,
         const std::string& fileName
     );
     static std::shared_ptr<gui::UINode> readElement(
-        const fs::path& file, const std::string& fileName
+        const io::path& file, const std::string& fileName
     );
 };

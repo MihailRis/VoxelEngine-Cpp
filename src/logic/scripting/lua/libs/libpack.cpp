@@ -21,7 +21,7 @@ static int l_pack_get_folder(lua::State* L) {
 
     for (auto& pack : packs) {
         if (pack.id == packName) {
-            return lua::pushstring(L, pack.folder.u8string() + "/");
+            return lua::pushstring(L, pack.folder.string() + "/");
         }
     }
     return lua::pushstring(L, "");
@@ -40,7 +40,7 @@ static int l_pack_get_installed(lua::State* L) {
 
 /// @brief pack.get_available() -> array<string>
 static int l_pack_get_available(lua::State* L) {
-    fs::path worldFolder("");
+    io::path worldFolder;
     if (level) {
         worldFolder = level->getWorld()->wfile->getFolder();
     }
@@ -88,7 +88,7 @@ static int l_pack_get_info(
         auto assets = engine->getAssets();
         std::string icon = pack.id + ".icon";
         if (!AssetsLoader::loadExternalTexture(
-                assets, icon, {pack.folder / fs::path("icon.png")}
+                assets, icon, {pack.folder / "icon.png"}
             )) {
             icon = "gui/no_icon";
         }
@@ -146,7 +146,7 @@ static int pack_get_infos(lua::State* L) {
         }
     }
     if (!ids.empty()) {
-        fs::path worldFolder("");
+        io::path worldFolder;
         if (level) {
             worldFolder = level->getWorld()->wfile->getFolder();
         }
@@ -188,7 +188,7 @@ static int l_pack_get_info(lua::State* L) {
             return pack.id == packid;
         });
     if (found == packs.end()) {
-        fs::path worldFolder("");
+        io::path worldFolder;
         if (level) {
             worldFolder = level->getWorld()->wfile->getFolder();
         }
@@ -225,7 +225,7 @@ static int l_pack_assemble(lua::State* L) {
         ids.push_back(lua::require_string(L, -1));
         lua::pop(L);
     }
-    fs::path worldFolder("");
+    io::path worldFolder;
     if (level) {
         worldFolder = level->getWorld()->wfile->getFolder();
     }

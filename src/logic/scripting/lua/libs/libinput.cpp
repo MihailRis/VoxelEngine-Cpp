@@ -135,12 +135,12 @@ static int l_is_pressed(lua::State* L) {
     }
 }
 
-static void resetPackBindings(fs::path& packFolder) {
-    auto configFolder = packFolder/fs::path("config");
-    auto bindsFile = configFolder/fs::path("bindings.toml");
-    if (fs::is_regular_file(bindsFile)) {
+static void reset_pack_bindings(const io::path& packFolder) {
+    auto configFolder = packFolder / "config";
+    auto bindsFile = configFolder / "bindings.toml";
+    if (io::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(),
+            bindsFile.string(),
             io::read_string(bindsFile),
             BindType::REBIND
         );
@@ -148,10 +148,9 @@ static void resetPackBindings(fs::path& packFolder) {
 }
 
 static int l_reset_bindings(lua::State*) {
-    auto resFolder = engine->getPaths().getResourcesFolder();
-    resetPackBindings(resFolder);
+    reset_pack_bindings("res:");
     for (auto& pack : engine->getContentPacks()) {
-        resetPackBindings(pack.folder);
+        reset_pack_bindings(pack.folder);
     }
     return 0;
 }

@@ -34,8 +34,10 @@ void ServerMainloop::run() {
         setLevel(std::move(level));
     });
 
-    logger.info() << "starting test " << coreParams.scriptFile;
-    auto process = scripting::start_coroutine(coreParams.scriptFile);
+    logger.info() << "starting test " << coreParams.scriptFile.string();
+    auto process = scripting::start_coroutine(
+        "script:" + coreParams.scriptFile.filename().u8string()
+    );
 
     double targetDelta = 1.0 / static_cast<double>(TPS);
     double delta = targetDelta;
@@ -76,7 +78,7 @@ void ServerMainloop::run() {
 void ServerMainloop::setLevel(std::unique_ptr<Level> level) {
     if (level == nullptr) {
         controller->onWorldQuit();
-        engine.getPaths().setCurrentWorldFolder(fs::path());
+        engine.getPaths().setCurrentWorldFolder("");
         controller = nullptr;
     } else {
         controller = std::make_unique<LevelController>(
