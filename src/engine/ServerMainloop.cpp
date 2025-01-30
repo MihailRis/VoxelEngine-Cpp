@@ -65,8 +65,11 @@ void ServerMainloop::run() {
 
         if (!coreParams.testMode) {
             auto end = system_clock::now();
-            platform::sleep(targetDelta * 1000 - 
-                duration_cast<microseconds>(end - begin).count() / 1000);
+            int64_t millis = targetDelta * 1000 - 
+                duration_cast<microseconds>(end - begin).count() / 1000;
+            if (millis > 0) {
+                platform::sleep(millis);
+            }
             begin = system_clock::now();
         }
     }
