@@ -5,7 +5,7 @@
 #include "coders/json.hpp"
 #include "coders/commons.hpp"
 #include "content/ContentPack.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "util/stringutil.hpp"
 #include "data/dv.hpp"
 #include "debug/Logger.hpp"
@@ -71,7 +71,7 @@ namespace {
 
 void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
     auto file = resdir/fs::u8path(langs::TEXTS_FOLDER)/fs::u8path("langs.json");
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
 
     langs::locales_info.clear();
     root.at("fallback").get(fallback);
@@ -123,14 +123,14 @@ void langs::load(const fs::path& resdir,
     fs::path core_file = resdir/filename;
     
     if (fs::is_regular_file(core_file)) {
-        std::string text = files::read_string(core_file);
+        std::string text = io::read_string(core_file);
         Reader reader(core_file.string(), text);
         reader.read(lang, "");
     }
     for (auto pack : packs) {
         fs::path file = pack.folder/filename;
         if (fs::is_regular_file(file)) {
-            std::string text = files::read_string(file);
+            std::string text = io::read_string(file);
             Reader reader(file.string(), text);
             reader.read(lang, "");
         }

@@ -8,8 +8,8 @@
 #include "content/ContentPack.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "frontend/UiDocument.hpp"
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
@@ -44,7 +44,7 @@ LevelController* scripting::controller = nullptr;
 void scripting::load_script(const fs::path& name, bool throwable) {
     const auto& paths = scripting::engine->getPaths();
     fs::path file = paths.getResourcesFolder() / fs::path("scripts") / name;
-    std::string src = files::read_string(file);
+    std::string src = io::read_string(file);
     auto L = lua::get_main_state();
     lua::loadbuffer(L, 0, src, "core:scripts/"+name.u8string());
     if (throwable) {
@@ -60,7 +60,7 @@ int scripting::load_script(
     const fs::path& file,
     const std::string& fileName
 ) {
-    std::string src = files::read_string(file);
+    std::string src = io::read_string(file);
     logger.info() << "script (" << type << ") " << file.u8string();
     return lua::execute(lua::get_main_state(), env, src, fileName);
 }
@@ -117,7 +117,7 @@ std::unique_ptr<Process> scripting::start_coroutine(
 ) {
     auto L = lua::get_main_state();
     if (lua::getglobal(L, "__vc_start_coroutine")) {
-        auto source = files::read_string(script);
+        auto source = io::read_string(script);
         lua::loadbuffer(L, 0, source, script.filename().u8string());
         if (lua::call(L, 1)) {
             int id = lua::tointeger(L, -1);
@@ -872,7 +872,7 @@ void scripting::load_entity_component(
     const std::string& name, const fs::path& file, const std::string& fileName
 ) {
     auto L = lua::get_main_state();
-    std::string src = files::read_string(file);
+    std::string src = io::read_string(file);
     logger.info() << "script (component) " << file.u8string();
     lua::loadbuffer(L, 0, src, fileName);
     lua::store_in(L, lua::CHUNKS_TABLE, name);

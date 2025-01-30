@@ -8,7 +8,7 @@
 #include "content/ContentReport.hpp"
 #include "compatibility.hpp"
 #include "debug/Logger.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "objects/Player.hpp"
 #include "util/ThreadPool.hpp"
 #include "voxels/Chunk.hpp"
@@ -185,9 +185,9 @@ void WorldConverter::upgradeRegion(
     const fs::path& file, int x, int z, RegionLayerIndex layer
 ) const {
     auto path = wfile->getRegions().getRegionFilePath(layer, x, z);
-    auto bytes = files::read_bytes_buffer(path);
+    auto bytes = io::read_bytes_buffer(path);
     auto buffer = compatibility::convert_region_2to3(bytes, layer);
-    files::write_bytes(path, buffer.data(), buffer.size());
+    io::write_bytes(path, buffer.data(), buffer.size());
 }
 
 void WorldConverter::convertVoxels(const fs::path& file, int x, int z) const {
@@ -208,9 +208,9 @@ void WorldConverter::convertInventories(const fs::path& file, int x, int z) cons
 
 void WorldConverter::convertPlayer(const fs::path& file) const {
     logger.info() << "converting player " << file.u8string();
-    auto map = files::read_json(file);
+    auto map = io::read_json(file);
     Player::convert(map, report.get());
-    files::write_json(file, map);
+    io::write_json(file, map);
 }
 
 void WorldConverter::convertBlocksData(int x, int z, const ContentReport& report) const {

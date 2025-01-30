@@ -74,9 +74,6 @@ std::shared_ptr<Task> create_converter(
         content,
         report,
         [&engine, postRunnable]() {
-            //auto menu = engine.getGUI()->getMenu();
-            //menu->reset();
-            //menu->setPage("main", false);
             engine.postRunnable([=]() { postRunnable(); });
         },
         mode,

@@ -4,8 +4,8 @@
 
 #include "coders/gzip.hpp"
 #include "engine/Engine.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "util/stringutil.hpp"
 #include "api_lua.hpp"
 #include "../lua_engine.hpp"
@@ -41,7 +41,7 @@ static int l_resolve(lua::State* L) {
 static int l_read(lua::State* L) {
     fs::path path = resolve_path(lua::require_string(L, 1));
     if (fs::is_regular_file(path)) {
-        return lua::pushstring(L, files::read_string(path));
+        return lua::pushstring(L, io::read_string(path));
     }
     throw std::runtime_error(
         "file does not exists " + util::quote(path.u8string())
@@ -65,7 +65,7 @@ static fs::path get_writeable_path(lua::State* L) {
 static int l_write(lua::State* L) {
     fs::path path = get_writeable_path(L);
     std::string text = lua::require_string(L, 2);
-    files::write_string(path, text);
+    io::write_string(path, text);
     return 1;
 }
 
@@ -128,7 +128,7 @@ static int l_read_bytes(lua::State* L) {
     if (fs::is_regular_file(path)) {
         size_t length = static_cast<size_t>(fs::file_size(path));
 
-        auto bytes = files::read_bytes(path, length);
+        auto bytes = io::read_bytes(path, length);
 
         lua::createtable(L, length, 0);
         int newTable = lua::gettop(L);
@@ -150,14 +150,14 @@ static int l_write_bytes(lua::State* L) {
     if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, 2)) {
         auto& bytes = bytearray->data();
         return lua::pushboolean(
-            L, files::write_bytes(path, bytes.data(), bytes.size())
+            L, io::write_bytes(path, bytes.data(), bytes.size())
         );
     }
 
     std::vector<ubyte> bytes;
     lua::read_bytes_from_table(L, 2, bytes);
     return lua::pushboolean(
-        L, files::write_bytes(path, bytes.data(), bytes.size())
+        L, io::write_bytes(path, bytes.data(), bytes.size())
     );
 }
 

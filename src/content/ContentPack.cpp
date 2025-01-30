@@ -7,8 +7,8 @@
 #include "coders/json.hpp"
 #include "constants.hpp"
 #include "data/dv.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 
 
 namespace fs = std::filesystem;
@@ -71,7 +71,7 @@ static void checkContentPackId(const std::string& id, const fs::path& folder) {
 }
 
 ContentPack ContentPack::read(const std::string& path, const fs::path& folder) {
-    auto root = files::read_json(folder / fs::path(PACKAGE_FILENAME));
+    auto root = io::read_json(folder / fs::path(PACKAGE_FILENAME));
     ContentPack pack;
     root.at("id").get(pack.id);
     root.at("title").get(pack.title);
@@ -151,7 +151,7 @@ std::vector<std::string> ContentPack::worldPacksList(const fs::path& folder) {
     if (!fs::is_regular_file(listfile)) {
         throw std::runtime_error("missing file 'packs.list'");
     }
-    return files::read_list(listfile);
+    return io::read_list(listfile);
 }
 
 fs::path ContentPack::findPack(

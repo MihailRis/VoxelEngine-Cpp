@@ -8,7 +8,7 @@
 #include "content/Content.hpp"
 #include "engine/Engine.hpp"
 #include "world/files/WorldFiles.hpp"
-#include "files/engine_paths.hpp"
+#include "io/engine_paths.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "api_lua.hpp"

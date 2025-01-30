@@ -3,8 +3,8 @@
 #include "items/ItemDef.hpp"
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
-#include "files/files.hpp"
-#include "files/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/engine_paths.hpp"
 #include "window/Window.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
@@ -31,7 +31,7 @@ void corecontent::setup(const EnginePaths& paths, ContentBuilder& builder) {
     auto bindsFile = paths.getResourcesFolder()/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(), files::read_string(bindsFile), BindType::BIND
+            bindsFile.u8string(), io::read_string(bindsFile), BindType::BIND
         );
     }
 

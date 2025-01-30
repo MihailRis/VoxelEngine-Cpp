@@ -1,4 +1,4 @@
-#include "files.hpp"
+#include "io.hpp"
 
 #include <stdint.h>
 
@@ -15,7 +15,7 @@
 
 namespace fs = std::filesystem;
 
-files::rafile::rafile(const fs::path& filename)
+io::rafile::rafile(const fs::path& filename)
     : file(filename, std::ios::binary | std::ios::ate) {
     if (!file) {
         throw std::runtime_error("could not to open file " + filename.string());
@@ -24,19 +24,19 @@ files::rafile::rafile(const fs::path& filename)
     file.seekg(0);
 }
 
-size_t files::rafile::length() const {
+size_t io::rafile::length() const {
     return filelength;
 }
 
-void files::rafile::seekg(std::streampos pos) {
+void io::rafile::seekg(std::streampos pos) {
     file.seekg(pos);
 }
 
-void files::rafile::read(char* buffer, std::streamsize size) {
+void io::rafile::read(char* buffer, std::streamsize size) {
     file.read(buffer, size);
 }
 
-bool files::write_bytes(
+bool io::write_bytes(
     const fs::path& filename, const ubyte* data, size_t size
 ) {
     std::ofstream output(filename, std::ios::binary);
@@ -46,7 +46,7 @@ bool files::write_bytes(
     return true;
 }
 
-uint files::append_bytes(
+uint io::append_bytes(
     const fs::path& filename, const ubyte* data, size_t size
 ) {
     std::ofstream output(filename, std::ios::binary | std::ios::app);
@@ -57,7 +57,7 @@ uint files::append_bytes(
     return position;
 }
 
-bool files::read(const fs::path& filename, char* data, size_t size) {
+bool io::read(const fs::path& filename, char* data, size_t size) {
     std::ifstream output(filename, std::ios::binary);
     if (!output.is_open()) return false;
     output.read(data, size);
@@ -65,13 +65,13 @@ bool files::read(const fs::path& filename, char* data, size_t size) {
     return true;
 }
 
-util::Buffer<ubyte> files::read_bytes_buffer(const fs::path& path) {
+util::Buffer<ubyte> io::read_bytes_buffer(const fs::path& path) {
     size_t size;
-    auto bytes = files::read_bytes(path, size);
+    auto bytes = io::read_bytes(path, size);
     return util::Buffer<ubyte>(std::move(bytes), size);
 }
 
-std::unique_ptr<ubyte[]> files::read_bytes(
+std::unique_ptr<ubyte[]> io::read_bytes(
     const fs::path& filename, size_t& length
 ) {
     std::ifstream input(filename, std::ios::binary);
@@ -90,7 +90,7 @@ std::unique_ptr<ubyte[]> files::read_bytes(
     return data;
 }
 
-std::vector<ubyte> files::read_bytes(const fs::path& filename) {
+std::vector<ubyte> io::read_bytes(const fs::path& filename) {
     std::ifstream input(filename, std::ios::binary);
     if (!input.is_open()) return {};
     input.seekg(0, std::ios_base::end);
@@ -104,13 +104,13 @@ std::vector<ubyte> files::read_bytes(const fs::path& filename) {
     return data;
 }
 
-std::string files::read_string(const fs::path& filename) {
+std::string io::read_string(const fs::path& filename) {
     size_t size;
     auto bytes = read_bytes(filename, size);
     return std::string((const char*)bytes.get(), size);
 }
 
-bool files::write_string(const fs::path& filename, std::string_view content) {
+bool io::write_string(const fs::path& filename, std::string_view content) {
     std::ofstream file(filename);
     if (!file) {
         return false;
@@ -119,35 +119,35 @@ bool files::write_string(const fs::path& filename, std::string_view content) {
     return true;
 }
 
-bool files::write_json(
+bool io::write_json(
     const fs::path& filename, const dv::value& obj, bool nice
 ) {
-    return files::write_string(filename, json::stringify(obj, nice, "  "));
+    return io::write_string(filename, json::stringify(obj, nice, "  "));
 }
 
-bool files::write_binary_json(
+bool io::write_binary_json(
     const fs::path& filename, const dv::value& obj, bool compression
 ) {
     auto bytes = json::to_binary(obj, compression);
-    return files::write_bytes(filename, bytes.data(), bytes.size());
+    return io::write_bytes(filename, bytes.data(), bytes.size());
 }
 
-dv::value files::read_json(const fs::path& filename) {
-    std::string text = files::read_string(filename);
+dv::value io::read_json(const fs::path& filename) {
+    std::string text = io::read_string(filename);
     return json::parse(filename.string(), text);
 }
 
-dv::value files::read_binary_json(const fs::path& file) {
+dv::value io::read_binary_json(const fs::path& file) {
     size_t size;
-    auto bytes = files::read_bytes(file, size);
+    auto bytes = io::read_bytes(file, size);
     return json::from_binary(bytes.get(), size);
 }
 
-dv::value files::read_toml(const fs::path& file) {
-    return toml::parse(file.u8string(), files::read_string(file));
+dv::value io::read_toml(const fs::path& file) {
+    return toml::parse(file.u8string(), io::read_string(file));
 }
 
-std::vector<std::string> files::read_list(const fs::path& filename) {
+std::vector<std::string> io::read_list(const fs::path& filename) {
     std::ifstream file(filename);
     if (!file) {
         throw std::runtime_error(
@@ -177,15 +177,15 @@ static std::map<fs::path, DecodeFunc> data_decoders {
     {fs::u8path(".toml"), toml::parse},
 };
 
-bool files::is_data_file(const fs::path& file) {
+bool io::is_data_file(const fs::path& file) {
     return is_data_interchange_format(file.extension());
 }
 
-bool files::is_data_interchange_format(const fs::path& ext) {
+bool io::is_data_interchange_format(const fs::path& ext) {
     return data_decoders.find(ext) != data_decoders.end();
 }
 
-dv::value files::read_object(const fs::path& file) {
+dv::value io::read_object(const fs::path& file) {
     const auto& found = data_decoders.find(file.extension());
     if (found == data_decoders.end()) {
         throw std::runtime_error("unknown file format");

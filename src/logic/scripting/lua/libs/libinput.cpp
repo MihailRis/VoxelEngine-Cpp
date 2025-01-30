@@ -1,7 +1,7 @@
 #include <filesystem>
 
 #include "engine/Engine.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "graphics/ui/GUI.hpp"
@@ -141,7 +141,7 @@ static void resetPackBindings(fs::path& packFolder) {
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
             bindsFile.u8string(),
-            files::read_string(bindsFile),
+            io::read_string(bindsFile),
             BindType::REBIND
         );
     }

@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "graphics/ui/elements/UINode.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
 #include "graphics/ui/gui_xml.hpp"
@@ -59,7 +59,7 @@ std::unique_ptr<UiDocument> UiDocument::read(
     const fs::path& file,
     const std::string& fileName
 ) {
-    const std::string text = files::read_string(file);
+    const std::string text = io::read_string(file);
     auto xmldoc = xml::parse(file.u8string(), text);
 
     auto env = penv == nullptr 

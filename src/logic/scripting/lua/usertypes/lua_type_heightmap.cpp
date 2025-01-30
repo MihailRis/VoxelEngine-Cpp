@@ -9,7 +9,7 @@
 #define FNL_IMPL
 #include "maths/FastNoiseLite.h"
 #include "coders/imageio.hpp"
-#include "files/util.hpp"
+#include "io/util.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "maths/Heightmap.hpp"
 #include "engine/Engine.hpp"

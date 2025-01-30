@@ -13,7 +13,7 @@
 #include "data/dv.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "util/timeutil.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "engine/Engine.hpp"
 #include "debug/Logger.hpp"
 
@@ -55,7 +55,7 @@ public:
         pop(L);
 
         if (fs::exists(file)) {
-            std::string src = files::read_string(file);
+            std::string src = io::read_string(file);
             logger.info() << "script (generator) " << file.u8string();
             pop(L, execute(L, *env, src, file.u8string()));
         } else {

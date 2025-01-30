@@ -5,8 +5,8 @@
 #include <stdexcept>
 #include <utility>
 
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "typedefs.hpp"
 #include "util/stringutil.hpp"
 
@@ -22,7 +22,7 @@ void GLSLExtension::setPaths(const ResPaths* paths) {
 
 void GLSLExtension::loadHeader(const std::string& name) {
     fs::path file = paths->find("shaders/lib/" + name + ".glsl");
-    std::string source = files::read_string(file);
+    std::string source = io::read_string(file);
     addHeader(name, "");
     addHeader(name, process(file, source, true));
 }

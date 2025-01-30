@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #include "graphics/core/ImageData.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "png.hpp"
 
 namespace fs = std::filesystem;
@@ -41,7 +41,7 @@ std::unique_ptr<ImageData> imageio::read(const fs::path& filename) {
             "file format is not supported (read): " + filename.u8string()
         );
     }
-    auto bytes = files::read_bytes_buffer(filename);
+    auto bytes = io::read_bytes_buffer(filename);
     try {
         return std::unique_ptr<ImageData>(found->second(bytes.data(), bytes.size()));
     } catch (const std::runtime_error& err) {

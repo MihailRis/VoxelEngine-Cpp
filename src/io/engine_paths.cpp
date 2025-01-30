@@ -293,7 +293,7 @@ dv::value ResPaths::readCombinedList(const std::string& filename) const {
             continue;
         }
         try {
-            auto value = files::read_object(path);
+            auto value = io::read_object(path);
             if (!value.isList()) {
                 logger.warning() << "reading combined list " << root.name << ":"
                     << filename << " is not a list (skipped)";
@@ -318,7 +318,7 @@ dv::value ResPaths::readCombinedObject(const std::string& filename) const {
             continue;
         }
         try {
-            auto value = files::read_object(path);
+            auto value = io::read_object(path);
             if (!value.isObject()) {
                 logger.warning()
                     << "reading combined object " << root.name << ": "

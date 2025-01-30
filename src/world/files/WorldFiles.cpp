@@ -100,7 +100,7 @@ void WorldFiles::writePacks(const std::vector<ContentPack>& packs) {
     for (const auto& pack : packs) {
         ss << pack.id << "\n";
     }
-    files::write_string(packsFile, ss.str());
+    io::write_string(packsFile, ss.str());
 }
 
 template <class T>
@@ -139,11 +139,11 @@ void WorldFiles::writeIndices(const ContentIndices* indices) {
     createContentIndicesCache(indices, root);
     createBlockFieldsIndices(indices, root);
     
-    files::write_json(getIndicesFile(), root);
+    io::write_json(getIndicesFile(), root);
 }
 
 void WorldFiles::writeWorldInfo(const WorldInfo& info) {
-    files::write_json(getWorldFile(), info.serialize());
+    io::write_json(getWorldFile(), info.serialize());
 }
 
 std::optional<WorldInfo> WorldFiles::readWorldInfo() {
@@ -152,7 +152,7 @@ std::optional<WorldInfo> WorldFiles::readWorldInfo() {
         logger.warning() << "world.json does not exists";
         return std::nullopt;
     }
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     WorldInfo info {};
     info.deserialize(root);
     return info;
@@ -180,7 +180,7 @@ bool WorldFiles::readResourcesData(const Content& content) {
         logger.warning() << "resources.json does not exists";
         return false;
     }
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     for (const auto& [key, arr] : root.asObject()) {
         if (auto resType = ResourceType_from(key)) {
             read_resources_data(content, arr, *resType);
@@ -197,12 +197,12 @@ void WorldFiles::patchIndicesFile(const dv::value& map) {
         logger.error() << file.filename().u8string() << " does not exists";
         return;
     }
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     for (const auto& [key, value] : map.asObject()) {
         logger.info() << "patching indices.json: update " << util::quote(key);
         root[key] = value;
     }
-    files::write_json(file, root, true);
+    io::write_json(file, root, true);
 }
 
 static void erase_pack_indices(dv::value& root, const std::string& id) {
@@ -223,11 +223,11 @@ static void erase_pack_indices(dv::value& root, const std::string& id) {
 }
 
 void WorldFiles::removeIndices(const std::vector<std::string>& packs) {
-    auto root = files::read_json(getIndicesFile());
+    auto root = io::read_json(getIndicesFile());
     for (const auto& id : packs) {
         erase_pack_indices(root, id);
     }
-    files::write_json(getIndicesFile(), root);
+    io::write_json(getIndicesFile(), root);
 }
 
 fs::path WorldFiles::getFolder() const {

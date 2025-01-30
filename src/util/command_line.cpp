@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <iostream>
 
-#include "files/engine_paths.hpp"
+#include "io/engine_paths.hpp"
 #include "util/ArgsReader.hpp"
 #include "engine/Engine.hpp"
 

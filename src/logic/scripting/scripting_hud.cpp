@@ -2,7 +2,7 @@
 
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/UiDocument.hpp"
 #include "graphics/render/WorldRenderer.hpp"
@@ -20,7 +20,7 @@ WorldRenderer* scripting::renderer = nullptr;
 
 static void load_script(const std::string& name) {
     auto file = engine->getPaths().getResourcesFolder() / "scripts" / name;
-    std::string src = files::read_string(file);
+    std::string src = io::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
     lua::execute(lua::get_main_state(), 0, src, file.u8string());
@@ -84,7 +84,7 @@ void scripting::load_hud_script(
     const std::string& fileName
 ) {
     int env = *senv;
-    std::string src = files::read_string(file);
+    std::string src = io::read_string(file);
     logger.info() << "loading script " << file.u8string();
 
     lua::execute(lua::get_main_state(), env, src, fileName);

@@ -13,8 +13,8 @@
 #include "coders/vec3.hpp"
 #include "constants.hpp"
 #include "debug/Logger.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "frontend/UiDocument.hpp"
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Font.hpp"
@@ -72,8 +72,8 @@ assetload::postfunc assetload::shader(
     fs::path vertexFile = paths->find(filename + ".glslv");
     fs::path fragmentFile = paths->find(filename + ".glslf");
 
-    std::string vertexSource = files::read_string(vertexFile);
-    std::string fragmentSource = files::read_string(fragmentFile);
+    std::string vertexSource = io::read_string(vertexFile);
+    std::string fragmentSource = io::read_string(fragmentFile);
 
     vertexSource = Shader::preprocessor->process(vertexFile, vertexSource);
     fragmentSource =
@@ -273,7 +273,7 @@ assetload::postfunc assetload::model(
 ) {
     auto path = paths->find(file + ".vec3");
     if (fs::exists(path)) {
-        auto bytes = files::read_bytes_buffer(path);
+        auto bytes = io::read_bytes_buffer(path);
         auto modelVEC3 = std::make_shared<vec3::File>(vec3::load(path.u8string(), bytes));
         return [loader, name, modelVEC3=std::move(modelVEC3)](Assets* assets) {
             for (auto& [modelName, model] : modelVEC3->models) {
@@ -292,7 +292,7 @@ assetload::postfunc assetload::model(
         };
     }
     path = paths->find(file + ".obj");
-    auto text = files::read_string(path);
+    auto text = io::read_string(path);
     try {
         auto model = obj::parse(path.u8string(), text).release();
         return [=](Assets* assets) {
@@ -309,7 +309,7 @@ static void read_anim_file(
     const std::string& animFile,
     std::vector<std::pair<std::string, int>>& frameList
 ) {
-    auto root = files::read_json(animFile);
+    auto root = io::read_json(animFile);
     float frameDuration = DEFAULT_FRAME_DURATION;
     std::string frameName;
 

@@ -13,7 +13,7 @@
 #include "voxels/Chunk.hpp"
 #include "maths/voxmaths.hpp"
 #include "coders/compression.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "world_regions_fwd.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -54,7 +54,7 @@ public:
 };
 
 struct regfile {
-    files::rafile file;
+    io::rafile file;
     int version;
     bool inUse = false;
 

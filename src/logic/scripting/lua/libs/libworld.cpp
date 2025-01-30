@@ -7,8 +7,8 @@
 #include "coders/json.hpp"
 #include "engine/Engine.hpp"
 #include "world/files/WorldFiles.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "lighting/Lighting.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
@@ -44,7 +44,7 @@ static int l_get_list(lua::State* L) {
         const auto& folder = worlds[i];
 
         auto root =
-            json::parse(files::read_string(folder / fs::u8path("world.json")));
+            json::parse(io::read_string(folder / fs::u8path("world.json")));
         const auto& versionMap = root["version"];
         int versionMajor = versionMap["major"].asInteger();
         int versionMinor = versionMap["minor"].asInteger();

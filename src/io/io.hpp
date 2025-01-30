@@ -12,7 +12,7 @@
 
 namespace fs = std::filesystem;
 
-namespace files {
+namespace io {
     /// @brief Read-only random access file
     class rafile {
         std::ifstream file;

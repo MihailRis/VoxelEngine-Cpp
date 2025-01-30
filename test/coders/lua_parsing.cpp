@@ -2,12 +2,12 @@
 
 #include "coders/commons.hpp"
 #include "coders/lua_parsing.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "util/stringutil.hpp"
 
 TEST(lua_parsing, Tokenizer) {
     auto filename = "../../res/scripts/stdlib.lua";
-    auto source = files::read_string(std::filesystem::u8path(filename));
+    auto source = io::read_string(std::filesystem::u8path(filename));
     try {
         auto tokens = lua::tokenize(filename, source);
         for (const auto& token : tokens) {

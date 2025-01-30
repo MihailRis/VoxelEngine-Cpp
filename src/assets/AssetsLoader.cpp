@@ -9,8 +9,8 @@
 #include "content/Content.hpp"
 #include "content/ContentPack.hpp"
 #include "debug/Logger.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "graphics/core/Texture.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "objects/rigging.hpp"
@@ -187,7 +187,7 @@ void AssetsLoader::processPreloadList(AssetType tag, const dv::value& list) {
 }
 
 void AssetsLoader::processPreloadConfig(const fs::path& file) {
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     processPreloadList(AssetType::ATLAS, root["atlases"]);
     processPreloadList(AssetType::FONT, root["fonts"]);
     processPreloadList(AssetType::SHADER, root["shaders"]);

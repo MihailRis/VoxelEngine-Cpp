@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "debug/Logger.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "graphics/core/GLTexture.hpp"
 #include "graphics/core/ImageData.hpp"
 
@@ -212,7 +212,7 @@ std::unique_ptr<Texture> png::load_texture(const ubyte* bytes, size_t size) {
 }
 
 std::unique_ptr<Texture> png::load_texture(const std::string& filename) {
-    auto bytes = files::read_bytes_buffer(fs::u8path(filename));
+    auto bytes = io::read_bytes_buffer(fs::u8path(filename));
     try {
         return load_texture(bytes.data(), bytes.size());
     } catch (const std::runtime_error& err) {

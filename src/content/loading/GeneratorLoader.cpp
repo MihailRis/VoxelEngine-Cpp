@@ -4,8 +4,8 @@
 
 #include "../ContentPack.hpp"
 
-#include "files/files.hpp"
-#include "files/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/engine_paths.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "world/generator/VoxelFragment.hpp"
@@ -146,7 +146,7 @@ static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
                 structFile.u8string());
         }
         auto fragment = std::make_unique<VoxelFragment>();
-        fragment->deserialize(files::read_binary_json(structFile));
+        fragment->deserialize(io::read_binary_json(structFile));
         logger.info() << "fragment " << name << " has size [" << 
             fragment->getSize().x << ", " << fragment->getSize().y << ", " <<
             fragment->getSize().z << "]";
@@ -202,7 +202,7 @@ void ContentLoader::loadGenerator(
     if (!fs::exists(generatorFile)) {
         return;
     }
-    auto map = files::read_toml(generatorsDir / fs::u8path(name + ".toml"));
+    auto map = io::read_toml(generatorsDir / fs::u8path(name + ".toml"));
     map.at("caption").get(def.caption);
     map.at("biome-parameters").get(def.biomeParameters);
     map.at("biome-bpd").get(def.biomesBPD);

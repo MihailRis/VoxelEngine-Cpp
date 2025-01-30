@@ -16,7 +16,7 @@
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
@@ -128,14 +128,14 @@ void Engine::initialize(CoreParameters coreParameters) {
     keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
-    basePacks = files::read_list(resdir/fs::path("config/builtins.list"));
+    basePacks = io::read_list(resdir/fs::path("config/builtins.list"));
 }
 
 void Engine::loadSettings() {
     fs::path settings_file = paths.getSettingsFile();
     if (fs::is_regular_file(settings_file)) {
         logger.info() << "loading settings";
-        std::string text = files::read_string(settings_file);
+        std::string text = io::read_string(settings_file);
         try {
             toml::parse(*settingsHandler, settings_file.string(), text);
         } catch (const parsing_error& err) {
@@ -149,7 +149,7 @@ void Engine::loadControls() {
     fs::path controls_file = paths.getControlsFile();
     if (fs::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
-        std::string text = files::read_string(controls_file);
+        std::string text = io::read_string(controls_file);
         Events::loadBindings(controls_file.u8string(), text, BindType::BIND);
     }
 }
@@ -219,10 +219,10 @@ void Engine::renderFrame() {
 
 void Engine::saveSettings() {
     logger.info() << "saving settings";
-    files::write_string(paths.getSettingsFile(), toml::stringify(*settingsHandler));
+    io::write_string(paths.getSettingsFile(), toml::stringify(*settingsHandler));
     if (!params.headless) {
         logger.info() << "saving bindings";
-        files::write_string(paths.getControlsFile(), Events::writeBindings());
+        io::write_string(paths.getControlsFile(), Events::writeBindings());
     }
 }
 
@@ -330,7 +330,7 @@ static void load_configs(const fs::path& root) {
     auto bindsFile = configFolder/fs::path("bindings.toml");
     if (fs::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(), files::read_string(bindsFile), BindType::BIND
+            bindsFile.u8string(), io::read_string(bindsFile), BindType::BIND
         );
     }
 }
