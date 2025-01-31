@@ -196,6 +196,18 @@ function table.deep_flat(t)
 
     return flat
 end
+
+function table.slice(arr, start, stop)
+    local sliced = {}
+    start = start or 1
+    stop = stop or #arr
+
+    for i = start, stop do
+        table.insert(sliced, arr[i])
+    end
+
+    return sliced
+end
 ----------------------------------------------
 
 local pattern_escape_replacements = {
