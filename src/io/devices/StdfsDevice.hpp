@@ -15,6 +15,7 @@ namespace io {
         void mkdirs(std::string_view path) override;
         bool remove(std::string_view path) override;
         uint64_t removeAll(std::string_view path) override;
+        std::unique_ptr<PathsGenerator> list(std::string_view path) override;
     private:
         std::filesystem::path root;
     };

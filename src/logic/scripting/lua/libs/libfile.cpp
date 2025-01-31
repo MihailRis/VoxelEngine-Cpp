@@ -95,7 +95,8 @@ static int l_exists(lua::State* L) {
 }
 
 static int l_isfile(lua::State* L) {
-    io::path path = resolve_path_soft(lua::require_string(L, 1));
+    const char* string =lua::require_string(L, 1);
+    io::path path = resolve_path_soft(string);
     return lua::pushboolean(L, io::is_regular_file(path));
 }
 
@@ -184,10 +185,8 @@ static int l_list(lua::State* L) {
     }
     lua::createtable(L, 0, 0);
     size_t index = 1;
-    for (auto& entry : fs::directory_iterator(io::resolve(path))) {
-        auto name = entry.path().filename().u8string();
-        auto file = dirname + "/" + name;
-        lua::pushstring(L, file);
+    for (const auto& file : io::directory_iterator(path)) {
+        lua::pushstring(L, file.string());
         lua::rawseti(L, index);
         index++;
     }

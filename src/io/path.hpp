@@ -127,6 +127,10 @@ namespace io {
         bool empty() const {
             return str.empty();
         }
+
+        bool emptyOrInvalid() const {
+            return str.empty() || colonPos == std::string::npos;
+        }
     private:
         /// @brief UTF-8 string contains entry_point:path or empty string
         std::string str;
@@ -134,5 +138,11 @@ namespace io {
         size_t colonPos = std::string::npos;
 
         void checkValid() const;
+    };
+
+    class PathsGenerator {
+    public:
+        virtual ~PathsGenerator() = default;
+        virtual bool next(path& dst) = 0;
     };
 }

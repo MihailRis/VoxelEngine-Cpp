@@ -42,14 +42,14 @@ void WorldConverter::addRegionsTasks(
     if (!io::is_directory(regionsFolder)) {
         return;
     }
-    for (const auto& file : fs::directory_iterator(io::resolve(regionsFolder))) {
+    for (const auto& file :io::directory_iterator(regionsFolder)) {
         int x, z;
-        std::string name = file.path().stem().string();
+        std::string name = file.stem();
         if (!WorldRegions::parseRegionFilename(name, x, z)) {
             logger.error() << "could not parse region name " << name;
             continue;
         }
-        tasks.push(ConvertTask {taskType, file.path().u8string(), x, z, layerid});
+        tasks.push(ConvertTask {taskType, file, x, z, layerid});
     }
 }
 

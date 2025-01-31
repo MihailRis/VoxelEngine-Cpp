@@ -129,8 +129,7 @@ void ContentPack::scanFolder(
     if (!io::is_directory(folder)) {
         return;
     }
-    for (const auto& entry : fs::directory_iterator(io::resolve(folder))) {
-        io::path packFolder = folder / entry.path().filename().u8string();
+    for (const auto& packFolder : io::directory_iterator(folder)) {
         if (!io::is_directory(packFolder)) continue;
         if (!is_pack(packFolder)) continue;
         try {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <iterator>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -32,6 +33,75 @@ namespace io {
         void seekg(std::streampos pos);
         void read(char* buffer, std::streamsize size);
         size_t length() const;
+    };
+
+    class directory_iterator_impl {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = path;
+        using difference_type = std::ptrdiff_t;
+        using pointer = path*;
+        using reference = path&;
+
+        directory_iterator_impl(
+            PathsGenerator& generator, const path& folder, bool end = false
+        )
+            : generator(generator), folder(folder), isend(end) {
+            if (!isend && this->generator.next(current)) {
+                isend = false;
+                current = folder / current;
+            } else {
+                isend = true;
+            }
+        }
+
+        reference operator*() {
+            return current;
+        }
+
+        pointer operator->() {
+            return &current;
+        }
+
+        directory_iterator_impl& operator++() {
+            if (isend) {
+                return *this;
+            }
+            if (generator.next(current)) {
+                current = folder / current;
+            } else {
+                isend = true;
+            }
+            return *this;
+        }
+
+        bool operator==(const directory_iterator_impl& other) const {
+            return isend == other.isend;
+        }
+
+        bool operator!=(const directory_iterator_impl& other) const {
+            return !(*this == other);
+        }
+    private:
+        PathsGenerator& generator;
+        path folder;
+        path current;
+        bool isend = false;
+    };
+
+    class directory_iterator {
+        std::unique_ptr<PathsGenerator> generator;
+        path folder;
+    public:
+        directory_iterator(const path& folder);
+
+        directory_iterator_impl begin() {
+            return directory_iterator_impl(*generator, folder);
+        }
+
+        directory_iterator_impl end() {
+            return directory_iterator_impl(*generator, "", true);
+        }
     };
 
     /// @brief Write bytes array to the file without any extra data
@@ -87,7 +157,11 @@ namespace io {
 
     std::filesystem::path resolve(const io::path& file);
 
+    /// @brief Check if file is one of the supported data interchange formats
     bool is_data_file(const io::path& file);
+
+    /// @brief Check if file extension is one of the supported data interchange formats
     bool is_data_interchange_format(const std::string& ext);
+    
     dv::value read_object(const path& file);
 }

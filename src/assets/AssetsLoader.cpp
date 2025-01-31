@@ -94,8 +94,7 @@ static void add_layouts(
     if (!io::is_directory(folder)) {
         return;
     }
-    for (auto& entry : fs::directory_iterator(io::resolve(folder))) {
-        io::path file = folder / entry.path().filename().u8string();
+    for (const auto& file : io::directory_iterator(folder)) {
         if (file.extension() != ".xml") continue;
         std::string name = prefix + ":" + file.stem();
         loader.add(
