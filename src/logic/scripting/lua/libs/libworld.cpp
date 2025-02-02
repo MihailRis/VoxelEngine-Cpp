@@ -5,6 +5,7 @@
 #include "api_lua.hpp"
 #include "assets/AssetsLoader.hpp"
 #include "coders/json.hpp"
+#include "content/Content.hpp"
 #include "engine/Engine.hpp"
 #include "world/files/WorldFiles.hpp"
 #include "io/engine_paths.hpp"
@@ -181,7 +182,7 @@ static int l_set_chunk_data(lua::State* L) {
         return lua::pushboolean(L, false);
     }
     compressed_chunks::decode(
-        *chunk, buffer.data(), buffer.size()
+        *chunk, buffer.data(), buffer.size(), *content->getIndices()
     );
     if (controller->getChunksController()->lighting == nullptr) {
         return lua::pushboolean(L, true);
