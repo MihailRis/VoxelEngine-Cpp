@@ -286,7 +286,7 @@ std::vector<io::path> ResPaths::listdir(
         io::path folder = root.path / folderName;
         if (!io::is_directory(folder)) continue;
         for (const auto& entry : io::directory_iterator(folder)) {
-            entries.push_back(folder / entry);
+            entries.push_back(entry);
         }
     }
     return entries;
