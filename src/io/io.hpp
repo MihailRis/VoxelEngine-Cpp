@@ -16,6 +16,7 @@ namespace io {
     class Device;
 
     void set_device(const std::string& name, std::shared_ptr<Device> device);
+    void remove_device(const std::string& name);
     std::shared_ptr<Device> get_device(const std::string& name);
     Device& require_device(const std::string& name);
 

@@ -23,6 +23,10 @@ void io::set_device(const std::string& name, std::shared_ptr<io::Device> device)
     devices[name] = device;
 }
 
+void io::remove_device(const std::string& name) {
+    devices.erase(name);
+}
+
 std::shared_ptr<io::Device> io::get_device(const std::string& name) {
     const auto& found = devices.find(name);
     if (found == devices.end()) {

@@ -10,6 +10,18 @@ namespace fs = std::filesystem;
 
 static debug::Logger logger("io-stdfs");
 
+StdfsDevice::StdfsDevice(fs::path root, bool createDirectory)
+ : root(std::move(root)) {
+    if (createDirectory && !fs::is_directory(this->root)) {
+        std::error_code ec;
+        fs::create_directories(this->root, ec);
+        if (ec) {
+            logger.error() << "error creating root directory " << this->root
+                           << ": " << ec.message();
+        }
+    }
+}
+
 fs::path StdfsDevice::resolve(std::string_view path) {
     return root / fs::u8path(path);
 }
@@ -54,7 +66,13 @@ bool StdfsDevice::isfile(std::string_view path) {
 
 void StdfsDevice::mkdirs(std::string_view path) {
     auto resolved = resolve(path);
-    fs::create_directories(resolved);
+
+    std::error_code ec;
+    fs::create_directories(resolved, ec);
+    if (ec) {
+        logger.error() << "error creating directory " << resolved << ": "
+                       << ec.message();
+    }
 }
 
 bool StdfsDevice::remove(std::string_view path) {

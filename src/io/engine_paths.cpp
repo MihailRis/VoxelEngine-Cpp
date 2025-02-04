@@ -20,8 +20,8 @@ static debug::Logger logger("engine-paths");
 static inline auto SCREENSHOTS_FOLDER = std::filesystem::u8path("screenshots");
 static inline auto CONTENT_FOLDER = std::filesystem::u8path("content");
 static inline auto WORLDS_FOLDER = std::filesystem::u8path("worlds");
-static inline auto CONFIG_FOLDER = std::filesystem::u8path("config");
-static inline auto EXPORT_FOLDER = std::filesystem::u8path("export");
+static inline auto CONFIG_FOLDER = io::path("config");
+static inline auto EXPORT_FOLDER = io::path("export");
 static inline auto CONTROLS_FILE = std::filesystem::u8path("controls.toml");
 static inline auto SETTINGS_FILE = std::filesystem::u8path("settings.toml");
 
@@ -52,7 +52,7 @@ static io::path toCanonic(io::path path) {
 }
 
 void EnginePaths::prepare() {
-    io::set_device("res", std::make_shared<io::StdfsDevice>(resourcesFolder));
+    io::set_device("res", std::make_shared<io::StdfsDevice>(resourcesFolder, false));
     io::set_device("user", std::make_shared<io::StdfsDevice>(userFilesFolder));
 
     if (!io::is_directory("res:")) {
@@ -60,10 +60,6 @@ void EnginePaths::prepare() {
             resourcesFolder.string() + " is not a directory"
         );
     }
-    if (!io::is_directory("user:")) {
-        io::create_directories("user:");
-    }
-
     logger.info() << "resources folder: " << fs::canonical(resourcesFolder).u8string();
     logger.info() << "user files folder: " << fs::canonical(userFilesFolder).u8string();
     
@@ -71,14 +67,10 @@ void EnginePaths::prepare() {
     if (!io::is_directory(contentFolder)) {
         io::create_directories(contentFolder);
     }
-    auto exportFolder = io::path("user:") / EXPORT_FOLDER;
-    if (!io::is_directory(exportFolder)) {
-        io::create_directories(exportFolder);
-    }
-    auto configFolder = io::path("user:") / CONFIG_FOLDER;
-    if (!io::is_directory(configFolder)) {
-        io::create_directories(configFolder);
-    }
+
+    io::create_subdevice("core", "res", "");
+    io::create_subdevice("export", "user", EXPORT_FOLDER);
+    io::create_subdevice("config", "user", CONFIG_FOLDER);
 }
 
 const std::filesystem::path& EnginePaths::getUserFilesFolder() const {
@@ -187,7 +179,16 @@ void EnginePaths::setCurrentWorldFolder(io::path folder) {
 }
 
 void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
+    // Remove previous content entry-points
+    for (const auto& pack : *this->contentPacks) {
+        io::remove_device(pack.id);
+    }
     this->contentPacks = contentPacks;
+    // Create content devices
+    for (const auto& pack : *contentPacks) {
+        auto parent = pack.folder.entryPoint();
+        io::create_subdevice(pack.id, parent, pack.folder);
+    }
 }
 
 std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view path) {
@@ -198,45 +199,6 @@ std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view pat
     auto prefix = std::string(path.substr(0, separator));
     auto filename = std::string(path.substr(separator + 1));
     return {prefix, filename};
-}
-
-// TODO: remove
-io::path EnginePaths::resolve(
-    const std::string& path, bool throwErr
-) const {
-    auto [prefix, filename] = EnginePaths::parsePath(path);
-    if (prefix.empty()) {
-        throw files_access_error("no entry point specified");
-    }
-    filename = toCanonic(filename).string();
-
-    if (prefix == "core") {
-        return io::path("res:") / filename;
-    }
-
-    if (prefix == "res" || prefix == "user" || prefix == "script") {
-        return prefix + ":" + filename;
-    }
-    if (prefix == "config") {
-        return getConfigFolder() / filename;
-    }
-    if (prefix == "world") {
-        return currentWorldFolder / filename;
-    }
-    if (prefix == "export") {
-        return io::path("user:") / EXPORT_FOLDER / filename;
-    }
-    if (contentPacks) {
-        for (auto& pack : *contentPacks) {
-            if (pack.id == prefix) {
-                return pack.folder / filename;
-            }
-        }
-    }
-    if (throwErr) {
-        throw files_access_error("unknown entry point '" + prefix + "'");
-    }
-    return filename;
 }
 
 ResPaths::ResPaths(io::path mainRoot, std::vector<PathsRoot> roots)

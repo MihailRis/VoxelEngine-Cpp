@@ -3,7 +3,7 @@
 namespace io {
     class StdfsDevice : public Device {
     public:
-        StdfsDevice(std::filesystem::path root) : root(std::move(root)) {}
+        StdfsDevice(std::filesystem::path root, bool createDirectory = true);
 
         std::filesystem::path resolve(std::string_view path) override;
         void write(std::string_view path, const void* data, size_t size) override;
