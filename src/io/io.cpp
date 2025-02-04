@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 
 #include "coders/commons.hpp"
@@ -60,12 +61,16 @@ io::directory_iterator::directory_iterator(const io::path& folder)
 }
 
 io::rafile::rafile(const io::path& filename)
-    : file(io::resolve(filename), std::ios::binary | std::ios::ate) {
-    if (!file) {
+    : file(std::make_unique<std::ifstream>(io::resolve(filename), std::ios::binary | std::ios::ate)) {
+    if (!*file) {
         throw std::runtime_error("could not to open file " + filename.string());
     }
-    filelength = file.tellg();
-    file.seekg(0);
+    filelength = file->tellg();
+    file->seekg(0);
+}
+
+io::rafile::rafile(std::unique_ptr<std::istream> file, size_t length)
+    : file(std::move(file)), filelength(length) {
 }
 
 size_t io::rafile::length() const {
@@ -73,11 +78,11 @@ size_t io::rafile::length() const {
 }
 
 void io::rafile::seekg(std::streampos pos) {
-    file.seekg(pos);
+    file->seekg(pos);
 }
 
 void io::rafile::read(char* buffer, std::streamsize size) {
-    file.read(buffer, size);
+    file->read(buffer, size);
 }
 
 bool io::write_bytes(
@@ -96,8 +101,17 @@ bool io::read(const io::path& filename, char* data, size_t size) {
     if (device == nullptr) {
         return false;
     }
-    device->read(filename.pathPart(), data, size);
-    return true;
+    auto stream = io::read(filename);
+    stream->read(data, size);
+    return stream->good();
+}
+
+std::unique_ptr<std::istream> io::read(const io::path& filename) {
+    auto device = io::get_device(filename.entryPoint());
+    if (device == nullptr) {
+        throw std::runtime_error("io-device not found: " + filename.entryPoint());
+    }
+    return device->read(filename.pathPart());
 }
 
 util::Buffer<ubyte> io::read_bytes_buffer(const path& file) {
@@ -112,15 +126,17 @@ std::unique_ptr<ubyte[]> io::read_bytes(
     auto& device = io::require_device(filename.entryPoint());
     length = device.size(filename.pathPart());
     auto data = std::make_unique<ubyte[]>(length);
-    device.read(filename.pathPart(), data.get(), length);
-    return data;
+    auto stream = io::read(filename);
+    stream->read(reinterpret_cast<char*>(data.get()), length);
+    return stream->good() ? std::move(data) : nullptr;
 }
 
 std::vector<ubyte> io::read_bytes(const path& filename) {
     auto& device = io::require_device(filename.entryPoint());
     size_t length = device.size(filename.pathPart());
     std::vector<ubyte> data(length);
-    device.read(filename.pathPart(), data.data(), length);
+    auto stream = io::read(filename);
+    stream->read(reinterpret_cast<char*>(data.data()), length);
     return data;
 }
 
@@ -163,15 +179,10 @@ dv::value io::read_toml(const path& file) {
 }
 
 std::vector<std::string> io::read_list(const io::path& filename) {
-    std::ifstream file(resolve(filename)); // FIXME
-    if (!file) {
-        throw std::runtime_error(
-            "could not to open file " + filename.string()
-        );
-    }
+    auto stream = io::read(filename);
     std::vector<std::string> lines;
     std::string line;
-    while (std::getline(file, line)) {
+    while (std::getline(*stream, line)) {
         util::trim(line);
         if (line.length() == 0) continue;
         if (line[0] == '#') continue;

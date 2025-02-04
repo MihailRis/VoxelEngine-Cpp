@@ -35,13 +35,13 @@ void StdfsDevice::write(std::string_view path, const void* data, size_t size) {
     output.write((const char*)data, size);
 }
 
-void StdfsDevice::read(std::string_view path, void* data, size_t size) {
+std::unique_ptr<std::istream> StdfsDevice::read(std::string_view path) {
     auto resolved = resolve(path);
-    std::ifstream input(resolved, std::ios::binary);
-    if (!input.is_open()) {
+    auto input = std::make_unique<std::ifstream>(resolved, std::ios::binary);
+    if (!*input) {
         throw std::runtime_error("could not to open file " + resolved.u8string());
     }
-    input.read((char*)data, size);
+    return input;
 }
 
 size_t StdfsDevice::size(std::string_view path) {

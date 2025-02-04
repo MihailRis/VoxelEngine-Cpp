@@ -15,21 +15,33 @@
 namespace io {
     class Device;
 
+    /// @brief Set device for the entry-point
     void set_device(const std::string& name, std::shared_ptr<Device> device);
+    
+    /// @brief Remove device by entry-point
     void remove_device(const std::string& name);
+    
+    /// @brief Get device by entry-point
     std::shared_ptr<Device> get_device(const std::string& name);
+    
+    /// @brief Get device by entry-point or throw exception
     Device& require_device(const std::string& name);
 
+    /// @brief Create subdevice for the entry-point
+    /// @param name subdevice entry-point
+    /// @param parent parent device entry-point
+    /// @param root root path for the subdevice
     void create_subdevice(
         const std::string& name, const std::string& parent, const path& root
     );
 
     /// @brief Read-only random access file
     class rafile {
-        std::ifstream file;
+        std::unique_ptr<std::istream> file;
         size_t filelength;
     public:
         rafile(const path& filename);
+        rafile(std::unique_ptr<std::istream> file, size_t length);
 
         void seekg(std::streampos pos);
         void read(char* buffer, std::streamsize size);
@@ -131,6 +143,7 @@ namespace io {
     );
 
     bool read(const io::path& file, char* data, size_t size);
+    std::unique_ptr<std::istream> read(const io::path& file);
     util::Buffer<ubyte> read_bytes_buffer(const path& file);
     std::unique_ptr<ubyte[]> read_bytes(const path& file, size_t& length);
     std::vector<ubyte> read_bytes(const path& file);
@@ -140,21 +153,38 @@ namespace io {
     /// @param file *.json or *.bjson file
     dv::value read_json(const path& file);
     
+    /// @brief Read BJSON file
     dv::value read_binary_json(const path& file);
     
     /// @brief Read TOML file
     /// @param file *.toml file
     dv::value read_toml(const path& file);
 
+    /// @brief Read list of strings from the file
     std::vector<std::string> read_list(const io::path& file);
 
+    /// @brief Check if path is a regular file 
     bool is_regular_file(const io::path& file);
-    bool is_directory(const io::path& file);
-    bool exists(const io::path& file);
+
+    /// @brief Check if path is a directory
+    bool is_directory(const io::path& path);
+
+    /// @brief Check if file or directory exists
+    bool exists(const io::path& path);
+
+    /// @brief Create directory
     bool create_directory(const io::path& file);
+
+    /// @brief Create directories recursively
     bool create_directories(const io::path& file);
+
+    /// @brief Remove file or empty directory
     bool remove(const io::path& file);
+
+    /// @brief Remove all files and directories in the folder recursively
     uint64_t remove_all(const io::path& file);
+
+    /// @brief Get file size in bytes 
     size_t file_size(const io::path& file);
 
     std::filesystem::path resolve(const io::path& file);
