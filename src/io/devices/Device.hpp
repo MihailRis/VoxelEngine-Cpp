@@ -28,8 +28,11 @@ namespace io {
 
     class SubDevice : public Device {
     public:
-        SubDevice(std::shared_ptr<Device> parent, const std::string& path)
-            : parent(std::move(parent)), root(path) {}
+        SubDevice(
+            std::shared_ptr<Device> parent,
+            const std::string& path,
+            bool createDirectory = true
+        );
 
         std::filesystem::path resolve(std::string_view path) override {
             return parent->resolve((root / path).pathPart());
