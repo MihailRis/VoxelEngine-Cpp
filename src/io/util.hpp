@@ -3,7 +3,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace files {
+namespace io {
     inline bool is_valid_name(std::string_view name) {
         static std::string illegalChars = "\\/%?!<>:; ";
         for (char c : illegalChars) {

@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "graphics/ui/elements/UINode.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
 #include "graphics/ui/gui_xml.hpp"
@@ -56,22 +56,22 @@ scriptenv UiDocument::getEnvironment() const {
 std::unique_ptr<UiDocument> UiDocument::read(
     const scriptenv& penv,
     const std::string& name,
-    const fs::path& file,
+    const io::path& file,
     const std::string& fileName
 ) {
-    const std::string text = files::read_string(file);
-    auto xmldoc = xml::parse(file.u8string(), text);
+    const std::string text = io::read_string(file);
+    auto xmldoc = xml::parse(file.string(), text);
 
     auto env = penv == nullptr 
         ? scripting::create_doc_environment(scripting::get_root_environment(), name)
         : scripting::create_doc_environment(penv, name);
 
     gui::UiXmlReader reader(env);
-    auto view = reader.readXML(file.u8string(), *xmldoc->getRoot());
+    auto view = reader.readXML(file.string(), *xmldoc->getRoot());
     view->setId("root");
     uidocscript script {};
-    auto scriptFile = fs::path(file.u8string()+".lua");
-    if (fs::is_regular_file(scriptFile)) {
+    auto scriptFile = io::path(file.string()+".lua");
+    if (io::is_regular_file(scriptFile)) {
         scripting::load_layout_script(
             env, name, scriptFile, fileName + ".lua", script
         );
@@ -80,8 +80,8 @@ std::unique_ptr<UiDocument> UiDocument::read(
 }
 
 std::shared_ptr<gui::UINode> UiDocument::readElement(
-    const fs::path& file, const std::string& fileName
+    const io::path& file, const std::string& fileName
 ) {
-    auto document = read(nullptr, file.filename().u8string(), file, fileName);
+    auto document = read(nullptr, file.name(), file, fileName);
     return document->getRoot();
 }

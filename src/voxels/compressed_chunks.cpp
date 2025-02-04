@@ -2,8 +2,9 @@
 
 #include "coders/rle.hpp"
 #include "coders/gzip.hpp"
+
+#include "world/files/WorldFiles.hpp"
 #include "content/Content.hpp"
-#include "files/WorldFiles.hpp"
 
 inline constexpr int HAS_VOXELS = 0x1;
 inline constexpr int HAS_METADATA = 0x2;

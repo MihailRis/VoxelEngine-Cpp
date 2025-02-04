@@ -6,8 +6,8 @@
 
 #define REGION_FORMAT_MAGIC ".VOXREG"
 
-static fs::path get_region_filename(int x, int z) {
-    return fs::path(std::to_string(x) + "_" + std::to_string(z) + ".bin");
+static io::path get_region_filename(int x, int z) {
+    return std::to_string(x) + "_" + std::to_string(z) + ".bin";
 }
 
 /// @brief Read missing chunks data (null pointers) from region file
@@ -25,7 +25,7 @@ static void fetch_chunks(WorldRegion* region, int x, int z, regfile* file) {
     }
 }
 
-regfile::regfile(fs::path filename) : file(std::move(filename)) {
+regfile::regfile(io::path filename) : file(std::move(filename)) {
     if (file.length() < REGION_HEADER_SIZE)
         throw std::runtime_error("incomplete region file header");
     char header[REGION_HEADER_SIZE];
@@ -98,8 +98,8 @@ regfile_ptr RegionsLayer::getRegFile(glm::ivec2 coord, bool create) {
 }
 
 regfile_ptr RegionsLayer::createRegFile(glm::ivec2 coord) {
-    auto file =  folder / get_region_filename(coord[0], coord[1]);
-    if (!fs::exists(file)) {
+    auto file = folder / get_region_filename(coord[0], coord[1]);
+    if (!io::exists(file)) {
         return nullptr;
     }
     if (openRegFiles.size() == MAX_OPEN_REGION_FILES) {
@@ -138,7 +138,7 @@ WorldRegion* RegionsLayer::getRegion(int x, int z) {
     return found->second.get();
 }
 
-fs::path RegionsLayer::getRegionFilePath(int x, int z) const {
+io::path RegionsLayer::getRegionFilePath(int x, int z) const {
     return folder / get_region_filename(x, z);
 }
 
@@ -179,7 +179,7 @@ ubyte* RegionsLayer::getData(int x, int z, uint32_t& size, uint32_t& srcSize) {
 }
 
 void RegionsLayer::writeRegion(int x, int z, WorldRegion* entry) {
-    fs::path filename = folder / get_region_filename(x, z);
+    io::path filename = folder / get_region_filename(x, z);
 
     glm::ivec2 regcoord(x, z);
     if (auto regfile = getRegFile(regcoord, false)) {
@@ -193,7 +193,7 @@ void RegionsLayer::writeRegion(int x, int z, WorldRegion* entry) {
     char header[REGION_HEADER_SIZE] = REGION_FORMAT_MAGIC;
     header[8] = REGION_FORMAT_VERSION;
     header[9] = static_cast<ubyte>(compression); // FIXME
-    std::ofstream file(filename, std::ios::out | std::ios::binary);
+    std::ofstream file(io::resolve(filename), std::ios::out | std::ios::binary);
     file.write(header, REGION_HEADER_SIZE);
 
     size_t offset = REGION_HEADER_SIZE;

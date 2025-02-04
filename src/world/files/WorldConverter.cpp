@@ -6,9 +6,9 @@
 #include <utility>
 
 #include "content/ContentReport.hpp"
-#include "files/compatibility.hpp"
+#include "compatibility.hpp"
 #include "debug/Logger.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "objects/Player.hpp"
 #include "util/ThreadPool.hpp"
 #include "voxels/Chunk.hpp"
@@ -39,17 +39,17 @@ void WorldConverter::addRegionsTasks(
 ) {
     const auto& regions = wfile->getRegions();
     auto regionsFolder = regions.getRegionsFolder(layerid);
-    if (!fs::is_directory(regionsFolder)) {
+    if (!io::is_directory(regionsFolder)) {
         return;
     }
-    for (const auto& file : fs::directory_iterator(regionsFolder)) {
+    for (const auto& file :io::directory_iterator(regionsFolder)) {
         int x, z;
-        std::string name = file.path().stem().string();
+        std::string name = file.stem();
         if (!WorldRegions::parseRegionFilename(name, x, z)) {
             logger.error() << "could not parse region name " << name;
             continue;
         }
-        tasks.push(ConvertTask {taskType, file.path(), x, z, layerid});
+        tasks.push(ConvertTask {taskType, file, x, z, layerid});
     }
 }
 
@@ -182,15 +182,15 @@ std::shared_ptr<Task> WorldConverter::startTask(
 }
 
 void WorldConverter::upgradeRegion(
-    const fs::path& file, int x, int z, RegionLayerIndex layer
+    const io::path& file, int x, int z, RegionLayerIndex layer
 ) const {
     auto path = wfile->getRegions().getRegionFilePath(layer, x, z);
-    auto bytes = files::read_bytes_buffer(path);
+    auto bytes = io::read_bytes_buffer(path);
     auto buffer = compatibility::convert_region_2to3(bytes, layer);
-    files::write_bytes(path, buffer.data(), buffer.size());
+    io::write_bytes(path, buffer.data(), buffer.size());
 }
 
-void WorldConverter::convertVoxels(const fs::path& file, int x, int z) const {
+void WorldConverter::convertVoxels(const io::path& file, int x, int z) const {
     logger.info() << "converting voxels region " << x << "_" << z;
     wfile->getRegions().processRegion(x, z, REGION_LAYER_VOXELS,
     [=](std::unique_ptr<ubyte[]> data, uint32_t*) {
@@ -199,18 +199,18 @@ void WorldConverter::convertVoxels(const fs::path& file, int x, int z) const {
     });
 }
 
-void WorldConverter::convertInventories(const fs::path& file, int x, int z) const {
+void WorldConverter::convertInventories(const io::path& file, int x, int z) const {
     logger.info() << "converting inventories region " << x << "_" << z;
     wfile->getRegions().processInventories(x, z, [=](Inventory* inventory) {
         inventory->convert(report.get());
     });
 }
 
-void WorldConverter::convertPlayer(const fs::path& file) const {
-    logger.info() << "converting player " << file.u8string();
-    auto map = files::read_json(file);
+void WorldConverter::convertPlayer(const io::path& file) const {
+    logger.info() << "converting player " << file.string();
+    auto map = io::read_json(file);
     Player::convert(map, report.get());
-    files::write_json(file, map);
+    io::write_json(file, map);
 }
 
 void WorldConverter::convertBlocksData(int x, int z, const ContentReport& report) const {
@@ -242,7 +242,7 @@ void WorldConverter::convertBlocksData(int x, int z, const ContentReport& report
 }
 
 void WorldConverter::convert(const ConvertTask& task) const {
-    if (!fs::is_regular_file(task.file)) return;
+    if (!io::is_regular_file(task.file)) return;
 
     switch (task.type) {
         case ConvertTaskType::UPGRADE_REGION:

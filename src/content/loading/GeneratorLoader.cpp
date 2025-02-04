@@ -4,8 +4,8 @@
 
 #include "../ContentPack.hpp"
 
-#include "files/files.hpp"
-#include "files/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/engine_paths.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "world/generator/VoxelFragment.hpp"
@@ -132,21 +132,21 @@ static VoxelStructureMeta load_structure_meta(
 }
 
 static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
-    const dv::value& map, const fs::path& filesFolder, const ResPaths& paths
+    const dv::value& map, const io::path& filesFolder, const ResPaths& paths
 ) {
-    auto structuresDir = filesFolder / fs::path("fragments");
+    auto structuresDir = filesFolder / "fragments";
 
     std::vector<std::unique_ptr<VoxelStructure>> structures;
     for (auto& [name, config] : map.asObject()) {
-        auto structFile = structuresDir / fs::u8path(name + ".vox");
-        structFile = paths.find(structFile.u8string());
-        logger.debug() << "loading voxel fragment " << structFile.u8string();
-        if (!fs::exists(structFile)) {
+        auto structFile = structuresDir / (name + ".vox");
+        structFile = paths.find(structFile.string());
+        logger.debug() << "loading voxel fragment " << structFile.string();
+        if (!io::exists(structFile)) {
             throw std::runtime_error("structure file does not exist (" +
-                structFile.u8string());
+                structFile.string());
         }
         auto fragment = std::make_unique<VoxelFragment>();
-        fragment->deserialize(files::read_binary_json(structFile));
+        fragment->deserialize(io::read_binary_json(structFile));
         logger.info() << "fragment " << name << " has size [" << 
             fragment->getSize().x << ", " << fragment->getSize().y << ", " <<
             fragment->getSize().z << "]";
@@ -162,7 +162,7 @@ static std::vector<std::unique_ptr<VoxelStructure>> load_structures(
 static void load_structures(
     GeneratorDef& def,
     const dv::value& map,
-    const fs::path& filesFolder,
+    const io::path& filesFolder,
     const ResPaths& paths
 ) {
     auto rawStructures = load_structures(map, filesFolder, paths);
@@ -178,9 +178,9 @@ static void load_structures(
     }
 }
 
-static inline const auto STRUCTURES_FILE = fs::u8path("structures.toml");
-static inline const auto BIOMES_FILE = fs::u8path("biomes.toml");
-static inline const auto GENERATORS_DIR = fs::u8path("generators");
+static inline const io::path STRUCTURES_FILE = "structures.toml";
+static inline const io::path BIOMES_FILE = "biomes.toml";
+static inline const io::path GENERATORS_DIR = "generators";
 
 static void load_biomes(GeneratorDef& def, const dv::value& root) {
     for (const auto& [biomeName, biomeMap] : root.asObject()) {
@@ -198,11 +198,11 @@ void ContentLoader::loadGenerator(
 ) {
     auto packDir = pack->folder;
     auto generatorsDir = packDir / GENERATORS_DIR;
-    auto generatorFile = generatorsDir / fs::u8path(name + ".toml");
-    if (!fs::exists(generatorFile)) {
+    auto generatorFile = generatorsDir / (name + ".toml");
+    if (!io::exists(generatorFile)) {
         return;
     }
-    auto map = files::read_toml(generatorsDir / fs::u8path(name + ".toml"));
+    auto map = io::read_toml(generatorsDir / (name + ".toml"));
     map.at("caption").get(def.caption);
     map.at("biome-parameters").get(def.biomeParameters);
     map.at("biome-bpd").get(def.biomesBPD);
@@ -233,15 +233,15 @@ void ContentLoader::loadGenerator(
         logger.warning() << "generator has heightmap-inputs but biomes-bpd "
             "is not equal to heights-bpd, generator will work slower!";
     }
-    auto folder = generatorsDir / fs::u8path(name + ".files");
-    auto scriptFile = folder / fs::u8path("script.lua");
+    auto folder = generatorsDir / (name + ".files");
+    auto scriptFile = folder / "script.lua";
 
-    auto structuresFile = GENERATORS_DIR / fs::u8path(name + ".files") / STRUCTURES_FILE;
-    auto structuresMap = paths.readCombinedObject(structuresFile.u8string());
-    load_structures(def, structuresMap, structuresFile.parent_path(), paths);
+    auto structuresFile = GENERATORS_DIR / (name + ".files") / STRUCTURES_FILE;
+    auto structuresMap = paths.readCombinedObject(structuresFile.string());
+    load_structures(def, structuresMap, structuresFile.parent(), paths);
 
-    auto biomesFile = GENERATORS_DIR / fs::u8path(name + ".files") / BIOMES_FILE;
-    auto biomesMap = paths.readCombinedObject(biomesFile.u8string());
+    auto biomesFile = GENERATORS_DIR / (name + ".files") / BIOMES_FILE;
+    auto biomesMap = paths.readCombinedObject(biomesFile.string());
     if (biomesMap.empty()) {
         throw std::runtime_error(
             "generator " + util::quote(def.name) +

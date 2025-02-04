@@ -57,24 +57,24 @@ glm::u32vec2 WorldRegion::getChunkDataSize(uint x, uint z) {
     return sizes[z * REGION_SIZE + x];
 }
 
-WorldRegions::WorldRegions(const fs::path& directory) : directory(directory) {
+WorldRegions::WorldRegions(const io::path& directory) : directory(directory) {
     for (size_t i = 0; i < REGION_LAYERS_COUNT; i++) {
         layers[i].layer = static_cast<RegionLayerIndex>(i);
     }
     auto& voxels = layers[REGION_LAYER_VOXELS];
-    voxels.folder = directory / fs::path("regions");
+    voxels.folder = directory / "regions";
     voxels.compression = compression::Method::EXTRLE16;
 
     auto& lights = layers[REGION_LAYER_LIGHTS];
-    lights.folder = directory / fs::path("lights");
+    lights.folder = directory / "lights";
     lights.compression = compression::Method::EXTRLE8;
 
     layers[REGION_LAYER_INVENTORIES].folder =
-        directory / fs::path("inventories");
-    layers[REGION_LAYER_ENTITIES].folder = directory / fs::path("entities");
+        directory / "inventories";
+    layers[REGION_LAYER_ENTITIES].folder = directory / "entities";
 
     auto& blocksData = layers[REGION_LAYER_BLOCKS_DATA];
-    blocksData.folder = directory / fs::path("blocksdata");
+    blocksData.folder = directory / "blocksdata";
 }
 
 WorldRegions::~WorldRegions() = default;
@@ -388,17 +388,17 @@ void WorldRegions::processRegion(
     }
 }
 
-const fs::path& WorldRegions::getRegionsFolder(RegionLayerIndex layerid) const {
+const io::path& WorldRegions::getRegionsFolder(RegionLayerIndex layerid) const {
     return layers[layerid].folder;
 }
 
-fs::path WorldRegions::getRegionFilePath(RegionLayerIndex layerid, int x, int z) const {
+io::path WorldRegions::getRegionFilePath(RegionLayerIndex layerid, int x, int z) const {
     return layers[layerid].getRegionFilePath(x, z);
 }
 
 void WorldRegions::writeAll() {
     for (auto& layer : layers) {
-        fs::create_directories(layer.folder);
+        io::create_directories(layer.folder);
         layer.writeAll();
     }
 }
@@ -409,9 +409,9 @@ void WorldRegions::deleteRegion(RegionLayerIndex layerid, int x, int z) {
         throw std::runtime_error("region file is currently in use");
     }
     auto file = layer.getRegionFilePath(x, z);
-    if (fs::exists(file)) {
-        logger.info() << "remove region file " << file.u8string();
-        fs::remove(file);
+    if (io::exists(file)) {
+        logger.info() << "remove region file " << file.string();
+        io::remove(file);
     }
 }
 

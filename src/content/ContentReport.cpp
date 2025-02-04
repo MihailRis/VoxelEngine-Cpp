@@ -4,11 +4,11 @@
 
 #include "coders/json.hpp"
 #include "constants.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "items/ItemDef.hpp"
 #include "voxels/Block.hpp"
 #include "world/World.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "Content.hpp"
 
 ContentReport::ContentReport(
@@ -67,7 +67,7 @@ static void process_blocks_data(
 
 std::shared_ptr<ContentReport> ContentReport::create(
     const std::shared_ptr<WorldFiles>& worldFiles,
-    const fs::path& filename,
+    const io::path& filename,
     const Content* content
 ) {
     auto worldInfo = worldFiles->readWorldInfo();
@@ -75,7 +75,7 @@ std::shared_ptr<ContentReport> ContentReport::create(
         return nullptr;
     }
 
-    auto root = files::read_json(filename);
+    auto root = io::read_json(filename);
     uint regionsVersion = 2U; // old worlds compatibility (pre 0.23)
     root.at("region-version").get(regionsVersion);
     auto& blocklist = root["blocks"];
