@@ -17,13 +17,13 @@ namespace fs = std::filesystem;
 
 static debug::Logger logger("engine-paths");
 
-static inline auto SCREENSHOTS_FOLDER = std::filesystem::u8path("screenshots");
-static inline auto CONTENT_FOLDER = std::filesystem::u8path("content");
-static inline auto WORLDS_FOLDER = std::filesystem::u8path("worlds");
-static inline auto CONFIG_FOLDER = io::path("config");
-static inline auto EXPORT_FOLDER = io::path("export");
-static inline auto CONTROLS_FILE = std::filesystem::u8path("controls.toml");
-static inline auto SETTINGS_FILE = std::filesystem::u8path("settings.toml");
+static inline io::path SCREENSHOTS_FOLDER = "screenshots";
+static inline io::path CONTENT_FOLDER = "content";
+static inline io::path WORLDS_FOLDER = "worlds";
+static inline io::path CONFIG_FOLDER = "config";
+static inline io::path EXPORT_FOLDER = "export";
+static inline io::path CONTROLS_FILE = "controls.toml";
+static inline io::path SETTINGS_FILE = "settings.toml";
 
 static io::path toCanonic(io::path path) {
     std::stack<std::string> parts;
@@ -46,7 +46,7 @@ static io::path toCanonic(io::path path) {
             throw files_access_error("entry point reached");
         }
 
-        path = path / std::filesystem::path(part);
+        path = path / part;
     }
     return path;
 }
@@ -118,7 +118,7 @@ io::path EnginePaths::getCurrentWorldFolder() {
 }
 
 io::path EnginePaths::getWorldFolderByName(const std::string& name) {
-    return getWorldsFolder() / std::filesystem::path(name);
+    return getWorldsFolder() / name;
 }
 
 io::path EnginePaths::getControlsFile() const {
@@ -230,7 +230,7 @@ std::vector<std::string> ResPaths::listdirRaw(const std::string& folderName) con
     std::vector<std::string> entries;
     for (int i = roots.size() - 1; i >= 0; i--) {
         auto& root = roots[i];
-        auto folder = root.path / fs::u8path(folderName);
+        auto folder = root.path / folderName;
         if (!io::is_directory(folder)) continue;
         for (const auto& file : io::directory_iterator(folder)) {
             entries.emplace_back(root.name + ":" + folderName + "/" + file.name());

@@ -125,7 +125,7 @@ void lua::initialize(const EnginePaths& paths, const CoreParameters& params) {
     main_thread = create_state(
         paths, params.headless ? StateType::SCRIPT : StateType::BASE
     );
-    lua::pushstring(main_thread, params.scriptFile.stem());
+    lua::pushstring(main_thread, params.scriptFile.stem().u8string());
     lua::setglobal(main_thread, "__VC_SCRIPT_NAME");
 }
 
