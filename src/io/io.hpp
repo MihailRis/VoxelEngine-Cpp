@@ -142,11 +142,17 @@ namespace io {
         bool compressed = false
     );
 
-    bool read(const io::path& file, char* data, size_t size);
+    /// @brief Open file for reading 
+    /// @throw std::runtime_error if file cannot be opened
     std::unique_ptr<std::istream> read(const io::path& file);
+
+    /// @brief Read bytes array from the file
+    bool read(const io::path& file, char* data, size_t size);
     util::Buffer<ubyte> read_bytes_buffer(const path& file);
     std::unique_ptr<ubyte[]> read_bytes(const path& file, size_t& length);
     std::vector<ubyte> read_bytes(const path& file);
+
+    /// @brief Read string from the file
     std::string read_string(const path& file);
 
     /// @brief Read JSON or BJSON file

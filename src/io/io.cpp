@@ -90,10 +90,11 @@ bool io::write_bytes(
 ) {
     auto device = io::get_device(filename.entryPoint());
     if (device == nullptr) {
-        return false;
+        throw std::runtime_error("io-device not found: " + filename.entryPoint());
     }
-    device->write(filename.pathPart(), data, size);
-    return true;
+    auto stream = device->write(filename.pathPart());
+    stream->write(reinterpret_cast<const char*>(data), size);
+    return stream->good();
 }
 
 bool io::read(const io::path& filename, char* data, size_t size) {

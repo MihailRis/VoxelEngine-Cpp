@@ -26,13 +26,13 @@ fs::path StdfsDevice::resolve(std::string_view path) {
     return root / fs::u8path(io::path(std::string(path)).normalized().string());
 }
 
-void StdfsDevice::write(std::string_view path, const void* data, size_t size) {
+std::unique_ptr<std::ostream> StdfsDevice::write(std::string_view path) {
     auto resolved = resolve(path);
-    std::ofstream output(resolved, std::ios::binary);
-    if (!output.is_open()) {
+    auto output = std::make_unique<std::ofstream>(resolved, std::ios::binary);
+    if (!output->is_open()) {
         throw std::runtime_error("could not to open file " + resolved.u8string());
     }
-    output.write((const char*)data, size);
+    return output;
 }
 
 std::unique_ptr<std::istream> StdfsDevice::read(std::string_view path) {

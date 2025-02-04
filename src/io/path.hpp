@@ -5,6 +5,7 @@
 #include <filesystem>
 
 namespace io {
+    /// @brief Access violation error
     class access_error : public std::runtime_error {
     public:
         access_error(const std::string& msg) : std::runtime_error(msg) {
