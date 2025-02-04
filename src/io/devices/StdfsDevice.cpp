@@ -3,8 +3,12 @@
 #include <fstream>
 #include <filesystem>
 
+#include "debug/Logger.hpp"
+
 using namespace io;
 namespace fs = std::filesystem;
+
+static debug::Logger logger("io-stdfs");
 
 fs::path StdfsDevice::resolve(std::string_view path) {
     return root / fs::u8path(path);
@@ -60,7 +64,12 @@ bool StdfsDevice::remove(std::string_view path) {
 
 uint64_t StdfsDevice::removeAll(std::string_view path) {
     auto resolved = resolve(path);
-    return fs::remove_all(resolved);
+    if (fs::exists(resolved)) {
+        logger.info() << "removeAll " << resolved; 
+        return fs::remove_all(resolved);
+    } else {
+        return 0;
+    }
 }
 
 class StdfsPathsGenerator : public PathsGenerator {
