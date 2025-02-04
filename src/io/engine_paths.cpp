@@ -180,14 +180,16 @@ void EnginePaths::setCurrentWorldFolder(io::path folder) {
 
 void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     // Remove previous content entry-points
-    for (const auto& pack : *this->contentPacks) {
-        io::remove_device(pack.id);
+    for (const auto& id : contentEntryPoints) {
+        io::remove_device(id);
     }
+    contentEntryPoints.clear();
     this->contentPacks = contentPacks;
     // Create content devices
     for (const auto& pack : *contentPacks) {
         auto parent = pack.folder.entryPoint();
         io::create_subdevice(pack.id, parent, pack.folder);
+        contentEntryPoints.push_back(pack.id);
     }
 }
 

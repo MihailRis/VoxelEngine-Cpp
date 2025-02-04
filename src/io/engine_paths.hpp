@@ -53,6 +53,7 @@ private:
     io::path currentWorldFolder;
     std::optional<std::filesystem::path> scriptFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
+    std::vector<std::string> contentEntryPoints;
 };
 
 struct PathsRoot {
