@@ -169,14 +169,6 @@ function table.set_default(t, key, default)
     return t[key]
 end
 
-function table.get_default(t, key, default)
-    if t[key] == nil then
-        return default
-    end
-
-    return t[key]
-end
-
 function table.flat(t)
     local flat = {}
 
