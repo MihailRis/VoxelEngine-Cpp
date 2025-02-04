@@ -10,12 +10,6 @@
 #include "data/dv.hpp"
 #include "content/ContentPack.hpp"
 
-class files_access_error : public std::runtime_error {
-public:
-    files_access_error(const std::string& msg) : std::runtime_error(msg) {
-    }
-};
-
 class EnginePaths {
 public:
     void prepare();

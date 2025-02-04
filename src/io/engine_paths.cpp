@@ -25,32 +25,6 @@ static inline io::path EXPORT_FOLDER = "export";
 static inline io::path CONTROLS_FILE = "controls.toml";
 static inline io::path SETTINGS_FILE = "settings.toml";
 
-static io::path toCanonic(io::path path) {
-    std::stack<std::string> parts;
-    
-    path = std::filesystem::u8path(path.string()).lexically_normal().string();
-    do {
-        parts.push(path.name());
-        path = path.parent();
-    } while (!path.empty());
-
-    path = "";
-
-    while (!parts.empty()) {
-        const std::string part = parts.top();
-        parts.pop();
-        if (part == ".") {
-            continue;
-        }
-        if (part == "..") {
-            throw files_access_error("entry point reached");
-        }
-
-        path = path / part;
-    }
-    return path;
-}
-
 void EnginePaths::prepare() {
     io::set_device("res", std::make_shared<io::StdfsDevice>(resourcesFolder, false));
     io::set_device("user", std::make_shared<io::StdfsDevice>(userFilesFolder));

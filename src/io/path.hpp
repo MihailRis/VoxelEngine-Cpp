@@ -1,9 +1,16 @@
 #pragma once
 
 #include <string>
+#include <stdexcept>
 #include <filesystem>
 
 namespace io {
+    class access_error : public std::runtime_error {
+    public:
+        access_error(const std::string& msg) : std::runtime_error(msg) {
+        }
+    };
+
     /// @brief std::filesystem::path project-specific alternative having
     /// `entry_point:path` scheme and solving std::filesystem::path problems:
     /// - implicit std::string conversions depending on compiler
@@ -114,6 +121,8 @@ namespace io {
             }
             return str.substr(0, slashpos);
         }
+
+        path normalized() const;
 
         std::string string() const {
             return str;
