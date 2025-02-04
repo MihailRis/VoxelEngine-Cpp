@@ -151,6 +151,7 @@ namespace io {
     bool is_regular_file(const io::path& file);
     bool is_directory(const io::path& file);
     bool exists(const io::path& file);
+    bool create_directory(const io::path& file);
     bool create_directories(const io::path& file);
     bool remove(const io::path& file);
     uint64_t remove_all(const io::path& file);

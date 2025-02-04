@@ -213,13 +213,21 @@ bool io::exists(const io::path& file) {
     return device->exists(file.pathPart());
 }
 
+bool io::create_directory(const io::path& file) {
+    auto& device = io::require_device(file.entryPoint());
+    if (device.isdir(file.pathPart())) {
+        return false;
+    }
+    return device.mkdirs(file.pathPart());
+}
+
+
 bool io::create_directories(const io::path& file) {
     auto& device = io::require_device(file.entryPoint());
     if (device.isdir(file.pathPart())) {
         return false;
     }
-    device.mkdirs(file.pathPart());
-    return true;
+    return device.mkdirs(file.pathPart());
 }
 
 bool io::remove(const io::path& file) {

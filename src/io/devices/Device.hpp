@@ -20,7 +20,8 @@ namespace io {
         virtual bool exists(std::string_view path) = 0;
         virtual bool isdir(std::string_view path) = 0;
         virtual bool isfile(std::string_view path) = 0;
-        virtual void mkdirs(std::string_view path) = 0;
+        virtual bool mkdir(std::string_view path) = 0;
+        virtual bool mkdirs(std::string_view path) = 0;
         virtual bool remove(std::string_view path) = 0;
         virtual uint64_t removeAll(std::string_view path) = 0;
         virtual std::unique_ptr<PathsGenerator> list(std::string_view path) = 0;
@@ -62,8 +63,12 @@ namespace io {
             return parent->isfile((root / path).pathPart());
         }
 
-        void mkdirs(std::string_view path) override {
-            parent->mkdirs((root / path).pathPart());
+        bool mkdir(std::string_view path) override {
+            return parent->mkdir((root / path).pathPart());
+        }
+
+        bool mkdirs(std::string_view path) override {
+            return parent->mkdirs((root / path).pathPart());
         }
 
         bool remove(std::string_view path) override {

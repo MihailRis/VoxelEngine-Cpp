@@ -12,7 +12,8 @@ namespace io {
         bool exists(std::string_view path) override;
         bool isdir(std::string_view path) override;
         bool isfile(std::string_view path) override;
-        void mkdirs(std::string_view path) override;
+        bool mkdir(std::string_view path) override;
+        bool mkdirs(std::string_view path) override;
         bool remove(std::string_view path) override;
         uint64_t removeAll(std::string_view path) override;
         std::unique_ptr<PathsGenerator> list(std::string_view path) override;

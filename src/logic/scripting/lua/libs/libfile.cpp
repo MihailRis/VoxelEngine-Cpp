@@ -98,7 +98,7 @@ static int l_length(lua::State* L) {
 
 static int l_mkdir(lua::State* L) {
     io::path path = lua::require_string(L, 1);
-    return lua::pushboolean(L, io::create_directories(path)); // FIXME
+    return lua::pushboolean(L, io::create_directory(path));
 }
 
 static int l_mkdirs(lua::State* L) {
