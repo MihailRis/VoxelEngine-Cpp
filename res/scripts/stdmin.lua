@@ -169,6 +169,14 @@ function table.set_default(t, key, default)
     return t[key]
 end
 
+function table.get_default(t, key, default)
+    if t[key] == nil then
+        return default
+    end
+
+    return t[key]
+end
+
 function table.flat(t)
     local flat = {}
 
@@ -197,17 +205,18 @@ function table.deep_flat(t)
     return flat
 end
 
-function table.slice(arr, start, stop)
-    local sliced = {}
+function table.sub(arr, start, stop)
+    local res = {}
     start = start or 1
     stop = stop or #arr
 
     for i = start, stop do
-        table.insert(sliced, arr[i])
+        table.insert(res, arr[i])
     end
 
-    return sliced
+    return res
 end
+
 ----------------------------------------------
 
 local pattern_escape_replacements = {
