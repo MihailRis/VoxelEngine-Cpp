@@ -326,8 +326,8 @@ void Engine::loadAssets() {
 }
 
 static void load_configs(const io::path& root) {
-    auto configFolder = root/io::path("config");
-    auto bindsFile = configFolder/io::path("bindings.toml");
+    auto configFolder = root / "config";
+    auto bindsFile = configFolder / "bindings.toml";
     if (io::is_regular_file(bindsFile)) {
         Events::loadBindings(
             bindsFile.string(), io::read_string(bindsFile), BindType::BIND

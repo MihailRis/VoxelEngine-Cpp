@@ -45,7 +45,7 @@ static int l_get_list(lua::State* L) {
         const auto& folder = worlds[i];
 
         auto root =
-            json::parse(io::read_string(folder / fs::u8path("world.json")));
+            json::parse(io::read_string(folder / "world.json"));
         const auto& versionMap = root["version"];
         int versionMajor = versionMap["major"].asInteger();
         int versionMinor = versionMap["minor"].asInteger();
@@ -59,8 +59,8 @@ static int l_get_list(lua::State* L) {
         if (!engine->isHeadless() && !AssetsLoader::loadExternalTexture(
                 assets,
                 icon,
-                {worlds[i] / fs::path("icon.png"),
-                 worlds[i] / fs::path("preview.png")}
+                {worlds[i] / "icon.png",
+                 worlds[i] / "preview.png"}
             )) {
             icon = "gui/no_world_icon";
         }

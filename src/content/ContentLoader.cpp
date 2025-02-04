@@ -761,7 +761,7 @@ void ContentLoader::load() {
     auto folder = pack->folder;
 
     // Load world generators
-    io::path generatorsDir = folder / fs::u8path("generators");
+    io::path generatorsDir = folder / "generators";
     foreach_file(generatorsDir, [this](const io::path& file) {
         std::string name = file.stem();
         auto [packid, full, filename] = create_unit_id(pack->id, name);
@@ -816,7 +816,7 @@ void ContentLoader::load() {
     }
 
     // Load skeletons
-    io::path skeletonsDir = folder / fs::u8path("skeletons");
+    io::path skeletonsDir = folder / "skeletons";
     foreach_file(skeletonsDir, [this](const io::path& file) {
         std::string name = pack->id + ":" + file.stem();
         std::string text = io::read_string(file);
@@ -875,7 +875,7 @@ void ContentLoader::loadScripts(Content& content) {
             );
         }
         // Load entity components
-        io::path componentsDir = folder / fs::u8path("scripts/components");
+        io::path componentsDir = folder / "scripts/components";
         foreach_file(componentsDir, [&pack](const io::path& file) {
             auto name = pack.id + ":" + file.stem();
             scripting::load_entity_component(

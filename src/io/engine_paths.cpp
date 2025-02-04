@@ -98,10 +98,8 @@ io::path EnginePaths::getNewScreenshotFile(const std::string& ext) {
     auto file = folder / ("screenshot-" + datetimestr + "." + ext);
     uint index = 0;
     while (io::exists(file)) {
-        file = folder / fs::u8path(
-                            "screenshot-" + datetimestr + "-" +
-                            std::to_string(index) + "." + ext
-                        );
+        file = folder / ("screenshot-" + datetimestr + "-" +
+                         std::to_string(index) + "." + ext);
         index++;
     }
     return file;
