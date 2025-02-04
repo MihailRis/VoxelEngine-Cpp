@@ -3,10 +3,14 @@
 #include "coders/commons.hpp"
 #include "coders/lua_parsing.hpp"
 #include "io/io.hpp"
+#include "io/devices/StdfsDevice.hpp"
 #include "util/stringutil.hpp"
 
+namespace fs = std::filesystem;
+
 TEST(lua_parsing, Tokenizer) {
-    auto filename = "../../res/scripts/stdlib.lua";
+    io::set_device("res", std::make_shared<io::StdfsDevice>(fs::u8path("../../res")));
+    auto filename = "res:scripts/stdlib.lua";
     auto source = io::read_string(filename);
     try {
         auto tokens = lua::tokenize(filename, source);

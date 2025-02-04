@@ -110,13 +110,9 @@ namespace io {
         path parent() const {
             size_t slashpos = str.rfind('/');
             if (slashpos == std::string::npos) {
-                return colonPos == std::string::npos
-                           ? path()
-                           : path(str.substr(0, colonPos));
+                return colonPos == std::string::npos ? "" : str;
             }
-            return colonPos == std::string::npos
-                       ? path(str.substr(0, slashpos))
-                       : path(str.substr(0, colonPos) + str.substr(slashpos));
+            return str.substr(0, slashpos);
         }
 
         std::string string() const {
