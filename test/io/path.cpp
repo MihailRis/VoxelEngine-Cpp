@@ -12,3 +12,9 @@ TEST(Path, Path) {
     EXPECT_EQ(p / "child", "entry_point:path/file.ext/child");
     EXPECT_EQ(p.parent(), "entry_point:path");
 }
+
+TEST(Path, DotElements) {
+    io::path p("entry_point:a/b/c/../../d/e/../");
+    EXPECT_EQ(p.normalized(), "entry_point:a/d");
+    EXPECT_EQ(io::path("test:a///b//////c/").parent(), io::path("test:a///b"));
+}

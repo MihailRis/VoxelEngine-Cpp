@@ -115,13 +115,7 @@ namespace io {
         }
 
         /// @brief Get parent path
-        path parent() const {
-            size_t slashpos = str.rfind('/');
-            if (slashpos == std::string::npos) {
-                return colonPos == std::string::npos ? "" : str;
-            }
-            return str.substr(0, slashpos);
-        }
+        path parent() const;
 
         path normalized() const;
 

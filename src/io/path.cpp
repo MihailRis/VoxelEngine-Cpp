@@ -10,29 +10,69 @@ void path::checkValid() const {
     }
 }
 
+path path::parent() const {
+    size_t length = str.length();
+    while (length && str[length-1] == '/') {
+        length--;
+    }
+    size_t slashpos = length;
+    slashpos = str.rfind('/', slashpos-1);
+    if (length >= 2 && str.rfind("..") == length - 2) {
+        return normalized().parent();
+    }
+    if (slashpos == std::string::npos) {
+        return colonPos == std::string::npos ? "" : str.substr(0, colonPos+1);
+    }
+    while (slashpos && str[slashpos-1] == '/') {
+        slashpos--;
+    }
+    return str.substr(0, slashpos);
+}
+
 path path::normalized() const {
     io::path path = pathPart();
 
-    std::stack<std::string> parts;
-    do {
-        parts.push(path.name());
-        path.str = path.parent().string();
-    } while (!path.empty());
-
-    while (!parts.empty()) {
-        const std::string part = parts.top();
-        parts.pop();
-        if (part == ".") {
+    std::stack<io::path> parts;
+    int64_t pos = 0;
+    int64_t prev = pos-1;
+    while (pos < path.str.length()) {
+        pos = path.str.find('/', pos);
+        if (pos == std::string::npos) {
+            parts.push(path.str.substr(prev + 1));
+            break;
+        }
+        if (pos - prev == 0) {
+            prev = pos;
+            pos = prev + 1;
             continue;
         }
-        if (part == "..") {
-            throw access_error("entry point reached");
+        auto token = path.str.substr(prev + 1, pos - (prev + 1));
+        prev = pos;
+        if (token == ".") {
+            continue;
+        } else if (token == "..") {
+            if (parts.empty()) {
+                throw access_error("entry-point reached");
+            }
+            parts.pop();
+            continue;
         }
-
-        path = path / part;
+        parts.push(std::move(token));
     }
-    if (path.colonPos != std::string::npos) {
-        path = path.entryPoint() + ":" + path.string();
+    bool started = false;
+
+    path = "";
+    while (!parts.empty()) {
+        const auto& token = parts.top();
+        if (path.empty()) {
+            path = token;
+        } else {
+            path = token / path;
+        }
+        parts.pop();
+    }
+    if (colonPos != std::string::npos) {
+        path = str.substr(0, colonPos+1) + path.string();
     }
     return path;
 }
