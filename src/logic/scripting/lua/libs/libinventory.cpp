@@ -80,7 +80,7 @@ static int l_add(lua::State* L) {
 
     auto& inv = get_inventory(invid);
     ItemStack item(itemid, count);
-    inv.move(item, indices);
+    inv.move(item, *indices);
     return lua::pushinteger(L, item.getCount());
 }
 
@@ -144,9 +144,9 @@ static int l_move(lua::State* L) {
     auto& invB = get_inventory(invBid, 3);
     auto& slot = invA.getSlot(slotAid);
     if (slotBid == -1) {
-        invB.move(slot, content->getIndices());
+        invB.move(slot, *content->getIndices());
     } else {
-        invB.move(slot, content->getIndices(), slotBid, slotBid + 1);
+        invB.move(slot, *content->getIndices(), slotBid, slotBid + 1);
     }
     return 0;
 }
@@ -163,9 +163,9 @@ static int l_move_range(lua::State* L) {
     auto invB = get_inventory(invBid, 3);
     auto& slot = invA.getSlot(slotAid);
     if (slotBegin == -1) {
-        invB.move(slot, content->getIndices());
+        invB.move(slot, *content->getIndices());
     } else {
-        invB.move(slot, content->getIndices(), slotBegin, slotEnd);
+        invB.move(slot, *content->getIndices(), slotBegin, slotEnd);
     }
     return 0;
 }

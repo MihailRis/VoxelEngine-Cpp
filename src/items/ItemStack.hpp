@@ -6,10 +6,10 @@
 class ContentIndices;
 
 class ItemStack {
-    itemid_t item;
-    itemcount_t count;
+    itemid_t item = ITEM_EMPTY;
+    itemcount_t count = 0;
 public:
-    ItemStack();
+    ItemStack() = default;
 
     ItemStack(itemid_t item, itemcount_t count);
 
@@ -17,7 +17,12 @@ public:
     void setCount(itemcount_t count);
 
     bool accepts(const ItemStack& item) const;
-    void move(ItemStack& item, const ContentIndices* indices);
+
+    /// @brief Move items from one stack to another. 
+    /// If the target stack is completely filled, the source stack will be reduced.
+    /// @param item source stack
+    /// @param indices content indices
+    void move(ItemStack& item, const ContentIndices& indices);
 
     inline void clear() {
         set(ItemStack(0, 0));

@@ -37,7 +37,7 @@ size_t Inventory::findSlotByItem(
 }
 
 void Inventory::move(
-    ItemStack& item, const ContentIndices* indices, size_t begin, size_t end
+    ItemStack& item, const ContentIndices& indices, size_t begin, size_t end
 ) {
     end = std::min(slots.size(), end);
     for (size_t i = begin; i < end && !item.isEmpty(); i++) {

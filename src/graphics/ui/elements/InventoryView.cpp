@@ -219,7 +219,7 @@ void SlotView::performLeftClick(ItemStack& stack, ItemStack& grabbed) {
         return;
     }
     if (!layout.itemSource && stack.accepts(grabbed) && layout.placing) {
-        stack.move(grabbed, content->getIndices());
+        stack.move(grabbed, *content->getIndices());
     } else {
         if (layout.itemSource) {
             if (grabbed.isEmpty()) {

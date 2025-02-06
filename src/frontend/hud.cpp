@@ -108,21 +108,21 @@ std::shared_ptr<UINode> HudElement::getNode() const {
 
 std::shared_ptr<InventoryView> Hud::createContentAccess() {
     auto& content = frontend.getLevel().content;
-    auto indices = content.getIndices();
+    auto& indices = *content.getIndices();
     auto inventory = player.getInventory();
     
-    size_t itemsCount = indices->items.count();
+    size_t itemsCount = indices.items.count();
     auto accessInventory = std::make_shared<Inventory>(0, itemsCount);
     for (size_t id = 1; id < itemsCount; id++) {
         accessInventory->getSlot(id-1).set(ItemStack(id, 1));
     }
 
     SlotLayout slotLayout(-1, glm::vec2(), false, true, nullptr,
-    [=](uint, ItemStack& item) {
+    [inventory, &indices](uint, ItemStack& item) {
         auto copy = ItemStack(item);
         inventory->move(copy, indices);
     }, 
-    [=](uint, ItemStack& item) {
+    [this, inventory](uint, ItemStack& item) {
         inventory->getSlot(player.getChosenSlot()).set(item);
     });
 
@@ -494,12 +494,12 @@ void Hud::dropExchangeSlot() {
     
     auto indices = frontend.getLevel().content.getIndices();
     if (auto invView = std::dynamic_pointer_cast<InventoryView>(blockUI)) {
-        invView->getInventory()->move(stack, indices);
+        invView->getInventory()->move(stack, *indices);
     }
     if (stack.isEmpty()) {
         return;
     }
-    player.getInventory()->move(stack, indices);
+    player.getInventory()->move(stack, *indices);
     if (!stack.isEmpty()) {
         logger.warning() << "discard item [" << stack.getItemId() << ":"
                          << stack.getCount();
