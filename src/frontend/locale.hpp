@@ -3,8 +3,9 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <filesystem>
 #include <unordered_map>
+
+#include "io/fwd.hpp"
 
 struct ContentPack;
 
@@ -44,17 +45,17 @@ namespace langs {
     extern std::unordered_map<std::string, LocaleInfo> locales_info;
 
     extern void loadLocalesInfo(
-        const std::filesystem::path& resdir,
+        const io::path& resdir,
         std::string& fallback);
 
     extern std::string locale_by_envlocale(const std::string& envlocale,
-                                           const std::filesystem::path& resdir);
+                                           const io::path& resdir);
 
-    extern void load(const std::filesystem::path& resdir,
+    extern void load(const io::path& resdir,
                      const std::string& locale,
                      const std::vector<ContentPack>& packs,
                      Lang& lang);
-    extern void load(const std::filesystem::path& resdir,
+    extern void load(const io::path& resdir,
                      const std::string& locale,
                      const std::string& fallback,
                      const std::vector<ContentPack>& packs);
@@ -63,7 +64,7 @@ namespace langs {
     extern const std::wstring& get(const std::wstring& key, 
                                    const std::wstring& context);
 
-    extern void setup(const std::filesystem::path& resdir,
+    extern void setup(const io::path& resdir,
                       std::string locale,
                       const std::vector<ContentPack>& packs);
 }

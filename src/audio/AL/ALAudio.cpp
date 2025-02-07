@@ -278,7 +278,7 @@ void ALSpeaker::play() {
     AL_CHECK(alSourcef(
         source,
         AL_GAIN,
-        volume * p_channel->getVolume() * get_channel(0)->getVolume()
+        volume * p_channel->getVolume()
     ));
     AL_CHECK(alSourcePlay(source));
 }

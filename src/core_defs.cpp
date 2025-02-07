@@ -3,15 +3,15 @@
 #include "items/ItemDef.hpp"
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
-#include "files/files.hpp"
-#include "files/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/engine_paths.hpp"
 #include "window/Window.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "voxels/Block.hpp"
 
 // All in-game definitions (blocks, items, etc..)
-void corecontent::setup(const EnginePaths& paths, ContentBuilder& builder) {
+void corecontent::setup(ContentBuilder& builder) {
     {
         Block& block = builder.blocks.create(CORE_AIR);
         block.replaceable = true;
@@ -28,10 +28,10 @@ void corecontent::setup(const EnginePaths& paths, ContentBuilder& builder) {
         item.iconType = ItemIconType::NONE;
     }
 
-    auto bindsFile = paths.getResourcesFolder()/fs::path("bindings.toml");
-    if (fs::is_regular_file(bindsFile)) {
+    auto bindsFile = "res:bindings.toml";
+    if (io::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(), files::read_string(bindsFile), BindType::BIND
+            bindsFile, io::read_string(bindsFile), BindType::BIND
         );
     }
 

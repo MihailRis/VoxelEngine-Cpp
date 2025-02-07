@@ -1,7 +1,7 @@
 #include "api_lua.hpp"
 
-#include "files/files.hpp"
-#include "files/util.hpp"
+#include "io/io.hpp"
+#include "io/util.hpp"
 #include "coders/binary_json.hpp"
 #include "world/Level.hpp"
 #include "world/generator/VoxelFragment.hpp"
@@ -14,10 +14,10 @@ using namespace scripting;
 static int l_save_fragment(lua::State* L) {
     const auto& paths = engine->getPaths();
     auto fragment = lua::touserdata<lua::LuaVoxelFragment>(L, 1);
-    auto file = paths.resolve(lua::require_string(L, 2), true);
+    auto file = lua::require_string(L, 2);
     auto map = fragment->getFragment()->serialize();
     auto bytes = json::to_binary(map, true);
-    files::write_bytes(file, bytes.data(), bytes.size());
+    io::write_bytes(file, bytes.data(), bytes.size());
     return 0;
 }
 
@@ -35,13 +35,11 @@ static int l_create_fragment(lua::State* L) {
 }
 
 static int l_load_fragment(lua::State* L) {
-    const auto& paths = engine->getPaths();
-    auto filename = lua::require_string(L, 1);
-    auto path = paths.resolve(filename);
-    if (!std::filesystem::exists(path)) {
-        throw std::runtime_error("file "+path.u8string()+" does not exist");
+    io::path path = lua::require_string(L, 1);
+    if (!io::exists(path)) {
+        throw std::runtime_error("file "+path.string()+" does not exist");
     }
-    auto map = files::read_binary_json(path);
+    auto map = io::read_binary_json(path);
 
     auto fragment = std::make_shared<VoxelFragment>();
     fragment->deserialize(map);

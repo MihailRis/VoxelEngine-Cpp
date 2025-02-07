@@ -31,7 +31,17 @@ void guiutil::alert(
     const std::wstring& text,
     const runnable& on_hidden
 ) {
-    auto panel = std::make_shared<Panel>(glm::vec2(500, 300), glm::vec4(4.0f), 4.0f);
+    auto panel = std::make_shared<Panel>(
+        glm::vec2(
+            glm::min(
+                static_cast<size_t>(650),
+                glm::max(text.length() * 10, static_cast<size_t>(200))
+            ),
+            300
+        ),
+        glm::vec4(4.0f),
+        4.0f
+    );
     panel->setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.5f));
 
     auto menuPtr = engine.getGUI()->getMenu();
@@ -40,14 +50,15 @@ void guiutil::alert(
         menu.removePage("<alert>");
         if (on_hidden) {
             on_hidden();
-        } else {
-            menu.back();
+        } else if (!menu.back()) {
+            menu.reset();
         }
     };
     
     auto label = std::make_shared<Label>(text);
     label->setMultiline(true);
     label->setSize(glm::vec2(1, 24));
+    label->setAutoResize(true);
     panel->add(label);
     panel->add(std::make_shared<Button>(
         langs::get(L"Ok"), glm::vec4(10.f), 
@@ -56,6 +67,7 @@ void guiutil::alert(
         }
     ));
     panel->refresh();
+
     panel->keepAlive(Events::keyCallbacks[keycode::ENTER].add([on_hidden_final](){
         on_hidden_final();
         return true;

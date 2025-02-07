@@ -1,9 +1,10 @@
 #pragma once
 
-#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "io/io.hpp"
 
 class ResPaths;
 
@@ -29,7 +30,7 @@ public:
     bool hasDefine(const std::string& name) const;
 
     std::string process(
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& source,
         bool header = false
     );

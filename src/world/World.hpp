@@ -1,10 +1,10 @@
 #pragma once
 
-#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "io/fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "interfaces/Serializable.hpp"
 #include "typedefs.hpp"
@@ -15,8 +15,6 @@ class WorldFiles;
 class Level;
 class ContentReport;
 struct EngineSettings;
-
-namespace fs = std::filesystem;
 
 class world_load_error : public std::runtime_error {
 public:
@@ -100,7 +98,7 @@ public:
     static std::unique_ptr<Level> create(
         const std::string& name,
         const std::string& generator,
-        const fs::path& directory,
+        const io::path& directory,
         uint64_t seed,
         EngineSettings& settings,
         const Content& content,

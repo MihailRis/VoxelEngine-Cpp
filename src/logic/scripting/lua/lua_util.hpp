@@ -1,13 +1,13 @@
 #pragma once
 
+#include <stdexcept>
 #include <typeindex>
 #include <typeinfo>
-#include <stdexcept>
 #include <unordered_map>
 
 #include "data/dv.hpp"
-#include "lua_wrapper.hpp"
 #include "lua_custom_types.hpp"
+#include "lua_wrapper.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
@@ -68,7 +68,7 @@ namespace lua {
         return 1;
     }
 
-    template<int n>
+    template <int n>
     inline int pushvec_stack(lua::State* L, const glm::vec<n, float>& vec) {
         for (int i = 0; i < n; i++) {
             pushnumber(L, vec[i]);
@@ -76,7 +76,7 @@ namespace lua {
         return n;
     }
 
-    template<int n>
+    template <int n>
     inline int pushivec_stack(lua::State* L, const glm::vec<n, int>& vec) {
         for (int i = 0; i < n; i++) {
             pushinteger(L, vec[i]);
@@ -108,10 +108,10 @@ namespace lua {
 
     inline int pushquat(lua::State* L, glm::quat quat) {
         createtable(L, 4, 0);
-        
+
         pushnumber(L, quat.w);
         rawseti(L, 1);
-        
+
         pushnumber(L, quat.x);
         rawseti(L, 2);
 
@@ -127,7 +127,7 @@ namespace lua {
 
         pushnumber(L, quat.w);
         rawseti(L, 1);
-        
+
         pushnumber(L, quat.x);
         rawseti(L, 2);
 
@@ -287,8 +287,9 @@ namespace lua {
     }
 
     template <class T>
-    inline std::enable_if_t<std::is_base_of_v<Userdata, T>> 
-    newusertype(lua::State* L) {
+    inline std::enable_if_t<std::is_base_of_v<Userdata, T>> newusertype(
+        lua::State* L
+    ) {
         const std::string& name = T::TYPENAME;
         usertypeNames[typeid(T)] = name;
         T::createMetatable(L);
@@ -386,7 +387,7 @@ namespace lua {
         rawgeti(L, 4);
         auto z = tonumber(L, -1);
         pop(L);
-        
+
         pop(L);
         return glm::quat(x, y, z, w);
     }
@@ -445,8 +446,7 @@ namespace lua {
 
     int pushvalue(lua::State*, const dv::value& value);
 
-    [[nodiscard]]
-    dv::value tovalue(lua::State*, int idx);
+    [[nodiscard]] dv::value tovalue(lua::State*, int idx);
 
     inline bool getfield(lua::State* L, const std::string& name, int idx = -1) {
         lua_getfield(L, idx, name.c_str());
@@ -457,11 +457,13 @@ namespace lua {
         return true;
     }
 
-    inline int requirefield(lua::State* L, const std::string& name, int idx = -1) {
+    inline int requirefield(
+        lua::State* L, const std::string& name, int idx = -1
+    ) {
         if (getfield(L, name, idx)) {
             return 1;
         }
-        throw std::runtime_error("object has no member '"+name+"'");
+        throw std::runtime_error("object has no member '" + name + "'");
     }
 
     inline bool hasfield(lua::State* L, const std::string& name, int idx = -1) {
@@ -637,7 +639,7 @@ namespace lua {
     }
 
     inline const char* require_string_field(
-        lua::State* L, const std::string& name, int idx=-1
+        lua::State* L, const std::string& name, int idx = -1
     ) {
         requirefield(L, name, idx);
         auto value = require_string(L, -1);
@@ -646,7 +648,7 @@ namespace lua {
     }
 
     inline Integer require_integer_field(
-        lua::State* L, const std::string& name, int idx=-1
+        lua::State* L, const std::string& name, int idx = -1
     ) {
         requirefield(L, name, idx);
         auto value = tointeger(L, -1);
@@ -655,7 +657,7 @@ namespace lua {
     }
 
     inline Number require_number_field(
-        lua::State* L, const std::string& name, int idx=-1
+        lua::State* L, const std::string& name, int idx = -1
     ) {
         requirefield(L, name, idx);
         auto value = tonumber(L, -1);
@@ -664,7 +666,7 @@ namespace lua {
     }
 
     inline bool get_boolean_field(
-        lua::State* L, const std::string& name, bool def, int idx=-1
+        lua::State* L, const std::string& name, bool def, int idx = -1
     ) {
         if (getfield(L, name, idx)) {
             bool value = toboolean(L, -1);
@@ -675,7 +677,7 @@ namespace lua {
     }
 
     inline Integer get_integer_field(
-        lua::State* L, const std::string& name, Integer def, int idx=-1
+        lua::State* L, const std::string& name, Integer def, int idx = -1
     ) {
         if (getfield(L, name, idx)) {
             auto value = tointeger(L, -1);
@@ -686,7 +688,7 @@ namespace lua {
     }
 
     inline Number get_number_field(
-        lua::State* L, const std::string& name, Number def, int idx=-1
+        lua::State* L, const std::string& name, Number def, int idx = -1
     ) {
         if (getfield(L, name, idx)) {
             auto value = tonumber(L, -1);
@@ -697,15 +699,20 @@ namespace lua {
     }
 
     inline Integer get_integer_field(
-        lua::State* L, const std::string& name, 
-        Integer def, Integer min, Integer max, int idx=-1
+        lua::State* L,
+        const std::string& name,
+        Integer def,
+        Integer min,
+        Integer max,
+        int idx = -1
     ) {
         if (getfield(L, name, idx)) {
             auto value = tointeger(L, -1);
             if (value < min || value > max) {
                 throw std::runtime_error(
-                    "value is out of range ["
-                    +std::to_string(min)+", "+std::to_string(max)+"]");
+                    "value is out of range [" + std::to_string(min) + ", " +
+                    std::to_string(max) + "]"
+                );
             }
             pop(L);
             return value;

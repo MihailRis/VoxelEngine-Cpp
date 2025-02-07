@@ -9,7 +9,7 @@
 #include "data/StructLayout.hpp"
 #include "coders/byte_utils.hpp"
 #include "content/Content.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "graphics/core/Mesh.hpp"
 #include "lighting/Lightmap.hpp"
 #include "maths/aabb.hpp"

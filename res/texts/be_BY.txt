@@ -1,33 +1,43 @@
-# Общее
+# Агульнае
 Yes=Так
 No=Не
 Ok=Ок
 Cancel=Скасаваць
 Back=Назад
-Continue=Працягнуть
+Continue=Працягнуць
 Add=Дадаць
 Version=Версія
 Creator=Аўтар
 Dependencies=Залежнасці
 Description=Апісанне
 Converting world...=Выконваецца канвертацыя свету...
+Unlimited=Бязмежна
+Chat=Чат
+Console=Кансоль
+Log=Лог
+Problems=Праблемы
+Monitor=Маніторынг
+Debug=Адладка
+File=Файл
 
+devtools.traceback=Стэк выклікаў (ад апошняга)
 error.pack-not-found=Не ўдалося знайсці пакет
 error.dependency-not-found=Выкарыстоўваная залежнасць не знойдзена
-pack.remove-confirm=Выдаліць увесь кантэнт які пастаўляецца пакам са свету (беззваротна)?
+pack.remove-confirm=Выдаліць увесь кантэнт, які пастаўляецца пакетам/пакетамі, са свету (беззваротна)?
 
-# Подсказки
+# Падказкі
 graphics.gamma.tooltip=Крывая яркасці асвятлення
 graphics.backlight.tooltip=Падсветка, якая прадухіляе поўную цемру
+graphics.dense-render.tooltip=Уключае празрыстасць блокаў, такіх як лісце.
 
 # Меню
 menu.Apply=Ужыць
 menu.Audio=Гук
 menu.Back to Main Menu=Вярнуцца ў Меню
+menu.Scripts=Сцэнарыі
 menu.Content Error=Памылка Кантэнту
 menu.Content=Кантэнт
-menu.Contents Menu=Меню Кантэнтпакаў
-menu.Continue=Працягнуть
+menu.Continue=Працягнуць
 menu.Controls=Кіраванне
 menu.Display=Дысплей
 menu.Graphics=Графіка
@@ -39,6 +49,10 @@ menu.Page not found=Старонка не знойдзена
 menu.Quit=Выхад
 menu.Save and Quit to Menu=Захаваць і Выйсці ў Меню
 menu.Settings=Налады
+menu.Reset settings=Скінуць налады
+menu.Contents Menu=Меню кантэнт-пакаў
+menu.Open data folder=Адкрыць папку з дадзенымі
+menu.Open content folder=Адкрыць папку [content]
 
 world.Seed=Зерне
 world.Name=Назва
@@ -47,43 +61,55 @@ world.generators.default=Звычайны
 world.generators.flat=Плоскі
 world.Create World=Стварыць Свет
 world.convert-request=Ёсць змены ў індэксах! Канвертаваць свет?
-world.delete-confirm=Выдаліць свет незваротна?
+world.upgrade-request=Фармат свету састарэў! Канвертаваць свет?
+world.convert-with-loss=Канвертаваць свет з стратамі?
+world.convert-block-layouts=Ёсць змены ў палях блокаў! Канвертаваць свет?
+world.delete-confirm=Выдаліць свет беззваротна?
 
-# Настройки
+# Налады
 settings.Ambient=Фон
 settings.Backlight=Падсветка
-settings.Camera Shaking=Труска Камеры
-settings.Camera Inertia=Інэрцыя Камеры
-settings.Fog Curve=Крывая Туману
-settings.FOV=Поле Зроку
+settings.Dense blocks render=Шчыльны рэндэр блокаў
+settings.Camera Shaking=Труска камеры
+settings.Camera Inertia=Інэрцыя камеры
+settings.Camera FOV Effects=Эфекты поля зроку
+settings.Fog Curve=Крывая туману
+settings.FOV=Поле зроку
 settings.Fullscreen=Поўны экран
+settings.Framerate=Частата кадраў
 settings.Gamma=Гама
 settings.Language=Мова
-settings.Load Distance=Дыстанцыя Загрузкі
-settings.Load Speed=Хуткасць Загрузкі
-settings.Master Volume=Агульная Гучнасць
-settings.Mouse Sensitivity=Адчувальнасць Мышы
+settings.Load Distance=Дыстанцыя загрузкі
+settings.Load Speed=Хуткасць загрузкі
+settings.Master Volume=Агульная гучнасць
+settings.Mouse Sensitivity=Адчувальнасць мышы
 settings.Music=Музыка
-settings.Regular Sounds=Звычайныя Гукі
-settings.UI Sounds=Гукі Інтэрфейсу
-settings.V-Sync=Вертыкальная Сінхранізацыя
+settings.Regular Sounds=Звычайныя гукі
+settings.UI Sounds=Гукі інтэрфейсу
+settings.V-Sync=Вертыкальная сінхранізацыя
+settings.Key=Кнопка
+settings.Controls Search Mode=Пошук па прывязанай кнопцы кіравання
+settings.Limit Background FPS=Абмежаваць фонавую частату кадраў
 
-# Управление
-chunks.reload=Перезагрузіць Чанкі
+# Кіраванне
+chunks.reload=Перазагрузіць чанкі
 devtools.console=Кансоль
 movement.forward=Уперад
 movement.back=Назад
 movement.left=Улева
 movement.right=Управа
 movement.jump=Скачок
-movement.sprint=Ускорение
+movement.sprint=Паскарэнне
 movement.crouch=Красціся
 movement.cheat=Чыт
-hud.inventory=Рыштунак
-player.pick=Падабраць Блок
-player.attack=Атакаваць / Ламаць
-player.build=Паставіць Блок
+hud.inventory=Інвентар
+hud.chat=Чат
+player.pick=Падабраць блок
+player.attack=Атакаваць
+player.destroy=Зламаць
+player.build=Паставіць блок
+player.fast_interaction=Паскоранае ўзаемадзеянне
 player.flight=Палёт
-player.drop=Выкінуць Прадмет
+player.drop=Выкінуць прадмет
 camera.zoom=Прыбліжэнне
-camera.mode=Змяніць Рэжым Камеры
+camera.mode=Змяніць рэжым камеры

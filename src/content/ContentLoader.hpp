@@ -1,13 +1,11 @@
 #pragma once
 
-#include <filesystem>
 #include <memory>
 #include <string>
 
+#include "io/io.hpp"
 #include "content_fwd.hpp"
 #include "data/dv.hpp"
-
-namespace fs = std::filesystem;
 
 class Block;
 struct BlockMaterial;
@@ -43,15 +41,15 @@ class ContentLoader {
         GeneratorDef& def, const std::string& full, const std::string& name
     );
 
-    static void loadBlockMaterial(BlockMaterial& def, const fs::path& file);
+    static void loadBlockMaterial(BlockMaterial& def, const io::path& file);
     void loadBlock(
-        Block& def, const std::string& name, const fs::path& file
+        Block& def, const std::string& name, const io::path& file
     );
     void loadItem(
-        ItemDef& def, const std::string& name, const fs::path& file
+        ItemDef& def, const std::string& name, const io::path& file
     );
     void loadEntity(
-        EntityDef& def, const std::string& name, const fs::path& file
+        EntityDef& def, const std::string& name, const io::path& file
     );
     void loadResources(ResourceType type, const dv::value& list);
     void loadResourceAliases(ResourceType type, const dv::value& aliases);
@@ -66,7 +64,7 @@ public:
 
     // Refresh pack content.json
     static bool fixPackIndices(
-        const fs::path& folder,
+        const io::path& folder,
         dv::value& indicesRoot,
         const std::string& contentSection
     );

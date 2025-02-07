@@ -40,21 +40,22 @@ static std::unordered_map<std::string, int> mousecodes {
     {"left", GLFW_MOUSE_BUTTON_1},
     {"right", GLFW_MOUSE_BUTTON_2},
     {"middle", GLFW_MOUSE_BUTTON_3},
+    {"side1", GLFW_MOUSE_BUTTON_4},
+    {"side2", GLFW_MOUSE_BUTTON_5},
+    {"side3", GLFW_MOUSE_BUTTON_6},
+    {"side4", GLFW_MOUSE_BUTTON_7},
+    {"side5", GLFW_MOUSE_BUTTON_8},
 };
 
 static std::unordered_map<int, std::string> keynames {};
+static std::unordered_map<int, std::string> buttonsnames{};
 
 std::string input_util::get_name(mousecode code) {
-    switch (code) {
-        case mousecode::BUTTON_1:
-            return "left";
-        case mousecode::BUTTON_2:
-            return "right";
-        case mousecode::BUTTON_3:
-            return "middle";
-        default:
-            return "unknown";
+    auto found = buttonsnames.find(static_cast<int>(code));
+    if (found == buttonsnames.end()) {
+        return "unknown";
     }
+    return found->second;
 }
 
 std::string input_util::get_name(keycode code) {
@@ -90,6 +91,9 @@ void input_util::initialize() {
     }
     for (const auto& entry : keycodes) {
         keynames[entry.second] = entry.first;
+    }
+    for (const auto& entry : mousecodes) {
+        buttonsnames[entry.second] = entry.first;
     }
 }
 
@@ -210,6 +214,13 @@ std::string input_util::to_string(mousecode code) {
             return "RMB";
         case mousecode::BUTTON_3:
             return "MMB";
+        case mousecode::BUTTON_4:
+        case mousecode::BUTTON_5:
+        case mousecode::BUTTON_6:
+        case mousecode::BUTTON_7:
+        case mousecode::BUTTON_8:
+            return "XButton " + std::to_string(static_cast<int>(code) - 
+                static_cast<int>(mousecode::BUTTON_3));
         default:
             return "unknown button";
     }

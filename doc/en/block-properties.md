@@ -216,6 +216,8 @@ Example: [user properties of pack **base**](../../res/content/base/config/user-p
 
 ## Properties introduced by the `base` pack
 
+Access to custom properties is provided through the table `block.properties[id]["property"]` where id is the numeric id (index) of the block.
+
 ### *base:durability*
 
 The time it takes to break a block without tools or effects, measured in seconds.

@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 # Install EnTT
 RUN git clone https://github.com/skypjack/entt.git && \
     cd entt/build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DENTT_INSTALL=on .. && \
     make install && \
     cd ../.. && rm -rf entt
 

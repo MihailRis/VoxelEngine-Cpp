@@ -1,15 +1,13 @@
 #pragma once
 
-#include <filesystem>
 #include <memory>
 #include <queue>
 
 #include "delegates.hpp"
 #include "interfaces/Task.hpp"
-#include "files/world_regions_fwd.hpp"
+#include "io/io.hpp"
+#include "world/files/world_regions_fwd.hpp"
 #include "typedefs.hpp"
-
-namespace fs = std::filesystem;
 
 class Content;
 class ContentReport;
@@ -30,7 +28,7 @@ enum class ConvertTaskType {
 
 struct ConvertTask {
     ConvertTaskType type;
-    fs::path file;
+    io::path file;
 
     /// @brief region coords
     int x, z;
@@ -53,10 +51,10 @@ class WorldConverter : public Task {
     ConvertMode mode;
 
     void upgradeRegion(
-        const fs::path& file, int x, int z, RegionLayerIndex layer) const;
-    void convertPlayer(const fs::path& file) const;
-    void convertVoxels(const fs::path& file, int x, int z) const;
-    void convertInventories(const fs::path& file, int x, int z) const;
+        const io::path& file, int x, int z, RegionLayerIndex layer) const;
+    void convertPlayer(const io::path& file) const;
+    void convertVoxels(const io::path& file, int x, int z) const;
+    void convertInventories(const io::path& file, int x, int z) const;
     void convertBlocksData(int x, int z, const ContentReport& report) const;
 
     void addRegionsTasks(

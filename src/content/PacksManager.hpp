@@ -1,21 +1,19 @@
 #pragma once
 
-#include <filesystem>
 #include <unordered_map>
 #include <vector>
 
+#include "io/io.hpp"
 #include "ContentPack.hpp"
-
-namespace fs = std::filesystem;
 
 class PacksManager {
     std::unordered_map<std::string, ContentPack> packs;
-    std::vector<std::pair<std::string, fs::path>> sources;
+    std::vector<std::pair<std::string, io::path>> sources;
 public:
     PacksManager();
 
     /// @brief Set content packs sources (search folders)
-    void setSources(std::vector<std::pair<std::string, fs::path>> sources);
+    void setSources(std::vector<std::pair<std::string, io::path>> sources);
 
     /// @brief Scan sources and collect all found packs excluding duplication.
     /// Scanning order depends on sources order

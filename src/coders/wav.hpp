@@ -1,6 +1,8 @@
 #pragma once
 
-#include <filesystem>
+#include <memory>
+
+#include "io/fwd.hpp"
 
 namespace audio {
     struct PCM;
@@ -9,9 +11,9 @@ namespace audio {
 
 namespace wav {
     std::unique_ptr<audio::PCM> load_pcm(
-        const std::filesystem::path& file, bool headerOnly
+        const io::path& file, bool headerOnly
     );
     std::unique_ptr<audio::PCMStream> create_stream(
-        const std::filesystem::path& file
+        const io::path& file
     );
 }

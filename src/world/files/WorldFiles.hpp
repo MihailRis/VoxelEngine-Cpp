@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <glm/glm.hpp>
 #include <optional>
 #include <memory>
@@ -11,7 +10,7 @@
 #include "typedefs.hpp"
 #include "voxels/Chunk.hpp"
 #include "WorldRegions.hpp"
-#include "files.hpp"
+#include "io/io.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
@@ -24,28 +23,26 @@ class World;
 struct WorldInfo;
 struct DebugSettings;
 
-namespace fs = std::filesystem;
-
 class WorldFiles {
-    fs::path directory;
+    io::path directory;
     WorldRegions regions;
 
     bool generatorTestMode = false;
     bool doWriteLights = true;
 
-    fs::path getWorldFile() const;
-    fs::path getPacksFile() const;
+    io::path getWorldFile() const;
+    io::path getPacksFile() const;
 
     void writeWorldInfo(const WorldInfo& info);
     void writeIndices(const ContentIndices* indices);
 public:
-    WorldFiles(const fs::path& directory);
-    WorldFiles(const fs::path& directory, const DebugSettings& settings);
+    WorldFiles(const io::path& directory);
+    WorldFiles(const io::path& directory, const DebugSettings& settings);
     ~WorldFiles();
 
-    fs::path getPlayerFile() const;
-    fs::path getIndicesFile() const;
-    fs::path getResourcesFile() const;
+    io::path getPlayerFile() const;
+    io::path getIndicesFile() const;
+    io::path getResourcesFile() const;
     void createDirectories();
 
     std::optional<WorldInfo> readWorldInfo();
@@ -70,7 +67,7 @@ public:
     void removeIndices(const std::vector<std::string>& packs);
 
     /// @return world folder
-    fs::path getFolder() const;
+    io::path getFolder() const;
 
     WorldRegions& getRegions() {
         return regions;

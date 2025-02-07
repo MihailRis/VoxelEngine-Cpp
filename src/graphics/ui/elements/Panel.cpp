@@ -70,9 +70,6 @@ void Panel::remove(const std::shared_ptr<UINode> &node) {
 
 void Panel::refresh() {
     UINode::refresh();
-    std::stable_sort(nodes.begin(), nodes.end(), [](auto a, auto b) {
-        return a->getZIndex() < b->getZIndex();
-    });
 
     float x = padding.x;
     float y = padding.y;
@@ -80,20 +77,21 @@ void Panel::refresh() {
     if (orientation == Orientation::vertical) {
         float maxw = size.x;
         for (auto& node : nodes) {
-            glm::vec2 nodesize = node->getSize();
             const glm::vec4 margin = node->getMargin();
             y += margin.y;
             
             float ex = x + margin.x;
             node->setPos(glm::vec2(ex, y));
-            y += nodesize.y + margin.w + interval;
-
+            
             float width = size.x - padding.x - padding.z - margin.x - margin.z;
             if (node->isResizing()) {
-                node->setSize(glm::vec2(width, nodesize.y));
+                node->setMaxSize({width, node->getMaxSize().y});
+                node->setSize(glm::vec2(width, node->getSize().y));
             }
             node->refresh();
-            maxw = fmax(maxw, ex+node->getSize().x+margin.z+padding.z);
+            glm::vec2 nodeSize = node->getSize();
+            y += nodeSize.y + margin.w + interval;
+            maxw = fmax(maxw, ex+nodeSize.x+margin.z+padding.z);
         }
         actualLength = y + padding.w;
     } else {

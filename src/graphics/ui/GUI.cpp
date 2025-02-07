@@ -5,6 +5,7 @@
 #include "elements/UINode.hpp"
 #include "elements/Label.hpp"
 #include "elements/Menu.hpp"
+#include "elements/Panel.hpp"
 
 #include "assets/Assets.hpp"
 #include "frontend/UiDocument.hpp"
@@ -23,8 +24,10 @@
 
 using namespace gui;
 
-GUI::GUI() : batch2D(std::make_unique<Batch2D>(1024)) {
-    container = std::make_shared<Container>(glm::vec2(1000));
+GUI::GUI()
+    : batch2D(std::make_unique<Batch2D>(1024)),
+      container(std::make_shared<Container>(glm::vec2(1000))) {
+    container->setId("root");
     uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
     uicamera->perspective = false;
     uicamera->flipped = true;
@@ -214,6 +217,14 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     auto& viewport = ctx.getViewport();
     glm::vec2 wsize = viewport.size();
 
+    auto& page = menu->getCurrent();
+    if (page.panel) {
+        menu->setSize(page.panel->getSize());
+        page.panel->refresh();
+        if (auto panel = std::dynamic_pointer_cast<gui::Panel>(page.panel)) {
+            panel->cropToContent();
+        }
+    }
     menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
 

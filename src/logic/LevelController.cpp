@@ -4,7 +4,7 @@
 
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Players.hpp"

@@ -102,11 +102,17 @@ enum class mousecode : int {
     BUTTON_1 = 0,  // Left mouse button
     BUTTON_2 = 1,  // Right mouse button
     BUTTON_3 = 2,  // Middle mouse button
+    BUTTON_4 = 3,  // Side mouse button 1
+    BUTTON_5 = 4,  // Side mouse button 2
+    BUTTON_6 = 5,  // Side mouse button 3
+    BUTTON_7 = 6,  // Side mouse button 4
+    BUTTON_8 = 7,  // Side mouse button 5
     UNKNOWN = -1,
 };
 
 inline mousecode MOUSECODES_ALL[] {
-    mousecode::BUTTON_1, mousecode::BUTTON_2, mousecode::BUTTON_3};
+    mousecode::BUTTON_1, mousecode::BUTTON_2, mousecode::BUTTON_3, mousecode::BUTTON_4,
+    mousecode::BUTTON_5, mousecode::BUTTON_6, mousecode::BUTTON_7, mousecode::BUTTON_8 };
 
 namespace input_util {
     void initialize();

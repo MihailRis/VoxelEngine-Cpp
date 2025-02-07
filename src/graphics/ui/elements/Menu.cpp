@@ -65,9 +65,10 @@ void Menu::setPage(Page page, bool history) {
     setSize(current.panel->getSize());
 }
 
-void Menu::back() {
-    if (pageStack.empty())
-        return;
+bool Menu::back() {
+    if (pageStack.empty()) {
+        return false;
+    }
     Page page = pageStack.top();
     pageStack.pop();
 
@@ -77,6 +78,7 @@ void Menu::back() {
     }
 
     setPage(page, false);
+    return true;
 }
 
 void Menu::setPageLoader(PageLoaderFunc loader) {

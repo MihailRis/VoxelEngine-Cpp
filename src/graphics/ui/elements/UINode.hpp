@@ -75,6 +75,8 @@ namespace gui {
         glm::vec2 size;
         /// @brief minimal element size
         glm::vec2 minSize {1.0f};
+        /// @brief maximal element size
+        glm::vec2 maxSize {1e6f};
         /// @brief element primary color (background-color or text-color if label)
         glm::vec4 color {1.0f};
         /// @brief element color when mouse is over it
@@ -224,6 +226,8 @@ namespace gui {
         virtual void setSize(glm::vec2 size);
         virtual glm::vec2 getMinSize() const;
         virtual void setMinSize(glm::vec2 size);
+        virtual glm::vec2 getMaxSize() const;
+        virtual void setMaxSize(glm::vec2 size);
         /// @brief Called in containers when new element added
         virtual void refresh() {};
         virtual void fullRefresh() {

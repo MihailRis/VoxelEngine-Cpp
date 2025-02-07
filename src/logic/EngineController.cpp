@@ -9,8 +9,8 @@
 #include "debug/Logger.hpp"
 #include "coders/json.hpp"
 #include "content/ContentReport.hpp"
-#include "files/WorldConverter.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldConverter.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/LevelScreen.hpp"
@@ -32,11 +32,11 @@ EngineController::EngineController(Engine& engine) : engine(engine) {
 }
 
 void EngineController::deleteWorld(const std::string& name) {
-    fs::path folder = engine.getPaths().getWorldFolderByName(name);
+    io::path folder = engine.getPaths().getWorldFolderByName(name);
 
     auto deletion = [this, folder]() {
-        logger.info() << "deleting " << folder;
-        fs::remove_all(folder);
+        logger.info() << "deleting " << folder.string();
+        io::remove_all(folder);
         if (!engine.isHeadless()) {
             engine.getGUI()->getMenu()->back();
         }
@@ -49,7 +49,7 @@ void EngineController::deleteWorld(const std::string& name) {
     guiutil::confirm(
         engine,
         langs::get(L"delete-confirm", L"world") + L" (" +
-            util::str2wstr_utf8(folder.u8string()) + L")",
+            util::str2wstr_utf8(folder.string()) + L")",
         deletion
     );
 }
@@ -74,9 +74,6 @@ std::shared_ptr<Task> create_converter(
         content,
         report,
         [&engine, postRunnable]() {
-            //auto menu = engine.getGUI()->getMenu();
-            //menu->reset();
-            //menu->setPage("main", false);
             engine.postRunnable([=]() { postRunnable(); });
         },
         mode,
@@ -131,7 +128,7 @@ static void show_convert_request(
     );
 }
 
-static bool load_world_content(Engine& engine, const fs::path& folder) {
+static bool load_world_content(Engine& engine, const io::path& folder) {
     if (engine.isHeadless()) {
         engine.loadWorldContent(folder);
         return true;
@@ -195,10 +192,10 @@ void EngineController::onMissingContent(const std::shared_ptr<ContentReport>& re
 
 void EngineController::openWorld(const std::string& name, bool confirmConvert) {
     const auto& paths = engine.getPaths();
-    auto folder = paths.getWorldsFolder() / fs::u8path(name);
-    auto worldFile = folder / fs::u8path("world.json");
-    if (!fs::exists(worldFile)) {
-        throw std::runtime_error(worldFile.u8string() + " does not exists");
+    auto folder = paths.getWorldsFolder() / name;
+    auto worldFile = folder / "world.json";
+    if (!io::exists(worldFile)) {
+        throw std::runtime_error(worldFile.string() + " does not exists");
     }
 
     if (!load_world_content(engine, folder)) {
@@ -260,7 +257,7 @@ void EngineController::createWorld(
     uint64_t seed = str2seed(seedstr);
 
     EnginePaths& paths = engine.getPaths();
-    auto folder = paths.getWorldsFolder() / fs::u8path(name);
+    auto folder = paths.getWorldsFolder() / name;
 
     if (engine.isHeadless()) {
         engine.loadContent();
@@ -291,7 +288,7 @@ void EngineController::setLocalPlayer(int64_t player) {
 }
 
 void EngineController::reopenWorld(World* world) {
-    std::string name = world->wfile->getFolder().filename().u8string();
+    std::string name = world->wfile->getFolder().name();
     engine.onWorldClosed();
     openWorld(name, true);
 }
@@ -321,7 +318,7 @@ void EngineController::reconfigPacks(
     runnable removeFunc = [this, controller, packsToAdd, packsToRemove]() {
         if (controller == nullptr) {
             try {
-                auto manager = engine.createPacksManager(fs::path(""));
+                auto manager = engine.createPacksManager("");
                 manager.scan();
                 auto names = PacksManager::getNames(engine.getContentPacks());
                 for (const auto& id : packsToAdd) {

@@ -3,8 +3,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "files/files.hpp"
-#include "files/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/engine_paths.hpp"
 #include "debug/Logger.hpp"
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
@@ -159,9 +159,8 @@ State* lua::create_state(const EnginePaths& paths, StateType stateType) {
     }
     init_state(L, stateType);
     
-    auto resDir = paths.getResourcesFolder();
-    auto file = resDir / fs::u8path("scripts/stdmin.lua");
-    auto src = files::read_string(file);
+    auto file = "res:scripts/stdmin.lua";
+    auto src = io::read_string(file);
     lua::pop(L, lua::execute(L, 0, src, "core:scripts/stdmin.lua"));
     return L;
 }

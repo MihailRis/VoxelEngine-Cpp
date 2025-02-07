@@ -2,7 +2,7 @@
 
 #include "typedefs.hpp"
 #include "util/Buffer.hpp"
-#include "files/world_regions_fwd.hpp"
+#include "world/files/world_regions_fwd.hpp"
 
 namespace compatibility {
     /// @brief Convert region file from version 2 to 3

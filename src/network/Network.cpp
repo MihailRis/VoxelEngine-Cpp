@@ -319,7 +319,6 @@ public:
     ~SocketConnection() {
         if (state != ConnectionState::CLOSED) {
             shutdown(descriptor, 2);
-            closesocket(descriptor);
         }
         if (thread) {
             thread->join();
@@ -382,6 +381,9 @@ public:
     }
 
     int send(const char* buffer, size_t length) override {
+        if (state == ConnectionState::CLOSED) {
+            return 0;
+        }
         int len = sendsocket(descriptor, buffer, length, 0);
         if (len == -1) {
             int err = errno;
@@ -444,7 +446,7 @@ public:
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
 
-        addrinfo* addrinfo;
+        addrinfo* addrinfo = nullptr;
         if (int res = getaddrinfo(
             address.c_str(), nullptr, &hints, &addrinfo
         )) {
@@ -452,12 +454,11 @@ public:
         }
 
         sockaddr_in serverAddress = *(sockaddr_in*)addrinfo->ai_addr;
-        freeaddrinfo(addrinfo);
         serverAddress.sin_port = htons(port);
+        freeaddrinfo(addrinfo);
 
         SOCKET descriptor = socket(AF_INET, SOCK_STREAM, 0);
         if (descriptor == -1) {
-            freeaddrinfo(addrinfo);
             throw std::runtime_error("Could not create socket");
         }
         auto socket = std::make_shared<SocketConnection>(descriptor, std::move(serverAddress));
