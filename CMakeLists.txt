@@ -34,6 +34,8 @@ endif()
 target_link_libraries(VoxelEngine PRIVATE VoxelEngineSrc
                                           $<$<PLATFORM_ID:Windows>:winmm>)
 
+target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie>)
+
 # Deploy res to build dir
 add_custom_command(
     TARGET VoxelEngine

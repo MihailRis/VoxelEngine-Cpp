@@ -19,4 +19,4 @@ target_compile_options(
             -Wno-unused-parameter
             >)
 
-target_link_options(vctest PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie -lstdc++fs>)
+target_link_options(vctest PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie>)
