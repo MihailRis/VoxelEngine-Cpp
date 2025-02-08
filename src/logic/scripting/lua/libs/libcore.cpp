@@ -7,9 +7,9 @@
 #include "content/Content.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
-#include "files/settings_io.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/settings_io.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/MenuScreen.hpp"
 #include "graphics/core/Texture.hpp"
@@ -148,7 +148,13 @@ static int l_reconfig_packs(lua::State* L) {
         lua::pop(L);
     }
     auto engineController = engine->getController();
-    engineController->reconfigPacks(controller, addPacks, remPacks);
+    try {
+        engineController->reconfigPacks(controller, addPacks, remPacks);
+    } catch (const contentpack_error& err) {
+        throw std::runtime_error(
+            std::string(err.what()) + " [" + err.getPackId() + " ]"
+        );
+    }
     return 0;
 }
 
@@ -253,8 +259,7 @@ static int l_load_texture(lua::State* L) {
 }
 
 static int l_open_folder(lua::State* L) {
-    auto path = engine->getPaths().resolve(lua::require_string(L, 1));
-    platform::open_folder(path);
+    platform::open_folder(io::resolve(lua::require_string(L, 1)));
     return 0;
 }
 

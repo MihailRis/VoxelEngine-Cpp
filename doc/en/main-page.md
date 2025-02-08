@@ -1,8 +1,8 @@
 # Documentation
 
-Documentation for in-development version 0.26.
+Documentation for 0.27, which is in development.
 
-[Documentation for stable release 0.25.x.](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.25/doc/en/main-page.md)
+Documentation for [0.26.x](https://github.com/MihailRis/VoxelEngine-Cpp/blob/release-0.26/doc/en/main-page.md).
 
 ## Sections
 

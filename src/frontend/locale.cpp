@@ -5,7 +5,7 @@
 #include "coders/json.hpp"
 #include "coders/commons.hpp"
 #include "content/ContentPack.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "util/stringutil.hpp"
 #include "data/dv.hpp"
 #include "debug/Logger.hpp"
@@ -69,9 +69,9 @@ namespace {
     };
 }
 
-void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
-    auto file = resdir/fs::u8path(langs::TEXTS_FOLDER)/fs::u8path("langs.json");
-    auto root = files::read_json(file);
+void langs::loadLocalesInfo(const io::path& resdir, std::string& fallback) {
+    auto file = resdir / langs::TEXTS_FOLDER / "langs.json";
+    auto root = io::read_json(file);
 
     langs::locales_info.clear();
     root.at("fallback").get(fallback);
@@ -94,7 +94,7 @@ void langs::loadLocalesInfo(const fs::path& resdir, std::string& fallback) {
     }
 }
 
-std::string langs::locale_by_envlocale(const std::string& envlocale, const fs::path& resdir){
+std::string langs::locale_by_envlocale(const std::string& envlocale, const io::path& resdir){
     std::string fallback = FALLBACK_DEFAULT;
     if (locales_info.size() == 0) {
         loadLocalesInfo(resdir, fallback);
@@ -115,29 +115,29 @@ std::string langs::locale_by_envlocale(const std::string& envlocale, const fs::p
     }
 }
 
-void langs::load(const fs::path& resdir,
+void langs::load(const io::path& resdir,
                  const std::string& locale,
                  const std::vector<ContentPack>& packs,
                  Lang& lang) {
-    fs::path filename = fs::path(TEXTS_FOLDER)/fs::path(locale + LANG_FILE_EXT);
-    fs::path core_file = resdir/filename;
+    io::path filename = io::path(TEXTS_FOLDER) / (locale + LANG_FILE_EXT);
+    io::path core_file = resdir / filename;
     
-    if (fs::is_regular_file(core_file)) {
-        std::string text = files::read_string(core_file);
+    if (io::is_regular_file(core_file)) {
+        std::string text = io::read_string(core_file);
         Reader reader(core_file.string(), text);
         reader.read(lang, "");
     }
     for (auto pack : packs) {
-        fs::path file = pack.folder/filename;
-        if (fs::is_regular_file(file)) {
-            std::string text = files::read_string(file);
+        io::path file = pack.folder / filename;
+        if (io::is_regular_file(file)) {
+            std::string text = io::read_string(file);
             Reader reader(file.string(), text);
             reader.read(lang, "");
         }
     }
 }
 
-void langs::load(const fs::path& resdir,
+void langs::load(const io::path& resdir,
                  const std::string& locale,
                  const std::string& fallback,
                  const std::vector<ContentPack>& packs) {
@@ -149,7 +149,7 @@ void langs::load(const fs::path& resdir,
     current = std::move(lang);
 }
 
-void langs::setup(const fs::path& resdir,
+void langs::setup(const io::path& resdir,
                   std::string locale,
                   const std::vector<ContentPack>& packs) {
     std::string fallback = langs::FALLBACK_DEFAULT;

@@ -7,7 +7,7 @@
 #include "content/Content.hpp"
 #include "content/ContentReport.hpp"
 #include "debug/Logger.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "items/Inventories.hpp"
 #include "objects/Entities.hpp"
 #include "objects/Player.hpp"
@@ -61,7 +61,7 @@ void World::writeResources(const Content& content) {
             }
         }
     }
-    files::write_json(wfile->getResourcesFile(), root);
+    io::write_json(wfile->getResourcesFile(), root);
 }
 
 void World::write(Level* level) {
@@ -70,7 +70,7 @@ void World::write(Level* level) {
     wfile->write(this, &content);
 
     auto playerFile = level->players->serialize();
-    files::write_json(wfile->getPlayerFile(), playerFile);
+    io::write_json(wfile->getPlayerFile(), playerFile);
 
     writeResources(content);
 }
@@ -78,7 +78,7 @@ void World::write(Level* level) {
 std::unique_ptr<Level> World::create(
     const std::string& name,
     const std::string& generator,
-    const fs::path& directory,
+    const io::path& directory,
     uint64_t seed,
     EngineSettings& settings,
     const Content& content,
@@ -98,7 +98,7 @@ std::unique_ptr<Level> World::create(
         logger.info() << "created nameless world";
     } else {
         logger.info() << "created world '" << name << "' ("
-                      << directory.u8string() << ")";
+                      << directory.string() << ")";
     }
     logger.info() << "world seed: " << seed << " generator: " << generator;
     return std::make_unique<Level>(std::move(world), content, settings);
@@ -116,7 +116,7 @@ std::unique_ptr<Level> World::load(
         throw world_load_error("could not to find world.json");
     }
     logger.info() << "loading world " << info->name << " ("
-                  << worldFilesPtr->getFolder().u8string() << ")";
+                  << worldFilesPtr->getFolder().string() << ")";
     logger.info() << "world version: " << info->major << "." << info->minor
                   << " seed: " << info->seed
                   << " generator: " << info->generator;
@@ -129,12 +129,12 @@ std::unique_ptr<Level> World::load(
 
     auto level = std::make_unique<Level>(std::move(world), content, settings);
 
-    fs::path file = wfile->getPlayerFile();
-    if (!fs::is_regular_file(file)) {
+    io::path file = wfile->getPlayerFile();
+    if (!io::is_regular_file(file)) {
         logger.warning() << "player.json does not exists";
         level->players->create();
     } else {
-        auto playerRoot = files::read_json(file);
+        auto playerRoot = io::read_json(file);
         level->players->deserialize(playerRoot);
 
         if (!playerRoot["players"].empty()) {
@@ -149,8 +149,8 @@ std::unique_ptr<Level> World::load(
 std::shared_ptr<ContentReport> World::checkIndices(
     const std::shared_ptr<WorldFiles>& worldFiles, const Content* content
 ) {
-    fs::path indicesFile = worldFiles->getIndicesFile();
-    if (fs::is_regular_file(indicesFile)) {
+    io::path indicesFile = worldFiles->getIndicesFile();
+    if (io::is_regular_file(indicesFile)) {
         return ContentReport::create(worldFiles, indicesFile, content);
     }
     return nullptr;

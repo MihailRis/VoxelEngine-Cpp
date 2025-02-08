@@ -97,6 +97,15 @@ player.get_spawnpoint(playerid: int) -> number, number, number
 Сеттер и геттер точки спавна игрока
 
 ```lua
+player.is_suspended(pid: int) -> bool
+player.set_suspended(pid: int, suspended: bool)
+```
+
+Сеттер и геттер статуса "заморозки" игрока.
+
+При "заморозке" удаляется сущность, а игрок выключается из симуляции мира.
+
+```lua
 player.set_name(playerid: int, name: str) 
 player.get_name(playerid: int) -> str
 ```

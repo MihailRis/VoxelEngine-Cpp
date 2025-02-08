@@ -1,7 +1,6 @@
 #pragma once
 
 #include <condition_variable>
-#include <filesystem>
 #include <functional>
 #include <glm/glm.hpp>
 #include <memory>
@@ -13,13 +12,11 @@
 #include "voxels/Chunk.hpp"
 #include "maths/voxmaths.hpp"
 #include "coders/compression.hpp"
-#include "files.hpp"
+#include "io/io.hpp"
 #include "world_regions_fwd.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
-
-namespace fs = std::filesystem;
 
 inline constexpr uint REGION_HEADER_SIZE = 10;
 
@@ -54,11 +51,11 @@ public:
 };
 
 struct regfile {
-    files::rafile file;
+    io::rafile file;
     int version;
     bool inUse = false;
 
-    regfile(fs::path filename);
+    regfile(io::path filename);
     regfile(const regfile&) = delete;
 
     std::unique_ptr<ubyte[]> read(int index, uint32_t& size, uint32_t& srcSize);
@@ -121,7 +118,7 @@ struct RegionsLayer {
     RegionLayerIndex layer;
     
     /// @brief Regions layer folder
-    fs::path folder;
+    io::path folder;
 
     compression::Method compression = compression::Method::NONE;
 
@@ -146,7 +143,7 @@ struct RegionsLayer {
     WorldRegion* getRegion(int x, int z);
     WorldRegion* getOrCreateRegion(int x, int z);
 
-    fs::path getRegionFilePath(int x, int z) const;
+    io::path getRegionFilePath(int x, int z) const;
 
     /// @brief Get chunk data. Read from file if not loaded yet.
     /// @param x chunk x coord
@@ -178,14 +175,14 @@ struct RegionsLayer {
 
 class WorldRegions {
     /// @brief World directory
-    fs::path directory;
+    io::path directory;
 
     RegionsLayer layers[REGION_LAYERS_COUNT] {};
 public:
     bool generatorTestMode = false;
     bool doWriteLights = true;
 
-    WorldRegions(const fs::path& directory);
+    WorldRegions(const io::path& directory);
     WorldRegions(const WorldRegions&) = delete;
     ~WorldRegions();
 
@@ -241,9 +238,9 @@ public:
     /// @brief Get regions directory by layer index
     /// @param layerid layer index
     /// @return directory path
-    const fs::path& getRegionsFolder(RegionLayerIndex layerid) const;
+    const io::path& getRegionsFolder(RegionLayerIndex layerid) const;
 
-    fs::path getRegionFilePath(RegionLayerIndex layerid, int x, int z) const;
+    io::path getRegionFilePath(RegionLayerIndex layerid, int x, int z) const;
 
     /// @brief Write all region layers
     void writeAll();
