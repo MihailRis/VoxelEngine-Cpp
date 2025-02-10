@@ -101,6 +101,12 @@ WorldRenderer::WorldRenderer(
         settings.graphics.skyboxResolution.get(),
         assets->require<Shader>("skybox_gen")
     );
+
+    weather = {};
+    auto& fall = weather.fall;
+    fall.vspeed = 2.0f;
+    fall.texture = "misc/rain";
+    fall.noise = "ambient/rain";
 }
 
 WorldRenderer::~WorldRenderer() = default;
@@ -196,7 +202,7 @@ void WorldRenderer::renderLevel(
 
     setupWorldShader(entityShader, camera, settings, fogFactor);
     entityShader.uniform1i("u_alphaClip", false);
-    precipitation->render(camera, pause ? 0.0f : delta);
+    precipitation->render(camera, pause ? 0.0f : delta, weather);
 
     skybox->unbind();
 }

@@ -209,7 +209,9 @@ void LevelScreen::update(float delta) {
     playerController->postUpdate(delta, !inputLocked, hud->isPause());
 
     hud->update(hudVisible);
-    decorator->update(delta, *camera);
+    decorator->update(
+        hud->isPause() ? 0.0f : delta, *camera, worldRenderer->weather
+    );
 }
 
 void LevelScreen::draw(float delta) {
