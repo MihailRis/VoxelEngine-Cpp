@@ -292,7 +292,7 @@ function string.trim_left(s, char)
     return string.match(s, "^" .. char .. "*(.+)$") or s
 end
 
-function string.padding(str, size, char)
+function string.pad(str, size, char)
     char = char == nil and " " or char
 
     local padding = math.floor((size - #str) / 2)

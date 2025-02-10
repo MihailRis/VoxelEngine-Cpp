@@ -181,7 +181,7 @@ string.escape(str: string) -> string
 Экранирует строку. Является псевдонимом `utf8.escape`.
 
 ```lua
-string.padding(str: string, size: number, [опционально] char: string) -> string
+string.pad(str: string, size: number, [опционально] char: string) -> string
 ```
 
 Добавляет **char** слева и справа от строки, пока её размер не будет равен **size**. По стандарту **char** равен символу пробела
