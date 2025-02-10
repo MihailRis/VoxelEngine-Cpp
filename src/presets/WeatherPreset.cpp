@@ -10,6 +10,7 @@ dv::value WeatherPreset::serialize() const {
     froot["vspeed"] = fall.vspeed;
     froot["hspeed"] = fall.hspeed;
     froot["scale"] = fall.scale;
+    froot["noise"] = fall.noise;
     root["fall"] = froot;
 
     return root;
@@ -22,5 +23,6 @@ void WeatherPreset::deserialize(const dv::value& src) {
         froot.at("vspeed").get(fall.vspeed);
         froot.at("hspeed").get(fall.hspeed);
         froot.at("scale").get(fall.scale);
+        froot.at("noise").get(fall.noise);
     }
 }

@@ -92,13 +92,10 @@ static UVRegion calc_uv(
     return {u1, v1, u1 + m * scale, v1 + FACE_SIZE.y * scale};
 }
 
-void PrecipitationRenderer::render(const Camera& camera, float delta) {
+void PrecipitationRenderer::render(
+    const Camera& camera, float delta, const WeatherPreset& weather
+) {
     timer += delta;
-
-    WeatherPreset weather {};
-    auto& fall = weather.fall;
-    fall.vspeed = 2.0f;
-    fall.texture = "misc/rain";
 
     const int radius = 6;
     const int depth = 12;
@@ -116,7 +113,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
     }
 
     batch->begin();
-    auto& texture = assets.require<Texture>(fall.texture);
+    auto& texture = assets.require<Texture>(weather.fall.texture);
     texture.setMipMapping(false);
     batch->setTexture(&texture, {});
 

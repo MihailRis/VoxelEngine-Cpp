@@ -17,6 +17,8 @@
 #include "util/stringutil.hpp"
 #include "engine/Engine.hpp"
 #include "io/io.hpp"
+#include "audio/audio.hpp"
+#include "maths/util.hpp"
 
 namespace fs = std::filesystem;
 
@@ -80,8 +82,79 @@ void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
     }
 }
 
+void Decorator::updateRandom(
+    float delta,
+    const glm::ivec3& areaCenter,
+    const WeatherPreset& weather
+) {
+    util::PseudoRandom random(rand());
+
+    const auto& chunks = *player.chunks;
+    const auto& indices = *level.content.getIndices();
+
+    ParticlesPreset rainSplash;
+    rainSplash.frames = {
+        "particles:rain_splash_0",
+        "particles:rain_splash_1",
+        "particles:rain_splash_2"
+    };
+    rainSplash.lifetime = 0.2f;
+    rainSplash.spawnInterval = 0.0f;
+    rainSplash.size = {0.2f, 0.2f, 0.2f};
+
+    auto pos = areaCenter + glm::ivec3(
+        random.rand32() % 12,
+        random.rand32() % 12,
+        random.rand32() % 12
+    );
+    if (auto vox = chunks.get(pos)) {
+        const auto& def = indices.blocks.require(vox->id);
+        auto dst2 = util::distance2(pos, areaCenter);
+        if (dst2 < 256 && def.obstacle &&
+            !weather.fall.noise.empty()) {
+            bool is_covered = false;
+            for (int y = pos.y + 1; y < CHUNK_H; y++) {
+                if (indices.blocks.require(chunks.get(pos.x, y, pos.z)->id).obstacle) {
+                    is_covered = true;
+                    break;
+                }
+            }
+            if (!is_covered) {
+                if (dst2 < 128) {
+                    auto treg = util::get_texture_region(
+                        assets, "particles:rain_splash_0", ""
+                    );
+                    renderer.particles->add(std::make_unique<Emitter>(
+                        level,
+                        glm::vec3{pos.x + random.randFloat(), pos.y + 1.1, pos.z + random.randFloat()},
+                        rainSplash,
+                        treg.texture,
+                        treg.region,
+                        2
+                    ));
+                }
+                if (random.rand() % 200 < 2 && pos.y < areaCenter.y + 1) {
+                    auto sound = assets.get<audio::Sound>(weather.fall.noise);
+                    audio::play(
+                        sound,
+                        pos,
+                        false,
+                        1.0f,
+                        1.0f,
+                        false,
+                        audio::PRIORITY_LOW,
+                        audio::get_channel_index("ambient")
+                    );
+                }
+            }
+        }
+    }
+}
+
 void Decorator::update(
-    float delta, const glm::ivec3& areaStart, const glm::ivec3& areaCenter
+    float delta,
+    const glm::ivec3& areaStart,
+    const glm::ivec3& areaCenter
 ) {
     int index = currentIndex;
     currentIndex = (currentIndex + BIG_PRIME) % UPDATE_BLOCKS;
@@ -93,7 +166,8 @@ void Decorator::update(
     int lz = (index / UPDATE_AREA_DIAMETER) % UPDATE_AREA_DIAMETER;
     int ly = (index / UPDATE_AREA_DIAMETER / UPDATE_AREA_DIAMETER);
     
-    auto pos = areaStart + glm::ivec3(lx, ly, lz);
+    glm::ivec3 offset {lx, ly, lz};
+    auto pos = areaStart + offset;
 
     if (auto vox = chunks.get(pos)) {
         const auto& def = indices.blocks.require(vox->id);
@@ -103,10 +177,16 @@ void Decorator::update(
     }
 }
 
-void Decorator::update(float delta, const Camera& camera) {
+void Decorator::update(
+    float delta, const Camera& camera, const WeatherPreset& weather
+) {
     glm::ivec3 pos = camera.position;
     for (int i = 0; i < ITERATIONS; i++) {
         update(delta, pos - glm::ivec3(UPDATE_AREA_DIAMETER / 2), pos);
+    }
+    int randIters = std::min(50'000, static_cast<int>(delta * 24'000));
+    for (int i = 0; i < randIters; i++) {
+        updateRandom(delta, pos, weather);
     }
     const auto& chunks = *player.chunks;
     const auto& indices = *level.content.getIndices();

@@ -8,6 +8,7 @@ class Chunks;
 class Camera;
 class MainBatch;
 struct GraphicsSettings;
+struct WeatherPreset;
 
 class PrecipitationRenderer {
     std::unique_ptr<MainBatch> batch;
@@ -28,5 +29,5 @@ public:
 
     ~PrecipitationRenderer();
 
-    void render(const Camera& camera, float delta);
+    void render(const Camera& camera, float delta, const WeatherPreset& weather);
 };

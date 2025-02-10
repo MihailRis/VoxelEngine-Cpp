@@ -6,6 +6,8 @@ struct WeatherPreset : Serializable {
     struct {
         /// @brief Precipitation texture
         std::string texture;
+        /// @brief Fall sound
+        std::string noise;
         /// @brief Vertical speed
         float vspeed = 1.0f;
         /// @brief Max horizontal speed
