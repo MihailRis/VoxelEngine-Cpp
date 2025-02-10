@@ -36,6 +36,8 @@ class Decorator {
         const glm::ivec3& areaStart,
         const glm::ivec3& areaCenter
     );
+    
+    /// @brief Updates weather effects, blocks ambient sounds, etc..
     void updateRandom(
         float delta,
         const glm::ivec3& areaCenter,

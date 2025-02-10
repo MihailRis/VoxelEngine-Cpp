@@ -1,6 +1,10 @@
 #pragma once
 
+#include <optional>
+
 #include "interfaces/Serializable.hpp"
+
+#include "ParticlesPreset.hpp"
 
 struct WeatherPreset : Serializable {
     struct {
@@ -14,6 +18,8 @@ struct WeatherPreset : Serializable {
         float hspeed = 0.1f;
         /// @brief UV scaling
         float scale = 0.1f;
+        /// @brief Fall splash
+        std::optional<ParticlesPreset> splash;
     } fall {};
 
     dv::value serialize() const override;

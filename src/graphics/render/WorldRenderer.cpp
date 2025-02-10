@@ -107,6 +107,17 @@ WorldRenderer::WorldRenderer(
     fall.vspeed = 2.0f;
     fall.texture = "misc/rain";
     fall.noise = "ambient/rain";
+
+    ParticlesPreset rainSplash;
+    rainSplash.frames = {
+        "particles:rain_splash_0",
+        "particles:rain_splash_1",
+        "particles:rain_splash_2"
+    };
+    rainSplash.lifetime = 0.2f;
+    rainSplash.spawnInterval = 0.0f;
+    rainSplash.size = {0.2f, 0.2f, 0.2f};
+    fall.splash = std::move(rainSplash);
 }
 
 WorldRenderer::~WorldRenderer() = default;
