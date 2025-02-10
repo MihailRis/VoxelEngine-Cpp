@@ -97,6 +97,7 @@ void PrecipitationRenderer::render(const Camera& camera, float delta) {
 
     WeatherPreset weather {};
     auto& fall = weather.fall;
+    fall.vspeed = 2.0f;
     fall.texture = "misc/rain";
 
     const int radius = 6;
