@@ -296,7 +296,9 @@ function string.pad(str, size, char)
     char = char == nil and " " or char
 
     local padding = math.floor((size - #str) / 2)
-    return string.rep(char, padding) .. str .. string.rep(char, padding)
+    local extra_padding = (size - #str) % 2
+
+    return string.rep(char, padding) .. str .. string.rep(char, padding + extra_padding)
 end
 
 function string.left_pad(str, size, char)
