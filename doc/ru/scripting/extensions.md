@@ -187,13 +187,13 @@ string.padding(str: string, size: number, [опционально] char: string)
 Добавляет **char** слева и справа от строки, пока её размер не будет равен **size**. По стандарту **char** равен символу пробела
 
 ```lua
-string.left_padding(str: string, size: number, [опционально] char: string) -> string
+string.left_pad(str: string, size: number, [опционально] char: string) -> string
 ```
 
 Добавляет **char** слева от строки, пока её размер не будет равен **size**. По стандарту **char** равен символу пробела
 
 ```lua
-string.right_padding(str: string, size: number, [опционально] char: string) -> string
+string.right_pad(str: string, size: number, [опционально] char: string) -> string
 ```
 
 Добавляет **char** справа от строки, пока её размер не будет равен **size**. По стандарту **char** равен символу пробела
