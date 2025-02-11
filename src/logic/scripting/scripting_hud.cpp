@@ -65,15 +65,22 @@ void scripting::on_frontend_render() {
 }
 
 void scripting::on_frontend_close() {
+    auto L = lua::get_main_state();
     for (auto& pack : engine->getAllContentPacks()) {
         lua::emit_event(
-            lua::get_main_state(),
+            L,
             pack.id + ":.hudclose",
             [&](lua::State* L) {
                 return lua::pushinteger(L, hud->getPlayer()->getId());
             }
         );
     }
+    lua::pushnil(L);
+    lua::setglobal(L, "hud");
+    lua::pushnil(L);
+    lua::setglobal(L, "gfx");
+
+    scripting::renderer = nullptr;
     scripting::hud = nullptr;
 }
 

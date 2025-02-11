@@ -1,10 +1,7 @@
-#include "api_lua.hpp"
+#include "libhud.hpp"
 
-#include "logic/scripting/scripting_hud.hpp"
-#include "graphics/render/WorldRenderer.hpp"
 #include "graphics/render/TextsRenderer.hpp"
 #include "graphics/render/TextNote.hpp"
-#include "engine/Engine.hpp"
 
 using namespace scripting;
 
@@ -99,17 +96,17 @@ static int l_set_rotation(lua::State* L) {
 }
 
 const luaL_Reg text3dlib[] = {
-    {"show", lua::wrap<l_show>},
-    {"hide", lua::wrap<l_hide>},
-    {"get_text", lua::wrap<l_get_text>},
-    {"set_text", lua::wrap<l_set_text>},
-    {"get_pos", lua::wrap<l_get_pos>},
-    {"set_pos", lua::wrap<l_set_pos>},
-    {"get_axis_x", lua::wrap<l_get_axis_x>},
-    {"set_axis_x", lua::wrap<l_set_axis_x>},
-    {"get_axis_y", lua::wrap<l_get_axis_y>},
-    {"set_axis_y", lua::wrap<l_set_axis_y>},
-    {"set_rotation", lua::wrap<l_set_rotation>},
-    {"update_settings", lua::wrap<l_update_settings>},
+    {"show", wrap_hud<l_show>},
+    {"hide", wrap_hud<l_hide>},
+    {"get_text", wrap_hud<l_get_text>},
+    {"set_text", wrap_hud<l_set_text>},
+    {"get_pos", wrap_hud<l_get_pos>},
+    {"set_pos", wrap_hud<l_set_pos>},
+    {"get_axis_x", wrap_hud<l_get_axis_x>},
+    {"set_axis_x", wrap_hud<l_set_axis_x>},
+    {"get_axis_y", wrap_hud<l_get_axis_y>},
+    {"set_axis_y", wrap_hud<l_set_axis_y>},
+    {"set_rotation", wrap_hud<l_set_rotation>},
+    {"update_settings", wrap_hud<l_update_settings>},
     {NULL, NULL}
 };
