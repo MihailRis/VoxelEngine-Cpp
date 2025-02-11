@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev \
+          sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev libglew2.2 \
             libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev \
             libcurl4-openssl-dev libgtest-dev cmake squashfs-tools valgrind
           # fix luajit paths
