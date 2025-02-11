@@ -592,7 +592,10 @@ void Hud::draw(const DrawContext& ctx){
     const uint height = viewport.getHeight();
     auto menu = gui.getMenu();
 
-    darkOverlay->setVisible(menu->hasOpenPage());
+    bool is_menu_open = menu->hasOpenPage();
+    darkOverlay->setVisible(is_menu_open);
+    menu->setVisible(is_menu_open);
+
     updateElementsPosition(viewport);
 
     uicamera->setFov(height);
@@ -693,7 +696,6 @@ void Hud::setPause(bool pause) {
     if (pause && !menu->hasOpenPage()) {
         menu->setPage("pause");
     }
-    menu->setVisible(pause);
 }
 
 Player* Hud::getPlayer() const {
