@@ -15,6 +15,7 @@ uniform mat4 u_proj;
 uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform float u_gamma;
+uniform float u_opacity;
 uniform samplerCube u_cubemap;
 
 uniform vec3 u_torchlightColor;
@@ -36,6 +37,7 @@ void main() {
     a_dir = modelpos.xyz - u_cameraPos;
     vec3 skyLightColor = pick_sky_color(u_cubemap);
     a_color.rgb = max(a_color.rgb, skyLightColor.rgb*decomp_light.a) * v_color;
+    a_color.a = u_opacity;
     a_distance = length(u_view * u_model * vec4(pos3d * FOG_POS_SCALE, 0.0));
     gl_Position = u_proj * u_view * modelpos;
 }
