@@ -23,7 +23,7 @@ AppDir:
     - libfam0
     - libgcrypt20
     - libglfw3
-    - libglew2.1
+    - libglew2.2
     - libpng16-16
     - libopenal1
     - libasound2
