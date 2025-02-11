@@ -115,7 +115,7 @@ void Decorator::updateRandom(
             return;
         }
     }
-    if (dst2 < 128 && rainSplash.has_value()) {
+    if (dst2 < 128 && random.randFloat() < glm::pow(weather.intensity, 2.0f) && rainSplash.has_value()) {
         auto treg = util::get_texture_region(
             assets, "particles:rain_splash_0", ""
         );
@@ -131,13 +131,13 @@ void Decorator::updateRandom(
             2
         ));
     }
-    if (random.rand() % 200 < 2 && pos.y < areaCenter.y + 1) {
+    if (random.rand() % 200 < 3 && pos.y < areaCenter.y + 1) {
         auto sound = assets.get<audio::Sound>(weather.fall.noise);
         audio::play(
             sound,
             pos,
             false,
-            1.0f,
+            weather.intensity * weather.intensity,
             1.0f,
             false,
             audio::PRIORITY_LOW,
