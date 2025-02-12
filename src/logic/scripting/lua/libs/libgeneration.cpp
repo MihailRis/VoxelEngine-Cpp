@@ -6,6 +6,7 @@
 #include "world/Level.hpp"
 #include "world/generator/VoxelFragment.hpp"
 #include "content/ContentLoader.hpp"
+#include "content/Content.hpp"
 #include "engine/Engine.hpp"
 #include "../lua_custom_types.hpp"
 
@@ -69,8 +70,9 @@ static int l_get_generators(lua::State* L) {
 /// @brief Get the default world generator
 /// @return The ID of the default world generator
 static int l_get_default_generator(lua::State* L) {
+    // content is not initialized yet
     auto combined = engine->getResPaths()->readCombinedObject(
-        EnginePaths::CONFIG_DEFAULTS.u8string()
+        EnginePaths::CONFIG_DEFAULTS.string()
     );
     return lua::pushstring(L, combined["generator"].asString());
 }
@@ -81,4 +83,5 @@ const luaL_Reg generationlib[] = {
     {"load_fragment", lua::wrap<l_load_fragment>},
     {"get_generators", lua::wrap<l_get_generators>},
     {"get_default_generator", lua::wrap<l_get_default_generator>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};

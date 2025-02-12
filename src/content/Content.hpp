@@ -201,6 +201,7 @@ class Content {
     UptrsMap<std::string, ContentPackRuntime> packs;
     UptrsMap<std::string, BlockMaterial> blockMaterials;
     UptrsMap<std::string, rigging::SkeletonConfig> skeletons;
+    dv::value defaults = nullptr;
 public:
     ContentUnitDefs<Block> blocks;
     ContentUnitDefs<ItemDef> items;
@@ -219,7 +220,8 @@ public:
         UptrsMap<std::string, ContentPackRuntime> packs,
         UptrsMap<std::string, BlockMaterial> blockMaterials,
         UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
-        ResourceIndicesSet resourceIndices
+        ResourceIndicesSet resourceIndices,
+        dv::value defaults
     );
     ~Content();
 
@@ -229,6 +231,10 @@ public:
 
     inline const ResourceIndices& getIndices(ResourceType type) const {
         return resourceIndices[static_cast<size_t>(type)];
+    }
+
+    inline const dv::value& getDefaults() const {
+        return defaults;
     }
 
     const rigging::SkeletonConfig* getSkeleton(const std::string& id) const;

@@ -6,7 +6,8 @@ inair = true
 target = -1
 timer = 0.3
 
-local dropitem = ARGS
+local def_index = entity:def_index()
+dropitem = ARGS
 if dropitem then 
     timer = dropitem.pickup_delay or timer
 end
@@ -38,7 +39,7 @@ end
 
 function on_grounded(force)
     local matrix = mat4.idt()
-    mat4.rotate(matrix, {0, 1, 0}, math.random()*360, matrix)
+    mat4.rotate(matrix, {0, 1, 0}, math.random() * 360, matrix)
     mat4.rotate(matrix, {1, 0, 0}, 90, matrix)
     mat4.scale(matrix, scale, matrix)
     rig:set_matrix(0, matrix)
@@ -50,14 +51,34 @@ function on_fall()
 end
 
 function on_sensor_enter(index, oid)
-    local playerid = hud.get_player()
-    local playerentity = player.get_entity(playerid)
-    if timer < 0.0 and oid == playerentity and index == 0 then
-        entity:despawn()
-        inventory.add(player.get_inventory(playerid), dropitem.id, dropitem.count)
-        audio.play_sound_2d("events/pickup", 0.5, 0.8+math.random()*0.4, "regular")
+    local other = entities.get(oid)
+    if not other then
+        return
     end
-    if index == 1 and oid == playerentity then
+    local pid = other:get_player()
+    if pid == -1 then
+        -- other is base:drop too
+        if index == 0 and other:def_index() == def_index then
+            local odrop = other:get_component("base:drop")
+            if odrop.dropitem.id == dropitem.id then
+                -- // TODO: replace combination logic with item.* function
+                local stack = item.stack_size(dropitem.id)
+                local sum = dropitem.count + odrop.dropitem.count
+                if sum <= stack then
+                    dropitem.count = sum
+                    other:despawn()
+                end
+            end
+        end
+        return
+    end
+
+    if timer < 0.0 and index == 0 then
+        entity:despawn()
+        inventory.add(player.get_inventory(pid), dropitem.id, dropitem.count)
+        audio.play_sound_2d("events/pickup", 0.5, 0.8 + math.random() * 0.4, "regular")
+    end
+    if index == 1 then
         target = oid
     end
 end
@@ -84,15 +105,18 @@ end
 
 function on_update(tps)
     timer = timer - 1.0/tps
-    if target ~= -1 then
-        if timer > 0.0 then
-            return
-        end
-        local dir = vec3.sub(entities.get(target).transform:get_pos(), tsf:get_pos())
-        vec3.normalize(dir, dir)
-        vec3.mul(dir, 10.0, dir)
-        body:set_vel(dir)
+
+    if timer > 0.0 or target == -1 then
+        return
     end
+    local target_entity = entities.get(target)
+    if not target_entity then
+        return
+    end
+    local dir = vec3.sub(target_entity.transform:get_pos(), tsf:get_pos())
+    vec3.normalize(dir, dir)
+    vec3.mul(dir, 10.0, dir)
+    body:set_vel(dir)
 end
 
 function on_attacked(attacker, pid)
