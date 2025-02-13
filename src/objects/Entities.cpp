@@ -31,8 +31,8 @@ static inline std::string SAVED_DATA_VARNAME = "SAVED_DATA";
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
     combined = glm::translate(combined, pos);
-    combined = glm::scale(combined, size);
     combined = combined * glm::mat4(rot);
+    combined = glm::scale(combined, size);
     displayPos = pos;
     displaySize = size;
     dirty = false;

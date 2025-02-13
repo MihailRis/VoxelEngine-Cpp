@@ -1,1 +1,2 @@
 generator = "base:demo"
+player-entity = "base:player"

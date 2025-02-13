@@ -23,6 +23,7 @@
 #include "data/dv_util.hpp"
 #include "data/StructLayout.hpp"
 #include "presets/ParticlesPreset.hpp"
+#include "io/engine_paths.hpp"
 
 namespace fs = std::filesystem;
 using namespace data;
@@ -759,6 +760,10 @@ void ContentLoader::load() {
     fixPackIndices();
 
     auto folder = pack->folder;
+
+    builder.defaults = paths.readCombinedObject(
+        EnginePaths::CONFIG_DEFAULTS.string()
+    );
 
     // Load world generators
     io::path generatorsDir = folder / "generators";
