@@ -7,6 +7,7 @@ layout (location = 2) in float v_light;
 out vec4 a_color;
 out vec2 a_texCoord;
 out float a_distance;
+out float a_fog;
 out vec3 a_dir;
 
 uniform mat4 u_model;
@@ -14,6 +15,10 @@ uniform mat4 u_proj;
 uniform mat4 u_view;
 uniform vec3 u_cameraPos;
 uniform float u_gamma;
+uniform float u_fogFactor;
+uniform float u_fogCurve;
+uniform float u_weatherFogOpacity;
+uniform float u_weatherFogDencity;
 uniform samplerCube u_cubemap;
 
 uniform vec3 u_torchlightColor;
@@ -35,6 +40,10 @@ void main() {
     a_dir = modelpos.xyz - u_cameraPos;
     vec3 skyLightColor = pick_sky_color(u_cubemap);
     a_color.rgb = max(a_color.rgb, skyLightColor.rgb*decomp_light.a);
+
     a_distance = length(u_view * u_model * vec4(pos3d * FOG_POS_SCALE, 0.0));
+    float depth = (a_distance / 256.0);
+    a_fog = min(1.0, max(pow(depth * u_fogFactor, u_fogCurve),
+                         min(depth * u_weatherFogDencity, u_weatherFogOpacity)));
     gl_Position = u_proj * u_view * modelpos;
 }
