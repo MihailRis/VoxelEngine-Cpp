@@ -293,6 +293,7 @@ bool TextBox::eraseSelected() {
     }
     erase(selectionStart, selectionEnd-selectionStart);
     resetSelection();
+    onInput();
     return true;
 }
 
