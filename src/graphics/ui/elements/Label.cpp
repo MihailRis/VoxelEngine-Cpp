@@ -21,6 +21,20 @@ void LabelCache::prepare(Font* font, size_t wrapWidth) {
     }
 }
 
+size_t LabelCache::getTextLineOffset(size_t line) const {
+    line = std::min(lines.size()-1, line);
+    return lines.at(line).offset;
+}
+
+uint LabelCache::getLineByTextIndex(size_t index) const {
+    for (size_t i = 0; i < lines.size(); i++) {
+        if (lines[i].offset > index) {
+            return i-1;
+        }
+    }
+    return lines.size()-1;
+}
+
 void LabelCache::update(const std::wstring& text, bool multiline, bool wrap) {
     resetFlag = false;
     lines.clear();
@@ -131,8 +145,7 @@ int Label::getTextYOffset() const {
 }
 
 size_t Label::getTextLineOffset(size_t line) const {
-    line = std::min(cache.lines.size()-1, line);
-    return cache.lines.at(line).offset;
+    return cache.getTextLineOffset(line);
 }
 
 bool Label::isFakeLine(size_t line) const {
@@ -152,12 +165,7 @@ uint Label::getLineByYOffset(int offset) const {
 }
 
 uint Label::getLineByTextIndex(size_t index) const {
-    for (size_t i = 0; i < cache.lines.size(); i++) {
-        if (cache.lines[i].offset > index) {
-            return i-1;
-        }
-    }
-    return cache.lines.size()-1;
+    return cache.getLineByTextIndex(index);
 }
 
 uint Label::getLinesNumber() const {
