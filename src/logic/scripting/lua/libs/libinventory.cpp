@@ -185,7 +185,7 @@ static int l_find_by_item(lua::State* L) {
     return lua::pushinteger(L, index);
 }
 
-static int l_get_field(lua::State* L, ItemStack& stack) {
+static int l_get_data(lua::State* L, ItemStack& stack) {
     auto key = lua::require_string(L, 3);
     auto value = stack.getField(key);
     if (value == nullptr) {
@@ -194,7 +194,7 @@ static int l_get_field(lua::State* L, ItemStack& stack) {
     return lua::pushvalue(L, *value);
 }
 
-static int l_set_field(lua::State* L, ItemStack& stack) {
+static int l_set_data(lua::State* L, ItemStack& stack) {
     auto key = lua::require_string(L, 3);
     auto value = lua::tovalue(L, 4);
     auto& fields = stack.getFields();
@@ -213,8 +213,8 @@ const luaL_Reg inventorylib[] = {
     {"get_block", lua::wrap<l_get_block>},
     {"bind_block", lua::wrap<l_bind_block>},
     {"unbind_block", lua::wrap<l_unbind_block>},
-    {"get_field", wrap_slot<l_get_field>},
-    {"set_field", wrap_slot<l_set_field>},
+    {"get_data", wrap_slot<l_get_data>},
+    {"set_data", wrap_slot<l_set_data>},
     {"create", lua::wrap<l_create>},
     {"remove", lua::wrap<l_remove>},
     {"clone", lua::wrap<l_clone>},
