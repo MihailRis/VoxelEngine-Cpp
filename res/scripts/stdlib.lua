@@ -330,7 +330,7 @@ function __vc_on_hud_open()
         hud._set_debug_cheats(value)
     end)
     input.add_callback("devtools.console", function()
-        if hud.is_paused() then
+        if menu.page ~= "" then
             return
         end
         time.post_runnable(function()
@@ -338,7 +338,7 @@ function __vc_on_hud_open()
         end)
     end)
     input.add_callback("hud.chat", function()
-        if hud.is_paused() then
+        if menu.page ~= "" then
             return
         end
         time.post_runnable(function()
