@@ -7,61 +7,62 @@
 
 using namespace scripting;
 
-static void validate_itemid(itemid_t id) {
-    if (id >= indices->items.count()) {
-        throw std::runtime_error("invalid item id");
+namespace {
+    void validate_itemid(itemid_t id) {
+        if (id >= indices->items.count()) {
+            throw std::runtime_error("invalid item id");
+        }
+    }
+
+    Inventory& get_inventory(int64_t id) {
+        auto inv = level->inventories->get(id);
+        if (inv == nullptr) {
+            throw std::runtime_error("inventory not found: " + std::to_string(id));
+        }
+        return *inv;
+    }
+
+    Inventory& get_inventory(int64_t id, int arg) {
+        auto inv = level->inventories->get(id);
+        if (inv == nullptr) {
+            throw std::runtime_error(
+                "inventory not found: " + std::to_string(id) + " argument " +
+                std::to_string(arg)
+            );
+        }
+        return *inv;
+    }
+    
+    void validate_slotid(int slotid, const Inventory& inv) {
+        if (static_cast<size_t>(slotid) >= inv.size()) {
+            throw std::runtime_error(
+                "slot index is out of range [0..inventory.size(invid)]"
+            );
+        }
+    }
+
+    using SlotFunc = int(lua::State*, ItemStack&);
+
+    template <SlotFunc func>
+    int wrap_slot(lua::State* L) {
+        auto invid = lua::tointeger(L, 1);
+        auto slotid = lua::tointeger(L, 2);
+        auto& inv = get_inventory(invid);
+        validate_slotid(slotid, inv);
+        auto& item = inv.getSlot(slotid);
+        return func(L, item);
     }
 }
 
-static Inventory& get_inventory(int64_t id) {
-    auto inv = level->inventories->get(id);
-    if (inv == nullptr) {
-        throw std::runtime_error("inventory not found: " + std::to_string(id));
-    }
-    return *inv;
-}
-
-static Inventory& get_inventory(int64_t id, int arg) {
-    auto inv = level->inventories->get(id);
-    if (inv == nullptr) {
-        throw std::runtime_error(
-            "inventory not found: " + std::to_string(id) + " argument " +
-            std::to_string(arg)
-        );
-    }
-    return *inv;
-}
-
-static void validate_slotid(int slotid, const Inventory& inv) {
-    if (static_cast<size_t>(slotid) >= inv.size()) {
-        throw std::runtime_error(
-            "slot index is out of range [0..inventory.size(invid)]"
-        );
-    }
-}
-
-static int l_get(lua::State* L) {
-    auto invid = lua::tointeger(L, 1);
-    auto slotid = lua::tointeger(L, 2);
-    auto inv = get_inventory(invid);
-    validate_slotid(slotid, inv);
-    const ItemStack& item = inv.getSlot(slotid);
+static int l_get(lua::State* L, ItemStack& item) {
     lua::pushinteger(L, item.getItemId());
     lua::pushinteger(L, item.getCount());
     return 2;
 }
 
-static int l_set(lua::State* L) {
-    auto invid = lua::tointeger(L, 1);
-    auto slotid = lua::tointeger(L, 2);
+static int l_set(lua::State* L, ItemStack& item) {
     auto itemid = lua::tointeger(L, 3);
     auto count = lua::tointeger(L, 4);
-    validate_itemid(itemid);
-
-    auto& inv = get_inventory(invid);
-
-    validate_slotid(slotid, inv);
-    ItemStack& item = inv.getSlot(slotid);
     item.set(ItemStack(itemid, count));
     return 0;
 }
@@ -184,9 +185,26 @@ static int l_find_by_item(lua::State* L) {
     return lua::pushinteger(L, index);
 }
 
+static int l_get_field(lua::State* L, ItemStack& stack) {
+    auto key = lua::require_string(L, 3);
+    auto value = stack.getField(key);
+    if (value == nullptr) {
+        return 0;
+    }
+    return lua::pushvalue(L, *value);
+}
+
+static int l_set_field(lua::State* L, ItemStack& stack) {
+    auto key = lua::require_string(L, 3);
+    auto value = lua::tovalue(L, 4);
+    auto& fields = stack.getFields();
+    stack.setField(key, std::move(value));
+    return 0;
+}
+
 const luaL_Reg inventorylib[] = {
-    {"get", lua::wrap<l_get>},
-    {"set", lua::wrap<l_set>},
+    {"get", wrap_slot<l_get>},
+    {"set", wrap_slot<l_set>},
     {"size", lua::wrap<l_size>},
     {"add", lua::wrap<l_add>},
     {"move", lua::wrap<l_move>},
@@ -195,7 +213,10 @@ const luaL_Reg inventorylib[] = {
     {"get_block", lua::wrap<l_get_block>},
     {"bind_block", lua::wrap<l_bind_block>},
     {"unbind_block", lua::wrap<l_unbind_block>},
+    {"get_field", wrap_slot<l_get_field>},
+    {"set_field", wrap_slot<l_set_field>},
     {"create", lua::wrap<l_create>},
     {"remove", lua::wrap<l_remove>},
     {"clone", lua::wrap<l_clone>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};
