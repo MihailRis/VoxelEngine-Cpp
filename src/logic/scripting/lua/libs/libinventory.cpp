@@ -194,6 +194,11 @@ static int l_get_data(lua::State* L, ItemStack& stack) {
     return lua::pushvalue(L, *value);
 }
 
+static int l_has_data(lua::State* L, ItemStack& stack) {
+    auto key = lua::require_string(L, 3);
+    return lua::pushboolean(L, stack.getField(key) != nullptr);
+}
+
 static int l_set_data(lua::State* L, ItemStack& stack) {
     auto key = lua::require_string(L, 3);
     auto value = lua::tovalue(L, 4);
@@ -215,6 +220,7 @@ const luaL_Reg inventorylib[] = {
     {"unbind_block", lua::wrap<l_unbind_block>},
     {"get_data", wrap_slot<l_get_data>},
     {"set_data", wrap_slot<l_set_data>},
+    {"has_data", wrap_slot<l_has_data>},
     {"create", lua::wrap<l_create>},
     {"remove", lua::wrap<l_remove>},
     {"clone", lua::wrap<l_clone>},
