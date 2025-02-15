@@ -186,17 +186,26 @@ void SlotView::draw(const DrawContext& pctx, const Assets& assets) {
         }
     }
 
-    if (stack.getCount() > 1) {
+    if (stack.getCount() > 1 || stack.getFields() != nullptr) {
         auto font = assets.get<Font>("normal");
-        std::wstring text = std::to_wstring(stack.getCount());
+        
+        if (stack.getCount() > 1) {
+            std::wstring text = std::to_wstring(stack.getCount());
 
-        int x = pos.x+slotSize-text.length()*8;
-        int y = pos.y+slotSize-16;
+            int x = pos.x+slotSize-text.length()*8;
+            int y = pos.y+slotSize-16;
 
-        batch->setColor({0, 0, 0, 1.0f});
-        font->draw(*batch, text, x+1, y+1, nullptr, 0);
-        batch->setColor(glm::vec4(1.0f));
-        font->draw(*batch, text, x, y, nullptr, 0);
+            batch->setColor({0, 0, 0, 1.0f});
+            font->draw(*batch, text, x+1, y+1, nullptr, 0);
+            batch->setColor(glm::vec4(1.0f));
+            font->draw(*batch, text, x, y, nullptr, 0);
+        }
+        if (stack.getFields() != nullptr) {
+            batch->setColor({0, 0, 0, 1.0f});
+            font->draw(*batch, L"#", pos.x+1, pos.y+1, nullptr, 0);
+            batch->setColor(glm::vec4(1.0f));
+            font->draw(*batch, L"#", pos.x, pos.y, nullptr, 0);
+        }
     }
 }
 

@@ -2,19 +2,30 @@
 
 #include "constants.hpp"
 #include "typedefs.hpp"
+#include "data/dv.hpp"
 
 class ContentIndices;
 
 class ItemStack {
     itemid_t item = ITEM_EMPTY;
     itemcount_t count = 0;
+    dv::value fields = nullptr;
 public:
     ItemStack() = default;
 
-    ItemStack(itemid_t item, itemcount_t count);
+    ItemStack(itemid_t item, itemcount_t count, dv::value data=nullptr);
 
     void set(const ItemStack& item);
+    void set(ItemStack&& item);
     void setCount(itemcount_t count);
+
+    /// @brief Set a field in the item stack data.
+    void setField(std::string_view name, dv::value value);
+
+    /// @brief Get a field from the item stack data.
+    /// @param name field name
+    /// @return value pointer or nullptr if the field does not exist.
+    dv::value* getField(const std::string& name) const;
 
     bool accepts(const ItemStack& item) const;
 
@@ -24,19 +35,23 @@ public:
     /// @param indices content indices
     void move(ItemStack& item, const ContentIndices& indices);
 
-    inline void clear() {
+    void clear() {
         set(ItemStack(0, 0));
     }
 
-    inline bool isEmpty() const {
+    bool isEmpty() const {
         return item == ITEM_EMPTY;
     }
 
-    inline itemid_t getItemId() const {
+    itemid_t getItemId() const {
         return item;
     }
 
-    inline itemcount_t getCount() const {
+    itemcount_t getCount() const {
         return count;
+    }
+
+    const dv::value& getFields() const {
+        return fields;
     }
 };
