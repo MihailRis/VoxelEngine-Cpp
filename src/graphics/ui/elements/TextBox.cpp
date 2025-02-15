@@ -408,7 +408,9 @@ void TextBox::refresh() {
     Container::refresh();
     label->setSize(size-glm::vec2(padding.z+padding.x, padding.w+padding.y));
     label->setPos(glm::vec2(
-        padding.x + LINE_NUMBERS_PANE_WIDTH * showLineNumbers + textInitX - static_cast<int>(textOffset), padding.y
+        padding.x + LINE_NUMBERS_PANE_WIDTH * showLineNumbers + textInitX -
+            static_cast<int>(textOffset),
+        padding.y
     ));
 }
 
@@ -815,8 +817,8 @@ size_t TextBox::getCaret() const {
     return caret;
 }
 
-void TextBox::setCaret(size_t position, bool ignoreFormatting) {
-    const auto& labelText = ignoreFormatting ? label->getText() : input;
+void TextBox::setCaret(size_t position) {
+    const auto& labelText = label->getText();
     caret = std::min(static_cast<size_t>(position), input.length());
     if (font == nullptr) {
         return;

@@ -152,7 +152,7 @@ namespace gui {
 
         /// @brief Set caret position in the text
         /// @param position integer in range [0, text.length()]
-        virtual void setCaret(size_t position, bool ignoreFormatting = true);
+        virtual void setCaret(size_t position);
 
         /// @brief Set caret position in the text
         /// @param position integer in range [-text.length(), text.length()]
