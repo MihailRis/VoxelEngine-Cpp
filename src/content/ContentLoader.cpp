@@ -436,8 +436,8 @@ void ContentLoader::loadItem(
     root.at("script-name").get(def.scriptName);
     root.at("model-name").get(def.modelName);
     root.at("stack-size").get(def.stackSize);
+    root.at("uses").get(def.uses);
 
-    // item light emission [r, g, b] where r,g,b in range [0..15]
     if (auto found = root.at("emission")) {
         const auto& emissionarr = *found;
         def.emission[0] = emissionarr[0].asNumber();

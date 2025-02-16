@@ -28,9 +28,17 @@ struct ItemDef {
 
     dv::value properties = nullptr;
 
+    /// @brief Item max stack size
     itemcount_t stackSize = 64;
+
+    /// @brief Item is generated for other content unit (like block)
     bool generated = false;
+    
+    /// @brief Item light emission [r, g, b] where r,g,b in range [0..15]
     uint8_t emission[4] {0, 0, 0, 0};
+
+    /// @brief Default item uses count
+    int16_t uses = 100;
 
     ItemIconType iconType = ItemIconType::SPRITE;
     std::string icon = "blocks:notfound";

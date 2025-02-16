@@ -8,7 +8,6 @@
 #include "items/Inventories.hpp"
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
-#include "items/ItemStack.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "maths/voxmaths.hpp"
 #include "objects/Player.hpp"
@@ -115,26 +114,73 @@ SlotView::SlotView(
     setTooltipDelay(0.0f);
 }
 
+void SlotView::refreshTooltip(const ItemStack& stack, const ItemDef& item) {
+    itemid_t itemid = stack.getItemId();
+    if (itemid == cache.stack.getItemId()) {
+        return;
+    }
+    if (itemid) {
+        tooltip = util::pascal_case(
+            langs::get(util::str2wstr_utf8(item.caption))
+        );
+    } else {
+        tooltip.clear();
+    }
+}
+
+void SlotView::drawItemIcon(
+    Batch2D& batch,
+    const ItemStack& stack,
+    const ItemDef& item,
+    const Assets& assets,
+    const glm::vec4& tint,
+    const glm::vec2& pos
+) {
+    const int SLOT_SIZE = InventoryView::SLOT_SIZE;
+    const auto& previews = assets.require<Atlas>("block-previews");
+    batch.setColor(glm::vec4(1.0f));
+    switch (item.iconType) {
+        case ItemIconType::NONE:
+            break;
+        case ItemIconType::BLOCK: {
+            const Block& block = content->blocks.require(item.icon);
+            batch.texture(previews.getTexture());
+
+            UVRegion region = previews.get(block.name);
+            batch.rect(
+                pos.x, pos.y, SLOT_SIZE, SLOT_SIZE, 
+                0, 0, 0, region, false, true, tint
+            );
+            break;
+        }
+        case ItemIconType::SPRITE: {
+            auto textureRegion =
+                util::get_texture_region(assets, item.icon, "blocks:notfound");
+            
+            batch.texture(textureRegion.texture);
+            batch.rect(
+                pos.x, pos.y, SLOT_SIZE, SLOT_SIZE, 
+                0, 0, 0, textureRegion.region, false, true, tint
+            );
+            break;
+        }
+    }
+}
+
 void SlotView::draw(const DrawContext& pctx, const Assets& assets) {
     if (bound == nullptr) {
         return;
     }
-    itemid_t itemid = bound->getItemId();
-    if (itemid != prevItem) {
-        if (itemid) {
-            auto& def = content->getIndices()->items.require(itemid);
-            tooltip = util::pascal_case(
-                langs::get(util::str2wstr_utf8(def.caption))
-            );
-        } else {
-            tooltip.clear();
-        }
-    }
-    prevItem = itemid;
-
-    const int slotSize = InventoryView::SLOT_SIZE;
-
+    const auto& indices = *content->getIndices();
     const ItemStack& stack = *bound;
+    const ItemDef& item = indices.items.require(stack.getItemId());
+
+    if (cache.stack.getCount() != stack.getCount()) {
+        cache.countStr = std::to_wstring(stack.getCount());
+    }
+    refreshTooltip(stack, item);
+    cache.stack.set(ItemStack(stack.getItemId(), stack.getCount()));
+
     glm::vec4 tint(1, 1, 1, isEnabled() ? 1 : 0.5f);
     glm::vec2 pos = calcPos();
     glm::vec4 color = getColor();
@@ -144,67 +190,63 @@ void SlotView::draw(const DrawContext& pctx, const Assets& assets) {
         color = glm::vec4(1, 1, 1, 0.2f);
     }
 
-    auto batch = pctx.getBatch2D();
-    batch->setColor(color);
+    auto& batch = *pctx.getBatch2D();
+
     if (color.a > 0.0) {
-        batch->texture(nullptr);
+        batch.setColor(color);
+        batch.texture(nullptr);
+
+        const int size = InventoryView::SLOT_SIZE;
         if (highlighted) {
-            batch->rect(pos.x-4, pos.y-4, slotSize+8, slotSize+8);
+            batch.rect(pos.x - 4, pos.y - 4, size + 8, size + 8);
         } else {
-            batch->rect(pos.x, pos.y, slotSize, slotSize);
+            batch.rect(pos.x, pos.y, size, size);
         }
     }
-    
-    batch->setColor(glm::vec4(1.0f));
 
-    auto previews = assets.get<Atlas>("block-previews");
-    auto indices = content->getIndices();
-
-    auto& item = indices->items.require(stack.getItemId());
-    switch (item.iconType) {
-        case ItemIconType::NONE:
-            break;
-        case ItemIconType::BLOCK: {
-            const Block& cblock = content->blocks.require(item.icon);
-            batch->texture(previews->getTexture());
-
-            UVRegion region = previews->get(cblock.name);
-            batch->rect(
-                pos.x, pos.y, slotSize, slotSize, 
-                0, 0, 0, region, false, true, tint);
-            break;
-        }
-        case ItemIconType::SPRITE: {
-            auto textureRegion =
-                util::get_texture_region(assets, item.icon, "blocks:notfound");
-            
-            batch->texture(textureRegion.texture);
-            batch->rect(
-                pos.x, pos.y, slotSize, slotSize, 
-                0, 0, 0, textureRegion.region, false, true, tint);
-            break;
-        }
-    }
+    drawItemIcon(batch, stack, item, assets, tint, pos);
 
     if (stack.getCount() > 1 || stack.getFields() != nullptr) {
-        auto font = assets.get<Font>("normal");
-        
-        if (stack.getCount() > 1) {
-            std::wstring text = std::to_wstring(stack.getCount());
+        const auto& font = assets.require<Font>("normal");
+        drawItemInfo(batch, stack, item, font, pos);
+    }
+}
 
-            int x = pos.x+slotSize-text.length()*8;
-            int y = pos.y+slotSize-16;
+void SlotView::drawItemInfo(
+    Batch2D& batch,
+    const ItemStack& stack,
+    const ItemDef& item,
+    const Font& font,
+    const glm::vec2& pos
+) {
+    const int SLOT_SIZE = InventoryView::SLOT_SIZE;
+    if (stack.getCount() > 1) {
+        const auto& countStr = cache.countStr;
+        int x = pos.x + SLOT_SIZE - countStr.length() * 8;
+        int y = pos.y + SLOT_SIZE - 16;
 
-            batch->setColor({0, 0, 0, 1.0f});
-            font->draw(*batch, text, x+1, y+1, nullptr, 0);
-            batch->setColor(glm::vec4(1.0f));
-            font->draw(*batch, text, x, y, nullptr, 0);
+        batch.setColor({0, 0, 0, 1.0f});
+        font.draw(batch, countStr, x + 1, y + 1, nullptr, 0);
+        batch.resetColor();
+        font.draw(batch, countStr, x, y, nullptr, 0);
+    }
+    if (auto ptr = stack.getField("uses")) {
+        if (!ptr->isInteger()) {
+            return;
         }
-        if (stack.getFields() != nullptr) {
-            batch->setColor({0, 0, 0, 1.0f});
-            font->draw(*batch, L"#", pos.x+1, pos.y+1, nullptr, 0);
-            batch->setColor(glm::vec4(1.0f));
-            font->draw(*batch, L"#", pos.x, pos.y, nullptr, 0);
+        {
+            std::wstring text = std::to_wstring(ptr->asInteger());
+            batch.setColor({0, 0, 0, 1.0f});
+            font.draw(batch, text, pos.x - 2, pos.y - 2, nullptr, 0);
+            batch.resetColor();
+            font.draw(batch, text, pos.x - 3, pos.y - 3, nullptr, 0);
+        }
+        {
+            std::wstring text = std::to_wstring(item.uses);
+            batch.setColor({0, 0, 0, 1.0f});
+            font.draw(batch, text, pos.x - 2, pos.y - 2 + 12, nullptr, 0);
+            batch.resetColor();
+            font.draw(batch, text, pos.x - 3, pos.y - 3 + 12, nullptr, 0);
         }
     }
 }

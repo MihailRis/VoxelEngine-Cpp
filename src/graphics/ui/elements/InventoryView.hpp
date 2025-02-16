@@ -4,15 +4,18 @@
 #include "Container.hpp"
 #include "typedefs.hpp"
 #include "constants.hpp"
+#include "items/ItemStack.hpp"
 
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
 
+class Font;
 class Assets;
+class ItemDef;
+class Batch2D;
 class DrawContext;
 class Content;
-class ItemStack;
 class ContentIndices;
 class LevelFrontend;
 class Inventory;
@@ -49,6 +52,11 @@ namespace gui {
     };
 
     class SlotView : public gui::UINode {
+        struct {
+            ItemStack stack {};
+            std::wstring countStr;
+        } cache;
+    
         const Content* content = nullptr;
         SlotLayout layout;
         bool highlighted = false;
@@ -56,11 +64,27 @@ namespace gui {
         int64_t inventoryid = 0;
         ItemStack* bound = nullptr;
 
-        std::wstring tooltip;
-        itemid_t prevItem = 0;
-
         void performLeftClick(ItemStack& stack, ItemStack& grabbed);
         void performRightClick(ItemStack& stack, ItemStack& grabbed);
+
+        void drawItemIcon(
+            Batch2D& batch,
+            const ItemStack& stack,
+            const ItemDef& item,
+            const Assets& assets,
+            const glm::vec4& tint,
+            const glm::vec2& pos
+        );
+
+        void drawItemInfo(
+            Batch2D& batch,
+            const ItemStack& stack,
+            const ItemDef& item,
+            const Font& font,
+            const glm::vec2& pos
+        );
+
+        void refreshTooltip(const ItemStack& stack, const ItemDef& item);
     public:
         SlotView(SlotLayout layout);
 
