@@ -81,10 +81,15 @@ static int l_add(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
     auto itemid = lua::tointeger(L, 2);
     auto count = lua::tointeger(L, 3);
+    auto data = lua::tovalue(L, 4);
+
     validate_itemid(itemid);
+    if (!data.isObject() && data != nullptr) {
+        throw std::runtime_error("invalid data argument type (table expected)");
+    }
 
     auto& inv = get_inventory(invid);
-    ItemStack item(itemid, count);
+    ItemStack item(itemid, count, std::move(data));
     inv.move(item, *indices);
     return lua::pushinteger(L, item.getCount());
 }
