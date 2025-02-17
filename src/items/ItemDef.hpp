@@ -38,7 +38,7 @@ struct ItemDef {
     uint8_t emission[4] {0, 0, 0, 0};
 
     /// @brief Default item uses count
-    int16_t uses = 100;
+    int16_t uses = -1;
 
     ItemIconType iconType = ItemIconType::SPRITE;
     std::string icon = "blocks:notfound";
