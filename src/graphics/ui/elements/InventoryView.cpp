@@ -300,10 +300,11 @@ void SlotView::performRightClick(ItemStack& stack, ItemStack& grabbed) {
         return;
     if (grabbed.isEmpty()) {
         if (!stack.isEmpty() && layout.taking) {
-            grabbed.set(stack);
+            grabbed.set(std::move(stack));
             int halfremain = stack.getCount() / 2;
             grabbed.setCount(stack.getCount() - halfremain);
-            stack.setCount(halfremain);
+            // reset all data in the origin slot
+            stack = ItemStack(stack.getItemId(), halfremain);
         }
         return;
     }
