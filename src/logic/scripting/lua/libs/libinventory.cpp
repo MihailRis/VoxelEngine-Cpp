@@ -208,7 +208,10 @@ static int l_get_all_data(lua::State* L, ItemStack& stack) {
 }
 
 static int l_has_data(lua::State* L, ItemStack& stack) {
-    auto key = lua::require_string(L, 3);
+    auto key = lua::tostring(L, 3);
+    if (key == nullptr) {
+        return lua::pushboolean(L, stack.hasFields());
+    }
     return lua::pushboolean(L, stack.getField(key) != nullptr);
 }
 

@@ -14,6 +14,7 @@ end
 if SAVED_DATA.item then
     dropitem.id = item.index(SAVED_DATA.item)
     dropitem.count = SAVED_DATA.count
+    dropitem.data = SAVED_DATA.data
 end
 
 local DROP_SCALE = 0.3
@@ -25,6 +26,7 @@ local rotation = mat4.rotate({
 function on_save()
     SAVED_DATA.item = item.name(dropitem.id)
     SAVED_DATA.count = dropitem.count
+    SAVED_DATA.data = dropitem.data
 end
 
 do -- setup visuals
@@ -59,11 +61,10 @@ function on_sensor_enter(index, oid)
     if pid == -1 then
         -- other is base:drop too
         if index == 0 and other:def_index() == def_index then
-            local odrop = other:get_component("base:drop")
-            if odrop.dropitem.id == dropitem.id then
-                -- // TODO: replace combination logic with item.* function
+            local odrop = other:get_component("base:drop").dropitem
+            if odrop.id == dropitem.id and not odrop.data then
                 local stack = item.stack_size(dropitem.id)
-                local sum = dropitem.count + odrop.dropitem.count
+                local sum = dropitem.count + odrop.count
                 if sum <= stack then
                     dropitem.count = sum
                     other:despawn()
@@ -75,7 +76,7 @@ function on_sensor_enter(index, oid)
 
     if timer < 0.0 and index == 0 then
         entity:despawn()
-        inventory.add(player.get_inventory(pid), dropitem.id, dropitem.count)
+        inventory.add(player.get_inventory(pid), dropitem.id, dropitem.count, dropitem.data)
         audio.play_sound_2d("events/pickup", 0.5, 0.8 + math.random() * 0.4, "regular")
     end
     if index == 1 then

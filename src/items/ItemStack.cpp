@@ -57,6 +57,9 @@ void ItemStack::setField(std::string_view name, dv::value value) {
     }
     if (value == nullptr) {
         fields.erase(std::string(name));
+        if (fields.empty()) {
+            fields = nullptr;
+        }
         return;
     }
     fields[std::string(name)] = std::move(value);
