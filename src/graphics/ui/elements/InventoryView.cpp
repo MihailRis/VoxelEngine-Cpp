@@ -212,6 +212,15 @@ void SlotView::draw(const DrawContext& pctx, const Assets& assets) {
     }
 }
 
+static void draw_shaded_text(
+    Batch2D& batch, const Font& font, const std::wstring& text, int x, int y
+) {
+    batch.setColor({0, 0, 0, 1.0f});
+    font.draw(batch, text, x + 1, y + 1, nullptr, 0);
+    batch.resetColor();
+    font.draw(batch, text, x, y, nullptr, 0);
+}
+
 void SlotView::drawItemInfo(
     Batch2D& batch,
     const ItemStack& stack,
@@ -224,48 +233,35 @@ void SlotView::drawItemInfo(
         const auto& countStr = cache.countStr;
         int x = pos.x + SLOT_SIZE - countStr.length() * 8;
         int y = pos.y + SLOT_SIZE - 16;
-
-        batch.setColor({0, 0, 0, 1.0f});
-        font.draw(batch, countStr, x + 1, y + 1, nullptr, 0);
-        batch.resetColor();
-        font.draw(batch, countStr, x, y, nullptr, 0);
+        draw_shaded_text(batch, font, countStr, x, y);
     }
-    if (auto ptr = stack.getField("uses")) {
-        if (!ptr->isInteger()) {
-            return;
-        }
-        int16_t uses = ptr->asInteger();
-        switch (item.usesDisplay) {
-            case ItemUsesDisplay::NONE:
-                break;
-            case ItemUsesDisplay::RELATION:
-                {
-                    std::wstring text = std::to_wstring(uses);
-                    batch.setColor({0, 0, 0, 1.0f});
-                    font.draw(batch, text, pos.x - 2, pos.y - 2, nullptr, 0);
-                    batch.resetColor();
-                    font.draw(batch, text, pos.x - 3, pos.y - 3, nullptr, 0);
-                }
-                {
-                    std::wstring text = std::to_wstring(item.uses);
-                    batch.setColor({0, 0, 0, 1.0f});
-                    font.draw(batch, text, pos.x - 2, pos.y - 2 + 12, nullptr, 0);
-                    batch.resetColor();
-                    font.draw(batch, text, pos.x - 3, pos.y - 3 + 12, nullptr, 0);
-                }
-                break;
-            case ItemUsesDisplay::VBAR: {
-                batch.untexture();
-                batch.setColor({0, 0, 0, 0.75f});
-                batch.rect(pos.x - 2, pos.y - 2, 6, SLOT_SIZE + 4);
-                float t = static_cast<float>(uses) / item.uses;
 
-                batch.setColor({(1.0f - t * 0.8f), 0.4f, t * 0.8f + 0.2f, 1.0f});
-                
-                int height = SLOT_SIZE * t;
-                batch.rect(pos.x, pos.y + SLOT_SIZE - height, 2, height);
-                break;
-            }
+    auto usesPtr = stack.getField("uses");
+    if (usesPtr == nullptr || !usesPtr->isInteger()) {
+        return;
+    }
+    int16_t uses = usesPtr->asInteger();
+    switch (item.usesDisplay) {
+        case ItemUsesDisplay::NONE:
+            break;
+        case ItemUsesDisplay::RELATION:
+            draw_shaded_text(
+                batch, font, std::to_wstring(uses), pos.x - 3, pos.y - 3
+            );
+            draw_shaded_text(
+                batch, font, std::to_wstring(item.uses), pos.x - 3, pos.y + 9
+            );
+            break;
+        case ItemUsesDisplay::VBAR: {
+            batch.untexture();
+            batch.setColor({0, 0, 0, 0.75f});
+            batch.rect(pos.x - 2, pos.y - 2, 6, SLOT_SIZE + 4);
+            float t = static_cast<float>(uses) / item.uses;
+            
+            int height = SLOT_SIZE * t;
+            batch.setColor({(1.0f - t * 0.8f), 0.4f, t * 0.8f + 0.2f, 1.0f});
+            batch.rect(pos.x, pos.y + SLOT_SIZE - height, 2, height);
+            break;
         }
     }
 }

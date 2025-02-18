@@ -429,7 +429,7 @@ void ContentLoader::loadItem(
     } else if (iconTypeStr == "sprite") {
         def.iconType = ItemIconType::SPRITE;
     } else if (iconTypeStr.length()) {
-        logger.error() << name << ": unknown icon type" << iconTypeStr;
+        logger.error() << name << ": unknown icon type - " << iconTypeStr;
     }
     root.at("icon").get(def.icon);
     root.at("placing-block").get(def.placingBlock);
@@ -447,7 +447,7 @@ void ContentLoader::loadItem(
     } else if (usesDisplayStr == "vbar") {
         def.usesDisplay = ItemUsesDisplay::VBAR;
     } else if (usesDisplayStr.length()) {
-        logger.error() << name << ": unknown uses display mode " << usesDisplayStr;
+        logger.error() << name << ": unknown uses display mode - " << usesDisplayStr;
     }
 
     if (auto found = root.at("emission")) {
