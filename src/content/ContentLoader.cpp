@@ -429,15 +429,29 @@ void ContentLoader::loadItem(
     } else if (iconTypeStr == "sprite") {
         def.iconType = ItemIconType::SPRITE;
     } else if (iconTypeStr.length()) {
-        logger.error() << name << ": unknown icon type" << iconTypeStr;
+        logger.error() << name << ": unknown icon type - " << iconTypeStr;
     }
     root.at("icon").get(def.icon);
     root.at("placing-block").get(def.placingBlock);
     root.at("script-name").get(def.scriptName);
     root.at("model-name").get(def.modelName);
     root.at("stack-size").get(def.stackSize);
+    root.at("uses").get(def.uses);
 
-    // item light emission [r, g, b] where r,g,b in range [0..15]
+    std::string usesDisplayStr = "";
+    root.at("uses-display").get(usesDisplayStr);
+    if (usesDisplayStr == "none") {
+        def.usesDisplay = ItemUsesDisplay::NONE;
+    } else if (usesDisplayStr == "number") {
+        def.usesDisplay = ItemUsesDisplay::NUMBER;
+    } else if (usesDisplayStr == "relation") {
+        def.usesDisplay = ItemUsesDisplay::RELATION;
+    } else if (usesDisplayStr == "vbar") {
+        def.usesDisplay = ItemUsesDisplay::VBAR;
+    } else if (usesDisplayStr.length()) {
+        logger.error() << name << ": unknown uses display mode - " << usesDisplayStr;
+    }
+
     if (auto found = root.at("emission")) {
         const auto& emissionarr = *found;
         def.emission[0] = emissionarr[0].asNumber();
