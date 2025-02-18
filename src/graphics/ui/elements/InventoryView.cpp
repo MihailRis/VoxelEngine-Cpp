@@ -249,10 +249,12 @@ void SlotView::drawItemInfo(
             break;
         case ItemUsesDisplay::RELATION:
             draw_shaded_text(
-                batch, font, std::to_wstring(uses), pos.x - 3, pos.y - 3
-            );
-            draw_shaded_text(
                 batch, font, std::to_wstring(item.uses), pos.x - 3, pos.y + 9
+            );
+            [[fallthrough]];
+        case ItemUsesDisplay::NUMBER:
+            draw_shaded_text(
+                batch, font, std::to_wstring(uses), pos.x - 3, pos.y - 3
             );
             break;
         case ItemUsesDisplay::VBAR: {

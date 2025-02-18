@@ -442,6 +442,8 @@ void ContentLoader::loadItem(
     root.at("uses-display").get(usesDisplayStr);
     if (usesDisplayStr == "none") {
         def.usesDisplay = ItemUsesDisplay::NONE;
+    } else if (usesDisplayStr == "number") {
+        def.usesDisplay = ItemUsesDisplay::NUMBER;
     } else if (usesDisplayStr == "relation") {
         def.usesDisplay = ItemUsesDisplay::RELATION;
     } else if (usesDisplayStr == "vbar") {

@@ -21,6 +21,7 @@ enum class ItemIconType {
 
 enum class ItemUsesDisplay {
     NONE,     // uses count is not displayed
+    NUMBER,   // uses count is displayed as number
     RELATION, // uses count is displayed as `remain/default` relation
     VBAR,     // uses count is displayed as vertical bar without counter
     DEFAULT = VBAR,
