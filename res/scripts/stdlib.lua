@@ -94,6 +94,31 @@ elseif __vc_app then
     complete_app_lib(__vc_app)
 end
 
+function inventory.get_uses(invid, slot)
+    local uses = inventory.get_data(invid, slot, "uses")
+    if uses == nil then
+        return item.uses(inventory.get(invid, slot))
+    end
+    return uses
+end
+
+
+function inventory.use(invid, slot)
+    local itemid, count = inventory.get(invid, slot)
+    if itemid == nil then
+        return
+    end
+    local item_uses = inventory.get_uses(invid, slot)
+    if item_uses == nil then
+        return
+    end
+    if item_uses == 1 then
+        inventory.set(invid, slot, itemid, count - 1)
+    elseif item_uses > 1 then
+        inventory.set_data(invid, slot, "uses", item_uses - 1)
+    end
+end
+
 ------------------------------------------------
 ------------------- Events ---------------------
 ------------------------------------------------
