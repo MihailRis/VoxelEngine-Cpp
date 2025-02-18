@@ -226,6 +226,7 @@ void AssetsLoader::addDefaults(AssetsLoader& loader, const Content* content) {
             loader.tryAddSound(material.stepsSound);
             loader.tryAddSound(material.placeSound);
             loader.tryAddSound(material.breakSound);
+            loader.tryAddSound(material.hitSound);
         }
 
         for (auto& entry : content->getPacks()) {
