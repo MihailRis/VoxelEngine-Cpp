@@ -241,6 +241,9 @@ void SlotView::drawItemInfo(
         return;
     }
     int16_t uses = usesPtr->asInteger();
+    if (uses < 0) {
+        return;
+    }
     switch (item.usesDisplay) {
         case ItemUsesDisplay::NONE:
             break;
