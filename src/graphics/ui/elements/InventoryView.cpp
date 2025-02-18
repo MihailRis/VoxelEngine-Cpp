@@ -313,9 +313,14 @@ void SlotView::performRightClick(ItemStack& stack, ItemStack& grabbed) {
         return;
     }
     if (stack.isEmpty()) {
-        stack.set(grabbed);
+        itemcount_t count = grabbed.getCount();
+        stack.set(std::move(grabbed));
         stack.setCount(1);
-        grabbed.setCount(grabbed.getCount() - 1);
+        if (count == 1) {
+            grabbed = {};
+        } else {
+            grabbed = ItemStack(stack.getItemId(), count - 1);
+        }
     } else if (stack.accepts(grabbed) && stack.getCount() < stackDef.stackSize) {
         stack.setCount(stack.getCount() + 1);
         grabbed.setCount(grabbed.getCount() - 1);
