@@ -234,19 +234,38 @@ void SlotView::drawItemInfo(
         if (!ptr->isInteger()) {
             return;
         }
-        {
-            std::wstring text = std::to_wstring(ptr->asInteger());
-            batch.setColor({0, 0, 0, 1.0f});
-            font.draw(batch, text, pos.x - 2, pos.y - 2, nullptr, 0);
-            batch.resetColor();
-            font.draw(batch, text, pos.x - 3, pos.y - 3, nullptr, 0);
-        }
-        {
-            std::wstring text = std::to_wstring(item.uses);
-            batch.setColor({0, 0, 0, 1.0f});
-            font.draw(batch, text, pos.x - 2, pos.y - 2 + 12, nullptr, 0);
-            batch.resetColor();
-            font.draw(batch, text, pos.x - 3, pos.y - 3 + 12, nullptr, 0);
+        int16_t uses = ptr->asInteger();
+        switch (item.usesDisplay) {
+            case ItemUsesDisplay::NONE:
+                break;
+            case ItemUsesDisplay::RELATION:
+                {
+                    std::wstring text = std::to_wstring(uses);
+                    batch.setColor({0, 0, 0, 1.0f});
+                    font.draw(batch, text, pos.x - 2, pos.y - 2, nullptr, 0);
+                    batch.resetColor();
+                    font.draw(batch, text, pos.x - 3, pos.y - 3, nullptr, 0);
+                }
+                {
+                    std::wstring text = std::to_wstring(item.uses);
+                    batch.setColor({0, 0, 0, 1.0f});
+                    font.draw(batch, text, pos.x - 2, pos.y - 2 + 12, nullptr, 0);
+                    batch.resetColor();
+                    font.draw(batch, text, pos.x - 3, pos.y - 3 + 12, nullptr, 0);
+                }
+                break;
+            case ItemUsesDisplay::VBAR: {
+                batch.untexture();
+                batch.setColor({0, 0, 0, 0.75f});
+                batch.rect(pos.x - 2, pos.y - 2, 6, SLOT_SIZE + 4);
+                float t = static_cast<float>(uses) / item.uses;
+
+                batch.setColor({(1.0f - t * 0.8f), 0.4f, t * 0.8f + 0.2f, 1.0f});
+                
+                int height = SLOT_SIZE * t;
+                batch.rect(pos.x, pos.y + SLOT_SIZE - height, 2, height);
+                break;
+            }
         }
     }
 }

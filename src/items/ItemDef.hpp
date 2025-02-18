@@ -19,6 +19,13 @@ enum class ItemIconType {
     BLOCK,   // block preview: icon is string block id
 };
 
+enum class ItemUsesDisplay {
+    NONE,     // uses count is not displayed
+    RELATION, // uses count is displayed as `remain/default` relation
+    VBAR,     // uses count is displayed as vertical bar without counter
+    DEFAULT = VBAR,
+};
+
 struct ItemDef {
     /// @brief Item string id (with prefix included)
     std::string const name;
@@ -39,6 +46,9 @@ struct ItemDef {
 
     /// @brief Default item uses count
     int16_t uses = -1;
+
+    /// @brief Item uses count display mode
+    ItemUsesDisplay usesDisplay = ItemUsesDisplay::DEFAULT;
 
     ItemIconType iconType = ItemIconType::SPRITE;
     std::string icon = "blocks:notfound";

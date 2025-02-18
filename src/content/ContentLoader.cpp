@@ -438,6 +438,18 @@ void ContentLoader::loadItem(
     root.at("stack-size").get(def.stackSize);
     root.at("uses").get(def.uses);
 
+    std::string usesDisplayStr = "";
+    root.at("uses-display").get(usesDisplayStr);
+    if (usesDisplayStr == "none") {
+        def.usesDisplay = ItemUsesDisplay::NONE;
+    } else if (usesDisplayStr == "relation") {
+        def.usesDisplay = ItemUsesDisplay::RELATION;
+    } else if (usesDisplayStr == "vbar") {
+        def.usesDisplay = ItemUsesDisplay::VBAR;
+    } else if (usesDisplayStr.length()) {
+        logger.error() << name << ": unknown uses display mode " << usesDisplayStr;
+    }
+
     if (auto found = root.at("emission")) {
         const auto& emissionarr = *found;
         def.emission[0] = emissionarr[0].asNumber();

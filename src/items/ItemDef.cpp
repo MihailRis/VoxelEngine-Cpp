@@ -15,4 +15,6 @@ void ItemDef::cloneTo(ItemDef& dst) {
     dst.placingBlock = placingBlock;
     dst.scriptName = scriptName;
     dst.modelName = modelName;
+    dst.uses = uses;
+    dst.usesDisplay = usesDisplay;
 }
