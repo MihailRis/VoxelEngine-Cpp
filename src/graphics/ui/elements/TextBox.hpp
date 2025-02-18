@@ -6,9 +6,8 @@
 class Font;
 
 namespace gui {
-    class Label;
-    
     class TextBox : public Container {
+        LabelCache rawTextCache;
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
@@ -43,11 +42,12 @@ namespace gui {
         /// @brief Actual local (line) position of the caret on vertical move
         size_t maxLocalCaret = 0;
         size_t textOffset = 0;
-        int textInitX;
+        int textInitX = 0;
         /// @brief Last time of the caret was moved (used for blink animation)
         double caretLastMove = 0.0;
         Font* font = nullptr;
 
+        // Note: selection does not include markup
         size_t selectionStart = 0;
         size_t selectionEnd = 0;
         size_t selectionOrigin = 0;
