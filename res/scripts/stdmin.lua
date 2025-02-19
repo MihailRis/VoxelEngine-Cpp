@@ -1,12 +1,6 @@
 -- Check if given table is an array
-function is_array(x)
-    if #x > 0 then
-        return true
-    end
-    for k, v in pairs(x) do
-        return false
-    end
-    return true
+function is_array(tbl)
+    return tbl[1] and true or false
 end
 
 -- Get entry-point and filename from `entry-point:filename` path 
