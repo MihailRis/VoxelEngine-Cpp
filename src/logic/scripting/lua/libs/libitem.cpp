@@ -80,6 +80,13 @@ static int l_emission(lua::State* L) {
     return 0;
 }
 
+static int l_uses(lua::State* L) {
+    if (auto def = get_item_def(L, 1)) {
+        return lua::pushinteger(L, def->uses);
+    }
+    return 0;
+}
+
 const luaL_Reg itemlib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -90,4 +97,6 @@ const luaL_Reg itemlib[] = {
     {"placing_block", lua::wrap<l_placing_block>},
     {"model_name", lua::wrap<l_model_name>},
     {"emission", lua::wrap<l_emission>},
-    {NULL, NULL}};
+    {"uses", lua::wrap<l_uses>},
+    {NULL, NULL}
+};

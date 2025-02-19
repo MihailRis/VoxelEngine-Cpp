@@ -64,6 +64,23 @@ function math.round(num, places)
     return math.floor(num * mult + 0.5) / mult
 end
 
+function math.sum(...)
+    local numbers = nil
+    local sum = 0
+
+    if type(...) == "table" then
+        numbers = ...
+    else
+        numbers = {...}
+    end
+
+    for _, v in ipairs(numbers) do
+        sum = sum + v
+    end
+
+    return sum
+end
+
 ----------------------------------------------
 
 function table.copy(t)
@@ -123,6 +140,73 @@ function table.merge(t1, t2)
     end
 
     return t1
+end
+
+function table.map(t, func)
+    for i, v in pairs(t) do
+        t[i] = func(i, v)
+    end
+
+    return t
+end
+
+function table.filter(t, func)
+    for i, v in pairs(t) do
+        if not func(i, v) then
+            t[i] = nil
+        end
+    end
+
+    return t
+end
+
+function table.set_default(t, key, default)
+    if t[key] == nil then
+        t[key] = default
+        return default
+    end
+
+    return t[key]
+end
+
+function table.flat(t)
+    local flat = {}
+
+    for _, v in pairs(t) do
+        if type(v) == "table" then
+            table.merge(flat, v)
+        else
+            table.insert(flat, v)
+        end
+    end
+
+    return flat
+end
+
+function table.deep_flat(t)
+    local flat = {}
+
+    for _, v in pairs(t) do
+        if type(v) == "table" then
+            table.merge(flat, table.deep_flat(v))
+        else
+            table.insert(flat, v)
+        end
+    end
+
+    return flat
+end
+
+function table.sub(arr, start, stop)
+    local res = {}
+    start = start or 1
+    stop = stop or #arr
+
+    for i = start, stop do
+        table.insert(res, arr[i])
+    end
+
+    return res
 end
 
 ----------------------------------------------
@@ -206,6 +290,29 @@ end
 function string.trim_left(s, char)
     if char then char = string.pattern_safe(char) else char = "%s" end
     return string.match(s, "^" .. char .. "*(.+)$") or s
+end
+
+function string.pad(str, size, char)
+    char = char == nil and " " or char
+
+    local padding = math.floor((size - #str) / 2)
+    local extra_padding = (size - #str) % 2
+
+    return string.rep(char, padding) .. str .. string.rep(char, padding + extra_padding)
+end
+
+function string.left_pad(str, size, char)
+    char = char == nil and " " or char
+
+    local left_padding = size - #str
+    return string.rep(char, left_padding) .. str
+end
+
+function string.right_pad(str, size, char)
+    char = char == nil and " " or char
+
+    local right_padding = size - #str
+    return str .. string.rep(char, right_padding)
 end
 
 string.lower = utf8.lower

@@ -13,7 +13,8 @@ dv::value BlockMaterial::serialize() const {
         {"name", name},
         {"stepsSound", stepsSound},
         {"placeSound", placeSound},
-        {"breakSound", breakSound}
+        {"breakSound", breakSound},
+        {"hitSound", hitSound}
     });
 }
 

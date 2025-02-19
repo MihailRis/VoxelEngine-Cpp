@@ -56,7 +56,10 @@ void BlockWrapsRenderer::draw(const BlockWrapper& wrapper) {
                 );
                 break;
             case BlockModel::aabb: {
-                const auto& aabb = def.rt.hitboxes[vox->state.rotation].at(0);
+                const auto& aabb =
+                    (def.rotatable ? def.rt.hitboxes[vox->state.rotation]
+                                   : def.hitboxes)
+                        .at(0);
                 const auto& size = aabb.size();
                 regions[0].scale(size.z, size.y);
                 regions[1].scale(size.z, size.y);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <string>
 #include <utility>
 #include <vector>
@@ -10,10 +9,10 @@
 #include "data/dv.hpp"
 #include "typedefs.hpp"
 #include "Content.hpp"
+#include "io/io.hpp"
 #include "data/StructLayout.hpp"
-#include "files/world_regions_fwd.hpp"
+#include "world/files/world_regions_fwd.hpp"
 
-namespace fs = std::filesystem;
 
 enum class ContentIssueType {
     REORDER,
@@ -139,7 +138,7 @@ public:
 
     static std::shared_ptr<ContentReport> create(
         const std::shared_ptr<WorldFiles>& worldFiles,
-        const fs::path& filename,
+        const io::path& filename,
         const Content* content
     );
 

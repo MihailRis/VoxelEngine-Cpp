@@ -1,11 +1,8 @@
-#include "api_lua.hpp"
+#include "libhud.hpp"
 
-#include "logic/scripting/scripting_hud.hpp"
-#include "graphics/render/WorldRenderer.hpp"
 #include "graphics/render/ParticlesRenderer.hpp"
 #include "graphics/render/Emitter.hpp"
 #include "assets/assets_util.hpp"
-#include "engine/Engine.hpp"
 
 using namespace scripting;
 
@@ -81,10 +78,10 @@ static int l_is_alive(lua::State* L) {
 }
 
 const luaL_Reg particleslib[] = {
-    {"emit", lua::wrap<l_emit>},
-    {"stop", lua::wrap<l_stop>},
-    {"is_alive", lua::wrap<l_is_alive>},
-    {"get_origin", lua::wrap<l_get_origin>},
-    {"set_origin", lua::wrap<l_set_origin>},
+    {"emit", wrap_hud<l_emit>},
+    {"stop", wrap_hud<l_stop>},
+    {"is_alive", wrap_hud<l_is_alive>},
+    {"get_origin", wrap_hud<l_get_origin>},
+    {"set_origin", wrap_hud<l_set_origin>},
     {NULL, NULL}
 };

@@ -5,12 +5,9 @@
 #include <stdexcept>
 #include <utility>
 
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "io/engine_paths.hpp"
 #include "typedefs.hpp"
 #include "util/stringutil.hpp"
-
-namespace fs = std::filesystem;
 
 void GLSLExtension::setVersion(std::string version) {
     this->version = std::move(version);
@@ -21,8 +18,8 @@ void GLSLExtension::setPaths(const ResPaths* paths) {
 }
 
 void GLSLExtension::loadHeader(const std::string& name) {
-    fs::path file = paths->find("shaders/lib/" + name + ".glsl");
-    std::string source = files::read_string(file);
+    io::path file = paths->find("shaders/lib/" + name + ".glsl");
+    std::string source = io::read_string(file);
     addHeader(name, "");
     addHeader(name, process(file, source, true));
 }
@@ -66,7 +63,7 @@ void GLSLExtension::undefine(const std::string& name) {
 }
 
 inline std::runtime_error parsing_error(
-    const fs::path& file, uint linenum, const std::string& message
+    const io::path& file, uint linenum, const std::string& message
 ) {
     return std::runtime_error(
         "file " + file.string() + ": " + message + " at line " +
@@ -75,7 +72,7 @@ inline std::runtime_error parsing_error(
 }
 
 inline void parsing_warning(
-    const fs::path& file, uint linenum, const std::string& message
+    const io::path& file, uint linenum, const std::string& message
 ) {
     std::cerr << "file " + file.string() + ": warning: " + message +
                      " at line " + std::to_string(linenum)
@@ -87,7 +84,7 @@ inline void source_line(std::stringstream& ss, uint linenum) {
 }
 
 std::string GLSLExtension::process(
-    const fs::path& file, const std::string& source, bool header
+    const io::path& file, const std::string& source, bool header
 ) {
     std::stringstream ss;
     size_t pos = 0;

@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "data/setting.hpp"
-#include "files/settings_io.hpp"
+#include "io/settings_io.hpp"
 #include "util/stringutil.hpp"
 #include "commons.hpp"
 

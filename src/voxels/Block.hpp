@@ -109,9 +109,10 @@ using BoxModel = AABB;
 /// @brief Common kit of block properties applied to groups of blocks
 struct BlockMaterial {
     std::string name;
-    std::string stepsSound {""};
-    std::string placeSound {""};
-    std::string breakSound {""};
+    std::string stepsSound;
+    std::string placeSound;
+    std::string breakSound;
+    std::string hitSound;
 
     dv::value serialize() const;
 };

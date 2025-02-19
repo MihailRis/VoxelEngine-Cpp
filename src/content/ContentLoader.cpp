@@ -12,7 +12,7 @@
 #include "coders/json.hpp"
 #include "core_defs.hpp"
 #include "debug/Logger.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "items/ItemDef.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "objects/rigging.hpp"
@@ -23,6 +23,7 @@
 #include "data/dv_util.hpp"
 #include "data/StructLayout.hpp"
 #include "presets/ParticlesPreset.hpp"
+#include "io/engine_paths.hpp"
 
 namespace fs = std::filesystem;
 using namespace data;
@@ -43,55 +44,55 @@ ContentLoader::ContentLoader(
 }
 
 static void detect_defs(
-    const fs::path& folder,
+    const io::path& folder,
     const std::string& prefix,
     std::vector<std::string>& detected
 ) {
-    if (fs::is_directory(folder)) {
-        for (const auto& entry : fs::directory_iterator(folder)) {
-            const fs::path& file = entry.path();
-            std::string name = file.stem().string();
-            if (name[0] == '_') {
-                continue;
-            }
-            if (fs::is_regular_file(file) && files::is_data_file(file)) {
-                auto map = files::read_object(file);
-                std::string id = prefix.empty() ? name : prefix + ":" + name;
-                detected.emplace_back(id);
-            } else if (fs::is_directory(file) && 
-                       file.extension() != fs::u8path(".files")) {
-                detect_defs(file, name, detected);
-            }
+    if (!io::is_directory(folder)) {
+        return;
+    }
+    for (const auto& file : io::directory_iterator(folder)) {
+        std::string name = file.stem();
+        if (name[0] == '_') {
+            continue;
+        }
+        if (io::is_regular_file(file) && io::is_data_file(file)) {
+            auto map = io::read_object(file);
+            std::string id = prefix.empty() ? name : prefix + ":" + name;
+            detected.emplace_back(id);
+        } else if (io::is_directory(file) && 
+                    file.extension() != fs::u8path(".files")) {
+            detect_defs(file, name, detected);
         }
     }
 }
 
 static void detect_defs_pairs(
-    const fs::path& folder,
+    const io::path& folder,
     const std::string& prefix,
     std::vector<std::tuple<std::string, std::string>>& detected
 ) {
-    if (fs::is_directory(folder)) {
-        for (const auto& entry : fs::directory_iterator(folder)) {
-            const fs::path& file = entry.path();
-            std::string name = file.stem().string();
-            if (name[0] == '_') {
-                continue;
+    if (!io::is_directory(folder)) {
+        return;
+    }
+    for (const auto& file : io::directory_iterator(folder)) {
+        std::string name = file.stem();
+        if (name[0] == '_') {
+            continue;
+        }
+        if (io::is_regular_file(file) && io::is_data_file(file)) {
+            try {
+                auto map = io::read_object(file);
+                auto id = prefix.empty() ? name : prefix + ":" + name;
+                auto caption = util::id_to_caption(id);
+                map.at("caption").get(caption);
+                detected.emplace_back(id, name);
+            } catch (const std::runtime_error& err) {
+                logger.error() << err.what();
             }
-            if (fs::is_regular_file(file) && files::is_data_file(file)) {
-                try {
-                    auto map = files::read_object(file);
-                    auto id = prefix.empty() ? name : prefix + ":" + name;
-                    auto caption = util::id_to_caption(id);
-                    map.at("caption").get(caption);
-                    detected.emplace_back(id, name);
-                } catch (const std::runtime_error& err) {
-                    logger.error() << err.what();
-                }
-            } else if (fs::is_directory(file) && 
-                       file.extension() != fs::u8path(".files")) {
-                detect_defs_pairs(file, name, detected);
-            }
+        } else if (io::is_directory(file) && 
+                    file.extension() != fs::u8path(".files")) {
+            detect_defs_pairs(file, name, detected);
         }
     }
 }
@@ -106,7 +107,7 @@ std::vector<std::tuple<std::string, std::string>> ContentLoader::scanContent(
 }
 
 bool ContentLoader::fixPackIndices(
-    const fs::path& folder,
+    const io::path& folder,
     dv::value& indicesRoot,
     const std::string& contentSection
 ) {
@@ -146,8 +147,8 @@ void ContentLoader::fixPackIndices() {
     auto entitiesFolder = folder / ContentPack::ENTITIES_FOLDER;
 
     dv::value root;
-    if (fs::is_regular_file(contentFile)) {
-        root = files::read_json(contentFile);
+    if (io::is_regular_file(contentFile)) {
+        root = io::read_json(contentFile);
     } else {
         root = dv::object();
     }
@@ -159,7 +160,7 @@ void ContentLoader::fixPackIndices() {
 
     if (modified) {
         // rewrite modified json
-        files::write_json(contentFile, root);
+        io::write_json(contentFile, root);
     }
 }
 
@@ -213,9 +214,9 @@ static void process_method(
 }
 
 void ContentLoader::loadBlock(
-    Block& def, const std::string& name, const fs::path& file
+    Block& def, const std::string& name, const io::path& file
 ) {
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     if (def.properties == nullptr) {
         def.properties = dv::object();
         def.properties["name"] = name;
@@ -402,9 +403,9 @@ void ContentLoader::loadBlock(
 }
 
 void ContentLoader::loadItem(
-    ItemDef& def, const std::string& name, const fs::path& file
+    ItemDef& def, const std::string& name, const io::path& file
 ) {
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     def.properties = root;
 
     if (root.has("parent")) {
@@ -428,15 +429,29 @@ void ContentLoader::loadItem(
     } else if (iconTypeStr == "sprite") {
         def.iconType = ItemIconType::SPRITE;
     } else if (iconTypeStr.length()) {
-        logger.error() << name << ": unknown icon type" << iconTypeStr;
+        logger.error() << name << ": unknown icon type - " << iconTypeStr;
     }
     root.at("icon").get(def.icon);
     root.at("placing-block").get(def.placingBlock);
     root.at("script-name").get(def.scriptName);
     root.at("model-name").get(def.modelName);
     root.at("stack-size").get(def.stackSize);
+    root.at("uses").get(def.uses);
 
-    // item light emission [r, g, b] where r,g,b in range [0..15]
+    std::string usesDisplayStr = "";
+    root.at("uses-display").get(usesDisplayStr);
+    if (usesDisplayStr == "none") {
+        def.usesDisplay = ItemUsesDisplay::NONE;
+    } else if (usesDisplayStr == "number") {
+        def.usesDisplay = ItemUsesDisplay::NUMBER;
+    } else if (usesDisplayStr == "relation") {
+        def.usesDisplay = ItemUsesDisplay::RELATION;
+    } else if (usesDisplayStr == "vbar") {
+        def.usesDisplay = ItemUsesDisplay::VBAR;
+    } else if (usesDisplayStr.length()) {
+        logger.error() << name << ": unknown uses display mode - " << usesDisplayStr;
+    }
+
     if (auto found = root.at("emission")) {
         const auto& emissionarr = *found;
         def.emission[0] = emissionarr[0].asNumber();
@@ -446,9 +461,9 @@ void ContentLoader::loadItem(
 }
 
 void ContentLoader::loadEntity(
-    EntityDef& def, const std::string& name, const fs::path& file
+    EntityDef& def, const std::string& name, const io::path& file
 ) {
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
 
     if (root.has("parent")) {
         const auto& parentName = root["parent"].asString();
@@ -518,16 +533,16 @@ void ContentLoader::loadEntity(
     EntityDef& def, const std::string& full, const std::string& name
 ) {
     auto folder = pack->folder;
-    auto configFile = folder / fs::path("entities/" + name + ".json");
-    if (fs::exists(configFile)) loadEntity(def, full, configFile);
+    auto configFile = folder / ("entities/" + name + ".json");
+    if (io::exists(configFile)) loadEntity(def, full, configFile);
 }
 
 void ContentLoader::loadBlock(
     Block& def, const std::string& full, const std::string& name
 ) {
     auto folder = pack->folder;
-    auto configFile = folder / fs::path("blocks/" + name + ".json");
-    if (fs::exists(configFile)) loadBlock(def, full, configFile);
+    auto configFile = folder / ("blocks/" + name + ".json");
+    if (io::exists(configFile)) loadBlock(def, full, configFile);
 
     if (!def.hidden) {
         bool created;
@@ -549,8 +564,8 @@ void ContentLoader::loadItem(
     ItemDef& def, const std::string& full, const std::string& name
 ) {
     auto folder = pack->folder;
-    auto configFile = folder / fs::path("items/" + name + ".json");
-    if (fs::exists(configFile)) loadItem(def, full, configFile);
+    auto configFile = folder / ("items/" + name + ".json");
+    if (io::exists(configFile)) loadItem(def, full, configFile);
 }
 
 static std::tuple<std::string, std::string, std::string> create_unit_id(
@@ -566,21 +581,25 @@ static std::tuple<std::string, std::string, std::string> create_unit_id(
 }
 
 void ContentLoader::loadBlockMaterial(
-    BlockMaterial& def, const fs::path& file
+    BlockMaterial& def, const io::path& file
 ) {
-    auto root = files::read_json(file);
+    auto root = io::read_json(file);
     root.at("steps-sound").get(def.stepsSound);
     root.at("place-sound").get(def.placeSound);
     root.at("break-sound").get(def.breakSound);
+    root.at("hit-sound").get(def.hitSound);
+    if (def.hitSound.empty()) {
+        def.hitSound = def.stepsSound;
+    }
 }
 
 void ContentLoader::loadContent(const dv::value& root) {
     std::vector<std::pair<std::string, std::string>> pendingDefs;
     auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
-            auto configFile = pack->folder / fs::path(prefix + "/" + name + ".json");
+            auto configFile = pack->folder / (prefix + "/" + name + ".json");
             std::string parent;
-            if (fs::exists(configFile)) {
-                auto root = files::read_json(configFile);
+            if (io::exists(configFile)) {
+                auto root = io::read_json(configFile);
                 root.at("parent").get(parent);
             }
             return parent;
@@ -740,16 +759,16 @@ void ContentLoader::loadContent(const dv::value& root) {
 }
 
 static inline void foreach_file(
-    const fs::path& dir, std::function<void(const fs::path&)> handler
+    const io::path& dir, std::function<void(const io::path&)> handler
 ) {
-    if (fs::is_directory(dir)) {
-        for (const auto& entry : fs::directory_iterator(dir)) {
-            const auto& path = entry.path();
-            if (fs::is_directory(path)) {
-                continue;
-            }
-            handler(path);
+    if (!io::is_directory(dir)) {
+        return;
+    }
+    for (const auto& path : io::directory_iterator(dir)) {
+        if (io::is_directory(path)) {
+            continue;
         }
+        handler(path);
     }
 }
 
@@ -760,12 +779,15 @@ void ContentLoader::load() {
 
     auto folder = pack->folder;
 
+    builder.defaults = paths.readCombinedObject(
+        EnginePaths::CONFIG_DEFAULTS.string()
+    );
+
     // Load world generators
-    fs::path generatorsDir = folder / fs::u8path("generators");
-    foreach_file(generatorsDir, [this](const fs::path& file) {
-        std::string name = file.stem().u8string();
-        auto [packid, full, filename] =
-            create_unit_id(pack->id, file.stem().u8string());
+    io::path generatorsDir = folder / "generators";
+    foreach_file(generatorsDir, [this](const io::path& file) {
+        std::string name = file.stem();
+        auto [packid, full, filename] = create_unit_id(pack->id, name);
 
         auto& def = builder.generators.create(full);
         try {
@@ -776,9 +798,9 @@ void ContentLoader::load() {
     });
 
     // Load pack resources.json
-    fs::path resourcesFile = folder / fs::u8path("resources.json");
-    if (fs::exists(resourcesFile)) {
-        auto resRoot = files::read_json(resourcesFile);
+    io::path resourcesFile = folder / "resources.json";
+    if (io::exists(resourcesFile)) {
+        auto resRoot = io::read_json(resourcesFile);
         for (const auto& [key, arr] : resRoot.asObject()) {
             if (auto resType = ResourceType_from(key)) {
                 loadResources(*resType, arr);
@@ -790,9 +812,9 @@ void ContentLoader::load() {
     }
 
     // Load pack resources aliases
-    fs::path aliasesFile = folder / fs::u8path("resource-aliases.json");
-    if (fs::exists(aliasesFile)) {
-        auto resRoot = files::read_json(aliasesFile);
+    io::path aliasesFile = folder / "resource-aliases.json";
+    if (io::exists(aliasesFile)) {
+        auto resRoot = io::read_json(aliasesFile);
         for (const auto& [key, arr] : resRoot.asObject()) {
             if (auto resType = ResourceType_from(key)) {
                 loadResourceAliases(*resType, arr);
@@ -804,33 +826,32 @@ void ContentLoader::load() {
     }
 
     // Load block materials
-    fs::path materialsDir = folder / fs::u8path("block_materials");    
-    if (fs::is_directory(materialsDir)) {
-        for (const auto& entry : fs::directory_iterator(materialsDir)) {
-            const auto& file = entry.path();
+    io::path materialsDir = folder / "block_materials";    
+    if (io::is_directory(materialsDir)) {
+        for (const auto& file : io::directory_iterator(materialsDir)) {
             auto [packid, full, filename] =
-                create_unit_id(pack->id, file.stem().u8string());
+                create_unit_id(pack->id, file.stem());
             loadBlockMaterial(
                 builder.createBlockMaterial(full),
-                materialsDir / fs::u8path(filename + ".json")
+                materialsDir / (filename + ".json")
             );
         }
     }
 
     // Load skeletons
-    fs::path skeletonsDir = folder / fs::u8path("skeletons");
-    foreach_file(skeletonsDir, [this](const fs::path& file) {
-        std::string name = pack->id + ":" + file.stem().u8string();
-        std::string text = files::read_string(file);
+    io::path skeletonsDir = folder / "skeletons";
+    foreach_file(skeletonsDir, [this](const io::path& file) {
+        std::string name = pack->id + ":" + file.stem();
+        std::string text = io::read_string(file);
         builder.add(
-            rigging::SkeletonConfig::parse(text, file.u8string(), name)
+            rigging::SkeletonConfig::parse(text, file.string(), name)
         );
     });
 
     // Process content.json and load defined content units
     auto contentFile = pack->getContentFile();
-    if (fs::exists(contentFile)) {
-        loadContent(files::read_json(contentFile));
+    if (io::exists(contentFile)) {
+        loadContent(io::read_json(contentFile));
     }
 }
 
@@ -844,8 +865,8 @@ static void load_scripts(Content& content, ContentUnitDefs<T>& units) {
         const auto runtime = content.getPackRuntime(name.substr(0, pos));
         const auto& pack = runtime->getInfo();
         const auto& folder = pack.folder;
-        auto scriptfile = folder / fs::path("scripts/" + def->scriptName + ".lua");
-        if (fs::is_regular_file(scriptfile)) {
+        auto scriptfile = folder / ("scripts/" + def->scriptName + ".lua");
+        if (io::is_regular_file(scriptfile)) {
             scripting::load_content_script(
                 runtime->getEnvironment(),
                 name,
@@ -866,8 +887,8 @@ void ContentLoader::loadScripts(Content& content) {
         const auto& folder = pack.folder;
         
         // Load main world script
-        fs::path scriptFile = folder / fs::path("scripts/world.lua");
-        if (fs::is_regular_file(scriptFile)) {
+        io::path scriptFile = folder / "scripts/world.lua";
+        if (io::is_regular_file(scriptFile)) {
             scripting::load_world_script(
                 runtime->getEnvironment(),
                 pack.id,
@@ -877,13 +898,13 @@ void ContentLoader::loadScripts(Content& content) {
             );
         }
         // Load entity components
-        fs::path componentsDir = folder / fs::u8path("scripts/components");
-        foreach_file(componentsDir, [&pack](const fs::path& file) {
-            auto name = pack.id + ":" + file.stem().u8string();
+        io::path componentsDir = folder / "scripts/components";
+        foreach_file(componentsDir, [&pack](const io::path& file) {
+            auto name = pack.id + ":" + file.stem();
             scripting::load_entity_component(
                 name,
                 file,
-                pack.id + ":scripts/components/" + file.filename().u8string()
+                pack.id + ":scripts/components/" + file.name()
             );
         });
     }

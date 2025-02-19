@@ -49,8 +49,18 @@ CameraControl::CameraControl(
       offset(0.0f, 0.7f, 0.0f) {
 }
 
-void CameraControl::refresh() {
+void CameraControl::refreshPosition() {
     camera->position = player.getPosition() + offset;
+}
+
+void CameraControl::refreshRotation() {
+    const glm::vec3& rotation = player.getRotation();
+    camera->rotation = glm::mat4(1.0f);
+    camera->rotate(
+        glm::radians(rotation.y),
+        glm::radians(rotation.x),
+        glm::radians(rotation.z)
+    );
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
@@ -93,22 +103,24 @@ glm::vec3 CameraControl::updateCameraShaking(
     const float ov = CAM_SHAKE_OFFSET_Y;
     const glm::vec3& vel = hitbox.velocity;
 
-    interpVel = interpVel * (1.0f - delta * 5) + vel * delta * 0.1f;
-    if (hitbox.grounded && interpVel.y < 0.0f) {
-        interpVel.y *= -30.0f;
-    }
-    shake = shake * (1.0f - delta * k);
-    float oh = CAM_SHAKE_OFFSET;
-    if (hitbox.grounded) {
-        float f = glm::length(glm::vec2(vel.x, vel.z));
-        shakeTimer += delta * f * CAM_SHAKE_SPEED;
-        shake += f * delta * k;
-        oh *= glm::sqrt(f);
-    }
+    if (settings.shaking.get()) {
+        shake = shake * (1.0f - delta * k);
+        float oh = CAM_SHAKE_OFFSET;
+        if (hitbox.grounded) {
+            float f = glm::length(glm::vec2(vel.x, vel.z));
+            shakeTimer += delta * f * CAM_SHAKE_SPEED;
+            shake += f * delta * k;
+            oh *= glm::sqrt(f);
+        }
 
-    offset += camera->right * glm::sin(shakeTimer) * oh * shake;
-    offset += camera->up * glm::abs(glm::cos(shakeTimer)) * ov * shake;
+        offset += camera->right * glm::sin(shakeTimer) * oh * shake;
+        offset += camera->up * glm::abs(glm::cos(shakeTimer)) * ov * shake;
+    }
     if (settings.inertia.get()) {
+        interpVel = interpVel * (1.0f - delta * 5) + vel * delta * 0.1f;
+        if (hitbox.grounded && interpVel.y < 0.0f) {
+            interpVel.y *= -30.0f;
+        }
         offset -= glm::min(interpVel * 0.05f, 1.0f);
     }
     return offset;
@@ -124,7 +136,7 @@ void CameraControl::updateFovEffects(
     if (crouch) {
         offset += glm::vec3(0.f, CROUCH_SHIFT_Y, 0.f);
         zoomValue = CROUCH_ZOOM;
-    } else if (input.sprint) {
+    } else if (input.sprint && (input.moveForward || input.moveBack || input.moveLeft || input.moveRight)) {
         zoomValue = RUN_ZOOM;
     }
     if (input.zoom) zoomValue *= C_ZOOM;
@@ -161,7 +173,7 @@ void CameraControl::update(
 
     if (auto hitbox = player.getHitbox()) {
         offset.y += hitbox->halfsize.y * (0.7f / 0.9f);
-        if (settings.shaking.get() && !input.cheat) {
+        if (!input.cheat) {
             offset += updateCameraShaking(*hitbox, delta);
         }
         if (settings.fovEffects.get()) {
@@ -175,7 +187,7 @@ void CameraControl::update(
     const auto& spCamera = player.spCamera;
     const auto& tpCamera = player.tpCamera;
 
-    refresh();
+    refreshPosition();
 
     camera->updateVectors();
     if (player.currentCamera == spCamera) {
@@ -272,6 +284,7 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause && input) {
         camControl.updateMouse(this->input);
     }
+    camControl.refreshRotation();
     player.postUpdate();
     camControl.update(this->input, pause ? 0.0f : delta, *player.chunks);
     if (input) {

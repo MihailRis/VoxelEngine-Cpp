@@ -63,10 +63,14 @@ Player::~Player() = default;
 
 void Player::updateEntity() {
     if (eid == ENTITY_AUTO) {
-        auto& def = level.content.entities.require("base:player");
-        eid = level.entities->spawn(def, getPosition());
-        if (auto entity = level.entities->get(eid)) {
-            entity->setPlayer(id);
+        const auto& defaults = level.content.getDefaults();
+        const auto& defName = defaults["player-entity"].asString();
+        if (!defName.empty()) {
+            auto& def = level.content.entities.require(defName);
+            eid = level.entities->spawn(def, getPosition());
+            if (auto entity = level.entities->get(eid)) {
+                entity->setPlayer(id);
+            }
         }
     } else if (auto entity = level.entities->get(eid)) {
         position = entity->getTransform().pos;

@@ -20,6 +20,9 @@ namespace gui {
     
         void prepare(Font* font, size_t wrapWidth);
         void update(const std::wstring& text, bool multiline, bool wrap);
+
+        size_t getTextLineOffset(size_t line) const;
+        uint getLineByTextIndex(size_t index) const;
     };
 
     class Label : public UINode {
