@@ -44,6 +44,7 @@
 #include "graphics/core/Font.hpp"
 #include "BlockWrapsRenderer.hpp"
 #include "ParticlesRenderer.hpp"
+#include "PrecipitationRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "GuidesRenderer.hpp"
@@ -86,7 +87,10 @@ WorldRenderer::WorldRenderer(
       )),
       blockWraps(
           std::make_unique<BlockWrapsRenderer>(assets, level, *player.chunks)
-      ) {
+      ),
+      precipitation(std::make_unique<PrecipitationRenderer>(
+          assets, level, *player.chunks, &engine.getSettings().graphics
+      )) {
     auto& settings = engine.getSettings();
     level.events->listen(
         LevelEventType::CHUNK_HIDDEN,
@@ -97,6 +101,23 @@ WorldRenderer::WorldRenderer(
         settings.graphics.skyboxResolution.get(),
         assets->require<Shader>("skybox_gen")
     );
+
+    weather = {};
+    auto& fall = weather.fall;
+    fall.vspeed = 2.0f;
+    fall.texture = "misc/rain";
+    fall.noise = "ambient/rain";
+
+    ParticlesPreset rainSplash;
+    rainSplash.frames = {
+        "particles:rain_splash_0",
+        "particles:rain_splash_1",
+        "particles:rain_splash_2"
+    };
+    rainSplash.lifetime = 0.2f;
+    rainSplash.spawnInterval = 0.0f;
+    rainSplash.size = {0.2f, 0.2f, 0.2f};
+    fall.splash = std::move(rainSplash);
 }
 
 WorldRenderer::~WorldRenderer() = default;
@@ -115,6 +136,8 @@ void WorldRenderer::setupWorldShader(
     shader.uniform1f("u_gamma", settings.graphics.gamma.get());
     shader.uniform1f("u_fogFactor", fogFactor);
     shader.uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
+    shader.uniform1f("u_weatherFogOpacity", weather.fogOpacity * weather.intensity);
+    shader.uniform1f("u_weatherFogDencity", weather.fogDencity);
     shader.uniform1f("u_dayTime", level.getWorld()->getInfo().daytime);
     shader.uniform2f("u_lightDir", skybox->getLightDir());
     shader.uniform3f("u_cameraPos", camera.position);
@@ -160,6 +183,7 @@ void WorldRenderer::renderLevel(
     }
 
     entityShader.uniform1i("u_alphaClip", true);
+    entityShader.uniform1f("u_opacity", 1.0f);
     level.entities->render(
         assets,
         *modelBatch,
@@ -187,6 +211,13 @@ void WorldRenderer::renderLevel(
     if (!pause) {
         scripting::on_frontend_render();
     }
+
+    setupWorldShader(entityShader, camera, settings, fogFactor);
+    entityShader.uniform1i("u_alphaClip", false);
+    float zero = weather.fall.minOpacity;
+    entityShader.uniform1f("u_opacity", (weather.intensity * (1.0f - zero)) + zero);
+    precipitation->render(camera, pause ? 0.0f : delta, weather);
+    weather.intensity = -glm::cos(timer * 0.2f) * 0.5f + 0.5f;
 
     skybox->unbind();
 }
@@ -317,7 +348,13 @@ void WorldRenderer::draw(
     const auto& settings = engine.getSettings();
     const auto& worldInfo = world->getInfo();
 
-    skybox->refresh(pctx, worldInfo.daytime, 1.0f + worldInfo.fog * 2.0f, 4);
+    skybox->refresh(
+        pctx,
+        worldInfo.daytime,
+        1.0f +
+            glm::max(worldInfo.fog, weather.clouds * glm::sqrt(weather.intensity) * 0.5f) * 2.0f,
+        4
+    );
 
     const auto& assets = *engine.getAssets();
     auto& linesShader = assets.require<Shader>("lines");

@@ -10,6 +10,8 @@
 
 #include "typedefs.hpp"
 
+#include "presets/WeatherPreset.hpp"
+
 class Level;
 class Player;
 class Camera;
@@ -18,6 +20,7 @@ class LineBatch;
 class ChunksRenderer;
 class ParticlesRenderer;
 class BlockWrapsRenderer;
+class PrecipitationRenderer;
 class GuidesRenderer;
 class TextsRenderer;
 class Shader;
@@ -71,6 +74,8 @@ public:
     std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<ParticlesRenderer> particles;
     std::unique_ptr<BlockWrapsRenderer> blockWraps;
+    std::unique_ptr<PrecipitationRenderer> precipitation;
+    WeatherPreset weather;
 
     static bool showChunkBorders;
     static bool showEntitiesDebug;

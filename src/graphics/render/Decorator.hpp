@@ -18,6 +18,7 @@ class Block;
 class Engine;
 class LevelController;
 class WorldRenderer;
+struct WeatherPreset;
 
 class Decorator {
     Engine& engine;
@@ -31,7 +32,16 @@ class Decorator {
     NotePreset playerNamePreset {};
 
     void update(
-        float delta, const glm::ivec3& areaStart, const glm::ivec3& areaCenter
+        float delta,
+        const glm::ivec3& areaStart,
+        const glm::ivec3& areaCenter
+    );
+    
+    /// @brief Updates weather effects, blocks ambient sounds, etc..
+    void updateRandom(
+        float delta,
+        const glm::ivec3& areaCenter,
+        const WeatherPreset& weather
     );
     void addParticles(const Block& def, const glm::ivec3& pos);
 public:
@@ -43,5 +53,5 @@ public:
         Player& player
     );
 
-    void update(float delta, const Camera& camera);
+    void update(float delta, const Camera& camera, const WeatherPreset& weather);
 };
