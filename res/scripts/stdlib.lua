@@ -102,7 +102,6 @@ function inventory.get_uses(invid, slot)
     return uses
 end
 
-
 function inventory.use(invid, slot)
     local itemid, count = inventory.get(invid, slot)
     if itemid == nil then
@@ -116,6 +115,16 @@ function inventory.use(invid, slot)
         inventory.set(invid, slot, itemid, count - 1)
     elseif item_uses > 1 then
         inventory.set_data(invid, slot, "uses", item_uses - 1)
+    end
+end
+
+function inventory.decrement(invid, slot, count)
+    count = count or 1
+    local itemid, itemcount = inventory.get(invid, slot)
+    if itemcount <= count then
+        inventory.set(invid, slot, 0)
+    else
+        inventory.set_count(invid, slot, itemcount - count)
     end
 end
 
