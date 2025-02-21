@@ -588,9 +588,7 @@ void TextBox::stepDefaultUp(bool shiftPressed, bool breakSelection) {
 
 void TextBox::refreshSyntax() {
     if (!syntax.empty()) {
-        if (auto styles = devtools::syntax_highlight(
-                syntax, util::wstr2str_utf8(input)
-            )) {
+        if (auto styles = devtools::syntax_highlight(syntax, input)) {
             label->setStyles(std::move(styles));
         }
     }

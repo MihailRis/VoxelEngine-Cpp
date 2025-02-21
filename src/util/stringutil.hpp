@@ -22,22 +22,32 @@ namespace util {
     /// @brief Encode raw wstring to UTF-8
     /// @param ws source raw wstring
     /// @return new UTF-8 encoded string
-    std::string wstr2str_utf8(const std::wstring& ws);
+    std::string wstr2str_utf8(std::wstring_view ws);
 
     /// @brief Decode UTF-8 string
     /// @param s source encoded string
     /// @return new raw decoded wstring
-    std::wstring str2wstr_utf8(const std::string& s);
+    std::wstring str2wstr_utf8(std::string_view s);
 
     /// @brief Encode raw u32string to UTF-8
     /// @param ws source raw wstring
     /// @return new UTF-8 encoded string
-    std::string u32str2str_utf8(const std::u32string& ws);
+    std::string u32str2str_utf8(std::u32string_view ws);
 
     /// @brief Decode UTF-8 string
     /// @param s source encoded string
     /// @return new raw decoded u32string
     std::u32string str2u32str_utf8(const std::string& s);
+
+    inline std::string str2str_utf8(std::string_view s) {
+        return std::string(s);
+    }
+    inline std::string str2str_utf8(std::wstring_view s) {
+        return wstr2str_utf8(s);
+    }
+    inline std::string str2str_utf8(std::u32string_view s) {
+        return u32str2str_utf8(s);
+    }
 
     /// @brief Calculated length of UTF-8 encoded string that fits into maxSize
     /// @param s source UTF-8 encoded string view
@@ -49,6 +59,8 @@ namespace util {
     /// @param s source encoded string
     /// @return unicode string length (number of codepoints)
     size_t length_utf8(std::string_view s);
+
+    size_t length_utf8(std::wstring_view s);
     
     bool is_integer(const std::string& text);
     bool is_integer(const std::wstring& text);
