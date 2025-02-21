@@ -88,6 +88,18 @@ std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
     return ss.str();
 }
 
+static size_t length_utf8_codepoint(uint32_t c) {
+    if (c < 0x80) {
+        return 1;
+    } else if (c < 0x0800) {
+        return 2;
+    } else if (c < 0x010000) {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+
 uint util::encode_utf8(uint32_t c, ubyte* bytes) {
     if (c < 0x80) {
         bytes[0] = ((c >> 0) & 0x7F) | 0x00;
@@ -179,8 +191,16 @@ size_t util::length_utf8(std::string_view s) {
     return length;
 }
 
+size_t util::length_utf8(std::wstring_view s) {
+    size_t length = 0;
+    for (size_t i = 0; i < s.length(); i++) {
+        length += length_utf8_codepoint(s[i]);
+    }
+    return length;
+}
+
 template<class C>
-std::string xstr2str_utf8(const std::basic_string<C>& xs) {
+std::string xstr2str_utf8(std::basic_string_view<C> xs) {
     std::vector<char> chars;
     ubyte buffer[4];
     for (C xc : xs) {
@@ -193,16 +213,16 @@ std::string xstr2str_utf8(const std::basic_string<C>& xs) {
     return std::string(chars.data(), chars.size());
 }
 
-std::string util::wstr2str_utf8(const std::wstring& ws) {
+std::string util::wstr2str_utf8(std::wstring_view ws) {
     return xstr2str_utf8(ws);
 }
 
-std::string util::u32str2str_utf8(const std::u32string& ws) {
+std::string util::u32str2str_utf8(std::u32string_view ws) {
     return xstr2str_utf8(ws);
 }
 
 template<class C>
-std::basic_string<C> str2xstr_utf8(const std::string& s) {
+std::basic_string<C> str2xstr_utf8(std::string_view s) {
     std::vector<C> chars;
     size_t pos = 0;
     uint size = 0;
@@ -213,7 +233,7 @@ std::basic_string<C> str2xstr_utf8(const std::string& s) {
     return std::basic_string<C>(chars.data(), chars.size());
 }
 
-std::wstring util::str2wstr_utf8(const std::string& s) {
+std::wstring util::str2wstr_utf8(std::string_view s) {
     return str2xstr_utf8<wchar_t>(s);
 }
 
