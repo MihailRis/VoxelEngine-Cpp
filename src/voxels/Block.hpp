@@ -65,6 +65,7 @@ struct BlockRotProfile {
     static const int MAX_COUNT = 8;
     std::string name;
     CoordSystem variants[MAX_COUNT];
+    int variantsCount;
 
     /// @brief No rotation
     static const BlockRotProfile NONE;
