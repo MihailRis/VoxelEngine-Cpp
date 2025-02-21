@@ -127,7 +127,7 @@ end
 
 local function has_valid_config(id)
     if not file.exists("config:" .. id) then
-        return
+        return false
     end
 
     local files = file.list("config:" .. id)
