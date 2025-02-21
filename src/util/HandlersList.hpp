@@ -1,15 +1,15 @@
 #pragma once
 
-#include <mutex>
-#include <vector>
 #include <algorithm>
+#include <mutex>
 #include <unordered_map>
+#include <vector>
 
-#include "typedefs.hpp"
 #include "delegates.hpp"
+#include "typedefs.hpp"
 
 namespace util {
-    template<class...Types>
+    template <class... Types>
     class HandlersList {
         int nextid = 1;
         std::unordered_map<int, std::function<bool(Types...)>> handlers;
@@ -35,7 +35,7 @@ namespace util {
             int id = nextid++;
             handlers[id] = std::move(handler);
             order.push_back(id);
-            return observer_handler(new int(id), [this](int* id) { //-V508
+            return observer_handler(new int(id), [this](int* id) {  //-V508
                 std::lock_guard lock(mutex);
                 handlers.erase(*id);
                 order.erase(
@@ -45,7 +45,7 @@ namespace util {
             });
         }
 
-        void notify(Types...args) {
+        void notify(Types... args) {
             std::vector<int> orderCopy;
             decltype(handlers) handlersCopy;
             {
