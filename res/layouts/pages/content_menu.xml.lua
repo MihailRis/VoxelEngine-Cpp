@@ -9,7 +9,7 @@ local CONFIG_NAMES = {
     "config"
 }
 
-function on_open(params)
+function on_open()
     refresh()
 end
 
@@ -115,17 +115,35 @@ local function create_config(i, config, name, path)
     create_label(nil, '', 0)
 end
 
+local function valid_name(file_name)
+    for _, name in ipairs(CONFIG_NAMES) do
+        if string.find(file_name, name) then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function has_valid_config(id)
+    if not file.exists("config:" .. id) then
+        return
+    end
+
+    local files = file.list("config:" .. id)
+
+    for _, file_name in ipairs(files) do
+        local name = file_name:match("([^/]+)%.([^%.]+)$")
+
+        if valid_name(name) then
+            return true
+        end
+    end
+
+    return false
+end
 
 local function load_config_file(path)
-    local function valid_name(file_name)
-        for _, name in ipairs(CONFIG_NAMES) do
-            if string.find(file_name, name) then
-                return true
-            end
-        end
-
-        return false
-    end
 
     local extension = path:match("^.+%.(.+)$")
     local name = path:match("([^/]+)%.([^%.]+)$")
@@ -202,7 +220,7 @@ function open_pack(id)
 
     document.configs.visible = false
     document.content_info.visible = true
-    if valid_configs("config:" .. id) then document.open_config.enabled = true else document.open_config.enabled = false end
+    if has_valid_config(id) then document.open_config.enabled = true else document.open_config.enabled = false end
 
     if packinfo['dependencies'] == nil then document.dependencies.text = 'None' else document.dependencies.text = table.tostring(packinfo['dependencies']) end
     if packinfo['creator'] == '' then document.author.text = 'None' else document.author.text = packinfo['creator'] end
