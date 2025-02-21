@@ -2,7 +2,7 @@
 
 #include <set>
 
-#include "commons.hpp"
+#include "BasicParser.hpp"
 
 using namespace lua;
 using namespace devtools;
@@ -31,7 +31,7 @@ inline bool is_lua_operator_start(int c) {
         || c == '.';
 }
 
-class Tokenizer : BasicParser {
+class Tokenizer : BasicParser<char> {
     std::vector<Token> tokens;
 public:
     Tokenizer(std::string_view file, std::string_view source)

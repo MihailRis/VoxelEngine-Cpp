@@ -7,12 +7,12 @@
 #include <sstream>
 
 #include "util/stringutil.hpp"
-#include "commons.hpp"
+#include "BasicParser.hpp"
 
 using namespace json;
 
 namespace {
-    class Parser : BasicParser {
+    class Parser : BasicParser<char> {
         dv::value parseList();
         dv::value parseObject();
         dv::value parseValue();
