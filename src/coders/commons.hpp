@@ -50,11 +50,20 @@ public:
     uint pos;
     uint line;
     uint linestart;
-
+    
     parsing_error(
         const std::string& message,
         std::string_view filename,
         std::string_view source,
+        uint pos,
+        uint line,
+        uint linestart
+    );
+
+    parsing_error(
+        const std::string& message,
+        std::string&& filename,
+        std::string&& source,
         uint pos,
         uint line,
         uint linestart

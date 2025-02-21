@@ -59,6 +59,8 @@ namespace util {
     /// @param s source encoded string
     /// @return unicode string length (number of codepoints)
     size_t length_utf8(std::string_view s);
+
+    size_t length_utf8(std::wstring_view s);
     
     bool is_integer(const std::string& text);
     bool is_integer(const std::wstring& text);

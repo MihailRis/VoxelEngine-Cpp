@@ -401,7 +401,11 @@ std::basic_string<CharT> BasicParser<CharT>::parseString(
                 int codepoint = parseSimpleInt(16);
                 ubyte bytes[4];
                 int size = util::encode_utf8(codepoint, bytes);
-                ss.write(reinterpret_cast<char*>(bytes), size);
+                CharT chars[4];
+                for (int i = 0; i < 4; i++) {
+                    chars[i] = bytes[i];
+                }
+                ss.write(chars, size);
                 continue;
             }
             switch (c) {
@@ -436,7 +440,22 @@ std::basic_string<CharT> BasicParser<CharT>::parseString(
     return ss.str();
 }
 
-template <typename CharT>
-parsing_error BasicParser<CharT>::error(const std::string& message) {
+template <>
+inline parsing_error BasicParser<char>::error(const std::string& message) {
     return parsing_error(message, filename, source, pos, line, linestart);
+}
+
+template <>
+inline parsing_error BasicParser<wchar_t>::error(const std::string& message) {
+    size_t utf8pos = util::length_utf8(source.substr(0, pos));
+    size_t utf8linestart =
+        utf8pos - util::length_utf8(source.substr(linestart, pos));
+    return parsing_error(
+        message,
+        filename,
+        util::str2str_utf8(source),
+        utf8pos,
+        line,
+        utf8linestart
+    );
 }

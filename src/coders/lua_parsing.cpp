@@ -7,13 +7,13 @@
 using namespace lua;
 using namespace devtools;
 
-static std::set<std::string_view> keywords {
-    "and", "break", "do", "else", "elseif", "end", "false", "for", "function", 
-    "if", "in", "local", "nil", "not", "or", "repeat", "return", "then", "true",
-    "until", "while"
+static std::set<std::wstring_view> keywords {
+    L"and", L"break", L"do", L"else", L"elseif", L"end", L"false", L"for", L"function", 
+    L"if", L"in", L"local", L"nil", L"not", L"or", L"repeat", L"return", L"then", L"true",
+    L"until", L"while"
 };
 
-bool lua::is_lua_keyword(std::string_view view) {
+static bool is_lua_keyword(std::wstring_view view) {
     return keywords.find(view) != keywords.end();
 }
 
@@ -31,14 +31,14 @@ inline bool is_lua_operator_start(int c) {
         || c == '.';
 }
 
-class Tokenizer : BasicParser<char> {
+class Tokenizer : BasicParser<wchar_t> {
     std::vector<Token> tokens;
 public:
-    Tokenizer(std::string_view file, std::string_view source)
+    Tokenizer(std::string_view file, std::wstring_view source)
         : BasicParser(file, source) {
     }
 
-    std::string parseLuaName() {
+    std::wstring parseLuaName() {
         char c = peek();
         if (!is_identifier_start(c)) {
             throw error("identifier expected");
@@ -47,7 +47,7 @@ public:
         while (hasNext() && is_identifier_part(source[pos])) {
             pos++;
         }
-        return std::string(source.substr(start, pos - start));
+        return std::wstring(source.substr(start, pos - start));
     }
 
     inline Location currentLocation() const {
@@ -58,7 +58,7 @@ public:
     }
 
     void emitToken(
-        TokenTag tag, std::string name, Location start, bool standalone=false
+        TokenTag tag, std::wstring name, Location start, bool standalone=false
     ) {
         tokens.emplace_back(
             tag,
@@ -70,28 +70,28 @@ public:
     }
 
     /// @brief Get next operator token without checking operator for existing
-    std::string parseOperator() {
+    std::wstring parseOperator() {
         int start = pos;
-        char first = peek();
+        wchar_t first = peek();
         switch (first) {
             case '#': case '+': case '/': case '*': case '^':
             case '%':
                 skip(1);
-                return std::string({first});
+                return std::wstring({first});
             case '-':
                 skip(1);
                 if (hasNext() && peekNoJump() == '-') {
                     skip(1);
-                    return "--";
+                    return L"--";
                 }
-                return std::string({first});
+                return std::wstring({first});
         }
         skip(1);
         char second = peekNoJump();
         if ((first == '=' && second == '=') || (first == '~' && second == '=') ||
             (first == '<' && second == '=') || (first == '>' && second == '=')) {
             skip(1);
-            return std::string(source.substr(start, pos - start));
+            return std::wstring(source.substr(start, pos - start));
         }
         if (first == '.' && second == '.') {
             skip(1);
@@ -99,7 +99,7 @@ public:
                 skip(1);
             }
         }
-        return std::string(source.substr(start, pos - start));
+        return std::wstring(source.substr(start, pos - start));
     }
 
     std::vector<Token> tokenize() {
@@ -109,7 +109,7 @@ public:
             if (!hasNext()) {
                 continue;
             }
-            char c = peek();
+            wchar_t c = peek();
             auto start = currentLocation();
             if (is_lua_identifier_start(c)) {
                 auto name = parseLuaName();
@@ -130,33 +130,37 @@ public:
                 } catch (const parsing_error& err) {}
 
                 auto literal = source.substr(start.pos, pos - start.pos);
-                emitToken(tag, std::string(literal), start);
+                emitToken(tag, std::wstring(literal), start);
                 continue;
             }
             switch (c) {
                 case '(': case '[': case '{': 
-                    if (isNext("[==[")) {
-                        auto string = readUntil("]==]", true);
+                    if (isNext(L"[==[")) {
+                        auto string = readUntil(L"]==]", true);
                         skip(4);
-                        emitToken(TokenTag::COMMENT, std::string(string)+"]==]", start);
+                        emitToken(
+                            TokenTag::COMMENT,
+                            std::wstring(string) + L"]==]",
+                            start
+                        );
                         continue;
-                    } else if (isNext("[[")) {
+                    } else if (isNext(L"[[")) {
                         skip(2);
-                        auto string = readUntil("]]", true);
+                        auto string = readUntil(L"]]", true);
                         skip(2);
-                        emitToken(TokenTag::STRING, std::string(string), start);
+                        emitToken(TokenTag::STRING, std::wstring(string), start);
                         continue;
                     }
-                    emitToken(TokenTag::OPEN_BRACKET, std::string({c}), start, true);
+                    emitToken(TokenTag::OPEN_BRACKET, std::wstring({c}), start, true);
                     continue;
                 case ')': case ']': case '}': 
-                    emitToken(TokenTag::CLOSE_BRACKET, std::string({c}), start, true);
+                    emitToken(TokenTag::CLOSE_BRACKET, std::wstring({c}), start, true);
                     continue;
                 case ',':
-                    emitToken(TokenTag::COMMA, std::string({c}), start, true);
+                    emitToken(TokenTag::COMMA, std::wstring({c}), start, true);
                     continue;
                 case ';':
-                    emitToken(TokenTag::SEMICOLON, std::string({c}), start, true);
+                    emitToken(TokenTag::SEMICOLON, std::wstring({c}), start, true);
                     continue;
                 case '\'': case '"': {
                     skip(1);
@@ -168,9 +172,9 @@ public:
             }
             if (is_lua_operator_start(c)) {
                 auto text = parseOperator();
-                if (text == "--") {
+                if (text == L"--") {
                     auto string = readUntilEOL();
-                    emitToken(TokenTag::COMMENT, std::string(string), start);
+                    emitToken(TokenTag::COMMENT, std::wstring(string), start);
                     skipLine();
                     continue;
                 }
@@ -178,12 +182,12 @@ public:
                 continue;
             }
             auto text = readUntilWhitespace();
-            emitToken(TokenTag::UNEXPECTED, std::string(text), start);
+            emitToken(TokenTag::UNEXPECTED, std::wstring(text), start);
         }
         return std::move(tokens);
     }
 };
 
-std::vector<Token> lua::tokenize(std::string_view file, std::string_view source) {
+std::vector<Token> lua::tokenize(std::string_view file, std::wstring_view source) {
     return Tokenizer(file, source).tokenize();
 }

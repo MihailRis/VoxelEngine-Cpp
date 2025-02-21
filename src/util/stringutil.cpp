@@ -88,6 +88,18 @@ std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
     return ss.str();
 }
 
+static size_t length_utf8_codepoint(uint32_t c) {
+    if (c < 0x80) {
+        return 1;
+    } else if (c < 0x0800) {
+        return 2;
+    } else if (c < 0x010000) {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+
 uint util::encode_utf8(uint32_t c, ubyte* bytes) {
     if (c < 0x80) {
         bytes[0] = ((c >> 0) & 0x7F) | 0x00;
@@ -175,6 +187,14 @@ size_t util::length_utf8(std::string_view s) {
     while (pos < s.length()) {
         pos += utf8_len(s[pos]);
         length++;
+    }
+    return length;
+}
+
+size_t util::length_utf8(std::wstring_view s) {
+    size_t length = 0;
+    for (size_t i = 0; i < s.length(); i++) {
+        length += length_utf8_codepoint(s[i]);
     }
     return length;
 }

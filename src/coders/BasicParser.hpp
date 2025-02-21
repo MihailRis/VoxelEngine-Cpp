@@ -8,7 +8,7 @@ class BasicParser {
     using StringT = std::basic_string<CharT>;
     using StringViewT = std::basic_string_view<CharT>;
 protected:
-    StringViewT filename;
+    std::string_view filename;
     StringViewT source;
     uint pos = 0;
     uint line = 1;
@@ -45,7 +45,7 @@ public:
     CharT peekNoJump();
     CharT nextChar();
 
-    BasicParser(StringViewT file, StringViewT source)
+    BasicParser(std::string_view file, StringViewT source)
         : filename(file), source(source) {
     }
 };

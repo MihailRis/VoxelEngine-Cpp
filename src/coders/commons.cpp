@@ -24,6 +24,26 @@ parsing_error::parsing_error(
     this->source = source.substr(linestart, end - linestart);
 }
 
+parsing_error::parsing_error(
+    const std::string& message,
+    std::string&& filename,
+    std::string&& source,
+    uint pos,
+    uint line,
+    uint linestart
+)
+    : std::runtime_error(message),
+      filename(std::move(filename)),
+      pos(pos),
+      line(line),
+      linestart(linestart) {
+    size_t end = source.find("\n", linestart);
+    if (end == std::string::npos) {
+        end = source.length();
+    }
+    this->source = source.substr(linestart, end - linestart);
+}
+
 std::string parsing_error::errorLog() const {
     std::stringstream ss;
     uint linepos = pos - linestart;
