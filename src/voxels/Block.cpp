@@ -13,7 +13,8 @@ dv::value BlockMaterial::serialize() const {
         {"name", name},
         {"stepsSound", stepsSound},
         {"placeSound", placeSound},
-        {"breakSound", breakSound}
+        {"breakSound", breakSound},
+        {"hitSound", hitSound}
     });
 }
 
@@ -100,7 +101,8 @@ const BlockRotProfile BlockRotProfile::NONE {
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},  // West
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},  // Up
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},  // Down
-    }
+    },
+    0
 };
 
 const BlockRotProfile BlockRotProfile::PIPE {
@@ -112,7 +114,8 @@ const BlockRotProfile BlockRotProfile::PIPE {
         {{0, 0, -1}, {1, 0, 0}, {0, -1, 0}},   // West
         {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}},     // Up
         {{1, 0, 0}, {0, -1, 0}, {0, 0, -1}},   // Down
-    }
+    },
+    6
 };
 
 const BlockRotProfile BlockRotProfile::PANE {
@@ -122,7 +125,8 @@ const BlockRotProfile BlockRotProfile::PANE {
         {{0, 0, -1}, {0, 1, 0}, {1, 0, 0}},   // East
         {{-1, 0, 0}, {0, 1, 0}, {0, 0, -1}},  // South
         {{0, 0, 1}, {0, 1, 0}, {-1, 0, 0}},   // West
-    }
+    },
+    4
 };
 
 Block::Block(const std::string& name)

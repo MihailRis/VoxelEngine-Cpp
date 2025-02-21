@@ -57,7 +57,7 @@ model::Model ModelsGenerator::fromCustom(
 ) {
     auto model = model::Model();
     for (size_t i = 0; i < modelBoxes.size(); i++) {
-        auto& mesh = model.addMesh("blocks:" + modelTextures[i * 6]);
+        auto& mesh = model.addMesh("blocks:");
         mesh.lighting = lighting;
         const UVRegion boxtexfaces[6] = {
             get_region_for(modelTextures[i * 6 + 5], assets),

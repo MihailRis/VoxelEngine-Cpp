@@ -26,13 +26,9 @@ public:
         itemid_t id, size_t begin = 0, size_t end = -1, size_t minCount = 1
     );
 
-    inline size_t size() const {
-        return slots.size();
-    }
-
     void move(
         ItemStack& item,
-        const ContentIndices* indices,
+        const ContentIndices& indices,
         size_t begin = 0,
         size_t end = -1
     );
@@ -46,17 +42,21 @@ public:
     void convert(const ContentReport* report);
     static void convert(dv::value& data, const ContentReport* report);
 
-    inline void setId(int64_t id) {
+    size_t size() const {
+        return slots.size();
+    }
+
+    void setId(int64_t id) {
         this->id = id;
     }
 
-    inline int64_t getId() const {
+    int64_t getId() const {
         return id;
     }
 
-    inline bool isVirtual() const {
+    bool isVirtual() const {
         return id < 0;
     }
 
-    static const size_t npos;
+    static constexpr size_t npos = -1;
 };

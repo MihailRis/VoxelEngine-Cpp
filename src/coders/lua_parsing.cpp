@@ -80,7 +80,7 @@ public:
                 return std::string({first});
             case '-':
                 skip(1);
-                if (peekNoJump() == '-') {
+                if (hasNext() && peekNoJump() == '-') {
                     skip(1);
                     return "--";
                 }

@@ -13,6 +13,9 @@ util::TextureRegion util::get_texture_region(
     } else {
         auto atlas = assets.get<Atlas>(name.substr(0, sep));
         if (atlas) {
+            if (sep == name.length() - 1) {
+                return {atlas->getTexture(), UVRegion(0,0,1,1)};
+            }
             if (auto reg = atlas->getIf(name.substr(sep+1))) {
                 return {atlas->getTexture(), *reg};
             } else if (!fallback.empty()){

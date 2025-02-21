@@ -65,6 +65,7 @@ struct BlockRotProfile {
     static const int MAX_COUNT = 8;
     std::string name;
     CoordSystem variants[MAX_COUNT];
+    int variantsCount;
 
     /// @brief No rotation
     static const BlockRotProfile NONE;
@@ -109,9 +110,10 @@ using BoxModel = AABB;
 /// @brief Common kit of block properties applied to groups of blocks
 struct BlockMaterial {
     std::string name;
-    std::string stepsSound {""};
-    std::string placeSound {""};
-    std::string breakSound {""};
+    std::string stepsSound;
+    std::string placeSound;
+    std::string breakSound;
+    std::string hitSound;
 
     dv::value serialize() const;
 };

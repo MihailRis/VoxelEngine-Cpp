@@ -49,8 +49,18 @@ CameraControl::CameraControl(
       offset(0.0f, 0.7f, 0.0f) {
 }
 
-void CameraControl::refresh() {
+void CameraControl::refreshPosition() {
     camera->position = player.getPosition() + offset;
+}
+
+void CameraControl::refreshRotation() {
+    const glm::vec3& rotation = player.getRotation();
+    camera->rotation = glm::mat4(1.0f);
+    camera->rotate(
+        glm::radians(rotation.y),
+        glm::radians(rotation.x),
+        glm::radians(rotation.z)
+    );
 }
 
 void CameraControl::updateMouse(PlayerInput& input) {
@@ -177,7 +187,7 @@ void CameraControl::update(
     const auto& spCamera = player.spCamera;
     const auto& tpCamera = player.tpCamera;
 
-    refresh();
+    refreshPosition();
 
     camera->updateVectors();
     if (player.currentCamera == spCamera) {
@@ -274,6 +284,7 @@ void PlayerController::postUpdate(float delta, bool input, bool pause) {
     if (!pause && input) {
         camControl.updateMouse(this->input);
     }
+    camControl.refreshRotation();
     player.postUpdate();
     camControl.update(this->input, pause ? 0.0f : delta, *player.chunks);
     if (input) {

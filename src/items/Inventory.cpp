@@ -37,7 +37,7 @@ size_t Inventory::findSlotByItem(
 }
 
 void Inventory::move(
-    ItemStack& item, const ContentIndices* indices, size_t begin, size_t end
+    ItemStack& item, const ContentIndices& indices, size_t begin, size_t end
 ) {
     end = std::min(slots.size(), end);
     for (size_t i = begin; i < end && !item.isEmpty(); i++) {
@@ -72,8 +72,12 @@ void Inventory::deserialize(const dv::value& src) {
         if (item.has("count")){
             count = item["count"].asInteger();
         }
+        dv::value fields = nullptr;
+        if (item.has("fields")) {
+            fields = item["fields"];
+        }
         auto& slot = slots[i];
-        slot.set(ItemStack(id, count));
+        slot.set(ItemStack(id, count, fields));
     }
 }
 
@@ -91,6 +95,10 @@ dv::value Inventory::serialize() const {
         slotmap["id"] = id;
         if (count) {
             slotmap["count"] = count;
+        }
+        const auto& fields = item.getFields();
+        if (fields != nullptr) {
+            slotmap["fields"] = fields;
         }
     }
     return map;
@@ -110,5 +118,3 @@ void Inventory::convert(dv::value& data, const ContentReport* report) {
     inventory.convert(report);
     data = inventory.serialize();
 }
-
-const size_t Inventory::npos = -1;

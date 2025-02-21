@@ -68,7 +68,7 @@ public:
     /// @param file *.json file path relative to entry point 
     dv::value readCombinedList(const std::string& file) const;
 
-    dv::value readCombinedObject(const std::string& file) const;
+    dv::value readCombinedObject(const std::string& file, bool deep=false) const;
 
     const io::path& getMainRoot() const;
 

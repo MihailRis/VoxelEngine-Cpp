@@ -30,26 +30,26 @@ namespace gui {
     class SlotView;
 }
 
-enum class hud_element_mode {
+enum class HudElementMode {
     // element is hidden if menu or inventory open
-    ingame,
+    INGAME,
     // element is visible if hud is visible
-    permanent,
+    PERMANENT,
     // element is visible in inventory mode
-    inventory_any,
+    INVENTORY_ANY,
     // element will be removed on inventory close
-    inventory_bound
+    INVENTORY
 };
 
 class HudElement {
-    hud_element_mode mode;
+    HudElementMode mode;
     UiDocument* document;
     std::shared_ptr<gui::UINode> node;
 
     bool debug;
     bool removed = false;
 public:
-    HudElement(hud_element_mode mode, UiDocument* document, std::shared_ptr<gui::UINode> node, bool debug);
+    HudElement(HudElementMode mode, UiDocument* document, std::shared_ptr<gui::UINode> node, bool debug);
 
     void update(bool pause, bool inventoryOpen, bool debug);
 
@@ -57,7 +57,7 @@ public:
     std::shared_ptr<gui::UINode> getNode() const;
 
     bool isInventoryBound() const {
-        return mode == hud_element_mode::inventory_bound;
+        return mode == HudElementMode::INVENTORY;
     }
 
     void setRemoved() {

@@ -1,5 +1,6 @@
 {
     "steps-sound": "steps/stone",
     "place-sound": "blocks/stone_place",
-    "break-sound": "blocks/stone_break"
+    "break-sound": "blocks/stone_break",
+    "hit-sound": "blocks/stone_hit"
 }
