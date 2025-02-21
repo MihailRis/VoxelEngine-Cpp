@@ -20,6 +20,8 @@ namespace util {
     class PseudoRandom {
         unsigned short seed;
     public:
+        PseudoRandom(unsigned short seed) : seed(seed) {}
+
         PseudoRandom() {
             seed = static_cast<unsigned short>(time(0));
         }

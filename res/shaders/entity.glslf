@@ -17,7 +17,7 @@ void main() {
     float depth = (a_distance/256.0);
     float alpha = a_color.a * tex_color.a;
     // anyway it's any alpha-test alternative required
-    if (alpha < (u_alphaClip ? 0.5f : 0.2f))
+    if (alpha < (u_alphaClip ? 0.5f : 0.15f))
         discard;
     f_color = mix(a_color * tex_color, vec4(fogColor,1.0), 
               min(1.0, pow(depth*u_fogFactor, u_fogCurve)));
