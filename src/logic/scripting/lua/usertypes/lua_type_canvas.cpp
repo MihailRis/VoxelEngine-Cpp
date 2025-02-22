@@ -7,9 +7,10 @@
 
 using namespace lua;
 
-LuaCanvas::LuaCanvas(std::shared_ptr<Texture> inTexture)
-    : mTexture(std::move(inTexture)) {
-    mData = mTexture->readData();
+LuaCanvas::LuaCanvas(
+    std::shared_ptr<Texture> inTexture, std::shared_ptr<ImageData> inData
+)
+    : mTexture(std::move(inTexture)), mData(std::move(inData)) {
 }
 
 union RGBA {
@@ -29,8 +30,8 @@ static RGBA* get_at(const ImageData& data, uint x, uint y) {
 }
 
 static RGBA* get_at(State* L, uint x, uint y) {
-    if (auto texture = touserdata<LuaCanvas>(L, 1)) {
-        return get_at(texture->data(), x, y);
+    if (auto canvas = touserdata<LuaCanvas>(L, 1)) {
+        return get_at(canvas->data(), x, y);
     }
     return nullptr;
 }
@@ -76,8 +77,8 @@ static int l_set(State* L) {
 }
 
 static int l_update(State* L) {
-    if (auto texture = touserdata<LuaCanvas>(L, 1)) {
-        texture->texture().reload(texture->data());
+    if (auto canvas = touserdata<LuaCanvas>(L, 1)) {
+        canvas->texture().reload(canvas->data());
     }
     return 0;
 }
