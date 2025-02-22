@@ -2,7 +2,10 @@
 
 #include <iostream>
 #include "debug/Logger.hpp"
+#include "io/memory_istream.hpp"
+#include "io/deflate_istream.hpp"
 #include "util/data_io.hpp"
+#include "util/Buffer.hpp"
 
 static debug::Logger logger("zip-file");
 
@@ -11,6 +14,8 @@ using namespace io;
 static constexpr uint32_t EOCD_SIGNATURE = 0x06054b50;
 static constexpr uint32_t CENTRAL_DIR_SIGNATURE = 0x02014b50;
 static constexpr uint32_t LOCAL_FILE_SIGNATURE = 0x04034b50;
+static constexpr uint32_t COMPRESSION_NONE = 0;
+static constexpr uint32_t COMPRESSION_DEFLATE = 8;
 
 template<typename T>
 static T read_int(std::unique_ptr<std::istream>& file) {
@@ -77,7 +82,15 @@ void ZipFileDevice::findBlob(Entry& entry) {
     file->seekg(nameLength + extraFieldLength, std::ios::cur);
     entry.blobOffset = file->tellg();
 
-    std::cout << entry.fileName << ": " << entry.blobOffset << " " << entry.compressionMethod << std::endl;
+    for (size_t i = 0; i < entry.fileName.length(); i++) {
+        if (entry.fileName[i] == '\\') {
+            entry.fileName[i] = '/';
+        }
+    }
+    if (entry.fileName[entry.fileName.length() - 1] == '/') {
+        entry.isDirectory = true;
+        entry.fileName = entry.fileName.substr(0, entry.fileName.length() - 1);
+    }
 }
 
 ZipFileDevice::ZipFileDevice(std::unique_ptr<std::istream> filePtr)
@@ -135,23 +148,57 @@ std::unique_ptr<std::ostream> ZipFileDevice::write(std::string_view path) {
 }
 
 std::unique_ptr<std::istream> ZipFileDevice::read(std::string_view path) {
-    return nullptr;
+    const auto& found = entries.find(std::string(path));
+    if (found == entries.end()) {
+        throw std::runtime_error("could not to open file zip://" + std::string(path));
+    }
+    auto& entry = found->second;
+    if (entry.isDirectory) {
+        throw std::runtime_error("zip://" + std::string(path) + " is directory");
+    }
+    if (entry.blobOffset == 0) {
+        findBlob(entry);
+    }
+    file->seekg(entry.blobOffset);
+
+    util::Buffer<char> buffer(entry.compressedSize);
+    file->read(buffer.data(), buffer.size());
+    auto memoryStream = std::make_unique<memory_istream>(std::move(buffer));
+    if (entry.compressionMethod == COMPRESSION_NONE) {
+        return memoryStream;
+    } else if (entry.compressionMethod == COMPRESSION_DEFLATE) {
+        return std::make_unique<deflate_istream>(std::move(memoryStream));
+    } else {
+        throw std::runtime_error("unsupported compression method");
+    }
 }
 
 size_t ZipFileDevice::size(std::string_view path) {
-    return 0;
+    const auto& found = entries.find(std::string(path));
+    if (found == entries.end()) {
+        return false;
+    }
+    return found->second.uncompressedSize;
 }
 
 bool ZipFileDevice::exists(std::string_view path) {
-    return false;
+    return entries.find(std::string(path)) != entries.end();
 }
 
 bool ZipFileDevice::isdir(std::string_view path) {
-    return false;
+    const auto& found = entries.find(std::string(path));
+    if (found == entries.end()) {
+        return false;
+    }
+    return found->second.isDirectory;
 }
 
 bool ZipFileDevice::isfile(std::string_view path) {
-    return false;
+    const auto& found = entries.find(std::string(path));
+    if (found == entries.end()) {
+        return false;
+    }
+    return !found->second.isDirectory;
 }
 
 bool ZipFileDevice::mkdir(std::string_view path) {

@@ -22,6 +22,7 @@ namespace io {
             uint32_t localHeaderOffset;
             std::string fileName;
             size_t blobOffset = 0;
+            bool isDirectory = false;
         };
     public:
         ZipFileDevice(std::unique_ptr<std::istream> file);
