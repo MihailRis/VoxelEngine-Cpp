@@ -1,6 +1,7 @@
 #include "ZipFileDevice.hpp"
 
-#include <iostream>
+#include <vector>
+
 #include "debug/Logger.hpp"
 #include "io/memory_istream.hpp"
 #include "io/deflate_istream.hpp"
@@ -217,6 +218,30 @@ uint64_t ZipFileDevice::removeAll(std::string_view path) {
     return 0;
 }
 
+class ListPathsGenerator : public PathsGenerator {
+public:
+    ListPathsGenerator(std::vector<std::string> names)
+        : names(std::move(names)) {};
+
+    bool next(path& dst) override {
+        if (current == names.size()) {
+            return false;
+        }
+        dst = names[current++];
+        return true;
+    }
+private:
+    std::vector<std::string> names;
+    size_t current = 0;
+};
+
 std::unique_ptr<PathsGenerator> ZipFileDevice::list(std::string_view path) {
-    return nullptr;
+    std::vector<std::string> names;
+    auto folder = std::string(path) + "/";
+    for (const auto& [name, entry] : entries) {
+        if (name.find(folder) == 0) {
+            names.push_back(name);
+        }
+    }
+    return std::make_unique<ListPathsGenerator>(std::move(names));
 }
