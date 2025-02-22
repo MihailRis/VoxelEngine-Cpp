@@ -326,7 +326,7 @@ static int p_get_src(UINode* node, lua::State* L) {
 
 static int p_get_data(UINode* node, lua::State* L) {
     if (auto canvas = dynamic_cast<Canvas*>(node)) {
-        return lua::newuserdata<lua::LuaCanvas>(L, canvas->texture());
+        return lua::newuserdata<lua::LuaCanvas>(L, canvas->texture(), canvas->data());
     }
     return 0;
 }
