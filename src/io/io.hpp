@@ -187,6 +187,15 @@ namespace io {
     /// @brief Remove file or empty directory
     bool remove(const io::path& file);
 
+    /// @brief Copy src file to dst file
+    /// @param src source file path
+    /// @param dst destination file path
+    /// @return true if success
+    bool copy(const io::path& src, const io::path& dst);
+
+    /// @brief Copy all files and directories in the folder recursively
+    uint64_t copy_all(const io::path& src, const io::path& dst);
+
     /// @brief Remove all files and directories in the folder recursively
     uint64_t remove_all(const io::path& file);
 

@@ -60,6 +60,16 @@ ZipFileDevice::Entry ZipFileDevice::readEntry() {
     if (entry.diskNumberStart == 0xFF) {
         throw std::runtime_error("zip64 is not supported");
     }
+
+    for (size_t i = 0; i < entry.fileName.length(); i++) {
+        if (entry.fileName[i] == '\\') {
+            entry.fileName[i] = '/';
+        }
+    }
+    if (entry.fileName[entry.fileName.length() - 1] == '/') {
+        entry.isDirectory = true;
+        entry.fileName = entry.fileName.substr(0, entry.fileName.length() - 1);
+    }
     return entry;
 }
 
@@ -82,16 +92,6 @@ void ZipFileDevice::findBlob(Entry& entry) {
     // Skip extra field and file comment
     file->seekg(nameLength + extraFieldLength, std::ios::cur);
     entry.blobOffset = file->tellg();
-
-    for (size_t i = 0; i < entry.fileName.length(); i++) {
-        if (entry.fileName[i] == '\\') {
-            entry.fileName[i] = '/';
-        }
-    }
-    if (entry.fileName[entry.fileName.length() - 1] == '/') {
-        entry.isDirectory = true;
-        entry.fileName = entry.fileName.substr(0, entry.fileName.length() - 1);
-    }
 }
 
 ZipFileDevice::ZipFileDevice(
@@ -248,9 +248,16 @@ private:
 std::unique_ptr<PathsGenerator> ZipFileDevice::list(std::string_view path) {
     std::vector<std::string> names;
     auto folder = std::string(path) + "/";
+    size_t folderLen = folder.length();
     for (const auto& [name, entry] : entries) {
         if (name.find(folder) == 0) {
-            names.push_back(name);
+            size_t pos = name.find('/', folderLen);
+            if (pos == std::string::npos) {
+                names.push_back(name.substr(folderLen, pos - folderLen));
+            }
+            if (pos == name.length() - 1) {
+                names.push_back(name.substr(folderLen, pos - folderLen));
+            }
         }
     }
     return std::make_unique<ListPathsGenerator>(std::move(names));

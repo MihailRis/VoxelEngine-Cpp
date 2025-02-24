@@ -252,6 +252,56 @@ uint64_t io::remove_all(const io::path& file) {
     return device.removeAll(file.pathPart());
 }
 
+bool io::copy(const io::path& src, const io::path& dst) {
+    auto& srcDevice = io::require_device(src.entryPoint());
+    auto& dstDevice = io::require_device(dst.entryPoint());
+    if (!srcDevice.isfile(src.pathPart())) {
+        return false;
+    }
+    auto input = srcDevice.read(src.pathPart());
+    auto output = dstDevice.write(dst.pathPart());
+    size_t size = srcDevice.size(src.pathPart());
+    std::vector<char> buffer(16'384);
+    while (size > 0) {
+        size_t read = std::min(size, buffer.size());
+        input->read(buffer.data(), read);
+        auto gcount = input->gcount();
+        output->write(buffer.data(), gcount);
+        size -= gcount;
+        if (input->eof()) {
+            break;
+        }
+        if (!input->good() || !output->good()) {
+            return false;
+        }
+    }
+    return output->good();
+}
+
+uint64_t io::copy_all(const io::path& src, const io::path& dst) {
+    auto& srcDevice = io::require_device(src.entryPoint());
+    auto& dstDevice = io::require_device(dst.entryPoint());
+    auto dstPath = dst.pathPart();
+    if (!dstDevice.isdir(dstPath) && !dstDevice.mkdirs(dstPath)) {
+        return 0;
+    }
+    uint64_t count = 0;
+    for (auto& srcSubFile : directory_iterator(src)) {
+        auto dstSubFile = dst / srcSubFile.name();
+        auto srcSubPath = srcSubFile.pathPart();
+        auto dstSubPath = dstSubFile.pathPart();
+        if (srcDevice.isdir(srcSubPath)) {
+            if (!dstDevice.mkdirs(dstSubPath)) {
+                continue;
+            }
+            count += copy_all(srcSubFile, dstSubFile);
+        } else if (copy(srcSubFile, dstSubFile)) {
+            count++;
+        }
+    }
+    return count;
+}
+
 size_t io::file_size(const io::path& file) {
     auto& device = io::require_device(file.entryPoint());
     return device.size(file.pathPart());
