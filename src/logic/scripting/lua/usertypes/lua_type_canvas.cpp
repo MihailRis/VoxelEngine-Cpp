@@ -7,14 +7,17 @@
 
 using namespace lua;
 
-LuaCanvas::LuaCanvas(std::shared_ptr<Texture> inTexture)
-    : mTexture(std::move(inTexture)) {
-    mData = mTexture->readData();
+LuaCanvas::LuaCanvas(
+    std::shared_ptr<Texture> inTexture, std::shared_ptr<ImageData> inData
+)
+    : mTexture(std::move(inTexture)), mData(std::move(inData)) {
 }
 
 union RGBA {
-    uint8_t rgba[4];
-    uint32_t raw;
+    struct {
+        uint8_t r, g, b, a;
+    };
+    uint32_t rgba;
 };
 
 static RGBA* get_at(const ImageData& data, uint index) {
@@ -29,8 +32,8 @@ static RGBA* get_at(const ImageData& data, uint x, uint y) {
 }
 
 static RGBA* get_at(State* L, uint x, uint y) {
-    if (auto texture = touserdata<LuaCanvas>(L, 1)) {
-        return get_at(texture->data(), x, y);
+    if (auto canvas = touserdata<LuaCanvas>(L, 1)) {
+        return get_at(canvas->data(), x, y);
     }
     return nullptr;
 }
@@ -40,7 +43,7 @@ static int l_at(State* L) {
     auto y = static_cast<uint>(tointeger(L, 3));
 
     if (auto pixel = get_at(L, x, y)) {
-        return pushinteger(L, pixel->raw);
+        return pushinteger(L, pixel->rgba);
     }
 
     return 0;
@@ -53,19 +56,19 @@ static int l_set(State* L) {
     if (auto pixel = get_at(L, x, y)) {
         switch (gettop(L)) {
             case 4:
-                pixel->raw = static_cast<uint>(tointeger(L, 4));
+                pixel->rgba = static_cast<uint>(tointeger(L, 4));
                 return 1;
             case 6:
-                pixel->rgba[0] = static_cast<ubyte>(tointeger(L, 4));
-                pixel->rgba[1] = static_cast<ubyte>(tointeger(L, 5));
-                pixel->rgba[2] = static_cast<ubyte>(tointeger(L, 6));
-                pixel->rgba[3] = 255;
+                pixel->r = static_cast<ubyte>(tointeger(L, 4));
+                pixel->g = static_cast<ubyte>(tointeger(L, 5));
+                pixel->b = static_cast<ubyte>(tointeger(L, 6));
+                pixel->a = 255;
                 return 1;
             case 7:
-                pixel->rgba[0] = static_cast<ubyte>(tointeger(L, 4));
-                pixel->rgba[1] = static_cast<ubyte>(tointeger(L, 5));
-                pixel->rgba[2] = static_cast<ubyte>(tointeger(L, 6));
-                pixel->rgba[3] = static_cast<ubyte>(tointeger(L, 7));
+                pixel->r = static_cast<ubyte>(tointeger(L, 4));
+                pixel->g = static_cast<ubyte>(tointeger(L, 5));
+                pixel->b = static_cast<ubyte>(tointeger(L, 6));
+                pixel->a = static_cast<ubyte>(tointeger(L, 7));
                 return 1;
             default:
                 return 0;
@@ -76,8 +79,8 @@ static int l_set(State* L) {
 }
 
 static int l_update(State* L) {
-    if (auto texture = touserdata<LuaCanvas>(L, 1)) {
-        texture->texture().reload(texture->data());
+    if (auto canvas = touserdata<LuaCanvas>(L, 1)) {
+        canvas->texture().reload(canvas->data());
     }
     return 0;
 }
@@ -96,7 +99,7 @@ static int l_meta_index(State* L) {
     auto& data = texture->data();
     if (isnumber(L, 2)) {
         if (auto pixel = get_at(data, static_cast<uint>(tointeger(L, 2)))) {
-            return pushinteger(L, pixel->raw);
+            return pushinteger(L, pixel->rgba);
         }
     }
     if (isstring(L, 2)) {
@@ -122,7 +125,7 @@ static int l_meta_newindex(State* L) {
     auto& data = texture->data();
     if (isnumber(L, 2) && isnumber(L, 3)) {
         if (auto pixel = get_at(data, static_cast<uint>(tointeger(L, 2)))) {
-            pixel->raw = static_cast<uint>(tointeger(L, 3));
+            pixel->rgba = static_cast<uint>(tointeger(L, 3));
             return 1;
         }
         return 1;
