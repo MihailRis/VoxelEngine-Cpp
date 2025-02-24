@@ -107,6 +107,14 @@ bool io::read(const io::path& filename, char* data, size_t size) {
     return stream->good();
 }
 
+std::unique_ptr<std::ostream> io::write(const io::path& file) {
+    auto device = io::get_device(file.entryPoint());
+    if (device == nullptr) {
+        throw std::runtime_error("io-device not found: " + file.entryPoint());
+    }
+    return device->write(file.pathPart());
+}
+
 std::unique_ptr<std::istream> io::read(const io::path& filename) {
     auto device = io::get_device(filename.entryPoint());
     if (device == nullptr) {
@@ -305,6 +313,11 @@ uint64_t io::copy_all(const io::path& src, const io::path& dst) {
 size_t io::file_size(const io::path& file) {
     auto& device = io::require_device(file.entryPoint());
     return device.size(file.pathPart());
+}
+
+io::file_time_type io::last_write_time(const io::path& file) {
+    auto& device = io::require_device(file.entryPoint());
+    return device.lastWriteTime(file.pathPart());
 }
 
 std::filesystem::path io::resolve(const io::path& file) {

@@ -142,6 +142,10 @@ namespace io {
         bool compressed = false
     );
 
+    /// @brief Open file for writing
+    /// @throw std::runtime_error if file cannot be opened
+    std::unique_ptr<std::ostream> write(const io::path& file);
+
     /// @brief Open file for reading 
     /// @throw std::runtime_error if file cannot be opened
     std::unique_ptr<std::istream> read(const io::path& file);
@@ -201,6 +205,9 @@ namespace io {
 
     /// @brief Get file size in bytes 
     size_t file_size(const io::path& file);
+
+    /// @brief Get file last write time timestamp
+    file_time_type last_write_time(const io::path& file);
 
     std::filesystem::path resolve(const io::path& file);
 

@@ -11,6 +11,7 @@
 static debug::Logger logger("zip-file");
 
 using namespace io;
+using namespace std::chrono;
 
 static constexpr uint32_t EOCD_SIGNATURE = 0x06054b50;
 static constexpr uint32_t CENTRAL_DIR_SIGNATURE = 0x02014b50;
@@ -18,17 +19,52 @@ static constexpr uint32_t LOCAL_FILE_SIGNATURE = 0x04034b50;
 static constexpr uint32_t COMPRESSION_NONE = 0;
 static constexpr uint32_t COMPRESSION_DEFLATE = 8;
 
-template<typename T>
-static T read_int(std::unique_ptr<std::istream>& file) {
-    T value = 0;
-    file->read(reinterpret_cast<char*>(&value), sizeof(value));
-    return dataio::le2h(value);
-}
+namespace {
+    template<typename T>
+    T read_int(std::unique_ptr<std::istream>& file) {
+        T value = 0;
+        file->read(reinterpret_cast<char*>(&value), sizeof(value));
+        return dataio::le2h(value);
+    }
 
-template<typename T>
-static void read_int(std::unique_ptr<std::istream>& file, T& value) {
-    file->read(reinterpret_cast<char*>(&value), sizeof(value));
-    value = dataio::le2h(value);
+    template<typename T>
+    void read_int(std::unique_ptr<std::istream>& file, T& value) {
+        file->read(reinterpret_cast<char*>(&value), sizeof(value));
+        value = dataio::le2h(value);
+    }
+    file_time_type msdos_to_file_time(uint16_t date, uint16_t time) {
+        uint16_t year = ((date >> 9) & 0x7F) + 1980;
+        uint16_t month = (date >> 5) & 0x0F;
+        uint16_t day = date & 0x1F;
+
+        uint16_t hours = (time >> 11) & 0x1F;
+        uint16_t minutes = (time >> 5) & 0x3F;
+        uint16_t seconds = (time & 0x1F) * 2;
+
+        std::tm time_struct = {};
+        time_struct.tm_year = year - 1900;
+        time_struct.tm_mon = month - 1;
+        time_struct.tm_mday = day;
+        time_struct.tm_hour = hours;
+        time_struct.tm_min = minutes;
+        time_struct.tm_sec = seconds;
+        time_struct.tm_isdst = -1;
+
+        std::time_t time_t_value = std::mktime(&time_struct);
+        auto time_point = system_clock::from_time_t(time_t_value);
+        return file_time_type::clock::now() + (time_point - system_clock::now());
+    }
+
+    uint32_t to_ms_dos_timestamp(const file_time_type& fileTime) {
+        auto timePoint = time_point_cast<system_clock::duration>(
+            fileTime - file_time_type::clock::now() + system_clock::now()
+        );
+        std::time_t timeT = system_clock::to_time_t(timePoint);
+        std::tm tm = *std::localtime(&timeT);
+        uint16_t date = (tm.tm_year - 80) << 9 | (tm.tm_mon + 1) << 5 | tm.tm_mday;
+        uint16_t time = (tm.tm_hour << 11) | (tm.tm_min << 5) | (tm.tm_sec / 2);
+        return (date << 16) | time;
+    }
 }
 
 ZipFileDevice::Entry ZipFileDevice::readEntry() {
@@ -192,6 +228,14 @@ size_t ZipFileDevice::size(std::string_view path) {
     return found->second.uncompressedSize;
 }
 
+file_time_type ZipFileDevice::lastWriteTime(std::string_view path) {
+    const auto& found = entries.find(std::string(path));
+    if (found == entries.end()) {
+        return file_time_type::min();
+    }
+    return msdos_to_file_time(found->second.modDate, found->second.modTime);
+}
+
 bool ZipFileDevice::exists(std::string_view path) {
     return entries.find(std::string(path)) != entries.end();
 }
@@ -261,4 +305,106 @@ std::unique_ptr<PathsGenerator> ZipFileDevice::list(std::string_view path) {
         }
     }
     return std::make_unique<ListPathsGenerator>(std::move(names));
+}
+
+#include "io/io.hpp"
+#include "coders/byte_utils.hpp"
+
+static void write_headers(
+    std::ostream& file,
+    const std::string& name,
+    size_t srcSize,
+    size_t compressedSize,
+    uint32_t crc,
+    const file_time_type& modificationTime,
+    ByteBuilder& centralDir
+) {
+    auto timestamp = to_ms_dos_timestamp(modificationTime);
+    ByteBuilder header;
+    header.putInt32(LOCAL_FILE_SIGNATURE);
+    header.putInt16(10); // version
+    header.putInt16(0); // flags
+    header.putInt16(0); // compression method
+    header.putInt32(timestamp); // last modification datetime
+    header.putInt32(crc); // crc32
+    header.putInt32(compressedSize);
+    header.putInt32(srcSize);
+    header.putInt16(name.length());
+    header.putInt16(0); // extra field length
+    header.put(reinterpret_cast<const ubyte*>(name.data()), name.length());
+
+    size_t localHeaderOffset = file.tellp();
+    file.write(reinterpret_cast<const char*>(header.data()), header.size());
+
+    centralDir.putInt32(CENTRAL_DIR_SIGNATURE);
+    centralDir.putInt16(10); // version
+    centralDir.putInt16(0); // version
+    centralDir.putInt16(0); // flags
+    centralDir.putInt16(0); // compression method
+    centralDir.putInt32(timestamp); // last modification datetime
+    centralDir.putInt32(crc); // crc32
+    centralDir.putInt32(compressedSize);
+    centralDir.putInt32(srcSize);
+    centralDir.putInt16(name.length());
+    centralDir.putInt16(0); // extra field length
+    centralDir.putInt16(0); // file comment length
+    centralDir.putInt16(0); // disk number start
+    centralDir.putInt16(0); // internal attributes
+    centralDir.putInt32(0); // external attributes
+    centralDir.putInt32(localHeaderOffset); // local header offset
+    centralDir.put(reinterpret_cast<const ubyte*>(name.data()), name.length());
+}
+
+static size_t write_zip(
+    const std::string& root,
+    const path& folder,
+    std::ostream& file,
+    ByteBuilder& centralDir
+) {
+    size_t entries = 0;
+    ByteBuilder localHeader;
+    for (const auto& entry : io::directory_iterator(folder)) {
+        auto name = entry.pathPart().substr(root.length() + 1);
+        auto modificationTime = io::last_write_time(entry);
+        if (io::is_directory(entry)) {
+            name = name + "/";
+            write_headers(file, name, 0, 0, 0, modificationTime, centralDir);
+            entries += write_zip(root, entry, file, centralDir) + 1;
+        } else {
+            auto data = io::read_bytes_buffer(entry);
+            uint32_t crc = crc32(0, data.data(), data.size());
+            write_headers(
+                file,
+                name,
+                data.size(),
+                data.size(),
+                crc,
+                modificationTime,
+                centralDir
+            );
+            file.write(reinterpret_cast<const char*>(data.data()), data.size());
+            entries++;
+        }
+    }
+    return entries;
+}
+
+void io::write_zip(const path& folder, const path& file) {
+    ByteBuilder centralDir;
+    auto out = io::write(file);
+    size_t entries = write_zip(folder.pathPart(), folder, *out, centralDir);
+
+    size_t centralDirOffset = out->tellp();
+    out->write(reinterpret_cast<const char*>(centralDir.data()), centralDir.size());
+    
+    ByteBuilder eocd;
+    eocd.putInt32(EOCD_SIGNATURE);
+    eocd.putInt16(0); // disk number
+    eocd.putInt16(0); // central dir disk
+    eocd.putInt16(entries); // num entries
+    eocd.putInt16(entries); // total entries
+    eocd.putInt32(centralDir.size()); // central dir size
+    eocd.putInt32(centralDirOffset); // central dir offset
+    eocd.putInt16(0); // comment length
+    out->write(reinterpret_cast<const char*>(eocd.data()), eocd.size());
 }
