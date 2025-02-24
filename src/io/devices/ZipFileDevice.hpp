@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 
 #include "Device.hpp"
@@ -25,7 +26,15 @@ namespace io {
             bool isDirectory = false;
         };
     public:
-        ZipFileDevice(std::unique_ptr<std::istream> file);
+        using FileSeparateFunc = std::function<std::unique_ptr<std::istream>()>;
+
+        /// @param file ZIP file seekable istream
+        /// @param separateFunc Optional function that creates new seekable 
+        /// istream for the ZIP file.
+        ZipFileDevice(
+            std::unique_ptr<std::istream> file,
+            FileSeparateFunc separateFunc = nullptr
+        );
 
         std::filesystem::path resolve(std::string_view path) override;
         std::unique_ptr<std::ostream> write(std::string_view path) override;
@@ -41,6 +50,7 @@ namespace io {
         std::unique_ptr<PathsGenerator> list(std::string_view path) override;
     private:
         std::unique_ptr<std::istream> file;
+        FileSeparateFunc separateFunc;
         std::unordered_map<std::string, Entry> entries;
 
         Entry readEntry();

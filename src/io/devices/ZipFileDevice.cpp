@@ -94,9 +94,10 @@ void ZipFileDevice::findBlob(Entry& entry) {
     }
 }
 
-ZipFileDevice::ZipFileDevice(std::unique_ptr<std::istream> filePtr)
-    : file(std::move(filePtr)) {
-
+ZipFileDevice::ZipFileDevice(
+    std::unique_ptr<std::istream> filePtr, FileSeparateFunc separateFunc
+)
+    : file(std::move(filePtr)), separateFunc(std::move(separateFunc)) {
     // Searching for EOCD
     file->seekg(0, std::ios::end);
     std::streampos fileSize = file->tellg();
@@ -139,7 +140,6 @@ ZipFileDevice::ZipFileDevice(std::unique_ptr<std::istream> filePtr)
     }
 }
 
-
 std::filesystem::path ZipFileDevice::resolve(std::string_view path) {
     throw std::runtime_error("unable to resolve filesystem path");
 }
@@ -160,17 +160,27 @@ std::unique_ptr<std::istream> ZipFileDevice::read(std::string_view path) {
     if (entry.blobOffset == 0) {
         findBlob(entry);
     }
-    file->seekg(entry.blobOffset);
-
-    util::Buffer<char> buffer(entry.compressedSize);
-    file->read(buffer.data(), buffer.size());
-    auto memoryStream = std::make_unique<memory_istream>(std::move(buffer));
-    if (entry.compressionMethod == COMPRESSION_NONE) {
-        return memoryStream;
-    } else if (entry.compressionMethod == COMPRESSION_DEFLATE) {
-        return std::make_unique<deflate_istream>(std::move(memoryStream));
+    std::unique_ptr<std::istream> srcStream;
+    if (separateFunc) {
+        // Create new istream for concurrent data reading
+        srcStream = separateFunc();
+        srcStream->seekg(entry.blobOffset);
     } else {
-        throw std::runtime_error("unsupported compression method");
+        // Read compressed data to memory if istream cannot be separated
+        file->seekg(entry.blobOffset);
+        util::Buffer<char> buffer(entry.compressedSize);
+        file->read(buffer.data(), buffer.size());
+        srcStream = std::make_unique<memory_istream>(std::move(buffer));
+    }
+    if (entry.compressionMethod == COMPRESSION_NONE) {
+        return srcStream;
+    } else if (entry.compressionMethod == COMPRESSION_DEFLATE) {
+        return std::make_unique<deflate_istream>(std::move(srcStream));
+    } else {
+        throw std::runtime_error(
+            "unsupported compression method [" +
+            std::to_string(entry.compressionMethod) + "]"
+        );
     }
 }
 
