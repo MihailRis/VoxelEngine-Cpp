@@ -4,7 +4,9 @@
 
 #include "debug/Logger.hpp"
 #include "io/memory_istream.hpp"
+#include "io/memory_ostream.hpp"
 #include "io/deflate_istream.hpp"
+#include "io/deflate_ostream.hpp"
 #include "util/data_io.hpp"
 #include "util/Buffer.hpp"
 
@@ -316,6 +318,7 @@ static void write_headers(
     size_t srcSize,
     size_t compressedSize,
     uint32_t crc,
+    int compressionMethod,
     const file_time_type& modificationTime,
     ByteBuilder& centralDir
 ) {
@@ -324,7 +327,7 @@ static void write_headers(
     header.putInt32(LOCAL_FILE_SIGNATURE);
     header.putInt16(10); // version
     header.putInt16(0); // flags
-    header.putInt16(0); // compression method
+    header.putInt16(compressionMethod); // compression method
     header.putInt32(timestamp); // last modification datetime
     header.putInt32(crc); // crc32
     header.putInt32(compressedSize);
@@ -340,7 +343,7 @@ static void write_headers(
     centralDir.putInt16(10); // version
     centralDir.putInt16(0); // version
     centralDir.putInt16(0); // flags
-    centralDir.putInt16(0); // compression method
+    centralDir.putInt16(compressionMethod); // compression method
     centralDir.putInt32(timestamp); // last modification datetime
     centralDir.putInt32(crc); // crc32
     centralDir.putInt32(compressedSize);
@@ -368,21 +371,42 @@ static size_t write_zip(
         auto modificationTime = io::last_write_time(entry);
         if (io::is_directory(entry)) {
             name = name + "/";
-            write_headers(file, name, 0, 0, 0, modificationTime, centralDir);
-            entries += write_zip(root, entry, file, centralDir) + 1;
-        } else {
-            auto data = io::read_bytes_buffer(entry);
-            uint32_t crc = crc32(0, data.data(), data.size());
             write_headers(
                 file,
                 name,
-                data.size(),
-                data.size(),
-                crc,
+                0,
+                0,
+                0,
+                COMPRESSION_NONE,
                 modificationTime,
                 centralDir
             );
-            file.write(reinterpret_cast<const char*>(data.data()), data.size());
+            entries += write_zip(root, entry, file, centralDir) + 1;
+        } else {
+            auto uncompressed = io::read_bytes_buffer(entry);
+            uint32_t crc = crc32(0, uncompressed.data(), uncompressed.size());
+            memory_ostream memoryStream;
+            {
+                deflate_ostream deflateStream(memoryStream);
+                deflateStream.write(
+                    reinterpret_cast<char*>(uncompressed.data()),
+                    uncompressed.size()
+                );
+                deflateStream.flush();
+            }
+            auto data = memoryStream.release();
+            size_t dataSize = data.size();
+            write_headers(
+                file,
+                name,
+                uncompressed.size(),
+                dataSize,
+                crc,
+                COMPRESSION_DEFLATE,
+                modificationTime,
+                centralDir
+            );
+            file.write(reinterpret_cast<const char*>(data.data()), dataSize);
             entries++;
         }
     }
