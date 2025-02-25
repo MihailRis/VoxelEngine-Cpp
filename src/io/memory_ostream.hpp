@@ -23,7 +23,7 @@ public:
     }
 
     size_t size() const {
-        return pptr()-pbase();
+        return pptr() - pbase();
     }
 protected:
     int_type overflow(int_type c) override {
