@@ -80,7 +80,7 @@ struct ContentPack {
 
     static ContentPack createCore(const EnginePaths&);
 
-    static inline io::path getFolderFor(ContentType type) {
+    static io::path getFolderFor(ContentType type) {
         switch (type) {
             case ContentType::BLOCK: return ContentPack::BLOCKS_FOLDER;
             case ContentType::ITEM: return ContentPack::ITEMS_FOLDER;
@@ -97,7 +97,7 @@ struct ContentPackStats {
     size_t totalItems;
     size_t totalEntities;
 
-    inline bool hasSavingContent() const {
+    bool hasSavingContent() const {
         return totalBlocks + totalItems + totalEntities > 0;
     }
 };
@@ -125,23 +125,23 @@ public:
     ContentPackRuntime(ContentPack info, scriptenv env);
     ~ContentPackRuntime();
 
-    inline const ContentPackStats& getStats() const {
+    const ContentPackStats& getStats() const {
         return stats;
     }
 
-    inline ContentPackStats& getStatsWriteable() {
+    ContentPackStats& getStatsWriteable() {
         return stats;
     }
 
-    inline const std::string& getId() {
+    const std::string& getId() const {
         return info.id;
     }
 
-    inline const ContentPack& getInfo() const {
+    const ContentPack& getInfo() const {
         return info;
     }
 
-    inline scriptenv getEnvironment() const {
+    scriptenv getEnvironment() const {
         return env;
     }
 };

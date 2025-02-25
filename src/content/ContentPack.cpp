@@ -7,11 +7,13 @@
 #include "coders/json.hpp"
 #include "constants.hpp"
 #include "data/dv.hpp"
+#include "debug/Logger.hpp"
 #include "io/engine_paths.hpp"
 #include "io/io.hpp"
 
-
 namespace fs = std::filesystem;
+
+static debug::Logger logger("content-pack");
 
 ContentPack ContentPack::createCore(const EnginePaths& paths) {
     return ContentPack {
@@ -20,7 +22,9 @@ ContentPack ContentPack::createCore(const EnginePaths& paths) {
 }
 
 const std::vector<std::string> ContentPack::RESERVED_NAMES = {
-    "res", "abs", "local", "core", "user", "world", "none", "null"};
+    "res", "abs", "local", "core", "user", "world", "none", "null", "export",
+    "config"
+};
 
 contentpack_error::contentpack_error(
     std::string packId, io::path folder, const std::string& message
@@ -45,17 +49,17 @@ bool ContentPack::is_pack(const io::path& folder) {
     return io::is_regular_file(folder / PACKAGE_FILENAME);
 }
 
-static void checkContentPackId(const std::string& id, const io::path& folder) {
+static void check_pack_id(const std::string& id, const io::path& folder) {
     if (id.length() < 2 || id.length() > 24)
         throw contentpack_error(
             id, folder, "content-pack id length is out of range [2, 24]"
         );
-    if (isdigit(id[0]))
+    if (std::isdigit(id[0]))
         throw contentpack_error(
             id, folder, "content-pack id must not start with a digit"
         );
     for (char c : id) {
-        if (!isalnum(c) && c != '_') {
+        if (!std::isalnum(c) && c != '_') {
             throw contentpack_error(
                 id, folder, "illegal character in content-pack id"
             );
@@ -113,34 +117,36 @@ ContentPack ContentPack::read(const std::string& path, const io::path& folder) {
             pack.dependencies.push_back({level, depName});
         }
     }
-
-    if (pack.id == "none")
+    if (pack.id == "none") {
         throw contentpack_error(
             pack.id, folder, "content-pack id is not specified"
         );
-    checkContentPackId(pack.id, folder);
-
+    }
+    check_pack_id(pack.id, folder);
     return pack;
 }
 
 void ContentPack::scanFolder(
-    const std::string& path, const io::path& folder, std::vector<ContentPack>& packs
+    const std::string& path,
+    const io::path& folder,
+    std::vector<ContentPack>& packs
 ) {
     if (!io::is_directory(folder)) {
         return;
     }
     for (const auto& packFolder : io::directory_iterator(folder)) {
-        if (!io::is_directory(packFolder)) continue;
-        if (!is_pack(packFolder)) continue;
+        if (!io::is_directory(packFolder) || !is_pack(packFolder)) {
+            continue;
+        }
         try {
             packs.push_back(
                 read(path + "/" + packFolder.name(), packFolder)
             );
         } catch (const contentpack_error& err) {
-            std::cerr << "package.json error at " << err.getFolder().string();
-            std::cerr << ": " << err.what() << std::endl;
+            logger.error() << "package.json error at "
+                           << err.getFolder().string() << ": " << err.what();
         } catch (const std::runtime_error& err) {
-            std::cerr << err.what() << std::endl;
+            logger.error() << err.what();
         }
     }
 }
