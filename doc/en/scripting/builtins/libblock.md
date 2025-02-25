@@ -13,6 +13,9 @@ block.material(blockid: int) -> str
 -- Table of materials by their full names (example: base:carpet)
 block.materials: table<string, table>
 
+-- Table of custom block properties (see ../../block-properties.md)
+block.properties: table<int, table<string, object>>
+
 -- Returns the block display name.
 block.caption(blockid: int) -> str
 
