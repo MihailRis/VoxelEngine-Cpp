@@ -10,6 +10,7 @@ namespace io {
         std::unique_ptr<std::ostream> write(std::string_view path) override;
         std::unique_ptr<std::istream> read(std::string_view path) override;
         size_t size(std::string_view path) override;
+        file_time_type lastWriteTime(std::string_view path) override;
         bool exists(std::string_view path) override;
         bool isdir(std::string_view path) override;
         bool isfile(std::string_view path) override;

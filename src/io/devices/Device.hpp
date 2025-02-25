@@ -8,7 +8,6 @@
 #include "../path.hpp"
 
 namespace io {
-
     /// @brief Device interface for file system operations
     class Device {
     public:
@@ -27,6 +26,9 @@ namespace io {
 
         /// @brief Get file size in bytes
         virtual size_t size(std::string_view path) = 0;
+
+        /// @brief Get file last write timestamp 
+        virtual file_time_type lastWriteTime(std::string_view path) = 0;
 
         /// @brief Check if file or directory exists
         virtual bool exists(std::string_view path) = 0;
@@ -80,6 +82,10 @@ namespace io {
 
         size_t size(std::string_view path) override {
             return parent->size((root / path).pathPart());
+        }
+
+        file_time_type lastWriteTime(std::string_view path) override {
+            return parent->lastWriteTime((root / path).pathPart());
         }
 
         bool exists(std::string_view path) override {

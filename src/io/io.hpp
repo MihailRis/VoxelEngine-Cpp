@@ -142,6 +142,10 @@ namespace io {
         bool compressed = false
     );
 
+    /// @brief Open file for writing
+    /// @throw std::runtime_error if file cannot be opened
+    std::unique_ptr<std::ostream> write(const io::path& file);
+
     /// @brief Open file for reading 
     /// @throw std::runtime_error if file cannot be opened
     std::unique_ptr<std::istream> read(const io::path& file);
@@ -187,11 +191,23 @@ namespace io {
     /// @brief Remove file or empty directory
     bool remove(const io::path& file);
 
+    /// @brief Copy src file to dst file
+    /// @param src source file path
+    /// @param dst destination file path
+    /// @return true if success
+    bool copy(const io::path& src, const io::path& dst);
+
+    /// @brief Copy all files and directories in the folder recursively
+    uint64_t copy_all(const io::path& src, const io::path& dst);
+
     /// @brief Remove all files and directories in the folder recursively
     uint64_t remove_all(const io::path& file);
 
     /// @brief Get file size in bytes 
     size_t file_size(const io::path& file);
+
+    /// @brief Get file last write time timestamp
+    file_time_type last_write_time(const io::path& file);
 
     std::filesystem::path resolve(const io::path& file);
 
