@@ -293,10 +293,19 @@ private:
 
 std::unique_ptr<PathsGenerator> ZipFileDevice::list(std::string_view path) {
     std::vector<std::string> names;
-    auto folder = std::string(path) + "/";
-    size_t folderLen = folder.length();
-    for (const auto& [name, entry] : entries) {
-        if (name.find(folder) == 0) {
+    if (path.empty()) {
+        for (const auto& [name, entry] : entries) {
+            if (name.find('/') == std::string::npos) {
+                names.push_back(name);
+            }
+        }
+    } else {
+        auto folder = std::string(path) + "/";
+        size_t folderLen = folder.length();
+        for (const auto& [name, entry] : entries) {
+            if (name.find(folder) != 0) {
+                continue;
+            }
             size_t pos = name.find('/', folderLen);
             if (pos == std::string::npos) {
                 names.push_back(name.substr(folderLen, pos - folderLen));
