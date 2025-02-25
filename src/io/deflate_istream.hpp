@@ -7,95 +7,93 @@
 #include <array>
 #include <stdexcept>
 
-class deflate_istream : public std::istream {
+class deflate_istreambuf : public std::streambuf {
 public:
-    explicit deflate_istream(std::unique_ptr<std::istream> src)
-        : std::istream(&buf), source(std::move(src)), buf(*source) {}
+    explicit deflate_istreambuf(std::istream& src) : src(src) {
+        zstream.zalloc = Z_NULL;
+        zstream.zfree = Z_NULL;
+        zstream.opaque = Z_NULL;
+        zstream.avail_in = 0;
+        zstream.next_in = Z_NULL;
+        
+        int ret = inflateInit2(&zstream, -15);
+        if (ret != Z_OK) {
+            throw std::runtime_error("zlib init failed");
+        }
+    }
 
-private:
-    class deflate_streambuf : public std::streambuf {
-    public:
-        explicit deflate_streambuf(std::istream& src) : src(src) {
-            zstream.zalloc = Z_NULL;
-            zstream.zfree = Z_NULL;
-            zstream.opaque = Z_NULL;
-            zstream.avail_in = 0;
-            zstream.next_in = Z_NULL;
-            
-            int ret = inflateInit2(&zstream, -15);
-            if (ret != Z_OK) {
-                throw std::runtime_error("zlib init failed");
+    ~deflate_istreambuf() {
+        inflateEnd(&zstream);
+    }
+
+    deflate_istreambuf(const deflate_istreambuf&) = delete;
+    deflate_istreambuf& operator=(const deflate_istreambuf&) = delete;
+
+protected:
+    int_type underflow() override {
+        if (gptr() < egptr()) {
+            return traits_type::to_int_type(*gptr());
+        }
+
+        if (eof) {
+            return traits_type::eof();
+        }
+
+        zstream.next_out = reinterpret_cast<Bytef*>(outBuf.data());
+        zstream.avail_out = outBuf.size();
+
+        do {
+            if (zstream.avail_in == 0) {
+                src.read(inBuf.data(), inBuf.size());
+                zstream.avail_in = static_cast<uInt>(src.gcount());
+                zstream.next_in = reinterpret_cast<Bytef*>(inBuf.data());
+                
+                if (src.bad()) {
+                    return traits_type::eof();
+                }
             }
-        }
 
-        ~deflate_streambuf() {
-            inflateEnd(&zstream);
-        }
+            int ret = inflate(&zstream, Z_NO_FLUSH);
+            if (ret == Z_STREAM_END) {
+                eof = true;
+            } else if (ret != Z_OK) {
+                if (ret == Z_BUF_ERROR && zstream.avail_out == outBuf.size()) {
+                    continue;
+                }
+                return traits_type::eof();
+            }
 
-        deflate_streambuf(const deflate_streambuf&) = delete;
-        deflate_streambuf& operator=(const deflate_streambuf&) = delete;
-
-    protected:
-        int_type underflow() override {
-            if (gptr() < egptr()) {
+            const auto decompressed = outBuf.size() - zstream.avail_out;
+            if (decompressed > 0) {
+                setg(outBuf.data(), 
+                        outBuf.data(), 
+                        outBuf.data() + decompressed);
                 return traits_type::to_int_type(*gptr());
             }
 
             if (eof) {
                 return traits_type::eof();
             }
+        } while (zstream.avail_in > 0 || !src.eof());
 
-            zstream.next_out = reinterpret_cast<Bytef*>(outBuf.data());
-            zstream.avail_out = outBuf.size();
+        return traits_type::eof();
+    }
+private:
+    static constexpr size_t BUFFER_SIZE = 16384;
 
-            do {
-                if (zstream.avail_in == 0) {
-                    src.read(inBuf.data(), inBuf.size());
-                    zstream.avail_in = static_cast<uInt>(src.gcount());
-                    zstream.next_in = reinterpret_cast<Bytef*>(inBuf.data());
-                    
-                    if (src.bad()) {
-                        return traits_type::eof();
-                    }
-                }
+    std::istream& src;
+    z_stream zstream {};
+    std::array<char, BUFFER_SIZE> inBuf {};
+    std::array<char, BUFFER_SIZE> outBuf {};
+    bool eof = false;
+};
 
-                int ret = inflate(&zstream, Z_NO_FLUSH);
-                if (ret == Z_STREAM_END) {
-                    eof = true;
-                } else if (ret != Z_OK) {
-                    if (ret == Z_BUF_ERROR && zstream.avail_out == outBuf.size()) {
-                        continue;
-                    }
-                    return traits_type::eof();
-                }
+class deflate_istream : public std::istream {
+public:
+    explicit deflate_istream(std::unique_ptr<std::istream> src)
+        : std::istream(&buffer), source(std::move(src)), buffer(*source) {}
 
-                const auto decompressed = outBuf.size() - zstream.avail_out;
-                if (decompressed > 0) {
-                    setg(outBuf.data(), 
-                         outBuf.data(), 
-                         outBuf.data() + decompressed);
-                    return traits_type::to_int_type(*gptr());
-                }
-
-                if (eof) {
-                    return traits_type::eof();
-                }
-
-            } while (zstream.avail_in > 0 || !src.eof());
-
-            return traits_type::eof();
-        }
-
-    private:
-        static constexpr size_t BUFFER_SIZE = 16384;
-
-        std::istream& src;
-        z_stream zstream {};
-        std::array<char, BUFFER_SIZE> inBuf {};
-        std::array<char, BUFFER_SIZE> outBuf {};
-        bool eof = false;
-    };
-
+private:
     std::unique_ptr<std::istream> source;
-    deflate_streambuf buf;
+    deflate_istreambuf buffer;
 };
