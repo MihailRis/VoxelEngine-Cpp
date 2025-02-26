@@ -20,7 +20,9 @@ struct WeatherPreset : Serializable {
         float scale = 0.1f;
         /// @brief Fall opacity interpreted as zero.
         /// @example if 0.8 then opacity range is 0.8-1.0 for 0.0-1.0 intensity
-        float minOpacity = 0.8f;
+        float minOpacity = 0.0f;
+        float maxOpacity = 1.0f;
+        bool opaque = false;
         /// @brief Fall splash
         std::optional<ParticlesPreset> splash;
     } fall {};

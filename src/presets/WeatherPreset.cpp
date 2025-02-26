@@ -11,6 +11,9 @@ dv::value WeatherPreset::serialize() const {
     froot["hspeed"] = fall.hspeed;
     froot["scale"] = fall.scale;
     froot["noise"] = fall.noise;
+    froot["min_opacity"] = fall.minOpacity;
+    froot["max_opacity"] = fall.maxOpacity;
+    froot["opaque"] = fall.opaque;
     if (fall.splash) {
         froot["splash"] = fall.splash->serialize();
     }
@@ -32,6 +35,9 @@ void WeatherPreset::deserialize(const dv::value& src) {
         froot.at("hspeed").get(fall.hspeed);
         froot.at("scale").get(fall.scale);
         froot.at("noise").get(fall.noise);
+        froot.at("min_opacity").get(fall.minOpacity);
+        froot.at("max_opacity").get(fall.maxOpacity);
+        froot.at("opaque").get(fall.opaque);
         
         if (froot.has("splash")) {
             const auto& sroot = froot["splash"];

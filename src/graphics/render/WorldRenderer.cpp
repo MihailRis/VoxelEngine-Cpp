@@ -102,8 +102,15 @@ WorldRenderer::WorldRenderer(
         assets->require<Shader>("skybox_gen")
     );
 
-    weather = {};
+    WeatherPreset weather = {};
     weather.deserialize(io::read_json("res:presets/weather/rain.json"));
+    weather.intensity = 0.5f;
+    weatherInstances.push_back(std::move(weather));
+
+    weather = {};
+    weather.deserialize(io::read_json("res:presets/weather/snow.json"));
+    weather.intensity = 0.5f;
+    weatherInstances.push_back(std::move(weather));
 }
 
 WorldRenderer::~WorldRenderer() = default;
@@ -122,9 +129,18 @@ void WorldRenderer::setupWorldShader(
     shader.uniform1f("u_gamma", settings.graphics.gamma.get());
     shader.uniform1f("u_fogFactor", fogFactor);
     shader.uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
-    shader.uniform1f("u_weatherFogOpacity", weather.fogOpacity * weather.intensity);
-    shader.uniform1f("u_weatherFogDencity", weather.fogDencity);
-    shader.uniform1f("u_weatherFogCurve", weather.fogCurve);
+
+    float fog_opacity = 0.0f;
+    float fog_dencity = 0.0f;
+    float fog_curve = 0.0f;
+    for (const auto& weather : weatherInstances) {
+        fog_opacity += weather.fogOpacity * weather.intensity;
+        fog_dencity += weather.fogDencity * weather.intensity;
+        fog_curve += weather.fogCurve * weather.intensity;
+    }
+    shader.uniform1f("u_weatherFogOpacity", fog_opacity);
+    shader.uniform1f("u_weatherFogDencity", fog_dencity);
+    shader.uniform1f("u_weatherFogCurve", fog_curve);
     shader.uniform1f("u_dayTime", level.getWorld()->getInfo().daytime);
     shader.uniform2f("u_lightDir", skybox->getLightDir());
     shader.uniform3f("u_cameraPos", camera.position);
@@ -200,13 +216,16 @@ void WorldRenderer::renderLevel(
     }
 
     setupWorldShader(entityShader, camera, settings, fogFactor);
-    entityShader.uniform1i("u_alphaClip", false);
-    float zero = weather.fall.minOpacity;
-    entityShader.uniform1f("u_opacity", (weather.intensity * (1.0f - zero)) + zero);
-    if (weather.intensity > 1.e-3f && !weather.fall.texture.empty()) {
-        precipitation->render(camera, pause ? 0.0f : delta, weather);
+
+    for (const auto& weather : weatherInstances) {
+        float zero = weather.fall.minOpacity;
+        float one = weather.fall.maxOpacity;
+        entityShader.uniform1i("u_alphaClip", weather.fall.opaque);
+        entityShader.uniform1f("u_opacity", (weather.intensity * (one - zero)) + zero);
+        if (weather.intensity > 1.e-3f && !weather.fall.texture.empty()) {
+            precipitation->render(camera, pause ? 0.0f : delta, weather);
+        }
     }
-    //weather.intensity = -glm::cos(timer * 0.2f) * 0.5f + 0.5f;
 
     skybox->unbind();
 }
@@ -336,11 +355,12 @@ void WorldRenderer::draw(
 
     const auto& settings = engine.getSettings();
     const auto& worldInfo = world->getInfo();
-
-    float mie = 1.0f + glm::max(
-        worldInfo.fog,
-        weather.clouds * glm::sqrt(weather.intensity) * 0.5f
-    ) * 2.0f;
+    float clouds = 0.0f;
+    for (const auto& weather : weatherInstances) {
+        clouds += weather.clouds * glm::sqrt(weather.intensity);
+    }
+    clouds = glm::max(worldInfo.fog, clouds);
+    float mie = 1.0f + glm::max(worldInfo.fog, clouds * 0.5f) * 2.0f;
 
     skybox->refresh(pctx, worldInfo.daytime, mie, 4);
 
@@ -354,7 +374,7 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, worldInfo.daytime, mie);
+        skybox->draw(pctx, camera, assets, worldInfo.daytime, clouds);
 
         /* Actually world render with depth buffer on */ {
             DrawContext ctx = wctx.sub();

@@ -75,7 +75,7 @@ public:
     std::unique_ptr<ParticlesRenderer> particles;
     std::unique_ptr<BlockWrapsRenderer> blockWraps;
     std::unique_ptr<PrecipitationRenderer> precipitation;
-    WeatherPreset weather;
+    std::vector<WeatherPreset> weatherInstances;
 
     static bool showChunkBorders;
     static bool showEntitiesDebug;
