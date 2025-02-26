@@ -1,0 +1,11 @@
+{
+    "fall": {
+        "vspeed": 0.75,
+        "hspeed": 0.5,
+        "texture": "misc/snow",
+        "scale": 0.35
+    },
+    "fog_opacity": 0.8,
+    "fog_dencity": 2.5,
+    "clouds": 0.5
+}

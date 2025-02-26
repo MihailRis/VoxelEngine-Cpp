@@ -12,9 +12,9 @@
                 "particles:rain_splash_1",
                 "particles:rain_splash_2"
             ]
-        },
-        "fog_opacity": 0.8,
-        "fog_dencity": 2.0,
-        "clouds": 0.5
-    }
+        }
+    },
+    "fog_opacity": 0.8,
+    "fog_dencity": 2.0,
+    "clouds": 0.5
 }
