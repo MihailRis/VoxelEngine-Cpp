@@ -337,13 +337,12 @@ void WorldRenderer::draw(
     const auto& settings = engine.getSettings();
     const auto& worldInfo = world->getInfo();
 
-    skybox->refresh(
-        pctx,
-        worldInfo.daytime,
-        1.0f +
-            glm::max(worldInfo.fog, weather.clouds * glm::sqrt(weather.intensity) * 0.5f) * 2.0f,
-        4
-    );
+    float mie = 1.0f + glm::max(
+        worldInfo.fog,
+        weather.clouds * glm::sqrt(weather.intensity) * 0.5f
+    ) * 2.0f;
+
+    skybox->refresh(pctx, worldInfo.daytime, mie, 4);
 
     const auto& assets = *engine.getAssets();
     auto& linesShader = assets.require<Shader>("lines");
@@ -355,8 +354,8 @@ void WorldRenderer::draw(
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
-        
+        skybox->draw(pctx, camera, assets, worldInfo.daytime, mie);
+
         /* Actually world render with depth buffer on */ {
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
