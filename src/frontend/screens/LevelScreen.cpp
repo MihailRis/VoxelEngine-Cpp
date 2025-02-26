@@ -210,7 +210,10 @@ void LevelScreen::update(float delta) {
 
     hud->update(hudVisible);
     decorator->update(
-        hud->isPause() ? 0.0f : delta, *camera, worldRenderer->weatherInstances.at(0)
+        hud->isPause() ? 0.0f : delta,
+        *camera,
+        worldRenderer->weather.a,
+        worldRenderer->weather.b
     );
 }
 

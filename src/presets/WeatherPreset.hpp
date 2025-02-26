@@ -28,15 +28,15 @@ struct WeatherPreset : Serializable {
     } fall {};
 
     /// @brief Max weather fog opacity
-    float fogOpacity = 0.8f;
+    float fogOpacity = 0.0f;
 
     /// @brief Weather fog depth multiplier
-    float fogDencity = 2.0f;
+    float fogDencity = 1.0f;
 
     /// @brief Weather fog curve
-    float fogCurve = 0.5f;
+    float fogCurve = 1.0f;
 
-    float clouds = 0.5f;
+    float clouds = 0.0f;
 
     /// @brief Weather effects intensity
     float intensity = 1.0f;

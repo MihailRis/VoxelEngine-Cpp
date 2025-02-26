@@ -53,5 +53,10 @@ public:
         Player& player
     );
 
-    void update(float delta, const Camera& camera, const WeatherPreset& weather);
+    void update(
+        float delta,
+        const Camera& camera,
+        const WeatherPreset& weatherA,
+        const WeatherPreset& weatherB
+    );
 };

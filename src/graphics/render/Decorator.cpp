@@ -173,7 +173,10 @@ void Decorator::update(
 }
 
 void Decorator::update(
-    float delta, const Camera& camera, const WeatherPreset& weather
+    float delta,
+    const Camera& camera,
+    const WeatherPreset& weatherA,
+    const WeatherPreset& weatherB
 ) {
     glm::ivec3 pos = camera.position;
     for (int i = 0; i < ITERATIONS; i++) {
@@ -181,7 +184,12 @@ void Decorator::update(
     }
     int randIters = std::min(50'000, static_cast<int>(delta * 24'000));
     for (int i = 0; i < randIters; i++) {
-        updateRandom(delta, pos, weather);
+        if (weatherA.intensity > 1.e-3f) {
+            updateRandom(delta, pos, weatherA);
+        }
+        if (weatherB.intensity > 1.e-3f) {
+            updateRandom(delta, pos, weatherB);
+        }
     }
     const auto& chunks = *player.chunks;
     const auto& indices = *level.content.getIndices();
