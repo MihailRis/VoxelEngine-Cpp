@@ -19,6 +19,8 @@ uniform float u_fogFactor;
 uniform float u_fogCurve;
 uniform float u_weatherFogOpacity;
 uniform float u_weatherFogDencity;
+uniform float u_weatherFogCurve;
+uniform float u_timer;
 uniform samplerCube u_cubemap;
 
 uniform vec3 u_torchlightColor;
@@ -44,6 +46,6 @@ void main() {
     a_distance = length(u_view * u_model * vec4(pos3d * FOG_POS_SCALE, 0.0));
     float depth = (a_distance / 256.0);
     a_fog = min(1.0, max(pow(depth * u_fogFactor, u_fogCurve),
-                         min(depth * u_weatherFogDencity, u_weatherFogOpacity)));
+                         min(pow(depth * u_weatherFogDencity, u_weatherFogCurve), u_weatherFogOpacity)));
     gl_Position = u_proj * u_view * modelpos;
 }

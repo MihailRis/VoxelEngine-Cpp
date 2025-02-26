@@ -18,6 +18,7 @@ dv::value WeatherPreset::serialize() const {
 
     root["fog_opacity"] = fogOpacity;
     root["fog_dencity"] = fogDencity;
+    root["fog_curve"] = fogCurve;
     root["clouds"] = clouds;
 
     return root;
@@ -40,5 +41,6 @@ void WeatherPreset::deserialize(const dv::value& src) {
     }
     src.at("fog_opacity").get(fogOpacity);
     src.at("fog_dencity").get(fogDencity);
+    src.at("fog_curve").get(fogCurve);
     src.at("clouds").get(clouds);
 }

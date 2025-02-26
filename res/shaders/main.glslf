@@ -1,13 +1,11 @@
 in vec4 a_color;
 in vec2 a_texCoord;
-in float a_distance;
 in float a_fog;
 in vec3 a_dir;
 out vec4 f_color;
 
 uniform sampler2D u_texture0;
 uniform samplerCube u_cubemap;
-uniform vec3 u_fogColor;
 uniform bool u_alphaClip;
 
 void main() {

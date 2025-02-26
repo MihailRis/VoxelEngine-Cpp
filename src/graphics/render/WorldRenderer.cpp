@@ -103,21 +103,7 @@ WorldRenderer::WorldRenderer(
     );
 
     weather = {};
-    auto& fall = weather.fall;
-    fall.vspeed = 2.0f;
-    fall.texture = "misc/rain";
-    fall.noise = "ambient/rain";
-
-    ParticlesPreset rainSplash;
-    rainSplash.frames = {
-        "particles:rain_splash_0",
-        "particles:rain_splash_1",
-        "particles:rain_splash_2"
-    };
-    rainSplash.lifetime = 0.2f;
-    rainSplash.spawnInterval = 0.0f;
-    rainSplash.size = {0.2f, 0.2f, 0.2f};
-    fall.splash = std::move(rainSplash);
+    weather.deserialize(io::read_json("res:presets/weather/rain.json"));
 }
 
 WorldRenderer::~WorldRenderer() = default;
@@ -138,6 +124,7 @@ void WorldRenderer::setupWorldShader(
     shader.uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
     shader.uniform1f("u_weatherFogOpacity", weather.fogOpacity * weather.intensity);
     shader.uniform1f("u_weatherFogDencity", weather.fogDencity);
+    shader.uniform1f("u_weatherFogCurve", weather.fogCurve);
     shader.uniform1f("u_dayTime", level.getWorld()->getInfo().daytime);
     shader.uniform2f("u_lightDir", skybox->getLightDir());
     shader.uniform3f("u_cameraPos", camera.position);
@@ -216,8 +203,10 @@ void WorldRenderer::renderLevel(
     entityShader.uniform1i("u_alphaClip", false);
     float zero = weather.fall.minOpacity;
     entityShader.uniform1f("u_opacity", (weather.intensity * (1.0f - zero)) + zero);
-    precipitation->render(camera, pause ? 0.0f : delta, weather);
-    weather.intensity = -glm::cos(timer * 0.2f) * 0.5f + 0.5f;
+    if (weather.intensity > 1.e-3f && !weather.fall.texture.empty()) {
+        precipitation->render(camera, pause ? 0.0f : delta, weather);
+    }
+    //weather.intensity = -glm::cos(timer * 0.2f) * 0.5f + 0.5f;
 
     skybox->unbind();
 }
