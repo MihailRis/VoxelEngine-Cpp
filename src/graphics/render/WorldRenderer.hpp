@@ -47,6 +47,14 @@ struct Weather {
         a.intensity = 1.0f - t;
     }
 
+    void change(WeatherPreset preset, float time) {
+        std::swap(a, b);
+        b = std::move(preset);
+        t = 0.0f;
+        speed = 1.0f / glm::max(time, 1.e-5f);
+        update(0.0f);
+    }
+
     float fogOpacity() const {
         return b.fogOpacity * t + a.fogOpacity * (1.0f - t);
     }

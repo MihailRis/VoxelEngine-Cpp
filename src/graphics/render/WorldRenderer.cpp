@@ -154,22 +154,6 @@ void WorldRenderer::renderLevel(
 ) {
     weather.update(delta);
 
-    if (timer > 1.0f && weather.b.fall.texture.empty() && timer < 2.0f) {
-        weather.b.deserialize(io::read_json("res:presets/weather/snow.json"));
-        weather.t = 0.0f;
-        weather.speed = 0.5f;
-        weather.update(delta);
-    }
-
-    if (timer > 15.0f && weather.a.fall.texture.empty()) {
-        std::swap(weather.a, weather.b);
-        weather.b = {};
-        weather.b.deserialize(io::read_json("res:presets/weather/fog.json"));
-        weather.t = 0.0f;
-        weather.speed = 0.1f;
-        weather.update(delta);
-    }
-
     texts->render(ctx, camera, settings, hudVisible, false);
 
     bool culling = engine.getSettings().graphics.frustumCulling.get();
