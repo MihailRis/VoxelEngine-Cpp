@@ -6,7 +6,8 @@
         "blocks/door_open",
         "blocks/door_close",
         "events/pickup",
-        "ambient/rain"
+        "ambient/rain",
+        "ambient/thunder"
     ],
     "models": [
         "drop-item"
