@@ -278,6 +278,19 @@ console.add_command(
     end
 )
 
+console.add_command(
+    "weather",
+    "Display current weather preset name",
+    function (args, kwargs)
+        local name = gfx.weather.get_current()
+        if name == "" then
+            return "unnamed " .. json.tostring(gfx.weather.get_current_data(), true)
+        else
+            return name
+        end
+    end
+)
+
 console.cheats = {
     "blocks.fill",
     "tp",
