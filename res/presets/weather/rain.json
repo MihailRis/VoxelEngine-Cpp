@@ -18,5 +18,6 @@
     "fog_opacity": 0.8,
     "fog_dencity": 2.0,
     "fog_curve": 0.5,
-    "clouds": 0.5
+    "clouds": 0.5,
+    "thunder_rate": 0.1
 }

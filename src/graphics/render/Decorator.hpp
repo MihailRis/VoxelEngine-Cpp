@@ -30,6 +30,7 @@ class Decorator {
     std::unordered_map<int64_t, u64id_t> playerTexts;
     int currentIndex = 0;
     NotePreset playerNamePreset {};
+    float thunderTimer = 0.0f;
 
     void update(
         float delta,
