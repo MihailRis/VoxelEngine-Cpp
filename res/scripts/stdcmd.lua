@@ -273,7 +273,7 @@ console.add_command(
             return "weather preset not found"
         end
         local preset = json.parse(file.read(filename))
-        gfx.weather.change(preset, args[2])
+        gfx.weather.change(preset, args[2], args[1])
         return "weather set to "..filename.." preset ("..tostring(args[2]).." s)"
     end
 )

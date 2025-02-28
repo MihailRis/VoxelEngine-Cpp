@@ -37,6 +37,8 @@ struct EngineSettings;
 struct Weather {
     WeatherPreset a {};
     WeatherPreset b {};
+    std::string nameA;
+    std::string nameB;
     float t = 1.0f;
     float speed = 0.0f;
 
@@ -47,11 +49,13 @@ struct Weather {
         a.intensity = 1.0f - t;
     }
 
-    void change(WeatherPreset preset, float time) {
+    void change(WeatherPreset preset, float time, std::string name="") {
         std::swap(a, b);
+        std::swap(nameA, nameB);
         b = std::move(preset);
         t = 0.0f;
         speed = 1.0f / glm::max(time, 1.e-5f);
+        nameB = std::move(name);
         update(0.0f);
     }
 
