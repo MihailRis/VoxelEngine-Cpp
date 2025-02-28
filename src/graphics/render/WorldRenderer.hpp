@@ -11,6 +11,7 @@
 #include "typedefs.hpp"
 
 #include "presets/WeatherPreset.hpp"
+#include "world/Weather.hpp"
 
 class Level;
 class Player;
@@ -33,44 +34,6 @@ class DrawContext;
 class ModelBatch;
 class Assets;
 struct EngineSettings;
-
-struct Weather {
-    WeatherPreset a {};
-    WeatherPreset b {};
-    std::string nameA;
-    std::string nameB;
-    float t = 1.0f;
-    float speed = 0.0f;
-
-    void update(float delta) {
-        t += delta * speed;
-        t = std::min(t, 1.0f);
-        b.intensity = t;
-        a.intensity = 1.0f - t;
-    }
-
-    void change(WeatherPreset preset, float time, std::string name="") {
-        std::swap(a, b);
-        std::swap(nameA, nameB);
-        b = std::move(preset);
-        t = 0.0f;
-        speed = 1.0f / glm::max(time, 1.e-5f);
-        nameB = std::move(name);
-        update(0.0f);
-    }
-
-    float fogOpacity() const {
-        return b.fogOpacity * t + a.fogOpacity * (1.0f - t);
-    }
-
-    float fogDencity() const {
-        return b.fogDencity * t + a.fogDencity * (1.0f - t);
-    }
-
-    float fogCurve() const {
-        return b.fogCurve * t + a.fogCurve * (1.0f - t);
-    }
-};
 
 class WorldRenderer {
     Engine& engine;
@@ -113,7 +76,6 @@ public:
     std::unique_ptr<ParticlesRenderer> particles;
     std::unique_ptr<BlockWrapsRenderer> blockWraps;
     std::unique_ptr<PrecipitationRenderer> precipitation;
-    Weather weather {};
 
     static bool showChunkBorders;
     static bool showEntitiesDebug;

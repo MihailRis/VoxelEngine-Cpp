@@ -209,11 +209,10 @@ void LevelScreen::update(float delta) {
     playerController->postUpdate(delta, !inputLocked, hud->isPause());
 
     hud->update(hudVisible);
+
+    const auto& weather = level->getWorld()->getInfo().weather;
     decorator->update(
-        hud->isPause() ? 0.0f : delta,
-        *camera,
-        worldRenderer->weather.a,
-        worldRenderer->weather.b
+        hud->isPause() ? 0.0f : delta, *camera, weather.a, weather.b
     );
 }
 

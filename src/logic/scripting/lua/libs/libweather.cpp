@@ -1,31 +1,43 @@
 #include "libhud.hpp"
+#include "world/Level.hpp"
+#include "world/World.hpp"
 
 using namespace scripting;
 
+static Weather& require_weather() {
+    if (level == nullptr) {
+        throw std::runtime_error("world is not open");
+    }
+    return level->getWorld()->getInfo().weather;
+}
+
 static int l_change(lua::State* L) {
-    WeatherPreset weather {};
-    weather.deserialize(lua::tovalue(L, 1));
+    WeatherPreset preset {};
+    preset.deserialize(lua::tovalue(L, 1));
     float time = lua::tonumber(L, 2);
     std::string name;
     if (lua::isstring(L, 3)) {
         name = lua::tostring(L, 3);
     }
-    renderer->weather.change(std::move(weather), time, std::move(name));
+    auto& weather = require_weather();
+    weather.change(std::move(preset), time, std::move(name));
     return 0;
 }
 
 static int l_get_current(lua::State* L) {
-    if (renderer->weather.t > 0.5f) {
-        return lua::pushstring(L, renderer->weather.nameB);
+    const auto& weather = require_weather();
+    if (weather.t > 0.5f) {
+        return lua::pushstring(L, weather.nameB);
     } else {
-        return lua::pushstring(L, renderer->weather.nameA);
+        return lua::pushstring(L, weather.nameA);
     }
 }
 
 static int l_get_fall_intencity(lua::State* L) {
-    const auto& a = renderer->weather.a;
-    const auto& b = renderer->weather.b;
-    float t = renderer->weather.t;
+    auto& weather = require_weather();
+    const auto& a = weather.a;
+    const auto& b = weather.b;
+    float t = weather.t;
     return lua::pushnumber(L, 
         (a.fall.texture.empty() ? 0.0f : (1.0f - t)) +
         (b.fall.texture.empty() ? 0.0f : t)
@@ -33,11 +45,16 @@ static int l_get_fall_intencity(lua::State* L) {
 }
 
 static int l_get_current_data(lua::State* L) {
-    if (renderer->weather.t > 0.5f) {
-        return lua::pushvalue(L, renderer->weather.b.serialize());
+    auto& weather = require_weather();
+    if (weather.t > 0.5f) {
+        return lua::pushvalue(L, weather.b.serialize());
     } else {
-        return lua::pushvalue(L, renderer->weather.a.serialize());
+        return lua::pushvalue(L, weather.a.serialize());
     }
+}
+
+static int l_is_transition(lua::State* L) {
+    return lua::pushboolean(L, require_weather().t < 1.0f);
 }
 
 const luaL_Reg weatherlib[] = {
@@ -45,5 +62,6 @@ const luaL_Reg weatherlib[] = {
     {"get_current", wrap_hud<l_get_current>},
     {"get_current_data", wrap_hud<l_get_current_data>},
     {"get_fall_intencity", wrap_hud<l_get_fall_intencity>},
+    {"is_transition", wrap_hud<l_is_transition>},
     {NULL, NULL}
 };

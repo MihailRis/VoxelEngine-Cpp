@@ -4,9 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "io/fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "interfaces/Serializable.hpp"
+#include "io/fwd.hpp"
+#include "Weather.hpp"
 #include "typedefs.hpp"
 #include "util/timeutil.hpp"
 
@@ -33,7 +34,6 @@ struct WorldInfo : public Serializable {
     /// 0.5 - is noon
     float daytime = timeutil::time_value(10, 00, 00);
 
-    // looking bad
     float daytimeSpeed = 1.0f;
 
     /// @brief total time passed in the world (not depending on daytimeSpeed)
@@ -45,6 +45,8 @@ struct WorldInfo : public Serializable {
     entityid_t nextEntityId = 0;
 
     int major = 0, minor = -1;
+
+    Weather weather {};
 
     dv::value serialize() const override;
     void deserialize(const dv::value& src) override;
