@@ -22,6 +22,7 @@ struct WeatherPreset : Serializable {
         /// @example if 0.8 then opacity range is 0.8-1.0 for 0.0-1.0 intensity
         float minOpacity = 0.0f;
         float maxOpacity = 1.0f;
+        float maxIntensity = 1.0f;
         /// @brief Clip texture by alpha channel
         bool opaque = false;
         /// @brief Fall splash
