@@ -1,4 +1,4 @@
-#include "libhud.hpp"
+#include "api_lua.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
@@ -33,7 +33,7 @@ static int l_get_current(lua::State* L) {
     }
 }
 
-static int l_get_fall_intencity(lua::State* L) {
+static int l_get_fall_intensity(lua::State* L) {
     auto& weather = require_weather();
     const auto& a = weather.a;
     const auto& b = weather.b;
@@ -58,10 +58,10 @@ static int l_is_transition(lua::State* L) {
 }
 
 const luaL_Reg weatherlib[] = {
-    {"change", wrap_hud<l_change>},
-    {"get_current", wrap_hud<l_get_current>},
-    {"get_current_data", wrap_hud<l_get_current_data>},
-    {"get_fall_intencity", wrap_hud<l_get_fall_intencity>},
-    {"is_transition", wrap_hud<l_is_transition>},
+    {"change", lua::wrap<l_change>},
+    {"get_current", lua::wrap<l_get_current>},
+    {"get_current_data", lua::wrap<l_get_current_data>},
+    {"get_fall_intensity", lua::wrap<l_get_fall_intensity>},
+    {"is_transition", lua::wrap<l_is_transition>},
     {NULL, NULL}
 };

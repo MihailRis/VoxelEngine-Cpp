@@ -46,7 +46,7 @@ extern const luaL_Reg utf8lib[];
 extern const luaL_Reg vec2lib[];  // vecn.cpp
 extern const luaL_Reg vec3lib[];  // vecn.cpp
 extern const luaL_Reg vec4lib[];  // vecn.cpp
-extern const luaL_Reg weatherlib[]; // gfx.weather
+extern const luaL_Reg weatherlib[];
 extern const luaL_Reg worldlib[];
 
 // Components

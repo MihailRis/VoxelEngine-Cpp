@@ -36,7 +36,6 @@ void scripting::on_frontend_init(Hud* hud, WorldRenderer* renderer) {
     lua::openlib(L, "gfx", "blockwraps", blockwrapslib);
     lua::openlib(L, "gfx", "particles", particleslib);
     lua::openlib(L, "gfx", "text3d", text3dlib);
-    lua::openlib(L, "gfx", "weather", weatherlib);
 
     load_script("hud_classes.lua");
 
