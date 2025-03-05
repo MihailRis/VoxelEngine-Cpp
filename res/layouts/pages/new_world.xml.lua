@@ -28,7 +28,8 @@ function on_open()
     document.content_btn.text = string.format(
         "%s [%s]", gui.str("Content", "menu"), #pack.get_installed()
     )
-    if settings.generator == nil then
+
+    if settings.generator == nil or generation.get_generators()[settings.generator] == nil then
         settings.generator = generation.get_default_generator()
     end
     document.generator_btn.text = string.format(
