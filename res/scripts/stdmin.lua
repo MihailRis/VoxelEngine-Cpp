@@ -151,9 +151,27 @@ function table.map(t, func)
 end
 
 function table.filter(t, func)
+
+    for i = #t, 1, -1 do
+        if not func(i, t[i]) then
+            table.remove(t, i)
+        end
+    end
+
+    local size = #t
+
     for i, v in pairs(t) do
-        if not func(i, v) then
-            t[i] = nil
+        local i_type = type(i)
+        if i_type == "number" then
+            if i < 1 or i > size then
+                if not func(i, v) then
+                    t[i] = nil
+                end
+            end
+        else
+            if not func(i, v) then
+                t[i] = nil
+            end
         end
     end
 
