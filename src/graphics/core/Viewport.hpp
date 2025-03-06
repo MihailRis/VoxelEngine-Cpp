@@ -16,4 +16,8 @@ public:
     glm::ivec2 size() const {
         return glm::ivec2(width, height);
     }
+
+    float getRatio() const {
+        return width / static_cast<float>(height);
+    }
 };

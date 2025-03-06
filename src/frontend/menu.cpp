@@ -16,7 +16,6 @@
 #include "settings.hpp"
 #include "coders/commons.hpp"
 #include "util/stringutil.hpp"
-#include "window/Window.hpp"
 
 #include <filesystem>
 #include <glm/glm.hpp>

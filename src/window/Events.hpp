@@ -15,56 +15,52 @@ enum class BindType {
     REBIND = 1
 };
 
-class Events {
-    static bool keys[KEYS_BUFFER_SIZE];
-    static uint frames[KEYS_BUFFER_SIZE];
-    static uint currentFrame;
-    static bool cursorDrag;
-    static bool cursorLocked;
-public:
-    static int scroll;
-    static glm::vec2 delta;
-    static glm::vec2 cursor;
-    static std::vector<uint> codepoints;
-    static std::vector<keycode> pressedKeys;
-    static std::unordered_map<std::string, Binding> bindings;
-    static std::unordered_map<keycode, util::HandlersList<>> keyCallbacks;
+namespace Events {
+    extern int scroll;
+    extern glm::vec2 delta;
+    extern glm::vec2 cursor;
+    extern std::vector<uint> codepoints;
+    extern std::vector<keycode> pressedKeys;
+    extern std::unordered_map<std::string, Binding> bindings;
 
-    static void pollEvents();
+    void pollEvents();
 
-    static bool pressed(keycode keycode);
-    static bool pressed(int keycode);
-    static bool jpressed(keycode keycode);
-    static bool jpressed(int keycode);
+    int getScroll();
 
-    static bool clicked(mousecode button);
-    static bool clicked(int button);
-    static bool jclicked(mousecode button);
-    static bool jclicked(int button);
+    bool pressed(keycode keycode);
+    bool pressed(int keycode);
+    bool jpressed(keycode keycode);
+    bool jpressed(int keycode);
 
-    static void toggleCursor();
+    bool clicked(mousecode button);
+    bool clicked(int button);
+    bool jclicked(mousecode button);
+    bool jclicked(int button);
 
-    static Binding& getBinding(const std::string& name);
-    static void bind(const std::string& name, inputtype type, keycode code);
-    static void bind(const std::string& name, inputtype type, mousecode code);
-    static void bind(const std::string& name, inputtype type, int code);
-    static void rebind(const std::string& name, inputtype type, int code);
-    static bool active(const std::string& name);
-    static bool jactive(const std::string& name);
+    void toggleCursor();
 
-    static observer_handler addKeyCallback(keycode key, KeyCallback callback);
+    Binding& getBinding(const std::string& name);
+    void bind(const std::string& name, inputtype type, keycode code);
+    void bind(const std::string& name, inputtype type, mousecode code);
+    void bind(const std::string& name, inputtype type, int code);
+    void rebind(const std::string& name, inputtype type, int code);
+    bool active(const std::string& name);
+    bool jactive(const std::string& name);
 
-    static void setKey(int key, bool b);
-    static void setButton(int button, bool b);
+    observer_handler addKeyCallback(keycode key, KeyCallback callback);
 
-    static void setPosition(float xpos, float ypos);
+    void setKey(int key, bool b);
+    void setButton(int button, bool b);
 
-    static std::string writeBindings();
-    static void loadBindings(
-        const std::string& filename, const std::string& source,
+    void setPosition(float xpos, float ypos);
+
+    std::string writeBindings();
+    void loadBindings(
+        const std::string& filename,
+        const std::string& source,
         BindType bindType
     );
-    static void enableBindings();
+    void enableBindings();
 
-    static bool isCursorLocked();
+    bool isCursorLocked();
 };

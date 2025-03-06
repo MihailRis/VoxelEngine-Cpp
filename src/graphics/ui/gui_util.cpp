@@ -68,11 +68,11 @@ void guiutil::alert(
     ));
     panel->refresh();
 
-    panel->keepAlive(Events::keyCallbacks[keycode::ENTER].add([on_hidden_final](){
+    panel->keepAlive(Events::addKeyCallback(keycode::ENTER, [on_hidden_final](){
         on_hidden_final();
         return true;
     }));
-    panel->keepAlive(Events::keyCallbacks[keycode::ESCAPE].add([on_hidden_final](){
+    panel->keepAlive(Events::addKeyCallback(keycode::ESCAPE, [on_hidden_final](){
         on_hidden_final();
         return true;
     }));
@@ -130,11 +130,11 @@ void guiutil::confirm(
     }));
 
     panel->add(subpanel);
-    panel->keepAlive(Events::keyCallbacks[keycode::ENTER].add([=](){
+    panel->keepAlive(Events::addKeyCallback(keycode::ENTER, [=](){
         on_confirm_final();
         return true;
     }));
-    panel->keepAlive(Events::keyCallbacks[keycode::ESCAPE].add([=](){
+    panel->keepAlive(Events::addKeyCallback(keycode::ESCAPE, [=](){
         on_deny_final();
         return true;
     }));

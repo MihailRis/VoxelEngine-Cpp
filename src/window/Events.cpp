@@ -12,18 +12,27 @@ static debug::Logger logger("events");
 
 inline constexpr short _MOUSE_KEYS_OFFSET = 1024;
 
-bool Events::keys[KEYS_BUFFER_SIZE] = {};
-uint Events::frames[KEYS_BUFFER_SIZE] = {};
-uint Events::currentFrame = 0;
+namespace {
+    bool keys[KEYS_BUFFER_SIZE] = {};
+    uint frames[KEYS_BUFFER_SIZE] = {};
+    uint current_frame = 0;
+    bool cursor_drag = false;
+    bool cursor_locked = false;
+    std::unordered_map<keycode, util::HandlersList<>> key_callbacks;
+}
+
 int Events::scroll = 0;
+
 glm::vec2 Events::delta = {};
 glm::vec2 Events::cursor = {};
-bool Events::cursorDrag = false;
-bool Events::cursorLocked = false;
+
 std::vector<uint> Events::codepoints;
 std::vector<keycode> Events::pressedKeys;
 std::unordered_map<std::string, Binding> Events::bindings;
-std::unordered_map<keycode, util::HandlersList<>> Events::keyCallbacks;
+
+int Events::getScroll() {
+    return scroll;
+}
 
 bool Events::pressed(keycode keycode) {
     return pressed(static_cast<int>(keycode));
@@ -41,7 +50,7 @@ bool Events::jpressed(keycode keycode) {
 }
 
 bool Events::jpressed(int keycode) {
-    return Events::pressed(keycode) && frames[keycode] == currentFrame;
+    return Events::pressed(keycode) && frames[keycode] == current_frame;
 }
 
 bool Events::clicked(mousecode button) {
@@ -61,15 +70,15 @@ bool Events::jclicked(int button) {
 }
 
 void Events::toggleCursor() {
-    cursorDrag = false;
-    cursorLocked = !cursorLocked;
+    cursor_drag = false;
+    cursor_locked = !cursor_locked;
     Window::setCursorMode(
-        cursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL
+        cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL
     );
 }
 
 void Events::pollEvents() {
-    currentFrame++;
+    current_frame++;
     delta.x = 0.f;
     delta.y = 0.f;
     scroll = 0;
@@ -155,11 +164,11 @@ bool Events::jactive(const std::string& name) {
 }
 
 void Events::setKey(int key, bool b) {
-    Events::keys[key] = b;
-    Events::frames[key] = currentFrame;
+    ::keys[key] = b;
+    ::frames[key] = current_frame;
     if (b) {
-        const auto& callbacks = keyCallbacks.find(static_cast<keycode>(key));
-        if (callbacks != keyCallbacks.end()) {
+        const auto& callbacks = ::key_callbacks.find(static_cast<keycode>(key));
+        if (callbacks != ::key_callbacks.end()) {
             callbacks->second.notify();
         }
     }
@@ -170,18 +179,18 @@ void Events::setButton(int button, bool b) {
 }
 
 void Events::setPosition(float xpos, float ypos) {
-    if (Events::cursorDrag) {
+    if (::cursor_drag) {
         Events::delta.x += xpos - Events::cursor.x;
         Events::delta.y += ypos - Events::cursor.y;
     } else {
-        Events::cursorDrag = true;
+        ::cursor_drag = true;
     }
     Events::cursor.x = xpos;
     Events::cursor.y = ypos;
 }
 
 observer_handler Events::addKeyCallback(keycode key, KeyCallback callback) {
-    return keyCallbacks[key].add(std::move(callback));
+    return ::key_callbacks[key].add(std::move(callback));
 }
 
 #include "coders/json.hpp"
@@ -251,5 +260,5 @@ void Events::enableBindings() {
 }
 
 bool Events::isCursorLocked() {
-    return cursorLocked;
+    return cursor_locked;
 }

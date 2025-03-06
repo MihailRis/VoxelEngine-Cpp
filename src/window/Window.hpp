@@ -10,60 +10,45 @@
 
 class ImageData;
 struct DisplaySettings;
-struct GLFWwindow;
-struct GLFWmonitor;
 
-class Window {
-    static GLFWwindow* window;
-    static DisplaySettings* settings;
-    static std::stack<glm::vec4> scissorStack;
-    static glm::vec4 scissorArea;
-    static bool fullscreen;
-    static int framerate;
-    static double prevSwap;
-    static CursorShape cursor;
+namespace Window {
+    extern uint width;
+    extern uint height;
 
-    static bool tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor);
-    static bool isGlExtensionSupported(const char *extension);
-public:
-    static int posX;
-    static int posY;
-    static uint width;
-    static uint height;
-    static int initialize(DisplaySettings* settings);
-    static void terminate();
+    int initialize(DisplaySettings* settings);
+    void terminate();
 
-    static void viewport(int x, int y, int width, int height);
-    static void setCursorMode(int mode);
-    static bool isShouldClose();
-    static void setShouldClose(bool flag);
-    static void swapBuffers();
-    static void setFramerate(int interval);
-    static void toggleFullscreen();
-    static bool isFullscreen();
-    static bool isMaximized();
-    static bool isFocused();
-    static bool isIconified();
+    void viewport(int x, int y, int width, int height);
+    void setCursorMode(int mode);
+    bool isShouldClose();
+    void setShouldClose(bool flag);
+    void swapBuffers();
+    void setFramerate(int interval);
+    void toggleFullscreen();
+    bool isFullscreen();
+    bool isMaximized();
+    bool isFocused();
+    bool isIconified();
 
-    static void pushScissor(glm::vec4 area);
-    static void popScissor();
-    static void resetScissor();
+    void pushScissor(glm::vec4 area);
+    void popScissor();
+    void resetScissor();
 
-    static void setCursor(CursorShape shape);
+    void setCursor(CursorShape shape);
 
-    static void clear();
-    static void clearDepth();
-    static void setBgColor(glm::vec3 color);
-    static void setBgColor(glm::vec4 color);
-    static double time();
-    static const char* getClipboardText();
-    static void setClipboardText(const char* text);
-    static DisplaySettings* getSettings();
-    static void setIcon(const ImageData* image);
+    void clear();
+    void clearDepth();
+    void setBgColor(glm::vec3 color);
+    void setBgColor(glm::vec4 color);
+    double time();
+    const char* getClipboardText();
+    void setClipboardText(const char* text);
+    DisplaySettings* getSettings();
+    void setIcon(const ImageData* image);
 
-    static glm::vec2 size() {
+    inline glm::vec2 size() {
         return glm::vec2(width, height);
     }
 
-    static std::unique_ptr<ImageData> takeScreenshot();
+    std::unique_ptr<ImageData> takeScreenshot();
 };

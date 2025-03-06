@@ -115,8 +115,10 @@ void GUI::actMouse(float delta) {
     }
     if (hover) {
         hover->setHover(true);
-        if (Events::scroll) {
-            hover->scrolled(Events::scroll);
+
+        int scroll = Events::getScroll();
+        if (scroll) {
+            hover->scrolled(scroll);
         }
     }
     this->hover = hover;
@@ -229,6 +231,7 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     }
     menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
+    uicamera->setAspectRatio(viewport.getRatio());
 
     auto uishader = assets.get<Shader>("ui");
     uishader->use();

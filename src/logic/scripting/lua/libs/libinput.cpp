@@ -42,7 +42,7 @@ static int l_add_callback(lua::State* L) {
         std::string prefix = bindname.substr(0, pos);
         if (prefix == "key") {
             auto key = input_util::keycode_from(bindname.substr(pos + 1));
-            handler = Events::keyCallbacks[key].add(actual_callback);
+            handler = Events::addKeyCallback(key, actual_callback);
         }
     }
     auto callback = [=]() -> bool {

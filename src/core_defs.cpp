@@ -5,7 +5,6 @@
 #include "content/ContentBuilder.hpp"
 #include "io/io.hpp"
 #include "io/engine_paths.hpp"
-#include "window/Window.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "voxels/Block.hpp"

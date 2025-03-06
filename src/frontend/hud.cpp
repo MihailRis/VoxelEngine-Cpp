@@ -253,7 +253,7 @@ void Hud::updateHotbarControl() {
         i <= static_cast<int>(keycode::NUM_9); 
         i++
     ) {
-        if (Events::jpressed(i)) {
+        if (Events::jpressed(static_cast<keycode>(i))) {
             player.setChosenSlot(i - static_cast<int>(keycode::NUM_1));
         }
     }

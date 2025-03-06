@@ -18,7 +18,6 @@
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
 #include "window/Events.hpp"
-#include "window/Window.hpp"
 #include "world/Level.hpp"
 #include "world/generator/WorldGenerator.hpp"
 

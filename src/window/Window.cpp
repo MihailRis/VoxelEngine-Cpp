@@ -19,18 +19,21 @@
 
 static debug::Logger logger("window");
 
-GLFWwindow* Window::window = nullptr;
-DisplaySettings* Window::settings = nullptr;
-std::stack<glm::vec4> Window::scissorStack;
-glm::vec4 Window::scissorArea;
+namespace {
+    GLFWwindow* window = nullptr;
+    DisplaySettings* settings = nullptr;
+    std::stack<glm::vec4> scissorStack;
+    glm::vec4 scissorArea;
+    int framerate = -1;
+    double prevSwap = 0.0;
+    bool fullscreen = false;
+    CursorShape cursor = CursorShape::ARROW;
+    int posX = 0;
+    int posY = 0;
+}
+
 uint Window::width = 0;
 uint Window::height = 0;
-int Window::posX = 0;
-int Window::posY = 0;
-int Window::framerate = -1;
-double Window::prevSwap = 0.0;
-bool Window::fullscreen = false;
-CursorShape Window::cursor = CursorShape::ARROW;
 
 static util::ObjectsKeeper observers_keeper;
 static std::unordered_set<std::string> extensionsCache;
@@ -173,7 +176,7 @@ static void glfw_error_callback(int error, const char* description) {
 static GLFWcursor* standard_cursors[static_cast<int>(CursorShape::LAST) + 1] = {};
 
 int Window::initialize(DisplaySettings* settings) {
-    Window::settings = settings;
+    ::settings = settings;
     Window::width = settings->width.get();
     Window::height = settings->height.get();
 
@@ -381,10 +384,10 @@ void Window::setShouldClose(bool flag) {
 }
 
 void Window::setFramerate(int framerate) {
-    if ((framerate != -1) != (Window::framerate != -1)) {
+    if ((framerate != -1) != (::framerate != -1)) {
         glfwSwapInterval(framerate == -1);
     }
-    Window::framerate = framerate;
+    ::framerate = framerate;
 }
 
 void Window::toggleFullscreen() {
@@ -472,7 +475,7 @@ void Window::setClipboardText(const char* text) {
     glfwSetClipboardString(window, text);
 }
 
-bool Window::tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor) {
+static bool try_to_maximize(GLFWwindow* window, GLFWmonitor* monitor) {
     glm::ivec4 windowFrame(0);
     glm::ivec4 workArea(0);
     glfwGetWindowFrameSize(
