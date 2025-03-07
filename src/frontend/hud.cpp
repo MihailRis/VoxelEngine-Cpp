@@ -126,7 +126,7 @@ std::shared_ptr<InventoryView> Hud::createContentAccess() {
         inventory->getSlot(player.getChosenSlot()).set(item);
     });
 
-    InventoryBuilder builder;
+    InventoryBuilder builder(gui);
     builder.addGrid(8, itemsCount-1, glm::vec2(), glm::vec4(8, 8, 12, 8), true, slotLayout);
     auto view = builder.build();
     view->bind(accessInventory, &content);
@@ -139,7 +139,7 @@ std::shared_ptr<InventoryView> Hud::createHotbar() {
     auto& content = frontend.getLevel().content;
 
     SlotLayout slotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr);
-    InventoryBuilder builder;
+    InventoryBuilder builder(gui);
     builder.addGrid(10, 10, glm::vec2(), glm::vec4(4), true, slotLayout);
     auto view = builder.build();
     view->setId("hud.hotbar");
@@ -153,8 +153,10 @@ static constexpr uint WORLDGEN_IMG_SIZE = 128U;
 
 Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
     : engine(engine),
+      input(engine.getInput()),
       assets(*engine.getAssets()),
-      gui(*engine.getGUI()),
+      gui(engine.getGUI()),
+      menu(*engine.getGUI().getMenu()),
       frontend(frontend),
       player(player),
       debugImgWorldGen(std::make_unique<ImageData>(
@@ -163,7 +165,7 @@ Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
     contentAccess = createContentAccess();
     contentAccess->setId("hud.content-access");
     contentAccessPanel = std::make_shared<Panel>(
-        contentAccess->getSize(), glm::vec4(0.0f), 0.0f
+        gui, contentAccess->getSize(), glm::vec4(0.0f), 0.0f
     );
     contentAccessPanel->setColor(glm::vec4());
     contentAccessPanel->add(contentAccess);
@@ -172,6 +174,7 @@ Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
 
     hotbarView = createHotbar();
     darkOverlay = guiutil::create(
+        gui,
         "<container size='4000' color='#00000080' z-index='-1' visible='false'/>"
     );
 
@@ -183,13 +186,13 @@ Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
         engine, frontend.getLevel(), player, allowDebugCheats
     );
     debugPanel->setZIndex(2);
+
     gui.add(debugPanel);
-    
     gui.add(darkOverlay);
     gui.add(hotbarView);
     gui.add(contentAccessPanel);
 
-    auto dplotter = std::make_shared<Plotter>(350, 250, 2000, 16);
+    auto dplotter = std::make_shared<Plotter>(gui, 350, 250, 2000, 16);
     dplotter->setGravity(Gravity::bottom_right);
     dplotter->setInteractive(false);
     add(HudElement(HudElementMode::PERMANENT, nullptr, dplotter, true));
@@ -197,9 +200,10 @@ Hud::Hud(Engine& engine, LevelFrontend& frontend, Player& player)
     assets.store(Texture::from(debugImgWorldGen.get()), DEBUG_WORLDGEN_IMAGE);
 
     debugMinimap = guiutil::create(
-            "<image src='"+DEBUG_WORLDGEN_IMAGE+
+        gui,
+        "<image src='" + DEBUG_WORLDGEN_IMAGE +
             "' pos='0' size='256' gravity='top-right' margin='0,20,0,0'/>"
-        );
+    );
     add(HudElement(HudElementMode::PERMANENT, nullptr, debugMinimap, true));
 }
 
@@ -223,11 +227,11 @@ void Hud::cleanup() {
 }
 
 void Hud::processInput(bool visible) {
-    auto menu = gui.getMenu();
-    if (!Window::isFocused() && !menu->hasOpenPage() && !isInventoryOpen()) {
+    if (!Window::isFocused() && !menu.hasOpenPage() && !isInventoryOpen()) {
         setPause(true);
     }
-    if (!pause && visible && Events::jactive(BIND_HUD_INVENTORY)) {
+    const auto& bindings = input.getBindings();
+    if (!pause && visible && bindings.jactive(BIND_HUD_INVENTORY)) {
         if (inventoryOpen) {
             closeInventory();
         } else {
@@ -240,9 +244,10 @@ void Hud::processInput(bool visible) {
 }
 
 void Hud::updateHotbarControl() {
-    if (!inventoryOpen && Events::scroll) {
+    int scroll = input.getScroll();
+    if (!inventoryOpen && scroll) {
         int slot = player.getChosenSlot();
-        slot = (slot - Events::scroll) % 10;
+        slot = (slot - scroll) % 10;
         if (slot < 0) {
             slot += 10;
         }
@@ -253,11 +258,11 @@ void Hud::updateHotbarControl() {
         i <= static_cast<int>(keycode::NUM_9); 
         i++
     ) {
-        if (Events::jpressed(static_cast<keycode>(i))) {
+        if (input.jpressed(static_cast<keycode>(i))) {
             player.setChosenSlot(i - static_cast<int>(keycode::NUM_1));
         }
     }
-    if (Events::jpressed(keycode::NUM_0)) {
+    if (input.jpressed(keycode::NUM_0)) {
         player.setChosenSlot(9);
     }
 }
@@ -311,7 +316,6 @@ void Hud::updateWorldGenDebug() {
 
 void Hud::update(bool visible) {
     const auto& chunks = *player.chunks;
-    const auto& menu = gui.getMenu();
 
     debugPanel->setVisible(
         debug && visible && !(inventoryOpen && inventoryView == nullptr)
@@ -320,13 +324,13 @@ void Hud::update(bool visible) {
     if (!visible && inventoryOpen) {
         closeInventory();
     }
-    if (pause && !menu->hasOpenPage()) {
+    if (pause && !menu.hasOpenPage()) {
         setPause(false);
     }
     if (!gui.isFocusCaught()) {
         processInput(visible);
     }
-    if ((menu->hasOpenPage() || inventoryOpen) == Events::isCursorLocked()) {
+    if ((menu.hasOpenPage() || inventoryOpen) == input.getCursor().locked) {
         Events::toggleCursor();
     }
 
@@ -447,6 +451,7 @@ void Hud::showExchangeSlot() {
     auto& content = level.content;
     exchangeSlotInv = level.inventories->createVirtual(1);
     exchangeSlot = std::make_shared<SlotView>(
+        gui,
         SlotLayout(-1, glm::vec2(), false, false, nullptr, nullptr, nullptr)
     );
     exchangeSlot->bind(exchangeSlotInv->getId(), exchangeSlotInv->getSlot(0), &content);
@@ -590,11 +595,10 @@ void Hud::draw(const DrawContext& ctx){
     const Viewport& viewport = ctx.getViewport();
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
-    auto menu = gui.getMenu();
 
-    bool is_menu_open = menu->hasOpenPage();
+    bool is_menu_open = menu.hasOpenPage();
     darkOverlay->setVisible(is_menu_open);
-    menu->setVisible(is_menu_open);
+    menu.setVisible(is_menu_open);
 
     updateElementsPosition(viewport);
 
@@ -663,7 +667,7 @@ void Hud::updateElementsPosition(const Viewport& viewport) {
         }
     }
     if (exchangeSlot != nullptr) {
-        exchangeSlot->setPos(glm::vec2(Events::cursor));
+        exchangeSlot->setPos(input.getCursor().pos);
     }
     hotbarView->setPos(glm::vec2(width/2, height-65));
     hotbarView->setSelected(player.getChosenSlot());
@@ -689,12 +693,11 @@ void Hud::setPause(bool pause) {
         closeInventory();
     }
     
-    const auto& menu = gui.getMenu();
-    if (!pause && menu->hasOpenPage()) {
-        menu->reset();
+    if (!pause && menu.hasOpenPage()) {
+        menu.reset();
     }
-    if (pause && !menu->hasOpenPage()) {
-        menu->setPage("pause");
+    if (pause && !menu.hasOpenPage()) {
+        menu.setPage("pause");
     }
 }
 
@@ -730,9 +733,8 @@ void Hud::setDebugCheats(bool flag) {
 
 void Hud::setAllowPause(bool flag) {
     if (pause) {
-        auto menu = gui.getMenu();
         setPause(false);
-        menu->setPage("pause", true);
+        menu.setPage("pause", true);
     }
     allowPause = flag;
 }

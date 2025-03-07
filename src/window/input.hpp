@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <glm/vec2.hpp>
 
 #include "util/HandlersList.hpp"
 
@@ -143,7 +144,7 @@ struct Binding {
     int code;
     bool state = false;
     bool justChange = false;
-    bool enable = true;
+    bool enabled = true;
 
     Binding() = default;
     Binding(inputtype type, int code) : type(type), code(code) {
@@ -173,3 +174,77 @@ struct Binding {
         return "<unknown input type>";
     }
 };
+
+class Bindings {
+    std::unordered_map<std::string, Binding> bindings;
+public:
+    bool active(const std::string& name) const {
+        const auto& found = bindings.find(name);
+        if (found == bindings.end()) {
+            return false;
+        }
+        return found->second.active();
+    }
+
+    bool jactive(const std::string& name) const {
+        const auto& found = bindings.find(name);
+        if (found == bindings.end()) {
+            return false;
+        }
+        return found->second.jactive();
+    }
+
+    Binding* get(const std::string& name) {
+        const auto found = bindings.find(name);
+        if (found == bindings.end()) {
+            return nullptr;
+        }
+        return &found->second;
+    }
+
+    void bind(const std::string& name, inputtype type, int code) {
+        bindings.try_emplace(name, Binding(type, code));
+    }
+
+    auto& getAll() {
+        return bindings;
+    }
+};
+
+struct CursorState {
+    bool locked = false;
+    glm::vec2 pos {};
+    glm::vec2 delta {};
+};
+
+class Input {
+public:
+    virtual ~Input() = default;
+
+    virtual void pollEvents() = 0;
+
+    virtual const char* getClipboardText() const = 0;
+
+    virtual int getScroll() = 0;
+
+    virtual Binding& requireBinding(const std::string& name) = 0;
+
+    virtual bool pressed(keycode keycode) const = 0;
+    virtual bool jpressed(keycode keycode) const = 0;
+
+    virtual bool clicked(mousecode mousecode) const = 0;
+    virtual bool jclicked(mousecode mousecode) const = 0;
+
+    virtual CursorState getCursor() const = 0;
+
+    virtual Bindings& getBindings() = 0;
+
+    virtual const Bindings& getBindings() const = 0;
+
+    virtual observer_handler addKeyCallback(keycode key, KeyCallback callback) = 0;
+
+    observer_handler addCallback(const std::string& name, KeyCallback callback) {
+        return requireBinding(name).onactived.add(callback);
+    }
+};
+    

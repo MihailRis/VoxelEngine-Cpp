@@ -83,8 +83,8 @@ void LabelCache::update(std::wstring_view text, bool multiline, bool wrap) {
     }
 }
 
-Label::Label(const std::string& text, std::string fontName)
-  : UINode(glm::vec2(text.length() * 8, 16)),
+Label::Label(GUI& gui, const std::string& text, std::string fontName)
+  : UINode(gui, glm::vec2(text.length() * 8, 16)),
     text(util::str2wstr_utf8(text)), 
     fontName(std::move(fontName))
 {
@@ -93,8 +93,8 @@ Label::Label(const std::string& text, std::string fontName)
 }
 
 
-Label::Label(const std::wstring& text, std::string fontName)
-  : UINode(glm::vec2(text.length() * 8, 16)), 
+Label::Label(GUI& gui, const std::wstring& text, std::string fontName)
+  : UINode(gui, glm::vec2(text.length() * 8, 16)), 
     text(text), 
     fontName(std::move(fontName))
 {

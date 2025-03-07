@@ -50,8 +50,6 @@
 
 static debug::Logger logger("engine");
 
-namespace fs = std::filesystem;
-
 static std::unique_ptr<ImageData> load_icon() {
     try {
         auto file = "res:textures/misc/icon.png";
@@ -65,20 +63,21 @@ static std::unique_ptr<ImageData> load_icon() {
 }
 
 Engine::Engine() = default;
+Engine::~Engine() = default;
 
-static std::unique_ptr<Engine> engine;
+static std::unique_ptr<Engine> instance = nullptr;
 
 Engine& Engine::getInstance() {
-    if (!engine) {
-        engine = std::make_unique<Engine>();
+    if (!instance) {
+        instance = std::make_unique<Engine>();
     }
-    return *engine;
+    return *instance;
 }
 
 void Engine::initialize(CoreParameters coreParameters) {
     params = std::move(coreParameters);
     settingsHandler = std::make_unique<SettingsHandler>(settings);
-    interpreter = std::make_unique<cmd::CommandsInterpreter>();
+    cmd = std::make_unique<cmd::CommandsInterpreter>();
     network = network::Network::create(settings.network);
 
     logger.info() << "engine version: " << ENGINE_VERSION_STRING;
@@ -97,7 +96,7 @@ void Engine::initialize(CoreParameters coreParameters) {
 
     controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
-        if (Window::initialize(&settings.display)){
+        if (!(input = Window::initialize(&settings.display))){
             throw initialize_error("could not initialize window");
         }
         time.set(Window::time());
@@ -107,9 +106,9 @@ void Engine::initialize(CoreParameters coreParameters) {
         }
         loadControls();
 
-        gui = std::make_unique<gui::GUI>();
+        gui = std::make_unique<gui::GUI>(*this);
         if (ENGINE_DEBUG_BUILD) {
-            menus::create_version_label(*this);
+            menus::create_version_label(*gui);
         }
     }
     audio::initialize(!params.headless, settings.audio);
@@ -209,7 +208,7 @@ void Engine::nextFrame() {
             : settings.display.framerate.get()
     );
     Window::swapBuffers();
-    Events::pollEvents();
+    input->pollEvents();
 }
 
 void Engine::renderFrame() {
@@ -229,7 +228,7 @@ void Engine::saveSettings() {
     }
 }
 
-Engine::~Engine() {
+void Engine::close() {
     saveSettings();
     logger.info() << "shutting down";
     if (screen) {
@@ -238,7 +237,7 @@ Engine::~Engine() {
     }
     content.reset();
     assets.reset();
-    interpreter.reset();
+    cmd.reset();
     if (gui) {
         gui.reset();
         logger.info() << "gui finished";
@@ -256,15 +255,12 @@ Engine::~Engine() {
 }
 
 void Engine::terminate() {
-    engine.reset();
+    instance->close();
+    instance.reset();
 }
 
 EngineController* Engine::getController() {
     return controller.get();
-}
-
-cmd::CommandsInterpreter* Engine::getCommandsInterpreter() {
-    return interpreter.get();
 }
 
 PacksManager Engine::createPacksManager(const io::path& worldFolder) {
@@ -286,7 +282,7 @@ void Engine::loadAssets() {
     Shader::preprocessor->setPaths(resPaths.get());
 
     auto new_assets = std::make_unique<Assets>();
-    AssetsLoader loader(new_assets.get(), resPaths.get());
+    AssetsLoader loader(*this, *new_assets, resPaths.get());
     AssetsLoader::addDefaults(loader, content.get());
 
     // no need
@@ -376,7 +372,6 @@ void Engine::loadContent() {
         load_configs(pack.folder);
     }
     content = contentBuilder.build();
-    interpreter->reset();
     scripting::on_content_load(content.get());
 
     ContentLoader::loadScripts(*content);
@@ -468,10 +463,6 @@ bool Engine::isQuitSignal() const {
     return quitSignal;
 }
 
-gui::GUI* Engine::getGUI() {
-    return gui.get();
-}
-
 EngineSettings& Engine::getSettings() {
     return settings;
 }
@@ -516,10 +507,6 @@ std::shared_ptr<Screen> Engine::getScreen() {
 
 SettingsHandler& Engine::getSettingsHandler() {
     return *settingsHandler;
-}
-
-network::Network& Engine::getNetwork() {
-    return *network;
 }
 
 Time& Engine::getTime() {

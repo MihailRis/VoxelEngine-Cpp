@@ -28,7 +28,6 @@ void Camera::rotate(float x, float y, float z) {
 }
 
 glm::mat4 Camera::getProjection() const {
-    constexpr float epsilon = 1e-6f;
     if (perspective) {
         return glm::perspective(fov * zoom, ar, near, far);
     } else if (flipped) {

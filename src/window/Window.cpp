@@ -175,7 +175,61 @@ static void glfw_error_callback(int error, const char* description) {
 
 static GLFWcursor* standard_cursors[static_cast<int>(CursorShape::LAST) + 1] = {};
 
-int Window::initialize(DisplaySettings* settings) {
+class GLFWInput : public Input {
+public:
+    void pollEvents() override {
+        Events::pollEvents();
+    }
+
+    const char* getClipboardText() const override {
+        return glfwGetClipboardString(::window);
+    }
+
+    int getScroll() override {
+        return Events::getScroll();
+    }
+
+    Binding& requireBinding(const std::string& name) override {
+        return Events::requireBinding(name);
+    }
+
+    bool pressed(keycode keycode) const override {
+        return Events::pressed(keycode);
+    }
+    bool jpressed(keycode keycode) const override {
+        return Events::jpressed(keycode);
+    }
+
+    bool clicked(mousecode mousecode) const override {
+        return Events::clicked(mousecode);
+    }
+    bool jclicked(mousecode mousecode) const override {
+        return Events::jclicked(mousecode);
+    }
+
+    CursorState getCursor() const override {
+        return {
+            Events::isCursorLocked(),
+            Events::cursor,
+            Events::delta
+        };
+    }
+
+    Bindings& getBindings() override {
+        return Events::bindings;
+    }
+
+    const Bindings& getBindings() const override {
+        return Events::bindings;
+    }
+
+    observer_handler addKeyCallback(keycode key, KeyCallback callback) override {
+        return Events::addKeyCallback(key, std::move(callback));
+    }
+};
+static_assert(!std::is_abstract<GLFWInput>());
+
+std::unique_ptr<Input> Window::initialize(DisplaySettings* settings) {
     ::settings = settings;
     Window::width = settings->width.get();
     Window::height = settings->height.get();
@@ -190,7 +244,7 @@ int Window::initialize(DisplaySettings* settings) {
     glfwSetErrorCallback(glfw_error_callback);
     if (glfwInit() == GLFW_FALSE) {
         logger.error() << "failed to initialize GLFW";
-        return -1;
+        return nullptr;
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -209,7 +263,7 @@ int Window::initialize(DisplaySettings* settings) {
     if (window == nullptr) {
         logger.error() << "failed to create GLFW window";
         glfwTerminate();
-        return -1;
+        return nullptr;
     }
     glfwMakeContextCurrent(window);
 
@@ -224,7 +278,7 @@ int Window::initialize(DisplaySettings* settings) {
         } else {
             logger.error() << "failed to initialize GLEW:\n"
                            << glewGetErrorString(glewErr);
-            return -1;
+            return nullptr;
         }
     }
 
@@ -283,7 +337,7 @@ int Window::initialize(DisplaySettings* settings) {
         }
         standard_cursors[i] = glfwCreateStandardCursor(cursor);
     }
-    return 0;
+    return std::make_unique<GLFWInput>();
 }
 
 void Window::clear() {
@@ -465,10 +519,6 @@ std::unique_ptr<ImageData> Window::takeScreenshot() {
     return std::make_unique<ImageData>(
         ImageFormat::rgb888, width, height, data.release()
     );
-}
-
-const char* Window::getClipboardText() {
-    return glfwGetClipboardString(window);
 }
 
 void Window::setClipboardText(const char* text) {

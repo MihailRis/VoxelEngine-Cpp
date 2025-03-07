@@ -9,6 +9,7 @@ class ActionsHistory;
 namespace gui {
     class TextBoxHistorian;
     class TextBox : public Container {
+        const Input& inputEvents;
         LabelCache rawTextCache;
         std::shared_ptr<ActionsHistory> history;
         std::unique_ptr<TextBoxHistorian> historian;
@@ -94,7 +95,8 @@ namespace gui {
 
         void refreshSyntax();
     public:
-        TextBox(
+        explicit TextBox(
+            GUI& gui,
             std::wstring placeholder, 
             glm::vec4 padding=glm::vec4(4.0f)
         );
@@ -227,11 +229,11 @@ namespace gui {
         virtual bool isShowLineNumbers() const;
 
         virtual void reposition() override;
-        virtual void onFocus(GUI*) override;
+        virtual void onFocus() override;
         virtual void refresh() override;
-        virtual void doubleClick(GUI*, int x, int y) override;
-        virtual void click(GUI*, int, int) override;
-        virtual void mouseMove(GUI*, int x, int y) override;
+        virtual void doubleClick(int x, int y) override;
+        virtual void click(int, int) override;
+        virtual void mouseMove(int x, int y) override;
         virtual bool isFocuskeeper() const override {return true;}
         virtual void draw(const DrawContext& pctx, const Assets& assets) override;
         virtual void drawBackground(const DrawContext& pctx, const Assets& assets) override;

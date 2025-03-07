@@ -21,7 +21,7 @@ namespace Events {
     extern glm::vec2 cursor;
     extern std::vector<uint> codepoints;
     extern std::vector<keycode> pressedKeys;
-    extern std::unordered_map<std::string, Binding> bindings;
+    extern Bindings bindings;
 
     void pollEvents();
 
@@ -39,7 +39,8 @@ namespace Events {
 
     void toggleCursor();
 
-    Binding& getBinding(const std::string& name);
+    Binding* getBinding(const std::string& name);
+    Binding& requireBinding(const std::string& name);
     void bind(const std::string& name, inputtype type, keycode code);
     void bind(const std::string& name, inputtype type, mousecode code);
     void bind(const std::string& name, inputtype type, int code);

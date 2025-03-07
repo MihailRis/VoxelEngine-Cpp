@@ -17,7 +17,6 @@
 #include "logic/LevelController.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
-#include "window/Events.hpp"
 #include "world/Level.hpp"
 #include "world/generator/WorldGenerator.hpp"
 

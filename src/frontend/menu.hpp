@@ -14,7 +14,7 @@ class UiDocument;
 
 namespace menus {
     /// @brief Create development version label at the top-right screen corner
-    void create_version_label(Engine& engine);
+    void create_version_label(gui::GUI& gui);
 
     UiDocument* show(
         Engine& engine, 

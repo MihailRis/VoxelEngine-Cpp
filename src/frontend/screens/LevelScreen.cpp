@@ -6,7 +6,7 @@
 #include "core_defs.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "io/io.hpp"
+#include "frontend/ContentGfxCache.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "frontend/hud.hpp"
 #include "graphics/core/DrawContext.hpp"
@@ -17,8 +17,7 @@
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "graphics/ui/elements/Menu.hpp"
-#include "graphics/ui/GUI.hpp"
-#include "frontend/ContentGfxCache.hpp"
+#include "io/io.hpp"
 #include "logic/LevelController.hpp"
 #include "logic/PlayerController.hpp"
 #include "logic/scripting/scripting.hpp"
@@ -43,24 +42,23 @@ LevelScreen::LevelScreen(
 )
     : Screen(engine),
       world(*levelPtr->getWorld()),
-      postProcessing(std::make_unique<PostProcessing>()) {
+      postProcessing(std::make_unique<PostProcessing>()),
+      gui(engine.getGUI()),
+      input(engine.getInput()) {
     Level* level = levelPtr.get();
 
     auto& settings = engine.getSettings();
     auto& assets = *engine.getAssets();
-    auto menu = engine.getGUI()->getMenu();
+    auto menu = engine.getGUI().getMenu();
     menu->reset();
 
     auto player = level->players->get(localPlayer);
     assert(player != nullptr);
-    
+
     controller =
         std::make_unique<LevelController>(&engine, std::move(levelPtr), player);
     playerController = std::make_unique<PlayerController>(
-        settings,
-        *level,
-        *player,
-        *controller->getBlocksController()
+        settings, *level, *player, *controller->getBlocksController()
     );
 
     frontend = std::make_unique<LevelFrontend>(
@@ -87,7 +85,7 @@ LevelScreen::LevelScreen(
     keepAlive(settings.camera.fov.observe([=](double value) {
         player->fpCamera->setFov(glm::radians(value));
     }));
-    keepAlive(Events::getBinding(BIND_CHUNKS_RELOAD).onactived.add([=](){
+    keepAlive(input.addCallback(BIND_CHUNKS_RELOAD, [=]() {
         player->chunks->saveAndClear();
         renderer->clear();
         return false;
@@ -178,13 +176,14 @@ void LevelScreen::saveWorldPreview() {
 
 void LevelScreen::updateHotkeys() {
     auto& settings = engine.getSettings();
-    if (Events::jpressed(keycode::O)) {
+
+    if (input.jpressed(keycode::O)) {
         settings.graphics.frustumCulling.toggle();
     }
-    if (Events::jpressed(keycode::F1)) {
+    if (input.jpressed(keycode::F1)) {
         hudVisible = !hudVisible;
     }
-    if (Events::jpressed(keycode::F3)) {
+    if (input.jpressed(keycode::F3)) {
         debug = !debug;
         hud->setDebug(debug);
         renderer->setDebug(debug);
@@ -199,19 +198,16 @@ void LevelScreen::updateAudio() {
     audio::get_channel("regular")->setPaused(paused);
     audio::get_channel("ambient")->setPaused(paused);
     glm::vec3 velocity {};
-    if (auto hitbox = player->getHitbox())  {
+    if (auto hitbox = player->getHitbox()) {
         velocity = hitbox->velocity;
     }
     audio::set_listener(
-        camera->position, 
-        velocity,
-        camera->dir, 
-        glm::vec3(0, 1, 0)
+        camera->position, velocity, camera->dir, glm::vec3(0, 1, 0)
     );
 }
 
 void LevelScreen::update(float delta) {
-    auto& gui = *engine.getGUI();
+    auto& gui = engine.getGUI();
     
     if (!gui.isFocusCaught()) {
         updateHotkeys();
@@ -225,10 +221,10 @@ void LevelScreen::update(float delta) {
     if (!paused) {
         world.updateTimers(delta);
         animator->update(delta);
-        playerController->update(delta, !inputLocked);
+        playerController->update(delta, inputLocked ? nullptr : &engine.getInput());
     }
     controller->update(glm::min(delta, 0.2f), paused);
-    playerController->postUpdate(delta, !inputLocked, paused);
+    playerController->postUpdate(delta, inputLocked ? nullptr : &engine.getInput(), paused);
 
     hud->update(hudVisible);
 

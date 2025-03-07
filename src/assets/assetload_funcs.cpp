@@ -189,6 +189,7 @@ assetload::postfunc assetload::layout(
             auto prefix = name.substr(0, pos);
             assets->store(
                 UiDocument::read(
+                    *cfg->gui,
                     cfg->env,
                     name,
                     file,

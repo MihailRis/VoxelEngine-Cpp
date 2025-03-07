@@ -18,6 +18,11 @@
 class ResPaths;
 class AssetsLoader;
 class Content;
+class Engine;
+
+namespace gui {
+    class GUI;
+}
 
 struct AssetCfg {
     virtual ~AssetCfg() {
@@ -25,9 +30,10 @@ struct AssetCfg {
 };
 
 struct LayoutCfg : AssetCfg {
+    gui::GUI* gui;
     scriptenv env;
 
-    LayoutCfg(scriptenv env) : env(std::move(env)) {
+    LayoutCfg(gui::GUI* gui, scriptenv env) : gui(gui), env(std::move(env)) {
     }
 };
 
@@ -61,7 +67,8 @@ struct aloader_entry {
 };
 
 class AssetsLoader {
-    Assets* assets;
+    Engine& engine;
+    Assets& assets;
     std::map<AssetType, aloader_func> loaders;
     std::queue<aloader_entry> entries;
     std::set<std::pair<AssetType, std::string>> enqueued;
@@ -76,7 +83,7 @@ class AssetsLoader {
     void processPreloadConfig(const io::path& file);
     void processPreloadConfigs(const Content* content);
 public:
-    AssetsLoader(Assets* assets, const ResPaths* paths);
+    AssetsLoader(Engine& engine, Assets& assets, const ResPaths* paths);
     void addLoader(AssetType tag, aloader_func func);
 
     /// @brief Enqueue asset load
@@ -111,4 +118,6 @@ public:
         const std::string& name,
         const std::vector<io::path>& alternatives
     );
+
+    Engine& getEngine();
 };

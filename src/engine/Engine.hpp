@@ -26,6 +26,7 @@ class ResPaths;
 class EngineController;
 class SettingsHandler;
 struct EngineSettings;
+class Input;
 
 namespace gui {
     class GUI;
@@ -66,8 +67,9 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<Content> content;
     std::unique_ptr<ResPaths> resPaths;
     std::unique_ptr<EngineController> controller;
-    std::unique_ptr<cmd::CommandsInterpreter> interpreter;
+    std::unique_ptr<cmd::CommandsInterpreter> cmd;
     std::unique_ptr<network::Network> network;
+    std::unique_ptr<Input> input;
     std::vector<std::string> basePacks;
     std::unique_ptr<gui::GUI> gui;
     PostRunnables postRunnables;
@@ -87,6 +89,7 @@ public:
     static Engine& getInstance();
 
     void initialize(CoreParameters coreParameters);
+    void close();
 
     static void terminate();
 
@@ -128,9 +131,6 @@ public:
 
     /// @brief Get active assets storage instance
     Assets* getAssets();
-    
-    /// @brief Get main UI controller
-    gui::GUI* getGUI();
 
     /// @brief Get writeable engine settings structure instance
     EngineSettings& getSettings();
@@ -171,7 +171,6 @@ public:
     void saveScreenshot();
 
     EngineController* getController();
-    cmd::CommandsInterpreter* getCommandsInterpreter();
 
     PacksManager createPacksManager(const io::path& worldFolder);
 
@@ -179,11 +178,25 @@ public:
 
     SettingsHandler& getSettingsHandler();
 
-    network::Network& getNetwork();
-
     Time& getTime();
 
     const CoreParameters& getCoreParameters() const;
 
     bool isHeadless() const;
+
+    gui::GUI& getGUI() {
+        return *gui;
+    }
+
+    Input& getInput() {
+        return *input;
+    }
+
+    network::Network& getNetwork() {
+        return *network;
+    }
+
+    cmd::CommandsInterpreter& getCmd() {
+        return *cmd;
+    }
 };

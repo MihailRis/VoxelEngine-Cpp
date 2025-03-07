@@ -54,6 +54,7 @@ scriptenv UiDocument::getEnvironment() const {
 }
 
 std::unique_ptr<UiDocument> UiDocument::read(
+    gui::GUI& gui,
     const scriptenv& penv,
     const std::string& name,
     const io::path& file,
@@ -66,7 +67,7 @@ std::unique_ptr<UiDocument> UiDocument::read(
         ? scripting::create_doc_environment(scripting::get_root_environment(), name)
         : scripting::create_doc_environment(penv, name);
 
-    gui::UiXmlReader reader(env);
+    gui::UiXmlReader reader(gui, env);
     auto view = reader.readXML(file.string(), *xmldoc->getRoot());
     view->setId("root");
     uidocscript script {};
@@ -80,8 +81,7 @@ std::unique_ptr<UiDocument> UiDocument::read(
 }
 
 std::shared_ptr<gui::UINode> UiDocument::readElement(
-    const io::path& file, const std::string& fileName
+    gui::GUI& gui, const io::path& file, const std::string& fileName
 ) {
-    auto document = read(nullptr, file.name(), file, fileName);
-    return document->getRoot();
+    return read(gui, nullptr, file.name(), file, fileName)->getRoot();
 }

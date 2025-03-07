@@ -9,13 +9,14 @@
 #include "typedefs.hpp"
 
 class ImageData;
+class Input;
 struct DisplaySettings;
 
 namespace Window {
     extern uint width;
     extern uint height;
 
-    int initialize(DisplaySettings* settings);
+    std::unique_ptr<Input> initialize(DisplaySettings* settings);
     void terminate();
 
     void viewport(int x, int y, int width, int height);
@@ -41,7 +42,6 @@ namespace Window {
     void setBgColor(glm::vec3 color);
     void setBgColor(glm::vec4 color);
     double time();
-    const char* getClipboardText();
     void setClipboardText(const char* text);
     DisplaySettings* getSettings();
     void setIcon(const ImageData* image);

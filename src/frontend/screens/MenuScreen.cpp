@@ -13,7 +13,7 @@
 MenuScreen::MenuScreen(Engine& engine) : Screen(engine) {
     engine.resetContent();
     
-    auto menu = engine.getGUI()->getMenu();
+    auto menu = engine.getGUI().getMenu();
     menu->reset();
     menu->setPage("main");
 
@@ -22,8 +22,7 @@ MenuScreen::MenuScreen(Engine& engine) : Screen(engine) {
     uicamera->flipped = true;
 }
 
-MenuScreen::~MenuScreen() {
-}
+MenuScreen::~MenuScreen() = default;
 
 void MenuScreen::update(float delta) {
 }

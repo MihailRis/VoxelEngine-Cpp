@@ -14,7 +14,9 @@ class DrawContext;
 class Assets;
 class Camera;
 class Batch2D;
-class LineBatch;
+struct CursorState;
+class Engine;
+class Input;
 
 /*
  Some info about padding and margin.
@@ -56,6 +58,8 @@ namespace gui {
 
     /// @brief The main UI controller
     class GUI {
+        Engine& engine;
+        Input& input;
         std::unique_ptr<Batch2D> batch2D;
         std::shared_ptr<Container> container;
         std::shared_ptr<UINode> hover;
@@ -76,12 +80,12 @@ namespace gui {
         bool doubleClicked = false;
         bool debug = false;
 
-        void actMouse(float delta);
+        void actMouse(float delta, const CursorState& cursor);
         void actFocused();
         void updateTooltip(float delta);
         void resetTooltip();
     public:
-        GUI();
+        GUI(Engine& engine);
         ~GUI();
 
         void setPageLoader(PageLoaderFunc pageLoader);
@@ -152,5 +156,6 @@ namespace gui {
         float getDoubleClickDelay() const;
 
         void toggleDebug();
+        const Input& getInput() const;
     };
 }

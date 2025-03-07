@@ -19,8 +19,8 @@ namespace gui {
     class GUI;
     class Container;
 
-    using onaction = std::function<void(GUI*)>;
-    using onnumberchange = std::function<void(GUI*, double)>;
+    using onaction = std::function<void(GUI&)>;
+    using onnumberchange = std::function<void(GUI&, double)>;
 
     class ActionsSet {
         std::unique_ptr<std::vector<onaction>> callbacks;
@@ -32,7 +32,7 @@ namespace gui {
             callbacks->push_back(callback);
         }
 
-        void notify(GUI* gui) {
+        void notify(GUI& gui) {
             if (callbacks) {
                 for (auto& callback : *callbacks) {
                     callback(gui);
@@ -64,6 +64,9 @@ namespace gui {
 
     /// @brief Base abstract class for all UI elements
     class UINode : public std::enable_shared_from_this<UINode> {
+    protected:
+        GUI& gui;
+    private:
         /// @brief element identifier used for direct access in UiDocument
         std::string id = "";
         /// @brief element enabled state
@@ -118,7 +121,7 @@ namespace gui {
         /// @brief cursor shape when mouse is over the element
         CursorShape cursor = CursorShape::ARROW;
 
-        UINode(glm::vec2 size);
+        UINode(GUI& gui, glm::vec2 size);
     public:
         virtual ~UINode();
 
@@ -169,12 +172,12 @@ namespace gui {
         virtual UINode* listenAction(const onaction &action);
         virtual UINode* listenDoubleClick(const onaction &action);
 
-        virtual void onFocus(GUI*) {focused = true;}
-        virtual void doubleClick(GUI*, int x, int y);
-        virtual void click(GUI*, int x, int y);
-        virtual void clicked(GUI*, mousecode button) {}
-        virtual void mouseMove(GUI*, int x, int y) {};
-        virtual void mouseRelease(GUI*, int x, int y);
+        virtual void onFocus() {focused = true;}
+        virtual void doubleClick(int x, int y);
+        virtual void click(int x, int y);
+        virtual void clicked(mousecode button) {}
+        virtual void mouseMove(int x, int y) {};
+        virtual void mouseRelease(int x, int y);
         virtual void scrolled(int value);
 
         bool isPressed() const;

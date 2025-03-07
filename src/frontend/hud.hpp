@@ -20,9 +20,11 @@ class UiDocument;
 class DrawContext;
 class Viewport;
 class ImageData;
+class Input;
 
 namespace gui {
     class GUI;
+    class Menu;
     class UINode;
     class Panel;
     class Container;
@@ -71,9 +73,11 @@ public:
 
 class Hud : public util::ObjectsKeeper {
     Engine& engine;
+    Input& input;
     Assets& assets;
-    std::unique_ptr<Camera> uicamera;
     gui::GUI& gui;
+    gui::Menu& menu;
+    std::unique_ptr<Camera> uicamera;
     LevelFrontend& frontend;
     Player& player;
 

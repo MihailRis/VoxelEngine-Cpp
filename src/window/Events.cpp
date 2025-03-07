@@ -28,7 +28,7 @@ glm::vec2 Events::cursor = {};
 
 std::vector<uint> Events::codepoints;
 std::vector<keycode> Events::pressedKeys;
-std::unordered_map<std::string, Binding> Events::bindings;
+Bindings Events::bindings {};
 
 int Events::getScroll() {
     return scroll;
@@ -86,9 +86,9 @@ void Events::pollEvents() {
     pressedKeys.clear();
     glfwPollEvents();
 
-    for (auto& entry : bindings) {
+    for (auto& entry : bindings.getAll()) {
         auto& binding = entry.second;
-        if (!binding.enable) {
+        if (!binding.enabled) {
             binding.state = false;
             continue;
         }
@@ -119,12 +119,15 @@ void Events::pollEvents() {
     }
 }
 
-Binding& Events::getBinding(const std::string& name) {
-    const auto found = bindings.find(name);
-    if (found == bindings.end()) {
-        throw std::runtime_error("binding '" + name + "' does not exist");
+Binding* Events::getBinding(const std::string& name) {
+    return bindings.get(name);
+}
+
+Binding& Events::requireBinding(const std::string& name) {
+    if (const auto found = getBinding(name)) {
+        return *found;
     }
-    return found->second;
+    throw std::runtime_error("binding '" + name + "' does not exist");
 }
 
 void Events::bind(const std::string& name, inputtype type, keycode code) {
@@ -136,31 +139,19 @@ void Events::bind(const std::string& name, inputtype type, mousecode code) {
 }
 
 void Events::bind(const std::string& name, inputtype type, int code) {
-    bindings.try_emplace(name, Binding(type, code));
+    bindings.bind(name, type, code);
 }
 
 void Events::rebind(const std::string& name, inputtype type, int code) {
-    const auto& found = bindings.find(name);
-    if (found == bindings.end()) {
-        throw std::runtime_error("binding '" + name + "' does not exist");
-    }
-    bindings[name] = Binding(type, code);
+    requireBinding(name) = Binding(type, code);
 }
 
 bool Events::active(const std::string& name) {
-    const auto& found = bindings.find(name);
-    if (found == bindings.end()) {
-        return false;
-    }
-    return found->second.active();
+    return bindings.active(name);
 }
 
 bool Events::jactive(const std::string& name) {
-    const auto& found = bindings.find(name);
-    if (found == bindings.end()) {
-        return false;
-    }
-    return found->second.jactive();
+    return bindings.jactive(name);
 }
 
 void Events::setKey(int key, bool b) {
@@ -198,7 +189,7 @@ observer_handler Events::addKeyCallback(keycode key, KeyCallback callback) {
 
 std::string Events::writeBindings() {
     auto obj = dv::object();
-    for (auto& entry : Events::bindings) {
+    for (auto& entry : bindings.getAll()) {
         const auto& binding = entry.second;
         std::string value;
         switch (binding.type) {
@@ -253,9 +244,8 @@ void Events::loadBindings(
 }
 
 void Events::enableBindings() {
-    for (auto& entry : bindings) {
-        auto& binding = entry.second;
-        binding.enable = true;
+    for (auto& entry : bindings.getAll()) {
+        entry.second.enabled = true;
     }
 }
 
