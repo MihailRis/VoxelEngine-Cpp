@@ -16,5 +16,5 @@ void gui::Canvas::draw(const DrawContext& pctx, const Assets& assets) {
 
     auto batch = pctx.getBatch2D();
     batch->texture(mTexture.get());
-    batch->rect(pos.x, pos.y, size.x, size.y, 0, 0, 0, {}, false, true, col);
+    batch->rect(pos.x, pos.y, size.x, size.y, 0, 0, 0, {}, false, false, col);
 }
