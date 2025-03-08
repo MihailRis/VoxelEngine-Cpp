@@ -176,6 +176,7 @@ Here, *color* can be specified in the following ways:
 | data:at(x: int, y: int)                                  | returns an RGBA pixel at the given coordinates          |
 | data:set(x: int, y: int, *color*)                        | updates an RGBA pixel at the given coordinates          |
 | data:line(x1: int, y1: int, x2: int, y2: int, *color*)   | draws a line with the specified RGBA color              |
+| data:blit(src: Canvas, dst_x: int, dst_y: int)           | draws the src canvas at the specified coordinates       |
 | data:clear()                                             | clears the canvas                                       |
 | data:clear(*color*)                                      | fills the canvas with the specified RGBA color          |
 | data:update()                                            | applies changes to the canvas and uploads it to the GPU |

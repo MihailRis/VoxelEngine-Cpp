@@ -177,6 +177,7 @@ document["worlds-panel"]:clear()
 | data:at(x: int, y: int)                                  | возвращает RGBA пиксель по указанным координатам    |
 | data:set(x: int, y: int, *цвет*)                         | изменяет RGBA пиксель по указанным координатам      |
 | data:line(x1: int, y1: int, x2: int, y2: int, *цвет*)    | рисует линию с указанным RGBA цветом                |
+| data:blit(src: Canvas, dst_x: int, dst_y: int)           | рисует src-холст на указанных координатах           |
 | data:clear()                                             | очищает холст                                       |
 | data:clear(*цвет*)                                       | заполняет холст указанным RGBA цветом               |
 | data:update()                                            | применяет изменения и загружает холст в видеопамять |
