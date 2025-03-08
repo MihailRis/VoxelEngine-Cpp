@@ -120,7 +120,7 @@ std::unique_ptr<Process> scripting::start_coroutine(
         lua::loadbuffer(L, 0, source, script.name());
         if (lua::call(L, 1)) {
             int id = lua::tointeger(L, -1);
-            lua::pop(L, 2);
+            lua::pop(L, 1);
             return std::make_unique<LuaCoroutine>(L, id);
         }
         lua::pop(L);
