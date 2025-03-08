@@ -136,6 +136,12 @@ static int l_set_data(State* L) {
     auto& canvas = require_canvas(L, 1);
     auto& image = canvas.data();
     auto data = image.getData();
+
+    if (lua::isstring(L, 2)) {
+        auto ptr = reinterpret_cast<ubyte*>(std::stoull(lua::tostring(L, 2)));
+        std::memcpy(data, ptr, image.getDataSize());
+        return 0;
+    }
     int len = objlen(L, 2);
     if (len < image.getDataSize()) {
         throw std::runtime_error(
@@ -167,7 +173,7 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"blit", lua::wrap<l_blit>},
     {"clear", lua::wrap<l_clear>},
     {"update", lua::wrap<l_update>},
-    {"set_data", lua::wrap<l_set_data>},
+    {"_set_data", lua::wrap<l_set_data>},
 };
 
 static int l_meta_index(State* L) {
@@ -188,6 +194,9 @@ static int l_meta_index(State* L) {
         }
         if (!strcmp(name, "height")) {
             return pushinteger(L, data.getHeight());
+        }
+        if (!strcmp(name, "set_data")) {
+            return getglobal(L, "__vc_Canvas_set_data");
         }
         if (auto func = methods.find(tostring(L, 2)); func != methods.end()) {
             return pushcfunction(L, func->second);
