@@ -132,6 +132,25 @@ static int l_blit(State* L) {
     return 0;
 }
 
+static int l_set_data(State* L) {
+    auto& canvas = require_canvas(L, 1);
+    auto& image = canvas.data();
+    auto data = image.getData();
+    int len = objlen(L, 2);
+    if (len < image.getDataSize()) {
+        throw std::runtime_error(
+            "data size mismatch expected " +
+            std::to_string(image.getDataSize()) + ", got " + std::to_string(len)
+        );
+    }
+    for (size_t i = 0; i < len; i++) {
+        rawgeti(L, i + 1, 2);
+        data[i] = tointeger(L, -1);
+        pop(L);
+    }
+    return 0;
+}
+
 static int l_update(State* L) {
     if (auto canvas = touserdata<LuaCanvas>(L, 1)) {
         if (canvas->hasTexture()) {
@@ -148,6 +167,7 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"blit", lua::wrap<l_blit>},
     {"clear", lua::wrap<l_clear>},
     {"update", lua::wrap<l_update>},
+    {"set_data", lua::wrap<l_set_data>},
 };
 
 static int l_meta_index(State* L) {

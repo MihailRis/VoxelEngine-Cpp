@@ -180,6 +180,7 @@ Here, *color* can be specified in the following ways:
 | data:clear()                                             | clears the canvas                                       |
 | data:clear(*color*)                                      | fills the canvas with the specified RGBA color          |
 | data:update()                                            | applies changes to the canvas and uploads it to the GPU |
+| data:set_data(data: table<int>)                          | replaces pixel data (width * height * 4 numbers)        |
 
 
 ## Inventory
