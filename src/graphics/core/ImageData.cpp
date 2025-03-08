@@ -81,13 +81,13 @@ void ImageData::flipY() {
     }
 }
 
-void ImageData::blit(const ImageData* image, int x, int y) {
-    if (format == image->format) {
+void ImageData::blit(const ImageData& image, int x, int y) {
+    if (format == image.format) {
         blitMatchingFormat(image, x, y);
         return;
     }
     if (format == ImageFormat::rgba8888 && 
-        image->format == ImageFormat::rgb888) {
+        image.format == ImageFormat::rgb888) {
         blitRGB_on_RGBA(image, x, y);
         return;
     }
@@ -187,10 +187,10 @@ void ImageData::drawLine(int x1, int y1, int x2, int y2, const glm::ivec4& color
     }
 }
 
-void ImageData::blitRGB_on_RGBA(const ImageData* image, int x, int y) {
-    ubyte* source = image->getData();
-    uint srcwidth = image->getWidth();
-    uint srcheight = image->getHeight();
+void ImageData::blitRGB_on_RGBA(const ImageData& image, int x, int y) {
+    ubyte* source = image.getData();
+    uint srcwidth = image.getWidth();
+    uint srcheight = image.getHeight();
 
     for (uint srcy = std::max(0, -y);
          srcy < std::min(srcheight, height - y);
@@ -210,7 +210,7 @@ void ImageData::blitRGB_on_RGBA(const ImageData* image, int x, int y) {
     }
 }
 
-void ImageData::blitMatchingFormat(const ImageData* image, int x, int y) {
+void ImageData::blitMatchingFormat(const ImageData& image, int x, int y) {
     uint comps;
     switch (format) {
         case ImageFormat::rgb888: comps = 3; break;
@@ -218,20 +218,24 @@ void ImageData::blitMatchingFormat(const ImageData* image, int x, int y) {
         default:
             throw std::runtime_error("only unsigned byte formats supported");    
     }
-    ubyte* source = image->getData();
-    uint srcwidth = image->getWidth();
-    uint srcheight = image->getHeight();
+    ubyte* source = image.getData();
+
+    const uint width = this->width;
+    const uint height = this->height;
+    const uint src_width = image.getWidth();
+    const uint src_height = image.getHeight();
+    ubyte* data = this->data.get();
 
     for (uint srcy = std::max(0, -y);
-         srcy < std::min(srcheight, height - y);
+         srcy < std::min(src_height, height - y);
          srcy++) {
         for (uint srcx = std::max(0, -x);
-             srcx < std::min(srcwidth, width - x);
+             srcx < std::min(src_width, width - x);
              srcx++) {
             uint dstx = srcx + x;
             uint dsty = srcy + y;
             uint dstidx = (dsty * width + dstx) * comps;
-            uint srcidx = (srcy * srcwidth + srcx) * comps;
+            uint srcidx = (srcy * src_width + srcx) * comps;
             for (uint c = 0; c < comps; c++) {
                 data[dstidx + c] = source[srcidx + c];
             }

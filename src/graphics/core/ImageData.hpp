@@ -15,6 +15,9 @@ class ImageData {
     uint width;
     uint height;
     std::unique_ptr<ubyte[]> data;
+
+    void blitRGB_on_RGBA(const ImageData& image, int x, int y);
+    void blitMatchingFormat(const ImageData& image, int x, int y);
 public:
     ImageData(ImageFormat format, uint width, uint height);
     ImageData(ImageFormat format, uint width, uint height, std::unique_ptr<ubyte[]> data);
@@ -25,9 +28,7 @@ public:
     void flipY();
 
     void drawLine(int x1, int y1, int x2, int y2, const glm::ivec4& color);
-    void blitRGB_on_RGBA(const ImageData* image, int x, int y);
-    void blitMatchingFormat(const ImageData* image, int x, int y);
-    void blit(const ImageData* image, int x, int y);
+    void blit(const ImageData& image, int x, int y);
     void extrude(int x, int y, int w, int h);
     void fixAlphaColor();
 

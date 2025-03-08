@@ -79,12 +79,18 @@ static int l_set(State* L) {
     return 0;
 }
 
-static int l_clear(State* L) {
-    auto canvas = touserdata<LuaCanvas>(L, 1);
-    if (canvas == nullptr) {
-        throw std::runtime_error("used canvas.clear instead of canvas:clear");
+static LuaCanvas& require_canvas(State* L, int idx) {
+    if (const auto canvas = touserdata<LuaCanvas>(L, idx)) {
+        return *canvas;
     }
-    auto& image = canvas->data();
+    throw std::runtime_error(
+        "canvas expected as argument #" + std::to_string(idx)
+    );
+}
+
+static int l_clear(State* L) {
+    auto& canvas = require_canvas(L, 1);
+    auto& image = canvas.data();
     ubyte* data = image.getData();
     RGBA rgba {};
     if (gettop(L) == 1) {
@@ -117,9 +123,20 @@ static int l_line(State* L) {
     return 0;
 }
 
+static int l_blit(State* L) {
+    auto& dst = require_canvas(L, 1);
+    auto& src = require_canvas(L, 2);
+    int dst_x = tointeger(L, 3);
+    int dst_y = tointeger(L, 4);
+    dst.data().blit(src.data(), dst_x, dst_y);
+    return 0;
+}
+
 static int l_update(State* L) {
     if (auto canvas = touserdata<LuaCanvas>(L, 1)) {
-        canvas->texture().reload(canvas->data());
+        if (canvas->hasTexture()) {
+            canvas->texture().reload(canvas->data());
+        }
     }
     return 0;
 }
@@ -128,8 +145,10 @@ static std::unordered_map<std::string, lua_CFunction> methods {
     {"at", lua::wrap<l_at>},
     {"set", lua::wrap<l_set>},
     {"line", lua::wrap<l_line>},
+    {"blit", lua::wrap<l_blit>},
     {"clear", lua::wrap<l_clear>},
-    {"update", lua::wrap<l_update>}};
+    {"update", lua::wrap<l_update>},
+};
 
 static int l_meta_index(State* L) {
     auto texture = touserdata<LuaCanvas>(L, 1);
@@ -171,11 +190,28 @@ static int l_meta_newindex(State* L) {
     return 0;
 }
 
+static int l_meta_meta_call(lua::State* L) {
+    auto size = glm::ivec2(tovec2(L, 2));
+    if (size.x <= 0 || size.y <= 0) {
+        throw std::runtime_error("size must be positive");
+    }
+    return newuserdata<LuaCanvas>(
+        L,
+        nullptr,
+        std::make_shared<ImageData>(ImageFormat::rgba8888, size.x, size.y)
+    );
+}
+
 int LuaCanvas::createMetatable(State* L) {
     createtable(L, 0, 3);
     pushcfunction(L, lua::wrap<l_meta_index>);
     setfield(L, "__index");
     pushcfunction(L, lua::wrap<l_meta_newindex>);
     setfield(L, "__newindex");
+
+    createtable(L, 0, 1);
+    pushcfunction(L, lua::wrap<l_meta_meta_call>);
+    setfield(L, "__call");
+    setmetatable(L);
     return 1;
 }
