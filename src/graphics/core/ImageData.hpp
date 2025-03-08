@@ -2,6 +2,7 @@
 
 #include "typedefs.hpp"
 
+#include <glm/vec4.hpp>
 #include <memory>
 
 enum class ImageFormat {
@@ -23,6 +24,7 @@ public:
     void flipX();
     void flipY();
 
+    void drawLine(int x1, int y1, int x2, int y2, const glm::ivec4& color);
     void blitRGB_on_RGBA(const ImageData* image, int x, int y);
     void blitMatchingFormat(const ImageData* image, int x, int y);
     void blit(const ImageData* image, int x, int y);
@@ -43,6 +45,11 @@ public:
 
     uint getHeight() const {
         return height;
+    }
+
+    size_t getDataSize() const {
+        size_t channels = 3 + (format == ImageFormat::rgba8888);
+        return width * height * channels;
     }
 };
 
