@@ -1,0 +1,23 @@
+{
+    "fall": {
+        "vspeed": 2.0,
+        "texture": "misc/rain",
+        "noise": "ambient/rain",
+        "splash": {
+            "lifetime": 0.2,
+            "spawn_interval": 0.0,
+            "size": [0.2, 0.2, 0.2],
+            "frames": [
+                "particles:rain_splash_0",
+                "particles:rain_splash_1",
+                "particles:rain_splash_2"
+            ]
+        },
+        "min_opacity": 0.8
+    },
+    "fog_opacity": 0.8,
+    "fog_dencity": 2.0,
+    "fog_curve": 0.5,
+    "clouds": 0.7,
+    "thunder_rate": 0.1
+}

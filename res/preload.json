@@ -20,6 +20,8 @@
         "gui/refresh",
         "gui/folder_icon",
         "gui/settings_icon",
+        "misc/rain",
+        "misc/snow",
         "gui/check_mark",
         "gui/left_arrow",
         "gui/right_arrow"

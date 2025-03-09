@@ -231,8 +231,8 @@ dv::value WorldInfo::serialize() const {
     timeobj["day-time-speed"] = daytimeSpeed;
     timeobj["total-time"] = totalTime;
 
-    auto& weatherobj = root.object("weather");
-    weatherobj["fog"] = fog;
+    root["weather"] = dv::object();
+    root["weather"]["fog"] = fog;
 
     root["next-inventory-id"] = nextInventoryId;
     root["next-entity-id"] = nextEntityId;
