@@ -1,4 +1,5 @@
-#include "api_lua.hpp"
+#include "libhud.hpp"
+
 #include "world/Level.hpp"
 #include "world/World.hpp"
 
@@ -8,7 +9,7 @@ static Weather& require_weather() {
     if (level == nullptr) {
         throw std::runtime_error("world is not open");
     }
-    return level->getWorld()->getInfo().weather;
+    return renderer->getWeather();
 }
 
 static int l_change(lua::State* L) {

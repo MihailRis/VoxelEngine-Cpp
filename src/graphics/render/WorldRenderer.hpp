@@ -47,6 +47,7 @@ class WorldRenderer {
     std::unique_ptr<GuidesRenderer> guides;
     std::unique_ptr<Skybox> skybox;
     std::unique_ptr<ModelBatch> modelBatch;
+    Weather weather {};
     
     float timer = 0.0f;
     bool debug = false;
@@ -89,7 +90,7 @@ public:
         bool hudVisible,
         bool pause,
         float delta,
-        PostProcessing* postProcessing
+        PostProcessing& postProcessing
     );
 
     /// @brief Render level without diegetic interface
@@ -108,4 +109,6 @@ public:
     void clear();
 
     void setDebug(bool flag);
+
+    Weather& getWeather();
 };

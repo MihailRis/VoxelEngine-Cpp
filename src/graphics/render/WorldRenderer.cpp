@@ -111,7 +111,6 @@ void WorldRenderer::setupWorldShader(
     const EngineSettings& settings,
     float fogFactor
 ) {
-    const auto& weather = level.getWorld()->getInfo().weather;
     shader.use();
     shader.uniformMatrix("u_model", glm::mat4(1.0f));
     shader.uniformMatrix("u_proj", camera.getProjection());
@@ -153,8 +152,6 @@ void WorldRenderer::renderLevel(
     bool pause,
     bool hudVisible
 ) {
-    const auto& weather = level.getWorld()->getInfo().weather;
-
     texts->render(ctx, camera, settings, hudVisible, false);
 
     bool culling = engine.getSettings().graphics.frustumCulling.get();
@@ -332,12 +329,15 @@ void WorldRenderer::draw(
     Camera& camera,
     bool hudVisible,
     bool pause,
-    float delta,
-    PostProcessing* postProcessing
+    float uiDelta,
+    PostProcessing& postProcessing
 ) {
-    timer += delta * !pause;
+    float delta = uiDelta * !pause;
+    timer += delta;
+    weather.update(delta);
+
     auto world = level.getWorld();
-    const auto& weather = world->getInfo().weather;
+
     const Viewport& vp = pctx.getViewport();
     camera.aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
@@ -357,7 +357,7 @@ void WorldRenderer::draw(
 
     /* World render scope with diegetic HUD included */ {
         DrawContext wctx = pctx.sub();
-        postProcessing->use(wctx);
+        postProcessing.use(wctx);
 
         Window::clearDepth();
 
@@ -368,7 +368,7 @@ void WorldRenderer::draw(
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            renderLevel(ctx, camera, settings, delta, pause, hudVisible);
+            renderLevel(ctx, camera, settings, uiDelta, pause, hudVisible);
             // Debug lines
             if (hudVisible) {
                 if (debug) {
@@ -377,7 +377,7 @@ void WorldRenderer::draw(
                     );
                 }
                 if (player.currentCamera == player.fpCamera) {
-                    renderHands(camera, delta * !pause);
+                    renderHands(camera, delta);
                 }
             }
         }
@@ -393,7 +393,7 @@ void WorldRenderer::draw(
     screenShader->use();
     screenShader->uniform1f("u_timer", timer);
     screenShader->uniform1f("u_dayTime", worldInfo.daytime);
-    postProcessing->render(pctx, screenShader);
+    postProcessing.render(pctx, screenShader);
 }
 
 void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
@@ -446,4 +446,8 @@ void WorldRenderer::clear() {
 
 void WorldRenderer::setDebug(bool flag) {
     debug = flag;
+}
+
+Weather& WorldRenderer::getWeather() {
+    return weather;
 }

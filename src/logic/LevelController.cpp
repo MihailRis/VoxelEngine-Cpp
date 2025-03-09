@@ -69,8 +69,6 @@ LevelController::LevelController(
 }
 
 void LevelController::update(float delta, bool pause) {
-    level->getWorld()->getInfo().weather.update(delta);
-
     for (const auto& [_, player] : *level->players) {
         if (player->isSuspended()) {
             continue;

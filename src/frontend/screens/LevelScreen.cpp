@@ -36,10 +36,14 @@
 
 static debug::Logger logger("level-screen");
 
+inline const io::path CLIENT_FILE = "world:client/environment.json";
+
 LevelScreen::LevelScreen(
     Engine& engine, std::unique_ptr<Level> levelPtr, int64_t localPlayer
 )
-    : Screen(engine), postProcessing(std::make_unique<PostProcessing>()) {
+    : Screen(engine),
+      world(*levelPtr->getWorld()),
+      postProcessing(std::make_unique<PostProcessing>()) {
     Level* level = levelPtr.get();
 
     auto& settings = engine.getSettings();
@@ -92,7 +96,20 @@ LevelScreen::LevelScreen(
     animator = std::make_unique<TextureAnimator>();
     animator->addAnimations(assets.getAnimations());
 
+    loadDecorations();
     initializeContent();
+}
+
+LevelScreen::~LevelScreen() {
+    if (!controller->getLevel()->getWorld()->isNameless()) {
+        saveDecorations();
+        saveWorldPreview();
+    }
+    scripting::on_frontend_close();
+    // unblock all bindings
+    Events::enableBindings();
+    controller->onWorldQuit();
+    engine.getPaths().setCurrentWorldFolder("");
 }
 
 void LevelScreen::initializeContent() {
@@ -116,15 +133,22 @@ void LevelScreen::initializePack(ContentPackRuntime* pack) {
     }
 }
 
-LevelScreen::~LevelScreen() {
-    if (!controller->getLevel()->getWorld()->isNameless()) {
-        saveWorldPreview();
+void LevelScreen::loadDecorations() {
+    if (!io::exists(CLIENT_FILE)) {
+        return;
     }
-    scripting::on_frontend_close();
-    // unblock all bindings
-    Events::enableBindings();
-    controller->onWorldQuit();
-    engine.getPaths().setCurrentWorldFolder("");
+    auto data = io::read_object(CLIENT_FILE);
+    if (data.has("weather")) {
+        worldRenderer->getWeather().deserialize(data["weather"]);
+    }
+}
+
+void LevelScreen::saveDecorations() {
+    io::create_directory("world:client");
+
+    auto data = dv::object();
+    data["weather"] = worldRenderer->getWeather().serialize();
+    io::write_json(CLIENT_FILE, data, true);
 }
 
 void LevelScreen::saveWorldPreview() {
@@ -144,7 +168,7 @@ void LevelScreen::saveWorldPreview() {
         Viewport viewport(previewSize * 1.5, previewSize);
         DrawContext ctx(&pctx, viewport, batch.get());
         
-        worldRenderer->draw(ctx, camera, false, true, 0.0f, postProcessing.get());
+        worldRenderer->draw(ctx, camera, false, true, 0.0f, *postProcessing);
         auto image = postProcessing->toImage();
         image->flipY();
         imageio::write("world:preview.png", image.get());
@@ -210,7 +234,7 @@ void LevelScreen::update(float delta) {
 
     hud->update(hudVisible);
 
-    const auto& weather = level->getWorld()->getInfo().weather;
+    const auto& weather = worldRenderer->getWeather();
     decorator->update(
         hud->isPause() ? 0.0f : delta, *camera, weather.a, weather.b
     );
@@ -226,7 +250,7 @@ void LevelScreen::draw(float delta) {
         scripting::on_entities_render(engine.getTime().getDelta());
     }
     worldRenderer->draw(
-        ctx, *camera, hudVisible, hud->isPause(), delta, postProcessing.get()
+        ctx, *camera, hudVisible, hud->isPause(), delta, *postProcessing
     );
 
     if (hudVisible) {
