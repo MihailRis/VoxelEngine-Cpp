@@ -1,3 +1,31 @@
+local _ffi = ffi
+ffi = nil
+
+-- Lua has no parallelizm, also _set_data does not call any lua functions so
+-- may be reused one global ffi buffer per lua_State
+local canvas_ffi_buffer
+local canvas_ffi_buffer_size = 0
+
+function __vc_Canvas_set_data(self, data)
+    if type(data) == "cdata" then
+        self:_set_data(tostring(_ffi.cast("uintptr_t", data)))
+    end
+    local width = self.width
+    local height = self.height
+
+    local size = width * height * 4
+    if size > canvas_ffi_buffer_size then
+        canvas_ffi_buffer = _ffi.new(
+            string.format("unsigned char[%s]", size)
+        )
+        canvas_ffi_buffer_size = size
+    end
+    for i=0, size - 1 do
+        canvas_ffi_buffer[i] = data[i + 1]
+    end
+    self:_set_data(tostring(_ffi.cast("uintptr_t", canvas_ffi_buffer)))
+end
+
 -- Check if given table is an array
 function is_array(x)
     if #x > 0 then
@@ -151,9 +179,27 @@ function table.map(t, func)
 end
 
 function table.filter(t, func)
+
+    for i = #t, 1, -1 do
+        if not func(i, t[i]) then
+            table.remove(t, i)
+        end
+    end
+
+    local size = #t
+
     for i, v in pairs(t) do
-        if not func(i, v) then
-            t[i] = nil
+        local i_type = type(i)
+        if i_type == "number" then
+            if i < 1 or i > size then
+                if not func(i, v) then
+                    t[i] = nil
+                end
+            end
+        else
+            if not func(i, v) then
+                t[i] = nil
+            end
         end
     end
 

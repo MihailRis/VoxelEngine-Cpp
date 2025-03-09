@@ -114,10 +114,14 @@ namespace lua {
             return *mData;
         }
 
+        [[nodiscard]] bool hasTexture() const {
+            return mTexture != nullptr;
+        }
+
         static int createMetatable(lua::State*);
         inline static std::string TYPENAME = "Canvas";
     private:
-        std::shared_ptr<Texture> mTexture;
+        std::shared_ptr<Texture> mTexture; // nullable
         std::shared_ptr<ImageData> mData;
     };
     static_assert(!std::is_abstract<LuaCanvas>());

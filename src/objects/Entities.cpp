@@ -370,11 +370,14 @@ dv::value Entities::serialize(const Entity& entity) {
 dv::value Entities::serialize(const std::vector<Entity>& entities) {
     auto list = dv::list();
     for (auto& entity : entities) {
-        if (!entity.getDef().save.enabled) {
+        const EntityId& eid = entity.getID();
+        if (!entity.getDef().save.enabled || eid.destroyFlag) {
             continue;
         }
         level.entities->onSave(entity);
-        list.add(level.entities->serialize(entity));
+        if (!eid.destroyFlag) {
+            list.add(level.entities->serialize(entity));
+        }
     }
     return list;
 }
@@ -597,9 +600,9 @@ bool Entities::hasBlockingInside(AABB aabb) {
 
 std::vector<Entity> Entities::getAllInside(AABB aabb) {
     std::vector<Entity> collected;
-    auto view = registry.view<Transform>();
-    for (auto [entity, transform] : view.each()) {
-        if (aabb.contains(transform.pos)) {
+    auto view = registry.view<EntityId, Transform>();
+    for (auto [entity, eid, transform] : view.each()) {
+        if (!eid.destroyFlag && aabb.contains(transform.pos)) {
             const auto& found = uids.find(entity);
             if (found == uids.end()) {
                 continue;

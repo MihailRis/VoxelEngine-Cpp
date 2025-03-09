@@ -7,7 +7,7 @@ AppDir:
     icon: VoxelCore
     version: latest
     exec: usr/bin/VoxelEngine
-    exec_args: --dir $HOME/.voxeng --res $APPDIR/usr/share/VoxelCore/res $@
+    exec_args: --dir $HOME/.config/voxelcore --res $APPDIR/usr/share/VoxelCore/res $@
   apt:
     arch: amd64
     sources:
