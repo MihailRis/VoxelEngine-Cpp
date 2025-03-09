@@ -18,6 +18,7 @@ class Block;
 class Engine;
 class LevelController;
 class WorldRenderer;
+class Weather;
 struct WeatherPreset;
 
 class Decorator {
@@ -44,6 +45,9 @@ class Decorator {
         const glm::ivec3& areaCenter,
         const WeatherPreset& weather
     );
+    void updateRandomSounds(float delta, const Weather& weather);
+    void updateBlockEmitters(const Camera& camera);
+    void updateTextNotes();
     void addParticles(const Block& def, const glm::ivec3& pos);
 public:
     Decorator(
@@ -57,7 +61,6 @@ public:
     void update(
         float delta,
         const Camera& camera,
-        const WeatherPreset& weatherA,
-        const WeatherPreset& weatherB
+        const Weather& weather
     );
 };

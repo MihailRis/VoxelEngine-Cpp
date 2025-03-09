@@ -173,45 +173,7 @@ void Decorator::update(
     }
 }
 
-void Decorator::update(
-    float delta,
-    const Camera& camera,
-    const WeatherPreset& weatherA,
-    const WeatherPreset& weatherB
-) {
-    float thunderRate = weatherA.thunderRate * weatherA.intensity +
-                        weatherB.thunderRate * weatherB.intensity;
-    thunderTimer += delta;
-    util::PseudoRandom random(rand());
-    if (thunderTimer >= 1.0f) {
-        thunderTimer = 0.0f;
-        if (random.randFloat() < thunderRate) {
-            audio::play(
-                assets.get<audio::Sound>("ambient/thunder"),
-                glm::vec3(),
-                false,
-                1.0f,
-                1.0f + random.randFloat() - 0.5f,
-                false,
-                audio::PRIORITY_NORMAL,
-                audio::get_channel_index("ambient")
-            );
-        }
-    }
-
-    glm::ivec3 pos = camera.position;
-    for (int i = 0; i < ITERATIONS; i++) {
-        update(delta, pos - glm::ivec3(UPDATE_AREA_DIAMETER / 2), pos);
-    }
-    int randIters = std::min(50'000, static_cast<int>(delta * 24'000));
-    for (int i = 0; i < randIters; i++) {
-        if (weatherA.intensity > 1.e-3f) {
-            updateRandom(delta, pos, weatherA);
-        }
-        if (weatherB.intensity > 1.e-3f) {
-            updateRandom(delta, pos, weatherB);
-        }
-    }
+void Decorator::updateBlockEmitters(const Camera& camera) {
     const auto& chunks = *player.chunks;
     const auto& indices = *level.content.getIndices();
     auto iter = blockEmitters.begin();
@@ -243,7 +205,9 @@ void Decorator::update(
         }
         iter++;
     }
+}
 
+void Decorator::updateTextNotes() {
     for (const auto& [id, player] : *level.players) {
         if (id == this->player.getId() ||
             playerTexts.find(id) != playerTexts.end()) {
@@ -272,4 +236,50 @@ void Decorator::update(
             ++textsIter;
         }
     }
+}
+
+void Decorator::updateRandomSounds(float delta, const Weather& weather) {
+    float thunderRate = weather.a.thunderRate * weather.a.intensity +
+                        weather.b.thunderRate * weather.b.intensity;
+    thunderTimer += delta;
+    util::PseudoRandom random(rand());
+    if (thunderTimer >= 1.0f) {
+        thunderTimer = 0.0f;
+        if (random.randFloat() < thunderRate) {
+            audio::play(
+                assets.get<audio::Sound>("ambient/thunder"),
+                glm::vec3(),
+                false,
+                1.0f,
+                1.0f + random.randFloat() - 0.5f,
+                false,
+                audio::PRIORITY_NORMAL,
+                audio::get_channel_index("ambient")
+            );
+        }
+    }
+}
+
+void Decorator::update(
+    float delta,
+    const Camera& camera,
+    const Weather& weather
+) {
+    updateRandomSounds(delta, weather);    
+
+    glm::ivec3 pos = camera.position;
+    for (int i = 0; i < ITERATIONS; i++) {
+        update(delta, pos - glm::ivec3(UPDATE_AREA_DIAMETER / 2), pos);
+    }
+    int randIters = std::min(50'000, static_cast<int>(delta * 24'000));
+    for (int i = 0; i < randIters; i++) {
+        if (weather.a.intensity > 1.e-3f) {
+            updateRandom(delta, pos, weather.a);
+        }
+        if (weather.b.intensity > 1.e-3f) {
+            updateRandom(delta, pos, weather.b);
+        }
+    }
+    updateBlockEmitters(camera);
+    updateTextNotes();
 }
