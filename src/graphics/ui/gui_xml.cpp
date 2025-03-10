@@ -7,6 +7,7 @@
 #include "elements/Canvas.hpp"
 #include "elements/CheckBox.hpp"
 #include "elements/TextBox.hpp"
+#include "elements/SplitBox.hpp"
 #include "elements/TrackBar.hpp"
 #include "elements/InputBindBox.hpp"
 #include "elements/InventoryView.hpp"
@@ -311,6 +312,20 @@ static std::shared_ptr<UINode> read_container(
     auto container = std::make_shared<Container>(glm::vec2());
     read_container_impl(reader, element, *container);
     return container;
+}
+
+static std::shared_ptr<UINode> read_split_box(
+    UiXmlReader& reader, const xml::xmlelement& element
+) {
+    float splitPos = element.attr("split-pos", "0.5").asFloat();
+    Orientation orientation =
+        element.attr("orientation", "vertical").getText() == "horizontal"
+            ? Orientation::horizontal
+            : Orientation::vertical;
+    auto splitBox =
+        std::make_shared<SplitBox>(glm::vec2(), splitPos, orientation);
+    read_container_impl(reader, element, *splitBox);
+    return splitBox;
 }
 
 static std::shared_ptr<UINode> read_panel(
@@ -677,6 +692,7 @@ UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
     add("button", read_button);
     add("textbox", read_text_box);
     add("pagebox", read_page_box);
+    add("splitbox", read_split_box);
     add("checkbox", read_check_box);
     add("trackbar", read_track_bar);
     add("container", read_container);
