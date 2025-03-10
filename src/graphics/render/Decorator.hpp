@@ -18,6 +18,8 @@ class Block;
 class Engine;
 class LevelController;
 class WorldRenderer;
+class Weather;
+struct WeatherPreset;
 
 class Decorator {
     Engine& engine;
@@ -29,10 +31,23 @@ class Decorator {
     std::unordered_map<int64_t, u64id_t> playerTexts;
     int currentIndex = 0;
     NotePreset playerNamePreset {};
+    float thunderTimer = 0.0f;
 
     void update(
-        float delta, const glm::ivec3& areaStart, const glm::ivec3& areaCenter
+        float delta,
+        const glm::ivec3& areaStart,
+        const glm::ivec3& areaCenter
     );
+    
+    /// @brief Updates weather effects, blocks ambient sounds, etc..
+    void updateRandom(
+        float delta,
+        const glm::ivec3& areaCenter,
+        const WeatherPreset& weather
+    );
+    void updateRandomSounds(float delta, const Weather& weather);
+    void updateBlockEmitters(const Camera& camera);
+    void updateTextNotes();
     void addParticles(const Block& def, const glm::ivec3& pos);
 public:
     Decorator(
@@ -43,5 +58,9 @@ public:
         Player& player
     );
 
-    void update(float delta, const Camera& camera);
+    void update(
+        float delta,
+        const Camera& camera,
+        const Weather& weather
+    );
 };

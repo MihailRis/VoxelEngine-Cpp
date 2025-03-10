@@ -6,10 +6,10 @@
 #include "assets/assets_util.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
-#include "graphics/render/MainBatch.hpp"
 #include "window/Camera.hpp"
 #include "world/Level.hpp"
 #include "voxels/Chunks.hpp"
+#include "MainBatch.hpp"
 #include "settings.hpp"
 
 size_t ParticlesRenderer::visibleParticles = 0;
@@ -176,24 +176,6 @@ void ParticlesRenderer::render(const Camera& camera, float delta) {
         vec = &particles[texture];
         emitter.update(delta, camera.position, *vec);
         iter++;
-    }
-}
-
-void ParticlesRenderer::gc() {
-    std::set<Emitter*> usedEmitters;
-    for (const auto& [_, vec] : particles) {
-        for (const auto& particle : vec) {
-            usedEmitters.insert(particle.emitter);
-        }
-    }
-    auto iter = emitters.begin();
-    while (iter != emitters.end()) {
-        auto emitter = iter->second.get();
-        if (usedEmitters.find(emitter) == usedEmitters.end()) {
-            iter = emitters.erase(iter);
-        } else {
-            iter++;
-        }
     }
 }
 
