@@ -388,7 +388,7 @@ void WorldRenderer::draw(
         renderBlockOverlay(wctx);
     }
 
-    // Rendering fullscreen quad with
+    // Rendering fullscreen quad
     auto screenShader = assets.get<Shader>("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", timer);

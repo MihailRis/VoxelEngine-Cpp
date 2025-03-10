@@ -116,7 +116,8 @@ void Decorator::updateRandom(
         }
     }
     float intensity = weather.intensity * weather.fall.maxIntensity;
-    if (dst2 < 128 && random.randFloat() < glm::pow(intensity, 2.0f) && rainSplash.has_value()) {
+    if (rainSplash.has_value() && dst2 < 128 &&
+        random.randFloat() < glm::pow(intensity, 2.0f)) {
         auto treg = util::get_texture_region(
             assets, "particles:rain_splash_0", ""
         );
@@ -239,13 +240,11 @@ void Decorator::updateTextNotes() {
 }
 
 void Decorator::updateRandomSounds(float delta, const Weather& weather) {
-    float thunderRate = weather.a.thunderRate * weather.a.intensity +
-                        weather.b.thunderRate * weather.b.intensity;
     thunderTimer += delta;
     util::PseudoRandom random(rand());
     if (thunderTimer >= 1.0f) {
         thunderTimer = 0.0f;
-        if (random.randFloat() < thunderRate) {
+        if (random.randFloat() < weather.thunderRate()) {
             audio::play(
                 assets.get<audio::Sound>("ambient/thunder"),
                 glm::vec3(),

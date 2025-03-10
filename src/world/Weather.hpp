@@ -41,6 +41,10 @@ struct Weather : Serializable {
         return b.fogCurve * t + a.fogCurve * (1.0f - t);
     }
 
+    float thunderRate() const {
+        return b.thunderRate * t + a.thunderRate * (1.0f - t);
+    }
+
     dv::value serialize() const override {
         return dv::object({
             {"a", a.serialize()},
