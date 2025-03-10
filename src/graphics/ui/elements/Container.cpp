@@ -172,11 +172,11 @@ void Container::add(const std::shared_ptr<UINode>& node, glm::vec2 pos) {
     add(node);
 }
 
-void Container::remove(const std::shared_ptr<UINode>& selected) {
+void Container::remove(UINode* selected) {
     selected->setParent(nullptr);
     nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
         [selected](const std::shared_ptr<UINode>& node) {
-            return node == selected;
+            return node.get() == selected;
         }
     ), nodes.end());
     refresh();
@@ -185,7 +185,7 @@ void Container::remove(const std::shared_ptr<UINode>& selected) {
 void Container::remove(const std::string& id) {
     for (auto& node : nodes) {
         if (node->getId() == id) {
-            return remove(node);
+            return remove(node.get());
         }
     }
 }

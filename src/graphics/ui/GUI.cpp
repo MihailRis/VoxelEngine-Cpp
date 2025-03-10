@@ -11,14 +11,15 @@
 #include "frontend/UiDocument.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/core/Batch2D.hpp"
+#include "graphics/core/LineBatch.hpp"
 #include "graphics/core/Shader.hpp"
+#include "graphics/core/Font.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "window/input.hpp"
 #include "window/Camera.hpp"
 
-#include <iostream>
 #include <algorithm>
 #include <utility>
 
@@ -238,6 +239,39 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     if (hover) {
         Window::setCursor(hover->getCursor());
     }
+    if (hover && debug) {
+        auto pos = hover->calcPos();
+        const auto& id = hover->getId();
+        if (!id.empty()) {
+            auto& font = assets.require<Font>(FONT_DEFAULT);
+            auto text = util::str2wstr_utf8(id);
+            int width = font.calcWidth(text);
+            int height = font.getLineHeight();
+
+            batch2D->untexture();
+            batch2D->setColor(0, 0, 0);
+            batch2D->rect(pos.x, pos.y, width, height);
+
+            batch2D->resetColor();
+            font.draw(*batch2D, text, pos.x, pos.y, nullptr, 0);
+        }
+
+        batch2D->untexture();
+        auto node = hover->getParent();
+        while (node) {
+            auto pos = node->calcPos();
+            auto size = node->getSize();
+
+            batch2D->setColor(0, 0, 255);
+            batch2D->lineRect(pos.x, pos.y, size.x-1, size.y-1);
+
+            node = node->getParent();
+        }
+        // debug draw
+        auto size = hover->getSize();
+        batch2D->setColor(0, 255, 0);
+        batch2D->lineRect(pos.x, pos.y, size.x-1, size.y-1);
+    }
 }
 
 std::shared_ptr<UINode> GUI::getFocused() const {
@@ -252,8 +286,8 @@ void GUI::add(std::shared_ptr<UINode> node) {
     container->add(std::move(node));
 }
 
-void GUI::remove(std::shared_ptr<UINode> node) noexcept {
-    container->remove(std::move(node));
+void GUI::remove(UINode* node) noexcept {
+    container->remove(node);
 }
 
 void GUI::store(const std::string& name, std::shared_ptr<UINode> node) {
@@ -296,4 +330,8 @@ void GUI::setDoubleClickDelay(float delay) {
 
 float GUI::getDoubleClickDelay() const {
     return doubleClickDelay;
+}
+
+void GUI::toggleDebug() {
+    debug = !debug;
 }

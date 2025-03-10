@@ -48,8 +48,12 @@ public:
     void sprite(float x, float y, float w, float h, float skew, int atlasRes, int index, glm::vec4 tint);
     void point(float x, float y, float r, float g, float b, float a);
     
-    void setColor(glm::vec4 color) {
+    void setColor(const glm::vec4& color) {
         this->color = color;
+    }
+
+    void setColor(int r, int g, int b, int a=255) {
+        this->color = glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
     }
 
     void resetColor() {

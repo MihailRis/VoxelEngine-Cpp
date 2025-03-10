@@ -63,7 +63,7 @@ void Panel::add(const std::shared_ptr<UINode> &node) {
     fullRefresh();
 }
 
-void Panel::remove(const std::shared_ptr<UINode> &node) {
+void Panel::remove(UINode* node) {
     Container::remove(node);
     fullRefresh();
 }

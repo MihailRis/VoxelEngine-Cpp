@@ -163,6 +163,9 @@ void Engine::updateHotkeys() {
     if (Events::jpressed(keycode::F2)) {
         saveScreenshot();
     }
+    if (Events::jpressed(keycode::F8)) {
+        gui->toggleDebug();
+    }
     if (Events::jpressed(keycode::F11)) {
         settings.display.fullscreen.toggle();
     }

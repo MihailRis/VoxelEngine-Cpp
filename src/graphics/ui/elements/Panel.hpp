@@ -7,14 +7,14 @@ namespace gui {
     class Panel : public Container {
     protected:
         Orientation orientation = Orientation::vertical;
-        glm::vec4 padding {2.0f};
+        glm::vec4 padding;
         float interval = 2.0f;
         int minLength = 0;
         int maxLength = 0;
     public:
         Panel(
             glm::vec2 size, 
-            glm::vec4 padding=glm::vec4(2.0f), 
+            glm::vec4 padding=glm::vec4(0.0f), 
             float interval=2.0f
         );
         virtual ~Panel();
@@ -25,7 +25,7 @@ namespace gui {
         Orientation getOrientation() const;
 
         virtual void add(const std::shared_ptr<UINode>& node) override;
-        virtual void remove(const std::shared_ptr<UINode>& node) override;
+        virtual void remove(UINode* node) override;
 
         virtual void refresh() override;
         virtual void fullRefresh() override;
