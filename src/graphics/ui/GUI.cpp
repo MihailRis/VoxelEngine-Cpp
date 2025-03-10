@@ -262,7 +262,7 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
             auto pos = node->calcPos();
             auto size = node->getSize();
 
-            batch2D->setColor(0, 0, 255);
+            batch2D->setColor(0, 255, 255);
             batch2D->lineRect(pos.x, pos.y, size.x-1, size.y-1);
 
             node = node->getParent();

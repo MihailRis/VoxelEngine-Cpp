@@ -301,9 +301,13 @@ const std::string& UINode::getId() const {
 void UINode::reposition() {
     if (sizefunc) {
         auto newSize = sizefunc();
+        auto defsize = newSize;
+        if (parent) {
+            defsize = parent->getSize();
+        }
         setSize(
-            {newSize.x < 0 ? size.x : newSize.x,
-             newSize.y < 0 ? size.y : newSize.y}
+            {newSize.x < 0 ? defsize.x : newSize.x,
+             newSize.y < 0 ? defsize.y : newSize.y}
         );
     }
     if (positionfunc) {

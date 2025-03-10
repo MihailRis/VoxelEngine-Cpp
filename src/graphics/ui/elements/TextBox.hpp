@@ -210,6 +210,7 @@ namespace gui {
         virtual void setShowLineNumbers(bool flag);
         virtual bool isShowLineNumbers() const;
 
+        virtual void reposition() override;
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;
         virtual void doubleClick(GUI*, int x, int y) override;

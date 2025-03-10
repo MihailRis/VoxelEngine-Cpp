@@ -250,7 +250,7 @@ namespace gui {
         const std::string& getId() const;
 
         /// @brief Fetch pos from positionfunc if assigned
-        void reposition();
+        virtual void reposition();
 
         virtual void setGravity(Gravity gravity);
 
