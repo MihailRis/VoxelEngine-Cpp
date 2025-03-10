@@ -543,3 +543,11 @@ end
 function file.prefix(path)
     return path:match("^([^:]+)")
 end
+
+function file.parent(path)
+    local pos = path:find("/")
+    if not pos then
+        return file.prefix(path)..":"
+    end
+    return path:sub(0, pos-1)
+end
