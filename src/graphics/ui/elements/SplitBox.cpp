@@ -3,7 +3,7 @@
 using namespace gui;
 
 SplitBox::SplitBox(const glm::vec2& size, float splitPos, Orientation orientation)
- : Container(size), splitPos(splitPos), orientation(orientation) {
+ : BasePanel(size, glm::vec4(), 4.0f, orientation), splitPos(splitPos) {
     setCursor(
         orientation == Orientation::vertical ? CursorShape::NS_RESIZE
                                              : CursorShape::EW_RESIZE
@@ -40,18 +40,22 @@ void SplitBox::refresh() {
     }
     auto nodeA = nodes.at(0);
     auto nodeB = nodes.at(1);
+
+    float sepRadius = interval / 2.0f;
     
-    nodeA->setPos(glm::vec2());
+    nodeA->setPos(glm::vec2(padding));
+
+    const auto& p = padding;
     if (orientation == Orientation::vertical) {
         float splitPos = this->splitPos * size.y;
-        nodeA->setSize(glm::vec2(size.x, splitPos - splitRadius));
-        nodeB->setSize(glm::vec2(size.x, size.y - splitPos - splitRadius));
-        nodeB->setPos(glm::vec2(0.0f, splitPos + splitRadius));
+        nodeA->setSize({size.x-p.x-p.z, splitPos - sepRadius - p.y});
+        nodeB->setSize({size.x-p.x-p.z, size.y - splitPos - sepRadius - p.w});
+        nodeB->setPos({p.x, splitPos + sepRadius});
     } else {
         float splitPos = this->splitPos * size.x;
-        nodeA->setSize(glm::vec2(splitPos - splitRadius, size.y));
-        nodeB->setSize(glm::vec2(size.x - splitPos - splitRadius, size.y));
-        nodeB->setPos(glm::vec2(splitPos + splitRadius, 0.0f));
+        nodeA->setSize({splitPos - sepRadius - p.x, size.y - p.y - p.w});
+        nodeB->setSize({size.x - splitPos - sepRadius - p.z, size.y - p.y - p.w});
+        nodeB->setPos({splitPos + sepRadius, p.y});
     }
 }
 

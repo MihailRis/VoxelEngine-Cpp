@@ -207,11 +207,10 @@ void UiXmlReader::readUINode(
     read_uinode(reader, element, node);
 }
 
-static void read_panel_impl(
+static void read_base_panel_impl(
     UiXmlReader& reader,
     const xml::xmlelement& element,
-    Panel& panel,
-    bool subnodes = true
+    BasePanel& panel
 ) {
     read_uinode(reader, element, panel);
 
@@ -224,6 +223,22 @@ static void read_panel_impl(
             size.y + padding.y + padding.w
         ));
     }
+    if (element.has("orientation")) {
+        auto &oname = element.attr("orientation").getText();
+        if (oname == "horizontal") {
+            panel.setOrientation(Orientation::horizontal);
+        }
+    }
+}
+
+static void read_panel_impl(
+    UiXmlReader& reader,
+    const xml::xmlelement& element,
+    Panel& panel,
+    bool subnodes = true
+) {
+    read_base_panel_impl(reader, element, panel);
+
     if (element.has("size")) {
         panel.setResizing(false);
     }
@@ -232,12 +247,6 @@ static void read_panel_impl(
     }
     if (element.has("min-length")) {
         panel.setMinLength(element.attr("min-length").asInt());
-    }
-    if (element.has("orientation")) {
-        auto &oname = element.attr("orientation").getText();
-        if (oname == "horizontal") {
-            panel.setOrientation(Orientation::horizontal);
-        }
     }
     if (subnodes) {
         for (auto& sub : element.getElements()) {
@@ -324,7 +333,15 @@ static std::shared_ptr<UINode> read_split_box(
             : Orientation::vertical;
     auto splitBox =
         std::make_shared<SplitBox>(glm::vec2(), splitPos, orientation);
-    read_container_impl(reader, element, *splitBox);
+    read_base_panel_impl(reader, element, *splitBox);
+    for (auto& sub : element.getElements()) {
+        if (sub->isText())
+            continue;
+        auto subnode = reader.readUINode(*sub);
+        if (subnode) {
+            splitBox->add(subnode);
+        }
+    }
     return splitBox;
 }
 
