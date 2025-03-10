@@ -194,7 +194,6 @@ function set_mode(mode)
         document.root.color = {0, 0, 0, 128}
     end
 
-    document.traceback.visible = mode == 'debug'
     document.prompt.visible = show_prompt
     if show_prompt then
         document.prompt.focused = true

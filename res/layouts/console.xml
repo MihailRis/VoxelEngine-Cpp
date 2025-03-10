@@ -20,38 +20,42 @@
             margin='0'
             editable='false' 
             multiline='true' 
-            size-func="gui.get_viewport()[1]-350,40"
+            size-func="-1,40"
             gravity="bottom-left"
             markup="md"
         ></textbox>
     </container>
-    <container id="editorContainer" pos="0,60" color="#00000080"
-               size-func="unpack(vec2.add(gui.get_viewport(), {-350,-230}))">
-        <textbox
-            id='editor'
-            color='0'
-            autoresize='true'
-            margin='0'
-            padding='5'
-            multiline='true'
-            line-numbers='true'
-            syntax='lua'
-            size-func="gui.get_viewport()[1]-350,40"
-            gravity="top-left"
-            text-wrap='false'
-            scroll-step='50'
-        ></textbox>
-    </container>
-    <panel id="traceback" gravity="bottom-left" padding="4" color="#000000A0" 
-        max-length="170" size-func="gui.get_viewport()[1]-350,170">
-    </panel>
-    <panel id="problemsLog"
-        color="#00000010" 
-        position-func="gui.get_viewport()[1]-350,0" 
-        size-func="350,gui.get_viewport()[2]-40"
-        padding="5,15,5,15">
-        <label margin="0,0,0,5">@Problems</label>
-    </panel>
+    <splitbox id="editorContainer" split-pos="0.8" pos="0,60" size-func="unpack(vec2.add(gui.get_viewport(), {-350,-60}))">
+        <container color="#00000080">
+            <textbox
+                id='editor'
+                color='0'
+                autoresize='true'
+                margin='0'
+                padding='5'
+                multiline='true'
+                line-numbers='true'
+                syntax='lua'
+                size-func="-1,40"
+                text-wrap='false'
+                scroll-step='50'
+            ></textbox>
+        </container>
+        <panel id="traceback" gravity="bottom-left" padding="4" color="#000000A0" max-length="170">
+        </panel>
+    </splitbox>
+    <splitbox position-func="gui.get_viewport()[1]-350,0" 
+              size-func="350,gui.get_viewport()[2]-40"
+              split-pos="0.25">
+            <panel id="problemsLog"
+                   color="#00000010" 
+                   padding="5,15,5,15">
+                <label margin="0,0,0,5">@Problems</label>
+            </panel>
+            <panel id="filesList" color="#00000010" interval="6" padding="4">
+                <!-- content is generated in script -->
+            </panel>
+    </splitbox>
     <textbox id='prompt' 
              consumer='submit' 
              margin='0' 
