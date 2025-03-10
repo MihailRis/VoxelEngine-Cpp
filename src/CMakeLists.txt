@@ -21,7 +21,14 @@ find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(CURL REQUIRED)
 if(NOT APPLE)
-    find_package(EnTT REQUIRED)
+    include(FetchContent)
+    FetchContent_Declare(
+      entt
+      GIT_REPOSITORY https://github.com/skypjack/entt.git
+      GIT_TAG        4a2d1a8541228a90e02a873dba6a980506c42c03 # v3.14.0
+      FIND_PACKAGE_ARGS NAMES EnTT
+    )
+    FetchContent_MakeAvailable(entt)
 endif()
 
 set(LIBS "")
@@ -82,6 +89,7 @@ target_link_libraries(
     ZLIB::ZLIB
     PNG::PNG
     CURL::libcurl
+    EnTT::EnTT
     ${VORBISLIB}
     ${LUA_LIBRARIES}
     ${CMAKE_DL_LIBS})
