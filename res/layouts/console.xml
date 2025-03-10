@@ -25,7 +25,8 @@
             markup="md"
         ></textbox>
     </container>
-    <splitbox id="editorContainer" split-pos="0.8" pos="0,60" size-func="unpack(vec2.add(gui.get_viewport(), {-350,-60}))">
+    <splitbox id="editorContainer" split-pos="0.8" pos="0,60" 
+              size-func="unpack(vec2.add(gui.get_viewport(), {-350,-60}))">
         <container color="#00000080">
             <textbox
                 id='editor'
@@ -41,7 +42,8 @@
                 scroll-step='50'
             ></textbox>
         </container>
-        <panel id="traceback" gravity="bottom-left" padding="4" color="#000000A0" max-length="170">
+        <panel id="traceback" gravity="bottom-left" 
+               padding="4" color="#000000A0" max-length="170">
         </panel>
     </splitbox>
     <splitbox position-func="gui.get_viewport()[1]-350,0" 
