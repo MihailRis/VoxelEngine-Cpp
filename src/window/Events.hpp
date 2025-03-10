@@ -10,11 +10,6 @@
 
 inline constexpr short KEYS_BUFFER_SIZE = 1036;
 
-enum class BindType {
-    BIND = 0,
-    REBIND = 1
-};
-
 namespace Events {
     extern int scroll;
     extern glm::vec2 delta;
@@ -54,14 +49,6 @@ namespace Events {
     void setButton(int button, bool b);
 
     void setPosition(float xpos, float ypos);
-
-    std::string writeBindings();
-    void loadBindings(
-        const std::string& filename,
-        const std::string& source,
-        BindType bindType
-    );
-    void enableBindings();
 
     bool isCursorLocked();
 };

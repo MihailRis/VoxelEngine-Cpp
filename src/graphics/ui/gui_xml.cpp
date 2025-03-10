@@ -587,7 +587,7 @@ static std::shared_ptr<UINode> read_input_bind_box(
     UiXmlReader& reader, const xml::xmlelement& element
 ) {
     auto bindname = element.attr("binding").getText();
-    auto& found = Events::requireBinding(bindname);
+    auto& found = reader.getGUI().getInput().getBindings().require(bindname);
     glm::vec4 padding = element.attr("padding", "6").asVec4();
     auto bindbox =
         std::make_shared<InputBindBox>(reader.getGUI(), found, padding);

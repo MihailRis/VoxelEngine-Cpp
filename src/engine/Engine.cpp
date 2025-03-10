@@ -149,7 +149,9 @@ void Engine::loadControls() {
     if (io::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
         std::string text = io::read_string(controls_file);
-        Events::loadBindings(controls_file.string(), text, BindType::BIND);
+        input->getBindings().read(
+            toml::parse(controls_file.string(), text), BindType::BIND
+        );
     }
 }
 
@@ -159,13 +161,13 @@ void Engine::onAssetsLoaded() {
 }
 
 void Engine::updateHotkeys() {
-    if (Events::jpressed(keycode::F2)) {
+    if (input->jpressed(keycode::F2)) {
         saveScreenshot();
     }
-    if (Events::jpressed(keycode::F8)) {
+    if (input->jpressed(keycode::F8)) {
         gui->toggleDebug();
     }
-    if (Events::jpressed(keycode::F11)) {
+    if (input->jpressed(keycode::F11)) {
         settings.display.fullscreen.toggle();
     }
 }
@@ -224,7 +226,7 @@ void Engine::saveSettings() {
     io::write_string(paths.getSettingsFile(), toml::stringify(*settingsHandler));
     if (!params.headless) {
         logger.info() << "saving bindings";
-        io::write_string(paths.getControlsFile(), Events::writeBindings());
+        io::write_string(paths.getControlsFile(), input->getBindings().write());
     }
 }
 
@@ -324,12 +326,14 @@ void Engine::loadAssets() {
     }
 }
 
-static void load_configs(const io::path& root) {
+static void load_configs(Engine& engine, const io::path& root) {
+    auto& input = engine.getInput();
     auto configFolder = root / "config";
     auto bindsFile = configFolder / "bindings.toml";
     if (io::is_regular_file(bindsFile)) {
-        Events::loadBindings(
-            bindsFile.string(), io::read_string(bindsFile), BindType::BIND
+        input.getBindings().read(
+            toml::parse(bindsFile.string(), io::read_string(bindsFile)),
+            BindType::BIND
         );
     }
 }
@@ -343,7 +347,7 @@ void Engine::loadContent() {
     }
 
     ContentBuilder contentBuilder;
-    corecontent::setup(contentBuilder);
+    corecontent::setup(*input, contentBuilder);
 
     paths.setContentPacks(&contentPacks);
     PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
@@ -365,11 +369,11 @@ void Engine::loadContent() {
     // Load content
     {
         ContentLoader(&corePack, contentBuilder, *resPaths).load();
-        load_configs(corePack.folder);
+        load_configs(*this, corePack.folder);
     }
     for (auto& pack : contentPacks) {
         ContentLoader(&pack, contentBuilder, *resPaths).load();
-        load_configs(pack.folder);
+        load_configs(*this, pack.folder);
     }
     content = contentBuilder.build();
     scripting::on_content_load(content.get());
@@ -389,7 +393,7 @@ void Engine::resetContent() {
     {
         auto pack = ContentPack::createCore(paths);
         resRoots.push_back({"core", pack.folder});
-        load_configs(pack.folder);
+        load_configs(*this, pack.folder);
     }
     auto manager = createPacksManager(io::path());
     manager.scan();

@@ -281,7 +281,8 @@ bool SlotView::isHighlighted() const {
 }
 
 void SlotView::performLeftClick(ItemStack& stack, ItemStack& grabbed) {
-    if (layout.taking && Events::pressed(keycode::LEFT_SHIFT)) {
+    const auto& input = gui.getInput();
+    if (layout.taking && input.pressed(keycode::LEFT_SHIFT)) {
         if (layout.shareFunc) {
             layout.shareFunc(layout.index, stack);
         }

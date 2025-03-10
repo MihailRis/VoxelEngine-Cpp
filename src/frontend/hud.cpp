@@ -331,7 +331,7 @@ void Hud::update(bool visible) {
         processInput(visible);
     }
     if ((menu.hasOpenPage() || inventoryOpen) == input.getCursor().locked) {
-        Events::toggleCursor();
+        input.toggleCursor();
     }
 
     if (blockUI) {

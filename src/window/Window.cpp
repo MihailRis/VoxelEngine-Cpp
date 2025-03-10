@@ -189,10 +189,6 @@ public:
         return Events::getScroll();
     }
 
-    Binding& requireBinding(const std::string& name) override {
-        return Events::requireBinding(name);
-    }
-
     bool pressed(keycode keycode) const override {
         return Events::pressed(keycode);
     }
@@ -215,6 +211,10 @@ public:
         };
     }
 
+    void toggleCursor() override {
+        Events::toggleCursor();
+    }
+
     Bindings& getBindings() override {
         return Events::bindings;
     }
@@ -225,6 +225,14 @@ public:
 
     observer_handler addKeyCallback(keycode key, KeyCallback callback) override {
         return Events::addKeyCallback(key, std::move(callback));
+    }
+
+    const std::vector<keycode>& getPressedKeys() const override {
+        return Events::pressedKeys;
+    }
+
+    const std::vector<uint>& getCodepoints() const override {
+        return Events::codepoints;
     }
 };
 static_assert(!std::is_abstract<GLFWInput>());

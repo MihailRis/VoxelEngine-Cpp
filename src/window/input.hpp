@@ -5,6 +5,15 @@
 
 #include "util/HandlersList.hpp"
 
+namespace dv {
+    class value;
+}
+
+enum class BindType {
+    BIND = 0,
+    REBIND = 1
+};
+
 /// @brief Represents glfw3 keycode values.
 enum class keycode : int {
     SPACE = 32,
@@ -195,6 +204,10 @@ public:
     }
 
     Binding* get(const std::string& name) {
+        return const_cast<Bindings*>(this)->get(name);
+    }
+
+    const Binding* get(const std::string& name) const {
         const auto found = bindings.find(name);
         if (found == bindings.end()) {
             return nullptr;
@@ -202,13 +215,32 @@ public:
         return &found->second;
     }
 
+    Binding& require(const std::string& name) {
+        return const_cast<Bindings*>(this)->require(name);
+    }
+
+    const Binding& require(const std::string& name) const;
+
     void bind(const std::string& name, inputtype type, int code) {
         bindings.try_emplace(name, Binding(type, code));
+    }
+
+    void rebind(const std::string& name, inputtype type, int code) {
+        require(name) = Binding(type, code);
     }
 
     auto& getAll() {
         return bindings;
     }
+
+    void enableAll() {
+        for (auto& entry : bindings) {
+            entry.second.enabled = true;
+        }
+    }
+
+    void read(const dv::value& map, BindType bindType);
+    std::string write() const;
 };
 
 struct CursorState {
@@ -227,8 +259,6 @@ public:
 
     virtual int getScroll() = 0;
 
-    virtual Binding& requireBinding(const std::string& name) = 0;
-
     virtual bool pressed(keycode keycode) const = 0;
     virtual bool jpressed(keycode keycode) const = 0;
 
@@ -237,14 +267,18 @@ public:
 
     virtual CursorState getCursor() const = 0;
 
+    virtual void toggleCursor() = 0;
+
     virtual Bindings& getBindings() = 0;
 
     virtual const Bindings& getBindings() const = 0;
 
     virtual observer_handler addKeyCallback(keycode key, KeyCallback callback) = 0;
 
+    virtual const std::vector<keycode>& getPressedKeys() const = 0;
+    virtual const std::vector<uint>& getCodepoints() const = 0;
+
     observer_handler addCallback(const std::string& name, KeyCallback callback) {
-        return requireBinding(name).onactived.add(callback);
+        return getBindings().require(name).onactived.add(callback);
     }
 };
-    

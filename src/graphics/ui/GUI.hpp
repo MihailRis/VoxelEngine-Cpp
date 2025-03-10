@@ -157,5 +157,6 @@ namespace gui {
 
         void toggleDebug();
         const Input& getInput() const;
+        Input& getInput();
     };
 }

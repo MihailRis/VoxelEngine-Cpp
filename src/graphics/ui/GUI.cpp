@@ -178,10 +178,10 @@ void GUI::actFocused() {
         focus = nullptr;
         return;
     }
-    for (auto codepoint : Events::codepoints) {
+    for (auto codepoint : input.getCodepoints()) {
         focus->typed(codepoint);
     }
-    for (auto key : Events::pressedKeys) {
+    for (auto key : input.getPressedKeys()) {
         focus->keyPressed(key);
     }
 
@@ -205,7 +205,7 @@ void GUI::act(float delta, const Viewport& vp) {
     updateTooltip(delta);
 
     const auto& cursor = input.getCursor();
-    if (!Events::isCursorLocked()) {
+    if (!cursor.locked) {
         actMouse(delta, cursor);
     } else {
         if (hover) {
@@ -355,5 +355,9 @@ void GUI::toggleDebug() {
 }
 
 const Input& GUI::getInput() const {
+    return engine.getInput();
+}
+
+Input& GUI::getInput() {
     return engine.getInput();
 }

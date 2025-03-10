@@ -10,6 +10,7 @@
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
+#include "coders/toml.hpp"
 
 namespace scripting {
     extern Hud* hud;
@@ -55,7 +56,7 @@ static int l_add_callback(lua::State* L) {
         return false;
     };
     if (handler == nullptr) {
-        auto& bind = input.requireBinding(bindname);
+        auto& bind = input.getBindings().require(bindname);
         handler = bind.onactived.add(callback);
     }
 
@@ -93,13 +94,13 @@ static int l_get_bindings(lua::State* L) {
 
 static int l_get_binding_text(lua::State* L) {
     auto bindname = lua::require_string(L, 1);
-    const auto& bind = engine->getInput().requireBinding(bindname);
+    const auto& bind = engine->getInput().getBindings().require(bindname);
     return lua::pushstring(L, bind.text());
 }
 
 static int l_is_active(lua::State* L) {
     auto bindname = lua::require_string(L, 1);
-    auto& bind = engine->getInput().requireBinding(bindname);
+    auto& bind = engine->getInput().getBindings().require(bindname);
     return lua::pushboolean(L, bind.active());
 }
 
@@ -128,8 +129,9 @@ static void reset_pack_bindings(const io::path& packFolder) {
     auto configFolder = packFolder / "config";
     auto bindsFile = configFolder / "bindings.toml";
     if (io::is_regular_file(bindsFile)) {
-        Events::loadBindings(
-            bindsFile.string(), io::read_string(bindsFile), BindType::REBIND
+        engine->getInput().getBindings().read(
+            toml::parse(bindsFile.string(), io::read_string(bindsFile)),
+            BindType::REBIND
         );
     }
 }
@@ -145,7 +147,7 @@ static int l_reset_bindings(lua::State*) {
 static int l_set_enabled(lua::State* L) {
     std::string bindname = lua::require_string(L, 1);
     bool enabled = lua::toboolean(L, 2);
-    engine->getInput().requireBinding(bindname).enabled = enabled;
+    engine->getInput().getBindings().require(bindname).enabled = enabled;
     return 0;
 }
 

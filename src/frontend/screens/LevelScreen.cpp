@@ -105,7 +105,7 @@ LevelScreen::~LevelScreen() {
     }
     scripting::on_frontend_close();
     // unblock all bindings
-    Events::enableBindings();
+    input.getBindings().enableAll();
     controller->onWorldQuit();
     engine.getPaths().setCurrentWorldFolder("");
 }
