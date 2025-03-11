@@ -158,7 +158,13 @@ static void read_uinode(
     }
 
     if (element.has("tooltip")) {
-        node.setTooltip(util::str2wstr_utf8(element.attr("tooltip").getText()));
+        auto tooltip = util::str2wstr_utf8(element.attr("tooltip").getText());
+        if (!tooltip.empty() && tooltip[0] == '@') {
+            tooltip = langs::get(
+                tooltip.substr(1), util::str2wstr_utf8(reader.getContext())
+            );
+        }
+        node.setTooltip(tooltip);
     }
     if (element.has("tooltip-delay")) {
         node.setTooltipDelay(element.attr("tooltip-delay").asFloat());
