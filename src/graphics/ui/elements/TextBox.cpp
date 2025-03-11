@@ -141,10 +141,7 @@ namespace gui {
             auto action =
                 std::make_unique<InputAction>(getTextBoxWeakptr(), pos, string);
             history.store(std::move(action), erasing);
-            pos = -1;
-            length = 0;
-            ss = {};
-            erasing = false;
+            reset();
         }
 
         void undo() {
@@ -159,6 +156,17 @@ namespace gui {
             locked = true;
             history.redo();
             locked = false;
+        }
+
+        void reset() {
+            pos = -1;
+            length = 0;
+            erasing = false;
+            ss = {};
+        }
+
+        bool isSynced() const {
+            return length == 0;
         }
     private:
         TextBox& textBox;
@@ -554,6 +562,10 @@ void TextBox::setEditable(bool editable) {
 
 bool TextBox::isEditable() const {
     return editable;
+}
+
+bool TextBox::isEdited() const {
+    return history->size() != 0 || !historian->isSynced();
 }
 
 size_t TextBox::getSelectionStart() const {
@@ -986,6 +998,8 @@ const std::wstring& TextBox::getText() const {
 void TextBox::setText(const std::wstring& value) {
     this->input = value;
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
+    historian->reset();
+    history->clear();
     refreshSyntax();
 }
 

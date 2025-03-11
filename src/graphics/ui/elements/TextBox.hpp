@@ -204,6 +204,8 @@ namespace gui {
         /// @brief Check if text editing feature is enabled 
         virtual bool isEditable() const;
 
+        virtual bool isEdited() const;
+
         virtual void setPadding(glm::vec4 padding);
         glm::vec4 getPadding() const;
 
