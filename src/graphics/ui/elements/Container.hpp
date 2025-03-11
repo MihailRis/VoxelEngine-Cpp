@@ -28,7 +28,7 @@ namespace gui {
         virtual void act(float delta) override;
         virtual void drawBackground(const DrawContext& pctx, const Assets& assets);
         virtual void draw(const DrawContext& pctx, const Assets& assets) override;
-        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos, const std::shared_ptr<UINode>& self) override;
+        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos) override;
         virtual void add(const std::shared_ptr<UINode>& node);
         virtual void add(const std::shared_ptr<UINode>& node, glm::vec2 pos);
         virtual void clear();

@@ -108,7 +108,7 @@ void GUI::actMouse(float delta) {
     doubleClicked = false;
     doubleClickTimer += delta + mouseDelta * 0.1f;
 
-    auto hover = container->getAt(Events::cursor, nullptr);
+    auto hover = container->getAt(Events::cursor);
     if (this->hover && this->hover != hover) {
         this->hover->setHover(false);
     }

@@ -17,9 +17,7 @@ Container::~Container() {
     Container::clear();
 }
 
-std::shared_ptr<UINode> Container::getAt(
-    const glm::vec2& pos, const std::shared_ptr<UINode>& self
-) {
+std::shared_ptr<UINode> Container::getAt(const glm::vec2& pos) {
     if (!isInteractive() || !isEnabled()) {
         return nullptr;
     }
@@ -28,19 +26,19 @@ std::shared_ptr<UINode> Container::getAt(
     }
     int diff = (actualLength-size.y);
     if (scrollable && diff > 0 && pos.x > calcPos().x + getSize().x - scrollBarWidth) {
-        return UINode::getAt(pos, self);
+        return UINode::getAt(pos);
     }
 
     for (int i = nodes.size()-1; i >= 0; i--) {
         auto& node = nodes[i];
         if (!node->isVisible())
             continue;
-        auto hover = node->getAt(pos, node);
+        auto hover = node->getAt(pos);
         if (hover != nullptr) {
             return hover;
         }
     }
-    return UINode::getAt(pos, self);
+    return UINode::getAt(pos);
 }
 
 void Container::mouseMove(GUI* gui, int x, int y) {

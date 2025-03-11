@@ -111,11 +111,11 @@ bool UINode::isInside(glm::vec2 point) {
             point.x < pos.x + size.x && point.y < pos.y + size.y);
 }
 
-std::shared_ptr<UINode> UINode::getAt(const glm::vec2& point, const std::shared_ptr<UINode>& self) {
+std::shared_ptr<UINode> UINode::getAt(const glm::vec2& point) {
     if (!isInteractive() || !enabled) {
         return nullptr;
     }
-    return isInside(point) ? self : nullptr;
+    return isInside(point) ? shared_from_this() : nullptr;
 }
 
 bool UINode::isInteractive() const {

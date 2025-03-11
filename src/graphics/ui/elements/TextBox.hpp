@@ -4,10 +4,14 @@
 #include "Label.hpp"
 
 class Font;
+class ActionsHistory;
 
 namespace gui {
+    class TextBoxHistorian;
     class TextBox : public Container {
         LabelCache rawTextCache;
+        std::shared_ptr<ActionsHistory> history;
+        std::unique_ptr<TextBoxHistorian> historian;
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
@@ -68,7 +72,6 @@ namespace gui {
 
         int calcIndexAt(int x, int y) const;
         void setTextOffset(uint x);
-        void erase(size_t start, size_t length);
         bool eraseSelected();
         void resetSelection();
         void extendSelection(int index);
@@ -93,8 +96,11 @@ namespace gui {
             std::wstring placeholder, 
             glm::vec4 padding=glm::vec4(4.0f)
         );
+
+        virtual ~TextBox();
         
-        void paste(const std::wstring& text);
+        void paste(const std::wstring& text, bool history=true);
+        void erase(size_t start, size_t length);
             
         virtual void setTextSupplier(wstringsupplier supplier);
 
@@ -201,6 +207,9 @@ namespace gui {
         virtual void setPadding(glm::vec4 padding);
         glm::vec4 getPadding() const;
 
+        size_t getSelectionStart() const;
+        size_t getSelectionEnd() const;
+
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
 
@@ -221,9 +230,7 @@ namespace gui {
         virtual void drawBackground(const DrawContext& pctx, const Assets& assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(keycode key) override;
-        virtual std::shared_ptr<UINode> getAt(
-            const glm::vec2& pos, const std::shared_ptr<UINode>& self
-        ) override;
+        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos) override;
         virtual void setOnUpPressed(const runnable &callback);
         virtual void setOnDownPressed(const runnable &callback);
 

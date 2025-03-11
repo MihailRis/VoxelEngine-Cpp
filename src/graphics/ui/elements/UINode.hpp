@@ -63,7 +63,7 @@ namespace gui {
     };
 
     /// @brief Base abstract class for all UI elements
-    class UINode {
+    class UINode : public std::enable_shared_from_this<UINode> {
         /// @brief element identifier used for direct access in UiDocument
         std::string id = "";
         /// @brief element enabled state
@@ -195,7 +195,7 @@ namespace gui {
         /// @param pos cursor screen position
         /// @param self shared pointer to element
         /// @return self, sub-element or nullptr if element is not interractive
-        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos, const std::shared_ptr<UINode>& self);
+        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos);
 
         /// @brief Check if element is opaque for cursor
         virtual bool isInteractive() const;
