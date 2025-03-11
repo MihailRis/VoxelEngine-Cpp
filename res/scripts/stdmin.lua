@@ -551,3 +551,15 @@ function file.parent(path)
     end
     return path:sub(0, pos-1)
 end
+
+function file.path(path)
+    local pos = path:find(':')
+    return path:sub(pos + 1)
+end
+
+function file.join(a, b)
+    if a[#a] == ':' then
+        return a .. b
+    end
+    return a .. "/" .. b
+end
