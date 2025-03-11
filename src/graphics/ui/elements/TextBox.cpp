@@ -870,9 +870,11 @@ void TextBox::keyPressed(keycode key) {
         }
         if (key == keycode::Z) {
             historian->undo();
+            refreshSyntax();
         }
         if (key == keycode::Y) {
             historian->redo();
+            refreshSyntax();
         }
     }
 }
