@@ -2,17 +2,14 @@
     <panel interval="0"
            orientation="horizontal"
            color="#00000010"
-           size-func="gui.get_viewport()[1]-350,30">
+           size-func="gui.get_viewport()[1],30">
         <button id="s_chat" size="110,30" onclick="modes:set('chat')">@Chat</button>
         <button id="s_console" size="110,30" onclick="modes:set('console')">@Console</button>
         <button id="s_debug" size="110,30" onclick="modes:set('debug')">@Debug</button>
     </panel>
-    <container pos="0,30" size-func="gui.get_viewport()[1]-350,30" color="#00000020">
-        <label id="title" pos="8,8"></label>
-    </container>
     
     <container id="logContainer" pos="0,60"
-               size-func="unpack(vec2.add(gui.get_viewport(), {-350,-100}))">
+               size-func="unpack(vec2.add(gui.get_viewport(), {-450,-100}))">
         <textbox 
             id='log' 
             color='0'
@@ -25,38 +22,44 @@
             markup="md"
         ></textbox>
     </container>
-    <splitbox id="editorContainer" split-pos="0.8" pos="0,60" 
-              size-func="unpack(vec2.add(gui.get_viewport(), {-350,-60}))">
-        <container color="#00000080">
-            <textbox
-                id='editor'
-                color='0'
-                autoresize='true'
-                margin='0'
-                padding='5'
-                multiline='true'
-                line-numbers='true'
-                syntax='lua'
-                size-func="-1,40"
-                text-wrap='false'
-                scroll-step='50'
-            ></textbox>
-        </container>
-        <panel id="traceback" gravity="bottom-left" 
-               padding="4" color="#000000A0" max-length="170">
-        </panel>
-    </splitbox>
-    <splitbox position-func="gui.get_viewport()[1]-350,0" 
-              size-func="350,gui.get_viewport()[2]-40"
-              split-pos="0.25">
-            <panel id="problemsLog"
-                   color="#00000010" 
-                   padding="5,15,5,15">
-                <label margin="0,0,0,5">@Problems</label>
+    <splitbox id="editorRoot" pos="0,30" size-func="-1,gui.get_viewport()[2]-30" 
+              orientation="horizontal" split-pos="0.7">
+        <splitbox id="editorContainer" split-pos="0.8">
+            <container color="#00000080">
+                <container size-func="-1,30" color="#00000020">
+                    <image id="lockIcon" src="gui/lock" enabled="false" size="16" pos="4,6"></image>
+                    <label id="title" pos="26,8"></label>
+                </container>
+                <textbox
+                    id='editor'
+                    pos='0,30'
+                    color='0'
+                    autoresize='true'
+                    margin='0'
+                    padding='5'
+                    multiline='true'
+                    line-numbers='true'
+                    syntax='lua'
+                    size-func="-1,40"
+                    text-wrap='false'
+                    scroll-step='50'
+                ></textbox>
+            </container>
+            <panel id="traceback" gravity="bottom-left" 
+                padding="4" color="#000000A0" max-length="170">
             </panel>
-            <panel id="filesList" color="#00000010" interval="6" padding="4">
-                <!-- content is generated in script -->
-            </panel>
+        </splitbox>
+        <splitbox
+                split-pos="0.25">
+                <panel id="problemsLog"
+                    color="#00000010" 
+                    padding="5,15,5,15">
+                    <label margin="0,0,0,5">@Problems</label>
+                </panel>
+                <panel id="filesList" color="#00000010" interval="6" padding="4">
+                    <!-- content is generated in script -->
+                </panel>
+        </splitbox>
     </splitbox>
     <textbox id='prompt' 
              consumer='submit' 

@@ -45,6 +45,19 @@ events.on("core:error", function (msg, traceback)
     table.insert(errors_all, full)
 end)
 
+function open_file_in_editor(filename, line)
+    local editor = document.editor
+    local source = file.read(filename):gsub('\t', '    ')
+    editor.text = source
+    editor.focused = true
+    if line then
+        time.post_runnable(function()
+            editor.caret = editor:linePos(line)
+        end)
+    end
+    document.title.text = gui.str('File')..' - '..filename
+end
+
 events.on("core:open_traceback", function(traceback_b64)
     local traceback = bjson.frombytes(base64.decode(traceback_b64))
     modes:set('debug')
@@ -62,23 +75,12 @@ events.on("core:open_traceback", function(traceback_b64)
             framestr = frame.source..":"..tostring(frame.currentline).." "
             if file.exists(frame.source) then
                 callback = string.format(
-                    "local editor = document.editor "..
-                    "local source = file.read('%s'):gsub('\t', '    ') "..
-                    "editor.text = source "..
-                    "editor.focused = true "..
-                    "time.post_runnable(function()"..
-                      "editor.caret = editor:linePos(%s) "..
-                    "end)",
+                    "open_file_in_editor('%s', %s)",
                     frame.source, frame.currentline-1
                 )
             else
                 callback = "document.editor.text = 'Could not open source file'"
             end
-            callback = string.format(
-                "%s document.title.text = gui.str('File')..' - %s'",
-                callback,
-                frame.source
-            )
         end
         if frame.name then
             framestr = framestr.."("..tostring(frame.name)..")"
@@ -185,6 +187,8 @@ function set_mode(mode)
     local show_prompt = mode == 'chat' or mode == 'console'
 
     document.title.text = ""
+    document.lockIcon.visible = false
+    document.editorRoot.visible = mode == 'debug'
     document.editorContainer.visible = mode == 'debug'
     document.logContainer.visible = mode ~= 'debug'
 
@@ -201,6 +205,19 @@ function set_mode(mode)
     console_mode = mode
 end
 
+local function collect_scripts(dirname, dest)
+    if file.isdir(dirname) then
+        local files = file.list(dirname)
+        for i, filename in ipairs(files) do
+            if file.isdir(filename) then
+                collect_scripts(filename, dest)
+            elseif file.ext(filename) == "lua" then
+                table.insert(dest, filename)
+            end
+        end
+    end
+end
+
 function on_open(mode)
     if modes == nil then
         modes = RadioGroup({
@@ -210,6 +227,24 @@ function on_open(mode)
         }, function (mode)
             set_mode(mode)
         end, mode or "console")
+
+        local files_list = document.filesList
+        local packs = pack.get_installed()
+
+        local scripts = {}
+        for _, packid in ipairs(packs) do
+            collect_scripts(packid..":modules", scripts)
+            collect_scripts(packid..":scripts", scripts)
+        end
+        table.sort(scripts)
+        for _, filename in ipairs(scripts) do
+            local parent = file.parent(filename)
+            files_list:add(gui.template("script_file", {
+                path = parent .. (parent[#parent] == ':' and '' or '/'), 
+                name = file.name(filename),
+                filename = filename
+            }))
+        end
     elseif mode then
         modes:set(mode)
     end

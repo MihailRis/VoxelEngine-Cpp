@@ -24,7 +24,8 @@
         "misc/snow",
         "gui/check_mark",
         "gui/left_arrow",
-        "gui/right_arrow"
+        "gui/right_arrow",
+        "gui/lock"
     ],
     "fonts": [
         {

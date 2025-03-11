@@ -1,0 +1,6 @@
+<label hover-color='#30A0FF' 
+       interactive='true' 
+       markup='md'
+       onclick='open_file_in_editor("%{filename}")'>
+    [#FFFFFF80]%{path}[#FFFFFFFF]%{name}
+</label>
