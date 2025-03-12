@@ -27,7 +27,15 @@
         <splitbox id="editorContainer" split-pos="0.8">
             <container color="#00000080">
                 <container size-func="-1,30" color="#00000020">
-                    <image id="lockIcon" src="gui/lock" enabled="false" size="16" pos="4,6"></image>
+                    <image id="lockIcon" src="gui/lock" tooltip="@Read only"
+                           interactive="true" onclick="unlock_access()"
+                           color="#FFFFFF80" size="16" pos="4,6"
+                           hover-color="#1080FF"></image>
+                    <image id="saveIcon" src="gui/save" tooltip="@Save" 
+                           enabled="false" interactive="true" 
+                           gravity="top-right" hover-color="#1080FF"
+                           onclick="save_current_file()"
+                           color="#FFFFFF80" size="16" margin="8"></image>
                     <label id="title" pos="26,8"></label>
                 </container>
                 <textbox

@@ -9,6 +9,13 @@ local errors_all = {}
 local warning_id = 0
 local error_id = 0
 
+local writeables = {}
+
+local current_file = {
+    filename = "",
+    mutable = nil
+}
+
 events.on("core:warning", function (wtype, text, traceback)
     local full = wtype..": "..text
     if table.has(warnings_all, full) then
@@ -45,7 +52,59 @@ events.on("core:error", function (msg, traceback)
     table.insert(errors_all, full)
 end)
 
-function open_file_in_editor(filename, line)
+local function find_mutable(filename)
+    local saved = writeables[file.prefix(filename)]
+    if saved then
+        return saved..":"..file.path(filename)
+    end
+
+    local packid = file.prefix(filename)
+    local packinfo = pack.get_info(packid)
+    if not packinfo then
+        return
+    end
+    local path = packinfo.path
+    if file.is_writeable(path) then
+        return file.join(path, file.path(filename))
+    end
+end
+
+local function refresh_file_title()
+    if current_file.filename == "" then
+        document.title.text = ""
+        return
+    end
+    local edited = document.editor.edited
+    current_file.modified = edited
+    document.saveIcon.enabled = edited
+    document.title.text = gui.str('File')..' - '..current_file.filename
+        ..(edited and ' *' or '')
+end
+
+function unlock_access()
+    if current_file.filename == "" then
+        return
+    end
+    pack.request_writeable(file.prefix(current_file.filename), 
+        function(token)
+            writeables[file.prefix(current_file.filename)] = token
+            current_file.mutable = token..":"..file.path(current_file.filename)
+            open_file_in_editor(current_file.filename, 0, current_file.mutable)
+        end
+    )
+end
+
+function save_current_file()
+    if not current_file.mutable then
+        return
+    end
+    file.write(current_file.mutable, document.editor.text)
+    current_file.modified = false
+    document.saveIcon.enabled = false
+    document.title.text = gui.str('File')..' - '..current_file.filename
+end
+
+function open_file_in_editor(filename, line, mutable)
     local editor = document.editor
     local source = file.read(filename):gsub('\t', '    ')
     editor.text = source
@@ -55,7 +114,12 @@ function open_file_in_editor(filename, line)
             editor.caret = editor:linePos(line)
         end)
     end
-    document.title.text = gui.str('File')..' - '..filename
+    document.title.text = gui.str('File') .. ' - ' .. filename
+    current_file.filename = filename
+    current_file.mutable = mutable or find_mutable(filename)
+    document.lockIcon.visible = current_file.mutable == nil
+    document.editor.editable = current_file.mutable ~= nil
+    document.saveIcon.enabled = current_file.modified
 end
 
 events.on("core:open_traceback", function(traceback_b64)
@@ -186,7 +250,6 @@ end
 function set_mode(mode)
     local show_prompt = mode == 'chat' or mode == 'console'
 
-    document.title.text = ""
     document.lockIcon.visible = false
     document.editorRoot.visible = mode == 'debug'
     document.editorContainer.visible = mode == 'debug'
@@ -245,6 +308,8 @@ function on_open(mode)
                 filename = filename
             }))
         end
+
+        document.editorContainer:setInterval(200, refresh_file_title)
     elseif mode then
         modes:set(mode)
     end

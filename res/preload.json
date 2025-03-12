@@ -25,7 +25,8 @@
         "gui/check_mark",
         "gui/left_arrow",
         "gui/right_arrow",
-        "gui/lock"
+        "gui/lock",
+        "gui/save"
     ],
     "fonts": [
         {

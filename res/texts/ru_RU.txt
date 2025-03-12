@@ -19,6 +19,9 @@ Problems=Проблемы
 Monitor=Мониторинг
 Debug=Отладка
 File=Файл
+Read only=Только для чтения
+Save=Сохранить
+Grant %{0} pack modification permission?=Выдать разрешение на модификацию пака %{0}?
 
 devtools.traceback=Стек вызовов (от последнего)
 error.pack-not-found=Не удалось найти пакет
