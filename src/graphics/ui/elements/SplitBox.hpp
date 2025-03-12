@@ -10,6 +10,7 @@ namespace gui {
         virtual void mouseMove(GUI*, int x, int y) override;
         virtual void refresh() override;
         virtual void fullRefresh() override;
+        virtual void doubleClick(GUI*, int x, int y) override;
     private:
         float splitPos;
     };

@@ -59,6 +59,14 @@ void SplitBox::refresh() {
     }
 }
 
+void SplitBox::doubleClick(GUI*, int x, int y) {
+    if (nodes.size() < 2) {
+        return;
+    }
+    std::swap(nodes[0], nodes[1]);
+    refresh();
+}
+
 void SplitBox::fullRefresh() {
     refresh();
     reposition();
