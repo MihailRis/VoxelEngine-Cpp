@@ -150,6 +150,37 @@ void EnginePaths::setCurrentWorldFolder(io::path folder) {
     io::create_subdevice("world", "user", currentWorldFolder);
 }
 
+#include <chrono>
+#include "maths/util.hpp"
+
+std::string EnginePaths::createWriteablePackDevice(const std::string& name) {
+    const auto& found = writeablePacks.find(name);
+    if (found != writeablePacks.end()) {
+        return found->second;
+    }
+    io::path folder;
+    for (const auto& pack : *contentPacks) {
+        if (pack.id == name) {
+            folder = pack.folder;
+            break;
+        }
+    }
+    if (folder.emptyOrInvalid()) {
+        throw std::runtime_error("pack not found");
+    }
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto seed = now.time_since_epoch().count();
+
+    util::PseudoRandom random(seed); // fixme: replace with safe random
+    auto number = random.rand64();
+    auto entryPoint = std::string("W.") + util::base64_urlsafe_encode(reinterpret_cast<ubyte*>(&number), 6);
+
+    io::create_subdevice(entryPoint, folder.entryPoint(), folder.pathPart());
+    writeablePacks[name] = entryPoint;
+    return entryPoint;
+}
+
 void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     // Remove previous content entry-points
     for (const auto& id : contentEntryPoints) {

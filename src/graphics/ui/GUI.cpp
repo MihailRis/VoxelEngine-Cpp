@@ -35,6 +35,7 @@ GUI::GUI()
 
     menu = std::make_shared<Menu>();
     menu->setId("menu");
+    menu->setZIndex(10);
     container->add(menu);
     container->setScrollable(false);
 

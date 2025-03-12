@@ -41,10 +41,23 @@ static std::set<std::string> writeable_entry_points {
     "world", "export", "config"
 };
 
+static bool is_writeable(const std::string& entryPoint) {
+    if (entryPoint.length() < 2) {
+        return false;
+    }
+    if (entryPoint.substr(0, 2) == "W.") {
+        return true;
+    }
+    if (writeable_entry_points.find(entryPoint) != writeable_entry_points.end()) {
+        return true;
+    }
+    return false;
+}
+
 static io::path get_writeable_path(lua::State* L) {
     io::path path = lua::require_string(L, 1);
     auto entryPoint = path.entryPoint();
-    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
+    if (!is_writeable(entryPoint)) {
         throw std::runtime_error("access denied");
     }
     return path;
@@ -60,7 +73,7 @@ static int l_write(lua::State* L) {
 static int l_remove(lua::State* L) {
     io::path path = lua::require_string(L, 1);
     auto entryPoint = path.entryPoint();
-    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
+    if (!is_writeable(entryPoint)) {
         throw std::runtime_error("access denied");
     }
     return lua::pushboolean(L, io::remove(path));
@@ -69,7 +82,7 @@ static int l_remove(lua::State* L) {
 static int l_remove_tree(lua::State* L) {
     io::path path = lua::require_string(L, 1);
     auto entryPoint = path.entryPoint();
-    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
+    if (!is_writeable(entryPoint)) {
         throw std::runtime_error("access denied");
     }
     return lua::pushinteger(L, io::remove_all(path));
@@ -222,10 +235,7 @@ static int l_read_combined_object(lua::State* L) {
 static int l_is_writeable(lua::State* L) {
     io::path path = lua::require_string(L, 1);
     auto entryPoint = path.entryPoint();
-    if (writeable_entry_points.find(entryPoint) == writeable_entry_points.end()) {
-        return lua::pushboolean(L, false);
-    }
-    return lua::pushboolean(L, true);
+    return lua::pushboolean(L, is_writeable(entryPoint));
 }
 
 const luaL_Reg filelib[] = {
@@ -249,4 +259,5 @@ const luaL_Reg filelib[] = {
     {"read_combined_list", lua::wrap<l_read_combined_list>},
     {"read_combined_object", lua::wrap<l_read_combined_object>},
     {"is_writeable", lua::wrap<l_is_writeable>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};
