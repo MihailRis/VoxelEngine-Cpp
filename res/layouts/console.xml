@@ -25,8 +25,12 @@
     <splitbox id="editorRoot" pos="0,30" size-func="-1,gui.get_viewport()[2]-30" 
               orientation="horizontal" split-pos="0.3">
         <splitbox split-pos="0.75">
-            <panel id="filesList" color="#00000010" interval="6" padding="4">
-                <!-- content is generated in script -->
+            <panel interval="2" color="0" padding="2">
+                <textbox pos="2" sub-consumer="filter_files"></textbox>
+                <panel id="filesList" color="#00000010" interval="6" padding="4"
+                       size-func="-1,-45" pos="2,38">
+                    <!-- content is generated in script -->
+                </panel>
             </panel>
             <panel id="problemsLog"
                 color="#00000010" 
@@ -41,11 +45,19 @@
                            interactive="true" onclick="unlock_access()"
                            color="#FFFFFF80" size="16" pos="4,6"
                            hover-color="#1080FF"></image>
-                    <image id="saveIcon" src="gui/save" tooltip="@Save" 
-                           enabled="false" interactive="true" 
-                           gravity="top-right" hover-color="#1080FF"
-                           onclick="save_current_file()"
-                           color="#FFFFFF80" size="16" margin="8"></image>
+                    <panel orientation="horizontal" gravity="top-right" 
+                           size="36,16" padding="8" interval="8" color="0">
+                        <image id="saveIcon" src="gui/save" tooltip="@Save" 
+                            enabled="false" interactive="true" 
+                            hover-color="#1080FF"
+                            onclick="save_current_file()"
+                            color="#FFFFFF80" size="16"></image>
+                        <image id="syncIcon" src="gui/check_mark" tooltip="@Sync" 
+                            enabled="true" interactive="true" 
+                            hover-color="#1080FF"
+                            onclick="save_current_file()"
+                            color="#FFFFFF80" size="16"></image>
+                    </panel>
                     <label id="title" pos="26,8"></label>
                 </container>
                 <textbox

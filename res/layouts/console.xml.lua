@@ -10,6 +10,7 @@ local warning_id = 0
 local error_id = 0
 
 local writeables = {}
+local filenames = {}
 
 local current_file = {
     filename = "",
@@ -79,6 +80,36 @@ local function refresh_file_title()
     document.saveIcon.enabled = edited
     document.title.text = gui.str('File')..' - '..current_file.filename
         ..(edited and ' *' or '')
+end
+
+function build_files_list(filenames, selected)
+    local files_list = document.filesList
+    files_list:clear()
+
+    for _, actual_filename in ipairs(filenames) do
+        local filename = actual_filename
+        if selected then
+            filename = filename:gsub(selected, "**"..selected.."**")
+        end
+        local parent = file.parent(filename)
+        local script_type = "file"
+        files_list:add(gui.template("script_file", {
+            path = parent .. (parent[#parent] == ':' and '' or '/'), 
+            name = file.name(filename),
+            type = script_type,
+            filename = actual_filename
+        }))
+    end
+end
+
+function filter_files(text)
+    local filtered = {}
+    for _, filename in ipairs(filenames) do
+        if filename:find(text) then
+            table.insert(filtered, filename)
+        end
+    end
+    build_files_list(filtered, text)
 end
 
 function on_control_combination(keycode)
@@ -301,22 +332,12 @@ function on_open(mode)
         local files_list = document.filesList
         local packs = pack.get_installed()
 
-        local scripts = {}
         for _, packid in ipairs(packs) do
-            collect_scripts(packid..":modules", scripts)
-            collect_scripts(packid..":scripts", scripts)
+            collect_scripts(packid..":modules", filenames)
+            collect_scripts(packid..":scripts", filenames)
         end
-        table.sort(scripts)
-        for _, filename in ipairs(scripts) do
-            local parent = file.parent(filename)
-            local script_type = "file"
-            files_list:add(gui.template("script_file", {
-                path = parent .. (parent[#parent] == ':' and '' or '/'), 
-                name = file.name(filename),
-                type = script_type,
-                filename = filename
-            }))
-        end
+        table.sort(filenames)
+        build_files_list(filenames)
 
         document.editorContainer:setInterval(200, refresh_file_title)
     elseif mode then
