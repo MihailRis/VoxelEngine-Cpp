@@ -74,8 +74,12 @@ namespace util {
     std::wstring to_wstring(double x, int precision);
 
     std::string base64_encode(const ubyte* data, size_t size);
+    std::string base64_urlsafe_encode(const ubyte* data, size_t size);
+
     util::Buffer<ubyte> base64_decode(const char* str, size_t size);
+    util::Buffer<ubyte> base64_urlsafe_decode(const char* str, size_t size);
     util::Buffer<ubyte> base64_decode(std::string_view str);
+    util::Buffer<ubyte> base64_urlsafe_decode(std::string_view str);
 
     std::string tohex(uint64_t value);
 
@@ -83,6 +87,10 @@ namespace util {
 
     int replaceAll(
         std::string& str, const std::string& from, const std::string& to
+    );
+
+    int replaceAll(
+        std::wstring& str, const std::wstring& from, const std::wstring& to
     );
 
     double parse_double(const std::string& str);

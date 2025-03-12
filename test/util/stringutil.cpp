@@ -31,3 +31,19 @@ TEST(stringutil, base64) {
         }
     }
 }
+
+TEST(stringutil, base64_urlsafe) {
+    srand(2019);
+    for (size_t size = 0; size < 30; size++) {
+        auto bytes = std::make_unique<ubyte[]>(size);
+        for (int i = 0; i < size; i++) {
+            bytes[i] = rand();
+        }
+        auto base64 = util::base64_urlsafe_encode(bytes.get(), size);
+        auto decoded = util::base64_urlsafe_decode(base64);
+        ASSERT_EQ(size, decoded.size());
+        for (size_t i = 0; i < size; i++) {
+            ASSERT_EQ(bytes[i], decoded[i]);
+        }
+    }
+}
