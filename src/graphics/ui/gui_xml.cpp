@@ -493,6 +493,13 @@ static std::shared_ptr<UINode> read_text_box(
             reader.getFilename()
         ));
     }
+    if (element.has("oncontrolkey")) {
+        textbox->setOnControlCombination(scripting::create_key_handler(
+            reader.getEnvironment(),
+            element.attr("oncontrolkey").getText(),
+            reader.getFilename()
+        ));
+    }
     if (auto onUpPressed = create_runnable(reader, element, "onup")) {
         textbox->setOnUpPressed(onUpPressed);
     }

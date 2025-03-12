@@ -36,6 +36,28 @@ static lua::State* process_callback(
     return nullptr;
 }
 
+key_handler scripting::create_key_handler(
+    const scriptenv& env, const std::string& src, const std::string& file
+) {
+    return [=](int code) {
+        if (auto L = process_callback(env, src, file)) {
+            int top = lua::gettop(L);
+            if (lua::isfunction(L, -1)) {
+                lua::pushinteger(L, code);
+                lua::call_nothrow(L, 1);
+            }
+            int returned = lua::gettop(L) - top + 1;
+            if (returned) {
+                bool x = lua::toboolean(L, -1);
+                lua::pop(L, returned);
+                return x;
+            }
+            return false;
+        }
+        return false;
+    };
+}
+
 wstringconsumer scripting::create_wstring_consumer(
     const scriptenv& env, const std::string& src, const std::string& file
 ) {

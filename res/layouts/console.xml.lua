@@ -81,6 +81,12 @@ local function refresh_file_title()
         ..(edited and ' *' or '')
 end
 
+function on_control_combination(keycode)
+    if keycode == input.keycode("s") then
+        save_current_file()
+    end
+end
+
 function unlock_access()
     if current_file.filename == "" then
         return
@@ -102,6 +108,7 @@ function save_current_file()
     current_file.modified = false
     document.saveIcon.enabled = false
     document.title.text = gui.str('File')..' - '..current_file.filename
+    document.editor.edited = false
 end
 
 function open_file_in_editor(filename, line, mutable)

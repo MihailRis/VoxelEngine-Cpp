@@ -553,6 +553,13 @@ static void p_set_editable(UINode* node, lua::State* L, int idx) {
         box->setEditable(lua::toboolean(L, idx));
     }
 }
+static void p_set_edited(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        if (!lua::toboolean(L, idx)) {
+            box->setUnedited();
+        }
+    }
+}
 static void p_set_line_numbers(UINode* node, lua::State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setShowLineNumbers(lua::toboolean(L, idx));
@@ -675,6 +682,7 @@ static int l_gui_setattr(lua::State* L) {
             {"hint", p_set_hint},
             {"text", p_set_text},
             {"editable", p_set_editable},
+            {"edited", p_set_edited},
             {"lineNumbers", p_set_line_numbers},
             {"syntax", p_set_syntax},
             {"markup", p_set_markup},

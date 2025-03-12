@@ -564,7 +564,12 @@ bool TextBox::isEditable() const {
 }
 
 bool TextBox::isEdited() const {
-    return history->size() != 0 || !historian->isSynced();
+    return history->size() != editedHistorySize || !historian->isSynced();
+}
+
+void TextBox::setUnedited() {
+    historian->sync();
+    editedHistorySize = history->size();
 }
 
 size_t TextBox::getSelectionStart() const {
@@ -574,7 +579,6 @@ size_t TextBox::getSelectionStart() const {
 size_t TextBox::getSelectionEnd() const {
     return selectionEnd;
 }
-
 
 void TextBox::setOnEditStart(runnable oneditstart) {
     onEditStart = oneditstart;
@@ -849,7 +853,12 @@ void TextBox::keyPressed(keycode key) {
     if (editable) {
         performEditingKeyboardEvents(key);
     }
-    if (Events::pressed(keycode::LEFT_CONTROL)) {
+    if (Events::pressed(keycode::LEFT_CONTROL) && key != keycode::LEFT_CONTROL) {
+        if (controlCombinationsHandler) {
+            if (controlCombinationsHandler(static_cast<int>(key))) {
+                return;
+            }
+        }
         // Copy selected text to clipboard
         if (key == keycode::C || key == keycode::X) {
             std::string text = util::wstr2str_utf8(getSelection());
@@ -963,6 +972,10 @@ void TextBox::setTextValidator(wstringchecker validator) {
     this->validator = std::move(validator);
 }
 
+void TextBox::setOnControlCombination(key_handler handler) {
+    this->controlCombinationsHandler = std::move(handler);
+}
+
 void TextBox::setFocusedColor(glm::vec4 color) {
     this->focusedColor = color;
 }
@@ -999,6 +1012,7 @@ void TextBox::setText(const std::wstring& value) {
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
     historian->reset();
     history->clear();
+    editedHistorySize = 0;
     refreshSyntax();
 }
 
