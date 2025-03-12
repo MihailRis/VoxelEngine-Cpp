@@ -308,7 +308,6 @@ void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
         }
         do {
             int lineY = label->getLineYOffset(line);
-            int lineHeight = font->getLineHeight() * label->getLineInterval();
 
             batch->setColor(glm::vec4(1, 1, 1, 0.05f));
             if (showLineNumbers) {
@@ -809,7 +808,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
             if (caret > input.length()) {
                 caret = input.length();
             }
-            historian->onErase(caret - 1, input.substr(caret - 1, caret));
+            historian->onErase(caret - 1, input.substr(caret - 1, 1));
             input = input.substr(0, caret-1) + input.substr(caret);
             setCaret(caret-1);
             if (validate()) {
@@ -818,7 +817,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
         }
     } else if (key == keycode::DELETE) {
         if (!eraseSelected() && caret < input.length()) {
-            historian->onErase(caret, input.substr(caret, caret + 1));
+            historian->onErase(caret, input.substr(caret, 1));
             input = input.substr(0, caret) + input.substr(caret + 1);
             if (validate()) {
                 onInput();
