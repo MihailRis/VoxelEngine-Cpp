@@ -186,6 +186,9 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
     for (const auto& id : contentEntryPoints) {
         io::remove_device(id);
     }
+    for (const auto& [_, entryPoint] : writeablePacks) {
+        io::remove_device(entryPoint);
+    }
     contentEntryPoints.clear();
     this->contentPacks = contentPacks;
     // Create content devices
