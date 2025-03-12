@@ -1,6 +1,11 @@
-<label hover-color='#30A0FF' 
-       interactive='true' 
-       markup='md'
-       onclick='open_file_in_editor("%{filename}")'>
-    [#FFFFFF80]%{path}[#FFFFFFFF]%{name}
-</label>
+<container size="18">
+    <image src="gui/%{type}" size="16"></image>
+    <label hover-color='#30A0FF'
+        pos="20,2"
+        interactive="true"
+        onclick='open_file_in_editor("%{filename}")'
+        markup='md'
+        sizefunc="-1,-1">
+        [#FFFFFF80]%{path}[#FFFFFFFF]%{name}
+    </label>
+</container>

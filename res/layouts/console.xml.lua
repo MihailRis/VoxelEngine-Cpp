@@ -302,9 +302,11 @@ function on_open(mode)
         table.sort(scripts)
         for _, filename in ipairs(scripts) do
             local parent = file.parent(filename)
+            local script_type = "file"
             files_list:add(gui.template("script_file", {
                 path = parent .. (parent[#parent] == ':' and '' or '/'), 
                 name = file.name(filename),
+                type = script_type,
                 filename = filename
             }))
         end

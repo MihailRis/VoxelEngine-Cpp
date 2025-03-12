@@ -26,7 +26,10 @@
         "gui/left_arrow",
         "gui/right_arrow",
         "gui/lock",
-        "gui/save"
+        "gui/save",
+        "gui/block",
+        "gui/item",
+        "gui/file"
     ],
     "fonts": [
         {

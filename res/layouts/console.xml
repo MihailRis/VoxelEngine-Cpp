@@ -23,7 +23,17 @@
         ></textbox>
     </container>
     <splitbox id="editorRoot" pos="0,30" size-func="-1,gui.get_viewport()[2]-30" 
-              orientation="horizontal" split-pos="0.7">
+              orientation="horizontal" split-pos="0.3">
+        <splitbox split-pos="0.75">
+            <panel id="filesList" color="#00000010" interval="6" padding="4">
+                <!-- content is generated in script -->
+            </panel>
+            <panel id="problemsLog"
+                color="#00000010" 
+                padding="5,15,5,15">
+                <label margin="0,0,0,5">@Problems</label>
+            </panel>
+        </splitbox>
         <splitbox id="editorContainer" split-pos="0.8">
             <container color="#00000080">
                 <container size-func="-1,30" color="#00000020">
@@ -56,17 +66,6 @@
             <panel id="traceback" gravity="bottom-left" 
                 padding="4" color="#000000A0" max-length="170">
             </panel>
-        </splitbox>
-        <splitbox
-                split-pos="0.25">
-                <panel id="problemsLog"
-                    color="#00000010" 
-                    padding="5,15,5,15">
-                    <label margin="0,0,0,5">@Problems</label>
-                </panel>
-                <panel id="filesList" color="#00000010" interval="6" padding="4">
-                    <!-- content is generated in script -->
-                </panel>
         </splitbox>
     </splitbox>
     <textbox id='prompt' 
