@@ -545,11 +545,11 @@ function file.prefix(path)
 end
 
 function file.parent(path)
-    local pos = path:find("/")
-    if not pos then
+    local dir = path:match("(.*)/")
+    if not dir then
         return file.prefix(path)..":"
     end
-    return path:sub(0, pos-1)
+    return dir
 end
 
 function file.path(path)
