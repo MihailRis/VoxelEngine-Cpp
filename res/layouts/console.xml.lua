@@ -11,6 +11,7 @@ local error_id = 0
 
 local writeables = {}
 local filenames = {}
+local scripts_classification = {}
 
 local current_file = {
     filename = "",
@@ -92,7 +93,7 @@ function build_files_list(filenames, selected)
             filename = filename:gsub(selected, "**"..selected.."**")
         end
         local parent = file.parent(filename)
-        local script_type = "file"
+        local script_type = scripts_classification[actual_filename] or "file"
         files_list:add(gui.template("script_file", {
             path = parent .. (parent[#parent] == ':' and '' or '/'), 
             name = file.name(filename),
@@ -319,6 +320,31 @@ local function collect_scripts(dirname, dest)
     end
 end
 
+local function build_scripts_classification()
+    for id, props in pairs(block.properties) do
+        scripts_classification[props["script-file"]] = "block"
+    end
+    for id, props in pairs(item.properties) do
+        scripts_classification[props["script-file"]] = "item"
+    end
+end
+
+local function load_scripts_list()
+    local packs = pack.get_installed()
+    for _, packid in ipairs(packs) do
+        collect_scripts(packid..":modules", filenames)
+    end
+
+    for _, filename in ipairs(filenames) do
+        scripts_classification[filename] = "module"
+    end
+
+    for _, packid in ipairs(packs) do
+        collect_scripts(packid..":scripts", filenames)
+    end
+
+end
+
 function on_open(mode)
     if modes == nil then
         modes = RadioGroup({
@@ -330,12 +356,10 @@ function on_open(mode)
         end, mode or "console")
 
         local files_list = document.filesList
-        local packs = pack.get_installed()
 
-        for _, packid in ipairs(packs) do
-            collect_scripts(packid..":modules", filenames)
-            collect_scripts(packid..":scripts", filenames)
-        end
+        load_scripts_list()
+        build_scripts_classification()
+
         table.sort(filenames)
         build_files_list(filenames)
 

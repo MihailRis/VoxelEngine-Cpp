@@ -29,7 +29,8 @@
         "gui/save",
         "gui/block",
         "gui/item",
-        "gui/file"
+        "gui/file",
+        "gui/module"
     ],
     "fonts": [
         {

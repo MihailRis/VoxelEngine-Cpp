@@ -394,6 +394,7 @@ void ContentLoader::loadBlock(
     if (def.hidden && def.pickingItem == def.name + BLOCK_ITEM_SUFFIX) {
         def.pickingItem = CORE_EMPTY;
     }
+    def.scriptFile = pack->id + ":scripts/" + def.scriptName + ".lua";
 }
 
 void ContentLoader::loadItem(
@@ -452,6 +453,8 @@ void ContentLoader::loadItem(
         def.emission[1] = emissionarr[1].asNumber();
         def.emission[2] = emissionarr[2].asNumber();
     }
+
+    def.scriptFile = pack->id + ":scripts/" + def.scriptName + ".lua";
 }
 
 void ContentLoader::loadEntity(
@@ -865,7 +868,7 @@ static void load_scripts(Content& content, ContentUnitDefs<T>& units) {
                 runtime->getEnvironment(),
                 name,
                 scriptfile,
-                pack.id + ":scripts/" + def->scriptName + ".lua",
+                def->scriptFile,
                 def->rt.funcsset
             );
         }
