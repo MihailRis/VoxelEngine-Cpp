@@ -429,6 +429,18 @@ function file.readlines(path)
     return lines
 end
 
+function debug.count_frames()
+    local frames = 1
+    while true do
+        local info = debug.getinfo(frames)
+        if info then
+            frames = frames + 1
+        else
+            return frames - 1
+        end
+    end
+end
+
 function debug.get_traceback(start)
     local frames = {}
     local n = 2 + (start or 0)
@@ -513,9 +525,13 @@ function __scripts_cleanup()
     end
 end
 
-function __vc__error(msg, frame)
+function __vc__error(msg, frame, n, lastn)
     if events then
-        events.emit("core:error", msg, debug.get_traceback(1))
+        local frames = debug.get_traceback(1)
+        events.emit(
+            "core:error", msg, 
+            table.sub(frames, 1 + (n or 0), lastn and #frames-lastn)
+        )
     end
     return debug.traceback(msg, frame)
 end
