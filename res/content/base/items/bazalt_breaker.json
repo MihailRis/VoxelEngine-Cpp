@@ -1,4 +1,5 @@
 {
     "icon-type": "sprite",
-    "icon": "items:bazalt_breaker"
+    "icon": "items:bazalt_breaker",
+    "uses": 100
 }

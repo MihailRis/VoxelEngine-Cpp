@@ -5,7 +5,9 @@
     "sounds": [
         "blocks/door_open",
         "blocks/door_close",
-        "events/pickup"
+        "events/pickup",
+        "ambient/rain",
+        "ambient/thunder"
     ],
     "models": [
         "drop-item"

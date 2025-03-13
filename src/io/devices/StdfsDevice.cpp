@@ -45,23 +45,23 @@ std::unique_ptr<std::istream> StdfsDevice::read(std::string_view path) {
 }
 
 size_t StdfsDevice::size(std::string_view path) {
-    auto resolved = resolve(path);
-    return fs::file_size(resolved);
+    return fs::file_size(resolve(path));
+}
+
+file_time_type StdfsDevice::lastWriteTime(std::string_view path) {
+    return fs::last_write_time(resolve(path));
 }
 
 bool StdfsDevice::exists(std::string_view path) {
-    auto resolved = resolve(path);
-    return fs::exists(resolved);
+    return fs::exists(resolve(path));
 }
 
 bool StdfsDevice::isdir(std::string_view path) {
-    auto resolved = resolve(path);
-    return fs::is_directory(resolved);
+    return fs::is_directory(resolve(path));
 }
 
 bool StdfsDevice::isfile(std::string_view path) {
-    auto resolved = resolve(path);
-    return fs::is_regular_file(resolved);
+    return fs::is_regular_file(resolve(path));
 }
 
 bool StdfsDevice::mkdir(std::string_view path) {

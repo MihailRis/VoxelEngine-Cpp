@@ -7,68 +7,82 @@
 
 using namespace scripting;
 
-static void validate_itemid(itemid_t id) {
-    if (id >= indices->items.count()) {
-        throw std::runtime_error("invalid item id");
+namespace {
+    void validate_itemid(itemid_t id) {
+        if (id >= indices->items.count()) {
+            throw std::runtime_error("invalid item id");
+        }
+    }
+
+    Inventory& get_inventory(int64_t id) {
+        auto inv = level->inventories->get(id);
+        if (inv == nullptr) {
+            throw std::runtime_error("inventory not found: " + std::to_string(id));
+        }
+        return *inv;
+    }
+
+    Inventory& get_inventory(int64_t id, int arg) {
+        auto inv = level->inventories->get(id);
+        if (inv == nullptr) {
+            throw std::runtime_error(
+                "inventory not found: " + std::to_string(id) + " argument " +
+                std::to_string(arg)
+            );
+        }
+        return *inv;
+    }
+    
+    void validate_slotid(int slotid, const Inventory& inv) {
+        if (static_cast<size_t>(slotid) >= inv.size()) {
+            throw std::runtime_error(
+                "slot index is out of range [0..inventory.size(invid)]"
+            );
+        }
+    }
+
+    using SlotFunc = int(lua::State*, ItemStack&);
+
+    template <SlotFunc func>
+    int wrap_slot(lua::State* L) {
+        auto invid = lua::tointeger(L, 1);
+        auto slotid = lua::tointeger(L, 2);
+        auto& inv = get_inventory(invid);
+        validate_slotid(slotid, inv);
+        auto& item = inv.getSlot(slotid);
+        return func(L, item);
     }
 }
 
-static Inventory& get_inventory(int64_t id) {
-    auto inv = level->inventories->get(id);
-    if (inv == nullptr) {
-        throw std::runtime_error("inventory not found: " + std::to_string(id));
-    }
-    return *inv;
-}
-
-static Inventory& get_inventory(int64_t id, int arg) {
-    auto inv = level->inventories->get(id);
-    if (inv == nullptr) {
-        throw std::runtime_error(
-            "inventory not found: " + std::to_string(id) + " argument " +
-            std::to_string(arg)
-        );
-    }
-    return *inv;
-}
-
-static void validate_slotid(int slotid, const Inventory& inv) {
-    if (static_cast<size_t>(slotid) >= inv.size()) {
-        throw std::runtime_error(
-            "slot index is out of range [0..inventory.size(invid)]"
-        );
-    }
-}
-
-static int l_get(lua::State* L) {
-    auto invid = lua::tointeger(L, 1);
-    auto slotid = lua::tointeger(L, 2);
-    auto inv = get_inventory(invid);
-    validate_slotid(slotid, inv);
-    const ItemStack& item = inv.getSlot(slotid);
+static int l_get(lua::State* L, ItemStack& item) {
     lua::pushinteger(L, item.getItemId());
     lua::pushinteger(L, item.getCount());
     return 2;
 }
 
-static int l_set(lua::State* L) {
-    auto invid = lua::tointeger(L, 1);
-    auto slotid = lua::tointeger(L, 2);
+static int l_set(lua::State* L, ItemStack& item) {
     auto itemid = lua::tointeger(L, 3);
     auto count = lua::tointeger(L, 4);
-    validate_itemid(itemid);
+    auto data = lua::tovalue(L, 5);
+    if (!data.isObject() && data != nullptr) {
+        throw std::runtime_error("invalid data argument type (table expected)");
+    }
+    item.set(ItemStack(itemid, count, std::move(data)));
+    return 0;
+}
 
-    auto& inv = get_inventory(invid);
-
-    validate_slotid(slotid, inv);
-    ItemStack& item = inv.getSlot(slotid);
-    item.set(ItemStack(itemid, count));
+static int l_set_count(lua::State* L, ItemStack& item) {
+    auto count = lua::tointeger(L, 3);
+    if (item.getItemId() == ITEM_EMPTY) {
+        return 0;
+    }
+    item.setCount(count);
     return 0;
 }
 
 static int l_size(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
-    auto& inv = get_inventory(invid);
+    const auto& inv = get_inventory(invid);
     return lua::pushinteger(L, inv.size());
 }
 
@@ -76,11 +90,16 @@ static int l_add(lua::State* L) {
     auto invid = lua::tointeger(L, 1);
     auto itemid = lua::tointeger(L, 2);
     auto count = lua::tointeger(L, 3);
+    auto data = lua::tovalue(L, 4);
+
     validate_itemid(itemid);
+    if (!data.isObject() && data != nullptr) {
+        throw std::runtime_error("invalid data argument type (table expected)");
+    }
 
     auto& inv = get_inventory(invid);
-    ItemStack item(itemid, count);
-    inv.move(item, indices);
+    ItemStack item(itemid, count, std::move(data));
+    inv.move(item, *indices);
     return lua::pushinteger(L, item.getCount());
 }
 
@@ -144,9 +163,9 @@ static int l_move(lua::State* L) {
     auto& invB = get_inventory(invBid, 3);
     auto& slot = invA.getSlot(slotAid);
     if (slotBid == -1) {
-        invB.move(slot, content->getIndices());
+        invB.move(slot, *content->getIndices());
     } else {
-        invB.move(slot, content->getIndices(), slotBid, slotBid + 1);
+        invB.move(slot, *content->getIndices(), slotBid, slotBid + 1);
     }
     return 0;
 }
@@ -163,9 +182,9 @@ static int l_move_range(lua::State* L) {
     auto invB = get_inventory(invBid, 3);
     auto& slot = invA.getSlot(slotAid);
     if (slotBegin == -1) {
-        invB.move(slot, content->getIndices());
+        invB.move(slot, *content->getIndices());
     } else {
-        invB.move(slot, content->getIndices(), slotBegin, slotEnd);
+        invB.move(slot, *content->getIndices(), slotBegin, slotEnd);
     }
     return 0;
 }
@@ -184,9 +203,39 @@ static int l_find_by_item(lua::State* L) {
     return lua::pushinteger(L, index);
 }
 
+static int l_get_data(lua::State* L, ItemStack& stack) {
+    auto key = lua::require_string(L, 3);
+    auto value = stack.getField(key);
+    if (value == nullptr) {
+        return 0;
+    }
+    return lua::pushvalue(L, *value);
+}
+
+static int l_get_all_data(lua::State* L, ItemStack& stack) {
+    return lua::pushvalue(L, stack.getFields());
+}
+
+static int l_has_data(lua::State* L, ItemStack& stack) {
+    auto key = lua::tostring(L, 3);
+    if (key == nullptr) {
+        return lua::pushboolean(L, stack.hasFields());
+    }
+    return lua::pushboolean(L, stack.getField(key) != nullptr);
+}
+
+static int l_set_data(lua::State* L, ItemStack& stack) {
+    auto key = lua::require_string(L, 3);
+    auto value = lua::tovalue(L, 4);
+    auto& fields = stack.getFields();
+    stack.setField(key, std::move(value));
+    return 0;
+}
+
 const luaL_Reg inventorylib[] = {
-    {"get", lua::wrap<l_get>},
-    {"set", lua::wrap<l_set>},
+    {"get", wrap_slot<l_get>},
+    {"set", wrap_slot<l_set>},
+    {"set_count", wrap_slot<l_set_count>},
     {"size", lua::wrap<l_size>},
     {"add", lua::wrap<l_add>},
     {"move", lua::wrap<l_move>},
@@ -195,7 +244,12 @@ const luaL_Reg inventorylib[] = {
     {"get_block", lua::wrap<l_get_block>},
     {"bind_block", lua::wrap<l_bind_block>},
     {"unbind_block", lua::wrap<l_unbind_block>},
+    {"get_data", wrap_slot<l_get_data>},
+    {"set_data", wrap_slot<l_set_data>},
+    {"get_all_data", wrap_slot<l_get_all_data>},
+    {"has_data", wrap_slot<l_has_data>},
     {"create", lua::wrap<l_create>},
     {"remove", lua::wrap<l_remove>},
     {"clone", lua::wrap<l_clone>},
-    {NULL, NULL}};
+    {NULL, NULL}
+};

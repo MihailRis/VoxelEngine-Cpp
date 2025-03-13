@@ -23,6 +23,7 @@
 #include "data/dv_util.hpp"
 #include "data/StructLayout.hpp"
 #include "presets/ParticlesPreset.hpp"
+#include "io/engine_paths.hpp"
 
 namespace fs = std::filesystem;
 using namespace data;
@@ -268,12 +269,6 @@ void ContentLoader::loadBlock(
             } else if (def.modelName.empty()) {
                 throw std::runtime_error(name + ": no 'model-primitives' or 'model-name' found");
             }
-            for (uint i = 0; i < 6; i++) {
-                std::string& texture = def.textureFaces[i];
-                if (texture == TEXTURE_NOTFOUND) {
-                    texture = "";
-                }
-            }
         }
         def.model = *model;
     } else if (!modelTypeName.empty()) {
@@ -428,15 +423,29 @@ void ContentLoader::loadItem(
     } else if (iconTypeStr == "sprite") {
         def.iconType = ItemIconType::SPRITE;
     } else if (iconTypeStr.length()) {
-        logger.error() << name << ": unknown icon type" << iconTypeStr;
+        logger.error() << name << ": unknown icon type - " << iconTypeStr;
     }
     root.at("icon").get(def.icon);
     root.at("placing-block").get(def.placingBlock);
     root.at("script-name").get(def.scriptName);
     root.at("model-name").get(def.modelName);
     root.at("stack-size").get(def.stackSize);
+    root.at("uses").get(def.uses);
 
-    // item light emission [r, g, b] where r,g,b in range [0..15]
+    std::string usesDisplayStr = "";
+    root.at("uses-display").get(usesDisplayStr);
+    if (usesDisplayStr == "none") {
+        def.usesDisplay = ItemUsesDisplay::NONE;
+    } else if (usesDisplayStr == "number") {
+        def.usesDisplay = ItemUsesDisplay::NUMBER;
+    } else if (usesDisplayStr == "relation") {
+        def.usesDisplay = ItemUsesDisplay::RELATION;
+    } else if (usesDisplayStr == "vbar") {
+        def.usesDisplay = ItemUsesDisplay::VBAR;
+    } else if (usesDisplayStr.length()) {
+        logger.error() << name << ": unknown uses display mode - " << usesDisplayStr;
+    }
+
     if (auto found = root.at("emission")) {
         const auto& emissionarr = *found;
         def.emission[0] = emissionarr[0].asNumber();
@@ -572,6 +581,10 @@ void ContentLoader::loadBlockMaterial(
     root.at("steps-sound").get(def.stepsSound);
     root.at("place-sound").get(def.placeSound);
     root.at("break-sound").get(def.breakSound);
+    root.at("hit-sound").get(def.hitSound);
+    if (def.hitSound.empty()) {
+        def.hitSound = def.stepsSound;
+    }
 }
 
 void ContentLoader::loadContent(const dv::value& root) {
@@ -759,6 +772,10 @@ void ContentLoader::load() {
     fixPackIndices();
 
     auto folder = pack->folder;
+
+    builder.defaults = paths.readCombinedObject(
+        EnginePaths::CONFIG_DEFAULTS.string()
+    );
 
     // Load world generators
     io::path generatorsDir = folder / "generators";

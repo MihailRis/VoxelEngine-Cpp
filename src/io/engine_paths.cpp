@@ -253,7 +253,7 @@ dv::value ResPaths::readCombinedList(const std::string& filename) const {
     return list;
 }
 
-dv::value ResPaths::readCombinedObject(const std::string& filename) const {
+dv::value ResPaths::readCombinedObject(const std::string& filename, bool deep) const {
     dv::value object = dv::object();
     for (const auto& root : roots) {
         auto path = root.path / filename;
@@ -267,9 +267,7 @@ dv::value ResPaths::readCombinedObject(const std::string& filename) const {
                     << "reading combined object " << root.name << ": "
                     << filename << " is not an object (skipped)";
             }
-            for (const auto& [key, element] : value.asObject())  {
-                object[key] = element;
-            }
+            object.merge(std::move(value), deep);
         } catch (const std::runtime_error& err) {
             logger.warning() << "reading combined object " << root.name << ":"
                              << filename << ": " << err.what();

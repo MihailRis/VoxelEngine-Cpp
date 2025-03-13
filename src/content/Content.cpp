@@ -34,12 +34,14 @@ Content::Content(
     UptrsMap<std::string, ContentPackRuntime> packs,
     UptrsMap<std::string, BlockMaterial> blockMaterials,
     UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
-    ResourceIndicesSet resourceIndices
+    ResourceIndicesSet resourceIndices,
+    dv::value defaults
 )
     : indices(std::move(indices)),
       packs(std::move(packs)),
       blockMaterials(std::move(blockMaterials)),
       skeletons(std::move(skeletons)),
+      defaults(std::move(defaults)),
       blocks(std::move(blocks)),
       items(std::move(items)),
       entities(std::move(entities)),

@@ -15,9 +15,10 @@ TEST(lua_parsing, Tokenizer) {
     auto filename = "res:scripts/stdlib.lua";
     auto source = io::read_string(filename);
     try {
-        auto tokens = lua::tokenize(filename, source);
+        auto tokens = lua::tokenize(filename, util::str2wstr_utf8(source));
         for (const auto& token : tokens) {
-            std::cout << (int)token.tag << " " << util::quote(token.text)
+            std::cout << (int)token.tag << " "
+                      << util::quote(util::wstr2str_utf8(token.text))
                       << std::endl;
         }
     } catch (const parsing_error& err) {

@@ -14,6 +14,52 @@ namespace dv {
         return (*val.object)[key];
     }
 
+    static void apply_method(value& dst, value&& val, std::string_view method, bool deep) {
+        if (!val.isList()) {
+            return;
+        }
+        if (dst == nullptr) {
+            dst = dv::list();
+        } else if (!dst.isList()) {
+            return;
+        }
+        if (method == "append") {
+            if (dst == nullptr) {
+                dst = std::forward<value>(val);
+                return;
+            }
+            for (auto& elem : val) {
+                dst.add(std::move(elem));
+            }
+        }
+    }
+
+    static void merge_elem(value& self, const key_t& key, value&& val, bool deep) {
+        auto& dst = self[key];
+        size_t pos = key.rfind('@');
+        if (pos != std::string::npos) {
+            auto method = std::string_view(key).substr(pos + 1);
+            auto& field = self[key.substr(0, pos)];
+            apply_method(field, std::forward<value>(val), method, deep);
+            return;
+        }
+        if (val.isObject() && dst == nullptr) {
+            dst = dv::object();
+        }
+        if (dst.isObject() && deep) {
+            dst.merge(std::forward<dv::value>(val), true);
+        } else {
+            dst = std::forward<dv::value>(val);
+        }
+    }
+
+    void value::merge(dv::value&& other, bool deep) {
+        check_type(other.type, value_type::object);
+        for (auto& [key, val] : *other.val.object) {
+            merge_elem(*this, key, std::forward<value>(val), deep);
+        }
+    }
+
     value& value::operator=(const objects::Bytes& bytes) {
         return setBytes(std::make_shared<objects::Bytes>(bytes));
     }

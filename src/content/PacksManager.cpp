@@ -2,7 +2,6 @@
 
 #include <queue>
 #include <sstream>
-#include <algorithm>
 
 #include "util/listutil.hpp"
 
@@ -125,9 +124,7 @@ std::vector<std::string> PacksManager::assemble(
     std::queue<const ContentPack*> queue;
     std::queue<const ContentPack*> queue2;
 
-    std::sort(allNames.begin(), allNames.end());
-
-    for (auto& name : allNames) {
+    for (auto& name : names) {
         auto found = packs.find(name);
         if (found == packs.end()) {
             throw contentpack_error(name, io::path(), "pack not found");

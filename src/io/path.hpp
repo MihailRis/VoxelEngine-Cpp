@@ -5,6 +5,8 @@
 #include <filesystem>
 
 namespace io {
+    using file_time_type = std::filesystem::file_time_type;
+    
     /// @brief Access violation error
     class access_error : public std::runtime_error {
     public:

@@ -94,6 +94,40 @@ elseif __vc_app then
     complete_app_lib(__vc_app)
 end
 
+function inventory.get_uses(invid, slot)
+    local uses = inventory.get_data(invid, slot, "uses")
+    if uses == nil then
+        return item.uses(inventory.get(invid, slot))
+    end
+    return uses
+end
+
+function inventory.use(invid, slot)
+    local itemid, count = inventory.get(invid, slot)
+    if itemid == nil then
+        return
+    end
+    local item_uses = inventory.get_uses(invid, slot)
+    if item_uses == nil then
+        return
+    end
+    if item_uses == 1 then
+        inventory.set(invid, slot, itemid, count - 1)
+    elseif item_uses > 1 then
+        inventory.set_data(invid, slot, "uses", item_uses - 1)
+    end
+end
+
+function inventory.decrement(invid, slot, count)
+    count = count or 1
+    local itemid, itemcount = inventory.get(invid, slot)
+    if itemcount <= count then
+        inventory.set(invid, slot, 0)
+    else
+        inventory.set_count(invid, slot, itemcount - count)
+    end
+end
+
 ------------------------------------------------
 ------------------- Events ---------------------
 ------------------------------------------------
@@ -330,7 +364,7 @@ function __vc_on_hud_open()
         hud._set_debug_cheats(value)
     end)
     input.add_callback("devtools.console", function()
-        if hud.is_paused() then
+        if menu.page ~= "" then
             return
         end
         time.post_runnable(function()
@@ -338,7 +372,7 @@ function __vc_on_hud_open()
         end)
     end)
     input.add_callback("hud.chat", function()
-        if hud.is_paused() then
+        if menu.page ~= "" then
             return
         end
         time.post_runnable(function()

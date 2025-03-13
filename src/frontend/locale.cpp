@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "coders/json.hpp"
-#include "coders/commons.hpp"
+#include "coders/BasicParser.hpp"
 #include "content/ContentPack.hpp"
 #include "io/io.hpp"
 #include "util/stringutil.hpp"
@@ -39,7 +39,7 @@ const std::string& langs::Lang::getId() const {
 
 /// @brief Language key-value txt files parser
 namespace {
-    class Reader : BasicParser {
+    class Reader : BasicParser<char> {
         void skipWhitespace() override {
             BasicParser::skipWhitespace();
             if (hasNext() && source[pos] == '#') {

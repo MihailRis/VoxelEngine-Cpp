@@ -238,7 +238,7 @@ void ContentLoader::loadGenerator(
     load_structures(def, structuresMap, structuresFile.parent(), paths);
 
     auto biomesFile = GENERATORS_DIR / (name + ".files") / BIOMES_FILE;
-    auto biomesMap = paths.readCombinedObject(biomesFile.string());
+    auto biomesMap = paths.readCombinedObject(biomesFile.string(), true);
     if (biomesMap.empty()) {
         throw std::runtime_error(
             "generator " + util::quote(def.name) +

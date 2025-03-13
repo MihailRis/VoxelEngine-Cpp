@@ -1,6 +1,29 @@
 local _, dir = parse_path(__DIR__)
 local ores = require "base:generation/ores"
+math.randomseed(SEED)
 ores.load(dir)
+
+local function get_rand(seed, x, y, z)
+    local h = bit.bxor(bit.bor(x * 23729, y % 16786), y * x + seed)
+    h = bit.bxor(h, z * 47917)
+    h = bit.bxor(h, bit.bor(z % 12345, x + y))
+
+    local n = (h % 10000) / 10000.0
+
+    return n
+end
+
+local function gen_parameters(size, seed, x, y)
+    local res = {}
+    local rand = 0
+
+    for i=1, size do
+        rand = get_rand(seed, x, y, rand)
+        table.insert(res, rand)
+    end
+
+    return res
+end
 
 function place_structures(x, z, w, d, hmap, chunk_height)
     local placements = {}
@@ -10,15 +33,17 @@ end
 
 function place_structures_wide(x, z, w, d, chunk_height)
     local placements = {}
-    if math.random() < 0.05 then -- generate caves
-        local sx = x + math.random() * 10 - 5
-        local sy = math.random() * (chunk_height / 4) + 10
-        local sz = z + math.random() * 10 - 5
+    local rands = gen_parameters(11, SEED, x, z)
+    if rands[1] < 0.05 then -- generate caves
 
-        local dir = math.random() * math.pi * 2
-        local dir_inertia = (math.random() - 0.5) * 2
+        local sx = x + rands[2] * 10 - 5
+        local sy = rands[3] * (chunk_height / 4) + 10
+        local sz = z + rands[4] * 10 - 5
+
+        local dir = rands[5] * math.pi * 2
+        local dir_inertia = (rands[6] - 0.5) * 2
         local elevation = -3
-        local width = math.random() * 3 + 2
+        local width = rands[7] * 3 + 2
 
         for i=1,18 do
             local dx = math.sin(dir) * 10
@@ -34,11 +59,11 @@ function place_structures_wide(x, z, w, d, chunk_height)
             sx = ex
             sy = ey
             sz = ez
-            
+
             dir_inertia = dir_inertia * 0.8 + 
-                (math.random() - 0.5) * math.pow(math.random(), 2) * 8
+                (rands[8] - 0.5) * math.pow(rands[9], 2) * 8
             elevation = elevation * 0.9 + 
-                (math.random() - 0.4) * (1.0-math.pow(math.random(), 4)) * 8
+                (rands[10] - 0.4) * (1.0-math.pow(rands[11], 4)) * 8
             dir = dir + dir_inertia
         end
     end
