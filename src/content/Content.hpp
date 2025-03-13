@@ -121,6 +121,14 @@ public:
         return *found->second;
     }
 
+    T& require(const std::string& id) {
+        const auto& found = defs.find(id);
+        if (found == defs.end()) {
+            throw std::runtime_error("missing content unit " + id);
+        }
+        return *found->second;
+    }
+
     const auto& getDefs() const {
         return defs;
     }

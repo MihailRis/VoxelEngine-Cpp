@@ -77,4 +77,6 @@ public:
     void load();
 
     static void loadScripts(Content& content);
+    static void reloadScript(const Content& content, Block& block);
+    static void reloadScript(const Content& content, ItemDef& item);
 };

@@ -853,26 +853,40 @@ void ContentLoader::load() {
 }
 
 template <class T>
-static void load_scripts(Content& content, ContentUnitDefs<T>& units) {
-    for (const auto& [name, def] : units.getDefs()) {
-        size_t pos = name.find(':');
-        if (pos == std::string::npos) {
-            throw std::runtime_error("invalid content unit name");
-        }
-        const auto runtime = content.getPackRuntime(name.substr(0, pos));
-        const auto& pack = runtime->getInfo();
-        const auto& folder = pack.folder;
-        auto scriptfile = folder / ("scripts/" + def->scriptName + ".lua");
-        if (io::is_regular_file(scriptfile)) {
-            scripting::load_content_script(
-                runtime->getEnvironment(),
-                name,
-                scriptfile,
-                def->scriptFile,
-                def->rt.funcsset
-            );
-        }
+static void load_script(const Content& content, T& def) {
+    const auto& name = def.name;
+    size_t pos = name.find(':');
+    if (pos == std::string::npos) {
+        throw std::runtime_error("invalid content unit name");
     }
+    const auto runtime = content.getPackRuntime(name.substr(0, pos));
+    const auto& pack = runtime->getInfo();
+    const auto& folder = pack.folder;
+    auto scriptfile = folder / ("scripts/" + def.scriptName + ".lua");
+    if (io::is_regular_file(scriptfile)) {
+        scripting::load_content_script(
+            runtime->getEnvironment(),
+            name,
+            scriptfile,
+            def.scriptFile,
+            def.rt.funcsset
+        );
+    }
+}
+
+template <class T>
+static void load_scripts(const Content& content, ContentUnitDefs<T>& units) {
+    for (const auto& [_, def] : units.getDefs()) {
+        load_script(content, *def);
+    }
+}
+
+void ContentLoader::reloadScript(const Content& content, Block& block) {
+    load_script(content, block);
+}
+
+void ContentLoader::reloadScript(const Content& content, ItemDef& item) {
+    load_script(content, item);
 }
 
 void ContentLoader::loadScripts(Content& content) {
