@@ -18,9 +18,10 @@ namespace gui {
         /// @brief Reset cache flag
         bool resetFlag = true;
         size_t wrapWidth = -1;
+        int multilineWidth = 0;
     
         void prepare(Font* font, size_t wrapWidth);
-        void update(const std::wstring& text, bool multiline, bool wrap);
+        void update(std::wstring_view text, bool multiline, bool wrap);
 
         size_t getTextLineOffset(size_t line) const;
         uint getLineByTextIndex(size_t index) const;

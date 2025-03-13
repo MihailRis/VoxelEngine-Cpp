@@ -41,7 +41,7 @@ GUI::GUI()
 
     tooltip = guiutil::create(
         "<container color='#000000A0' interactive='false' z-index='999'>"
-            "<label id='tooltip.label' pos='2' autoresize='true'></label>"
+            "<label id='tooltip.label' pos='2' autoresize='true' multiline='true' text-wrap='false'></label>"
         "</container>"
     );
     store("tooltip", tooltip);
