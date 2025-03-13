@@ -83,6 +83,7 @@ target_compile_options(
     VoxelEngineSrc
     PUBLIC $<$<CXX_COMPILER_ID:MSVC>:
            /source-charset:UTF-8
+           /MP
            /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
            /W4
            /wd4244 # conversion from 'a' to 'T', possible loss of data
