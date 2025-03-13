@@ -34,6 +34,8 @@ static debug::Logger logger("scripting");
 
 static inline const std::string STDCOMP = "stdcomp";
 
+std::ostream* scripting::output_stream = &std::cout;
+std::ostream* scripting::error_stream = &std::cerr;
 Engine* scripting::engine = nullptr;
 Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
