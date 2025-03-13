@@ -30,7 +30,9 @@
         "gui/block",
         "gui/item",
         "gui/file",
-        "gui/module"
+        "gui/module",
+        "gui/play",
+        "gui/info"
     ],
     "fonts": [
         {

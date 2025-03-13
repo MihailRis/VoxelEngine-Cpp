@@ -46,16 +46,19 @@
                            color="#FFFFFF80" size="16" pos="4,6"
                            hover-color="#1080FF"></image>
                     <panel orientation="horizontal" gravity="top-right" 
-                           size="36,16" padding="8" interval="8" color="0">
+                           size="60,16" padding="8" interval="8" color="0">
                         <image id="saveIcon" src="gui/save" tooltip="@Save" 
                             enabled="false" interactive="true" 
                             hover-color="#1080FF"
                             onclick="save_current_file()"
                             color="#FFFFFF80" size="16"></image>
-                        <image id="syncIcon" src="gui/check_mark" tooltip="@Sync" 
+                        <image id="infoIcon" src="gui/info" tooltip="@editor.info.tooltip" 
+                            enabled="true" interactive="true" 
+                            color="#FFFFFF80" size="16"></image>
+                        <image id="syncIcon" src="gui/play" tooltip="@Run" 
                             enabled="true" interactive="true" 
                             hover-color="#1080FF"
-                            onclick="save_current_file()"
+                            onclick="run_current_file()"
                             color="#FFFFFF80" size="16"></image>
                     </panel>
                     <label id="title" pos="26,8"></label>
@@ -76,9 +79,12 @@
                     scroll-step='50'
                 ></textbox>
             </container>
-            <panel id="traceback" gravity="bottom-left" 
-                padding="4" color="#000000A0" max-length="170">
-            </panel>
+            <splitbox orientation="horizontal" split-pos="0.4">
+                <panel id="traceback" padding="4" color="#000000A0">
+                </panel>
+                <panel id="output" padding="4" color="#000000A0">
+                </panel>
+            </splitbox>
         </splitbox>
     </splitbox>
     <textbox id='prompt' 

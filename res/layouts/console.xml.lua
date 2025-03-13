@@ -18,6 +18,13 @@ local current_file = {
     mutable = nil
 }
 
+local function xunpack(t)
+    if t == nil then
+        return nil
+    end
+    return unpack(t)
+end
+
 events.on("core:warning", function (wtype, text, traceback)
     local full = wtype..": "..text
     if table.has(warnings_all, full) then
@@ -55,12 +62,14 @@ events.on("core:error", function (msg, traceback)
 end)
 
 local function find_mutable(filename)
-    local saved = writeables[file.prefix(filename)]
+    local packid = file.prefix(filename)
+    if packid == "core" then
+        return
+    end
+    local saved = writeables[packid]
     if saved then
         return saved..":"..file.path(filename)
     end
-
-    local packid = file.prefix(filename)
     local packinfo = pack.get_info(packid)
     if not packinfo then
         return
@@ -93,7 +102,8 @@ function build_files_list(filenames, selected)
             filename = filename:gsub(selected, "**"..selected.."**")
         end
         local parent = file.parent(filename)
-        local script_type = scripts_classification[actual_filename] or "file"
+        local script_type, unit = xunpack(scripts_classification[actual_filename])
+        script_type = script_type or "file"
         files_list:add(gui.template("script_file", {
             path = parent .. (parent[#parent] == ':' and '' or '/'), 
             name = file.name(filename),
@@ -116,6 +126,8 @@ end
 function on_control_combination(keycode)
     if keycode == input.keycode("s") then
         save_current_file()
+    elseif keycode == input.keycode("r") then
+        run_current_file()
     end
 end
 
@@ -129,6 +141,42 @@ function unlock_access()
             current_file.mutable = token..":"..file.path(current_file.filename)
             open_file_in_editor(current_file.filename, 0, current_file.mutable)
         end
+    )
+end
+
+function run_current_file()
+    if not current_file.filename then
+        return
+    end
+    local chunk, err = loadstring(document.editor.text, current_file.filename)
+    clear_output()
+    if not chunk then
+        local line, message = err:match(".*:(%d*): (.*)")
+        document.output:add(
+            string.format(
+                "<label color='#FF3030' enabled='false' margin='2'>%s: %s</label>", 
+                gui.str("Error at line %{0}"):gsub("%%{0}", line), message)
+        )
+        return
+    end
+    local script_type, unit = xunpack(scripts_classification[current_file.filename])
+    save_current_file()
+
+    local func = function()
+        local stack_size = debug.count_frames()
+        xpcall(chunk, function(msg) __vc__error(msg, 1, 1, stack_size) end)
+    end
+
+    if script_type == "block" then
+        func = function() block.reload_script(unit) end
+    elseif script_type == "item" then
+        func = function() item.reload_script(unit) end
+    end
+    local output = core.capture_output(func)
+    document.output:add(
+        string.format(
+            "<label enabled='false' multiline='true' margin='2'>%s</label>", 
+            output)
     )
 end
 
@@ -161,14 +209,26 @@ function open_file_in_editor(filename, line, mutable)
     document.saveIcon.enabled = current_file.modified
 end
 
+function clear_traceback()
+    local tb_list = document.traceback
+    tb_list:clear()
+    tb_list:add("<label enabled='false' margin='2'>@devtools.traceback</label>")
+end
+
+function clear_output()
+    local output = document.output
+    output:clear()
+    output:add("<label enabled='false' margin='2'>@devtools.output</label>")
+end
+
 events.on("core:open_traceback", function(traceback_b64)
     local traceback = bjson.frombytes(base64.decode(traceback_b64))
     modes:set('debug')
 
+    clear_traceback()
+
     local tb_list = document.traceback
     local srcsize = tb_list.size
-    tb_list:clear()
-    tb_list:add("<label enabled='false' margin='2'>@devtools.traceback</label>")
     for _, frame in ipairs(traceback.frames) do
         local callback = ""
         local framestr = ""
@@ -322,10 +382,10 @@ end
 
 local function build_scripts_classification()
     for id, props in pairs(block.properties) do
-        scripts_classification[props["script-file"]] = "block"
+        scripts_classification[props["script-file"]] = {"block", block.name(id)}
     end
     for id, props in pairs(item.properties) do
-        scripts_classification[props["script-file"]] = "item"
+        scripts_classification[props["script-file"]] = {"item", item.name(id)}
     end
 end
 
@@ -336,7 +396,7 @@ local function load_scripts_list()
     end
 
     for _, filename in ipairs(filenames) do
-        scripts_classification[filename] = "module"
+        scripts_classification[filename] = {"module"}
     end
 
     for _, packid in ipairs(packs) do
@@ -364,6 +424,9 @@ function on_open(mode)
         build_files_list(filenames)
 
         document.editorContainer:setInterval(200, refresh_file_title)
+
+        clear_traceback()
+        clear_output()
     elseif mode then
         modes:set(mode)
     end
