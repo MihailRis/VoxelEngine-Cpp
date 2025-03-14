@@ -32,7 +32,8 @@
         "gui/file",
         "gui/module",
         "gui/play",
-        "gui/info"
+        "gui/info",
+        "gui/world"
     ],
     "fonts": [
         {

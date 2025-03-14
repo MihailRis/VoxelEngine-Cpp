@@ -171,6 +171,8 @@ function run_current_file()
         func = function() block.reload_script(unit) end
     elseif script_type == "item" then
         func = function() item.reload_script(unit) end
+    elseif script_type == "world" then
+        func = function() world.reload_script(unit) end
     end
     local output = core.capture_output(func)
     document.output:add(
@@ -387,6 +389,10 @@ local function build_scripts_classification()
     for id, props in pairs(item.properties) do
         scripts_classification[props["script-file"]] = {"item", item.name(id)}
     end
+    local packs = pack.get_installed()
+    for _, packid in ipairs(packs) do
+        scripts_classification[packid..":scripts/world.lua"] = {"world", packid}
+    end
 end
 
 local function load_scripts_list()
@@ -402,7 +408,6 @@ local function load_scripts_list()
     for _, packid in ipairs(packs) do
         collect_scripts(packid..":scripts", filenames)
     end
-
 end
 
 function on_open(mode)

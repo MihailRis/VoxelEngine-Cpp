@@ -6,6 +6,7 @@
 #include "assets/AssetsLoader.hpp"
 #include "coders/json.hpp"
 #include "content/Content.hpp"
+#include "content/ContentLoader.hpp"
 #include "engine/Engine.hpp"
 #include "world/files/WorldFiles.hpp"
 #include "io/engine_paths.hpp"
@@ -213,6 +214,17 @@ static int l_count_chunks(lua::State* L) {
     return lua::pushinteger(L, level->chunks->size());
 }
 
+static int l_reload_script(lua::State* L) {
+    auto packid = lua::require_string(L, 1);
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
+    auto& writeableContent = *engine->getWriteableContent();
+    auto pack = writeableContent.getPackRuntime(packid);
+    ContentLoader::loadWorldScript(*pack);
+    return 0;
+}
+
 const luaL_Reg worldlib[] = {
     {"is_open", lua::wrap<l_is_open>},
     {"get_list", lua::wrap<l_get_list>},
@@ -230,5 +242,6 @@ const luaL_Reg worldlib[] = {
     {"set_chunk_data", lua::wrap<l_set_chunk_data>},
     {"save_chunk_data", lua::wrap<l_save_chunk_data>},
     {"count_chunks", lua::wrap<l_count_chunks>},
+    {"reload_script", lua::wrap<l_reload_script>},
     {NULL, NULL}
 };

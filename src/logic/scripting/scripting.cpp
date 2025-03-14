@@ -836,6 +836,8 @@ void scripting::load_content_script(
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "block", file, fileName));
+
+    funcsset = {};
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.update = register_event(env, "on_update", prefix + ".update");
     funcsset.randupdate =
@@ -861,6 +863,8 @@ void scripting::load_content_script(
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "item", file, fileName));
+
+    funcsset = {};
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.on_use = register_event(env, "on_use", prefix + ".use");
     funcsset.on_use_on_block =
@@ -888,6 +892,8 @@ void scripting::load_world_script(
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "world", file, fileName));
+
+    funcsset = {};
     register_event(env, "init", prefix + ".init");
     register_event(env, "on_world_open", prefix + ":.worldopen");
     register_event(env, "on_world_tick", prefix + ":.worldtick");

@@ -248,6 +248,7 @@ public:
     const rigging::SkeletonConfig* getSkeleton(const std::string& id) const;
     const BlockMaterial* findBlockMaterial(const std::string& id) const;
     const ContentPackRuntime* getPackRuntime(const std::string& id) const;
+    ContentPackRuntime* getPackRuntime(const std::string& id);
 
     const UptrsMap<std::string, BlockMaterial>& getBlockMaterials() const;
     const UptrsMap<std::string, ContentPackRuntime>& getPacks() const;

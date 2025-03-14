@@ -39,7 +39,8 @@
             </panel>
         </splitbox>
         <splitbox id="editorContainer" split-pos="0.8">
-            <container color="#00000080">
+            <container color="#00000080" 
+                       onclick="document.editor.focused = true document.editor.caret = -1">
                 <container size-func="-1,30" color="#00000020">
                     <image id="lockIcon" src="gui/lock" tooltip="@Read only"
                            interactive="true" onclick="unlock_access()"
