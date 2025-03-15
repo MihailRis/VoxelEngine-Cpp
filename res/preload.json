@@ -33,7 +33,8 @@
         "gui/module",
         "gui/play",
         "gui/info",
-        "gui/world"
+        "gui/world",
+        "gui/hud"
     ],
     "fonts": [
         {

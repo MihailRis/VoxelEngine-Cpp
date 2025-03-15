@@ -806,21 +806,21 @@ bool scripting::register_event(
     if (lua::pushenv(L, env) == 0) {
         lua::pushglobals(L);
     }
-    if (lua::getfield(L, name)) {
-        lua::pop(L);
-        lua::getglobal(L, "events");
-        lua::getfield(L, "reset");
-        lua::pushstring(L, id);
-        lua::getfield(L, name, -4);
-        lua::call_nothrow(L, 2);
-        lua::pop(L);
-
-        // remove previous name
+    bool success = true;
+    lua::getglobal(L, "events");
+    lua::getfield(L, "reset");
+    lua::pushstring(L, id);
+    if (!lua::getfield(L, name, -4)) {
+        success = false;
         lua::pushnil(L);
-        lua::setfield(L, name);
-        return true;
     }
-    return false;
+    lua::call_nothrow(L, 2);
+    lua::pop(L);
+
+    // remove previous name
+    lua::pushnil(L);
+    lua::setfield(L, name);
+    return success;
 }
 
 int scripting::get_values_on_stack() {

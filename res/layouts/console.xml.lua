@@ -173,6 +173,8 @@ function run_current_file()
         func = function() item.reload_script(unit) end
     elseif script_type == "world" then
         func = function() world.reload_script(unit) end
+    elseif script_type == "hud" then
+        func = function() hud.reload_script(unit) end
     end
     local output = core.capture_output(func)
     document.output:add(
@@ -392,6 +394,7 @@ local function build_scripts_classification()
     local packs = pack.get_installed()
     for _, packid in ipairs(packs) do
         scripts_classification[packid..":scripts/world.lua"] = {"world", packid}
+        scripts_classification[packid..":scripts/hud.lua"] = {"hud", packid}
     end
 end
 
