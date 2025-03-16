@@ -20,6 +20,7 @@
     - [gfx.blockwraps](scripting/builtins/libgfx-blockwraps.md)
     - [gfx.particles](particles.md#библиотека-gfxparticles)
     - [gfx.text3d](3d-text.md#библиотека-gfxtext3d)
+    - [gfx.weather](scripting/builtins/libgfx-weather.md)
     - [gui](scripting/builtins/libgui.md)
     - [hud](scripting/builtins/libhud.md)
     - [input](scripting/builtins/libinput.md)
