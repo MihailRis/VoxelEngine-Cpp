@@ -12,7 +12,7 @@ inventory.get(
 ) -> int, int
 -- Returns item ID and count. 
 
--- Set slot content.
+-- Set slot content, deleting the data contained before.
 inventory.set(
     -- inventory ID
     invid: int,
@@ -23,6 +23,58 @@ inventory.set(
     -- item count
     count: int
 )
+
+-- Sets the count of items in the slot without affecting the data if the argument is non-zero.
+inventory.set_count(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- item count
+    count: int
+)
+
+-- Checks for the presence of a local property by name without copying its value.
+-- Preferably for tables, but not primitive types.
+inventory.has_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+) -> bool
+
+-- Returns a copy of value of a local property of an item by name or nil.
+inventory.get_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+) -> any
+
+-- Sets the value of a local property of an item by name.
+-- Nil value removes the property.
+inventory.set_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+    -- value
+    value: any
+)
+
+-- Returns a copy of the table of all local item properties.
+inventory.get_all_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+) -> table
 
 -- Returns inventory size (slots number). 
 -- Throws an exception if there's no inventory having specified ID.
