@@ -5,7 +5,8 @@ static int l_json_stringify(lua::State* L) {
     auto value = lua::tovalue(L, 1);
 
     bool nice = lua::toboolean(L, 2);
-    auto string = json::stringify(value, nice, "  ");
+    bool escapeUTF = lua::toboolean(L, 3);
+    auto string = json::stringify(value, nice, "  ", escapeUTF);
     return lua::pushstring(L, string);
 }
 
