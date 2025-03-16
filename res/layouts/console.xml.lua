@@ -10,20 +10,13 @@ local warning_id = 0
 local error_id = 0
 
 local writeables = {}
-local filenames = {}
-local scripts_classification = {}
+local registry = require "core:internal/scripts_registry"
+local filenames
 
 local current_file = {
     filename = "",
     mutable = nil
 }
-
-local function xunpack(t)
-    if t == nil then
-        return nil
-    end
-    return unpack(t)
-end
 
 events.on("core:warning", function (wtype, text, traceback)
     local full = wtype..": "..text
@@ -102,12 +95,11 @@ function build_files_list(filenames, selected)
             filename = filename:gsub(selected, "**"..selected.."**")
         end
         local parent = file.parent(filename)
-        local script_type, unit = xunpack(scripts_classification[actual_filename])
-        script_type = script_type or "file"
+        local info = registry.get_info(actual_filename)
         files_list:add(gui.template("script_file", {
             path = parent .. (parent[#parent] == ':' and '' or '/'), 
             name = file.name(filename),
-            type = script_type,
+            type = info and info.type or "file",
             filename = actual_filename
         }))
     end
@@ -159,7 +151,8 @@ function run_current_file()
         )
         return
     end
-    local script_type, unit = xunpack(scripts_classification[current_file.filename])
+    local info = registry.get_info(current_file.filename)
+    local script_type = info and info.type or "file"
     save_current_file()
 
     local func = function()
@@ -168,13 +161,13 @@ function run_current_file()
     end
 
     if script_type == "block" then
-        func = function() block.reload_script(unit) end
+        func = function() block.reload_script(info.unit) end
     elseif script_type == "item" then
-        func = function() item.reload_script(unit) end
+        func = function() item.reload_script(info.unit) end
     elseif script_type == "world" then
-        func = function() world.reload_script(unit) end
+        func = function() world.reload_script(info.unit) end
     elseif script_type == "hud" then
-        func = function() hud.reload_script(unit) end
+        func = function() hud.reload_script(info.unit) end
     end
     local output = core.capture_output(func)
     document.output:add(
@@ -371,48 +364,6 @@ function set_mode(mode)
     console_mode = mode
 end
 
-local function collect_scripts(dirname, dest)
-    if file.isdir(dirname) then
-        local files = file.list(dirname)
-        for i, filename in ipairs(files) do
-            if file.isdir(filename) then
-                collect_scripts(filename, dest)
-            elseif file.ext(filename) == "lua" then
-                table.insert(dest, filename)
-            end
-        end
-    end
-end
-
-local function build_scripts_classification()
-    for id, props in pairs(block.properties) do
-        scripts_classification[props["script-file"]] = {"block", block.name(id)}
-    end
-    for id, props in pairs(item.properties) do
-        scripts_classification[props["script-file"]] = {"item", item.name(id)}
-    end
-    local packs = pack.get_installed()
-    for _, packid in ipairs(packs) do
-        scripts_classification[packid..":scripts/world.lua"] = {"world", packid}
-        scripts_classification[packid..":scripts/hud.lua"] = {"hud", packid}
-    end
-end
-
-local function load_scripts_list()
-    local packs = pack.get_installed()
-    for _, packid in ipairs(packs) do
-        collect_scripts(packid..":modules", filenames)
-    end
-
-    for _, filename in ipairs(filenames) do
-        scripts_classification[filename] = {"module"}
-    end
-
-    for _, packid in ipairs(packs) do
-        collect_scripts(packid..":scripts", filenames)
-    end
-end
-
 function on_open(mode)
     if modes == nil then
         modes = RadioGroup({
@@ -425,9 +376,7 @@ function on_open(mode)
 
         local files_list = document.filesList
 
-        load_scripts_list()
-        build_scripts_classification()
-
+        filenames = registry.filenames
         table.sort(filenames)
         build_files_list(filenames)
 
