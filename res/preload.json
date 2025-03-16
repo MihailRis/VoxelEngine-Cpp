@@ -34,7 +34,8 @@
         "gui/play",
         "gui/info",
         "gui/world",
-        "gui/hud"
+        "gui/hud",
+        "gui/entity"
     ],
     "fonts": [
         {
