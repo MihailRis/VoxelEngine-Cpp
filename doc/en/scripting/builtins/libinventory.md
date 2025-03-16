@@ -140,6 +140,16 @@ inventory.move(
     [optional] rangeEnd: int
 )
 
+-- Decreases the item count in the slot by 1.
+inventory.decrement(
+    -- inventory id
+    invid: int,
+    -- slot index
+    slot: int,
+    -- count to subtract
+    [optional] count: int = 1
+)
+
 -- Decreases the remaining uses counter / durability of an item,
 -- creating a local `uses` property if none.
 -- Removes one item from the slot when the counter reaches zero.
