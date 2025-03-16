@@ -139,4 +139,16 @@ inventory.move(
     rangeBegin: int, 
     [optional] rangeEnd: int
 )
+
+-- Decreases the remaining uses counter / durability of an item,
+-- creating a local `uses` property if none.
+-- Removes one item from the slot when the counter reaches zero.
+-- Does nothing if the `uses` property is not specified in the item's JSON.
+-- See [property `uses`](../../item-properties.md#number-of-uses-durability---uses)
+inventory.use(
+    -- inventory id
+    invid: int,
+    -- slot index
+    slot: int
+)
 ```
