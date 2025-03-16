@@ -45,37 +45,6 @@ inventory.has_data(
     name: str
 ) -> bool
 
--- Returns a copy of value of a local property of an item by name or nil.
-inventory.get_data(
-    -- inventory ID
-    invid: int,
-    -- slot index
-    slot: int,
-    -- property name
-    name: str
-) -> any
-
--- Sets the value of a local property of an item by name.
--- Nil value removes the property.
-inventory.set_data(
-    -- inventory ID
-    invid: int,
-    -- slot index
-    slot: int,
-    -- property name
-    name: str
-    -- value
-    value: any
-)
-
--- Returns a copy of the table of all local item properties.
-inventory.get_all_data(
-    -- inventory ID
-    invid: int,
-    -- slot index
-    slot: int,
-) -> table
-
 -- Returns inventory size (slots number). 
 -- Throws an exception if there's no inventory having specified ID.
 inventory.size(invid: int) -> int
@@ -114,6 +83,53 @@ inventory.remove(invid: int)
 
 > [!WARNING]
 > Unbound inventories will be deleted on world close.
+
+Local properties of an item are data attached to the last item in the stack.
+When splitting the stack (RMB), the data is not copied but moved to a new stack.
+Properties can be of any serializable type, including tables.
+Unlike block fields, property names do not need to be registered in the item definition.
+
+The combination of
+```lua
+inventory.get(...)
+inventory.get_all_data(...)
+inventory.set(...)
+inventory.set_all_data(...)
+```
+for moving is inefficient, use inventory.move or inventory.move_range.
+
+```lua
+-- Returns a copy of value of a local property of an item by name or nil.
+inventory.get_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+) -> any
+
+-- Sets the value of a local property of an item by name.
+-- Nil value removes the property.
+inventory.set_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+    -- value
+    value: any
+)
+
+-- Returns a copy of the table of all local item properties.
+inventory.get_all_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+) -> table
+```
 
 ```lua
 -- Create inventory. Returns the created ID.
