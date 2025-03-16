@@ -172,6 +172,7 @@ function run_current_file()
         world = world.reload_script,
         hud = hud.reload_script,
         component = entities.reload_component,
+        module = reload_module,
     }
     func = funcs[script_type] or func
     local output = core.capture_output(function() func(unit) end)
