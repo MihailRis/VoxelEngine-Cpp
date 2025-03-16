@@ -19,8 +19,16 @@ Problems=Проблемы
 Monitor=Мониторинг
 Debug=Отладка
 File=Файл
+Read only=Только для чтения
+Save=Сохранить
+Grant %{0} pack modification permission?=Выдать разрешение на модификацию пака %{0}?
+Error at line %{0}=Ошибка на строке %{0}
+Run=Запустить
 
+editor.info.tooltip=CTRL+S - Сохранить\nCTRL+R - Запустить\nCTRL+Z - Отменить\nCTRL+Y - Повторить
 devtools.traceback=Стек вызовов (от последнего)
+devtools.output=Вывод
+
 error.pack-not-found=Не удалось найти пакет
 error.dependency-not-found=Используемая зависимость не найдена
 pack.remove-confirm=Удалить весь поставляемый паком/паками контент из мира (безвозвратно)?

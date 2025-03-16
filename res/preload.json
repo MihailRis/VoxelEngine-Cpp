@@ -24,7 +24,18 @@
         "misc/snow",
         "gui/check_mark",
         "gui/left_arrow",
-        "gui/right_arrow"
+        "gui/right_arrow",
+        "gui/lock",
+        "gui/save",
+        "gui/block",
+        "gui/item",
+        "gui/file",
+        "gui/module",
+        "gui/play",
+        "gui/info",
+        "gui/world",
+        "gui/hud",
+        "gui/entity"
     ],
     "fonts": [
         {

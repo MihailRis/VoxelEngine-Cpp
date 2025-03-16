@@ -13,18 +13,185 @@
 #include "util/stringutil.hpp"
 #include "window/Events.hpp"
 #include "window/Window.hpp"
+#include "devtools/actions.hpp"
 #include "../markdown.hpp"
 
 using namespace gui;
 
 inline constexpr int LINE_NUMBERS_PANE_WIDTH = 40;
 
-TextBox::TextBox(std::wstring placeholder, glm::vec4 padding) 
-  : Container(glm::vec2(200,32)), 
-    padding(padding),
-    input(L""),
-    placeholder(std::move(placeholder))
-{
+class InputAction : public Action {
+    std::weak_ptr<TextBox> textbox;
+    size_t position;
+    std::wstring string;
+public:
+    InputAction(
+        std::weak_ptr<TextBox> textbox, size_t position, std::wstring string
+    )
+        : textbox(std::move(textbox)),
+          position(position),
+          string(std::move(string)) {
+    }
+    void apply() override {
+        if (auto box = textbox.lock()) {
+            box->select(position, position);
+            box->paste(string);
+        }
+    }
+
+    void revert() override {
+        if (auto box = textbox.lock()) {
+            box->select(position, position);
+            box->erase(position, string.length());
+        }
+    }
+};
+
+class SelectionAction : public Action {
+    std::weak_ptr<TextBox> textbox;
+    size_t start;
+    size_t end;
+public:
+    SelectionAction(std::weak_ptr<TextBox> textbox, size_t start, size_t end)
+    : textbox(std::move(textbox)), start(start), end(end) {}
+
+    void apply() override {
+        if (auto box = textbox.lock()) {
+            box->select(start, end);
+        }
+    }
+
+    void revert() override {
+        if (auto box = textbox.lock()) {
+            box->select(0, 0);
+        }
+    }
+};
+
+namespace gui {
+    /// @brief Accumulates small changes into words for InputAction creation
+    class TextBoxHistorian {
+    public:
+        TextBoxHistorian(TextBox& textBox, ActionsHistory& history)
+            : textBox(textBox), history(history) {
+        }
+
+        void onPaste(size_t pos, std::wstring_view text) {
+            if (locked) {
+                return;
+            }
+            if (erasing) {
+                sync();
+            }
+            if (this->pos == static_cast<size_t>(-1)) {
+                this->pos = pos;
+            }
+            if (this->pos + length != pos || text == L" " || text == L"\n") {
+                sync();
+                this->pos = pos;
+            }
+            ss << text;
+            length += text.length();
+        }
+
+        void onErase(size_t pos, std::wstring_view text, bool selection=false) {
+            if (locked) {
+                return;
+            }
+            if (!erasing) {
+                sync();
+                erasing = true;
+            }
+            if (selection) {
+                history.store(
+                    std::make_unique<SelectionAction>(
+                        getTextBoxWeakptr(),
+                        textBox.getSelectionStart(),
+                        textBox.getSelectionEnd()
+                    ),
+                    true
+                );
+            }
+            if (this->pos == static_cast<size_t>(-1)) {
+                this->pos = pos;
+            } else if (this->pos - text.length() != pos) {
+                sync();
+                erasing = true;
+                this->pos = pos;
+            }
+            if (text == L" " || text == L"\n") {
+                sync();
+                erasing = true;
+                this->pos = pos;
+            }
+            auto str = ss.str();
+            ss.seekp(0);
+            ss << text << str;
+
+            this->pos = pos;
+            length += text.length();
+        }
+
+        /// @brief Flush buffer and push all changes to the ActionsHistory
+        void sync() {
+            auto string = ss.str();
+            if (string.empty()) {
+                return;
+            }
+            auto action =
+                std::make_unique<InputAction>(getTextBoxWeakptr(), pos, string);
+            history.store(std::move(action), erasing);
+            reset();
+        }
+
+        void undo() {
+            sync();
+            locked = true;
+            history.undo();
+            locked = false;
+        }
+
+        void redo() {
+            sync();
+            locked = true;
+            history.redo();
+            locked = false;
+        }
+
+        void reset() {
+            pos = -1;
+            length = 0;
+            erasing = false;
+            ss = {};
+        }
+
+        bool isSynced() const {
+            return length == 0;
+        }
+    private:
+        TextBox& textBox;
+        ActionsHistory& history;
+        std::wstringstream ss;
+        size_t pos = -1;
+        size_t length = 0;
+        bool erasing = false;
+        bool locked = false;
+
+        std::weak_ptr<TextBox> getTextBoxWeakptr() {
+            return std::weak_ptr<TextBox>(std::dynamic_pointer_cast<TextBox>(
+                textBox.shared_from_this()
+            ));
+        }
+    };
+}
+
+TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
+    : Container(glm::vec2(200, 32)),
+      history(std::make_shared<ActionsHistory>()),
+      historian(std::make_unique<TextBoxHistorian>(*this, *history)),
+      padding(padding),
+      input(L""),
+      placeholder(std::move(placeholder)) {
     setCursor(CursorShape::TEXT);
     setOnUpPressed(nullptr);
     setOnDownPressed(nullptr);
@@ -49,6 +216,8 @@ TextBox::TextBox(std::wstring placeholder, glm::vec4 padding)
     scrollStep = 0;
 }
 
+TextBox::~TextBox() = default;
+
 void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
     Container::draw(pctx, assets);
 
@@ -71,6 +240,7 @@ void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
     auto batch = pctx.getBatch2D();
     batch->texture(nullptr);
     batch->setColor(glm::vec4(1.0f));
+
     if (editable && int((Window::time() - caretLastMove) * 2) % 2 == 0) {
         uint line = rawTextCache.getLineByTextIndex(caret);
         uint lcaret = caret - rawTextCache.getTextLineOffset(line);
@@ -138,7 +308,6 @@ void TextBox::draw(const DrawContext& pctx, const Assets& assets) {
         }
         do {
             int lineY = label->getLineYOffset(line);
-            int lineHeight = font->getLineHeight() * label->getLineInterval();
 
             batch->setColor(glm::vec4(1, 1, 1, 0.05f));
             if (showLineNumbers) {
@@ -260,18 +429,22 @@ void TextBox::refreshLabel() {
 
 /// @brief Insert text at the caret. Also selected text will be erased
 /// @param text Inserting text
-void TextBox::paste(const std::wstring& text) {
+void TextBox::paste(const std::wstring& text, bool history) {
     eraseSelected();
+    auto inputText = text;
+    inputText.erase(
+        std::remove(inputText.begin(), inputText.end(), '\r'), inputText.end()
+    );
+    historian->onPaste(caret, inputText);
     if (caret >= input.length()) {
-        input += text;
+        input += inputText;
     } else {
         auto left = input.substr(0, caret);
         auto right = input.substr(caret);
-        input = left + text + right;
+        input = left + inputText + right;
     }
-    input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
     refreshLabel();
-    setCaret(caret + text.length());
+    setCaret(caret + inputText.length());
     if (validate()) {
         onInput();
     }
@@ -296,6 +469,11 @@ bool TextBox::eraseSelected() {
     if (selectionStart == selectionEnd) {
         return false;
     }
+    historian->onErase(
+        selectionStart,
+        input.substr(selectionStart, selectionEnd - selectionStart),
+        true
+    );
     erase(selectionStart, selectionEnd-selectionStart);
     resetSelection();
     onInput();
@@ -336,7 +514,9 @@ void TextBox::setTextOffset(uint x) {
 
 void TextBox::typed(unsigned int codepoint) {
     if (editable) {
-        paste(std::wstring({(wchar_t)codepoint}));
+        // Combine deleting selected text and inserting a symbol
+        auto combination = history->beginCombination();
+        paste(std::wstring({static_cast<wchar_t>(codepoint)}));
     }
 }
 
@@ -383,6 +563,23 @@ bool TextBox::isEditable() const {
     return editable;
 }
 
+bool TextBox::isEdited() const {
+    return history->size() != editedHistorySize || !historian->isSynced();
+}
+
+void TextBox::setUnedited() {
+    historian->sync();
+    editedHistorySize = history->size();
+}
+
+size_t TextBox::getSelectionStart() const {
+    return selectionStart;
+}
+
+size_t TextBox::getSelectionEnd() const {
+    return selectionEnd;
+}
+
 void TextBox::setOnEditStart(runnable oneditstart) {
     onEditStart = oneditstart;
 }
@@ -402,6 +599,12 @@ void TextBox::onFocus(GUI* gui) {
         onEditStart();
         resetSelection();
     }
+}
+
+void TextBox::reposition() {
+    auto size = getSize();
+    UINode::reposition();
+    refreshLabel();
 }
 
 void TextBox::refresh() {
@@ -609,6 +812,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
             if (caret > input.length()) {
                 caret = input.length();
             }
+            historian->onErase(caret - 1, input.substr(caret - 1, 1));
             input = input.substr(0, caret-1) + input.substr(caret);
             setCaret(caret-1);
             if (validate()) {
@@ -617,6 +821,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
         }
     } else if (key == keycode::DELETE) {
         if (!eraseSelected() && caret < input.length()) {
+            historian->onErase(caret, input.substr(caret, 1));
             input = input.substr(0, caret) + input.substr(caret + 1);
             if (validate()) {
                 onInput();
@@ -648,7 +853,12 @@ void TextBox::keyPressed(keycode key) {
     if (editable) {
         performEditingKeyboardEvents(key);
     }
-    if (Events::pressed(keycode::LEFT_CONTROL)) {
+    if (Events::pressed(keycode::LEFT_CONTROL) && key != keycode::LEFT_CONTROL) {
+        if (controlCombinationsHandler) {
+            if (controlCombinationsHandler(static_cast<int>(key))) {
+                return;
+            }
+        }
         // Copy selected text to clipboard
         if (key == keycode::C || key == keycode::X) {
             std::string text = util::wstr2str_utf8(getSelection());
@@ -663,7 +873,11 @@ void TextBox::keyPressed(keycode key) {
         if (key == keycode::V && editable) {
             const char* text = Window::getClipboardText();
             if (text) {
+                historian->sync(); // flush buffer before combination
+                // Combine deleting selected text and pasing a clipboard content
+                auto combination = history->beginCombination();
                 paste(util::str2wstr_utf8(text));
+                historian->sync();
             }
         }
         // Select/deselect all
@@ -673,6 +887,14 @@ void TextBox::keyPressed(keycode key) {
             } else {
                 resetSelection();
             }
+        }
+        if (key == keycode::Z) {
+            historian->undo();
+            refreshSyntax();
+        }
+        if (key == keycode::Y) {
+            historian->redo();
+            refreshSyntax();
         }
     }
 }
@@ -698,10 +920,8 @@ size_t TextBox::getLinePos(uint line) const {
     return label->getTextLineOffset(line);
 }
 
-std::shared_ptr<UINode> TextBox::getAt(
-    const glm::vec2& pos, const std::shared_ptr<UINode>& self
-) {
-    return UINode::getAt(pos, self);
+std::shared_ptr<UINode> TextBox::getAt(const glm::vec2& pos) {
+    return UINode::getAt(pos);
 }
 
 void TextBox::setOnUpPressed(const runnable &callback) {
@@ -752,6 +972,10 @@ void TextBox::setTextValidator(wstringchecker validator) {
     this->validator = std::move(validator);
 }
 
+void TextBox::setOnControlCombination(key_handler handler) {
+    this->controlCombinationsHandler = std::move(handler);
+}
+
 void TextBox::setFocusedColor(glm::vec4 color) {
     this->focusedColor = color;
 }
@@ -786,6 +1010,9 @@ const std::wstring& TextBox::getText() const {
 void TextBox::setText(const std::wstring& value) {
     this->input = value;
     input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
+    historian->reset();
+    history->clear();
+    editedHistorySize = 0;
     refreshSyntax();
 }
 

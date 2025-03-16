@@ -121,6 +121,14 @@ public:
         return *found->second;
     }
 
+    T& require(const std::string& id) {
+        const auto& found = defs.find(id);
+        if (found == defs.end()) {
+            throw std::runtime_error("missing content unit " + id);
+        }
+        return *found->second;
+    }
+
     const auto& getDefs() const {
         return defs;
     }
@@ -240,6 +248,7 @@ public:
     const rigging::SkeletonConfig* getSkeleton(const std::string& id) const;
     const BlockMaterial* findBlockMaterial(const std::string& id) const;
     const ContentPackRuntime* getPackRuntime(const std::string& id) const;
+    ContentPackRuntime* getPackRuntime(const std::string& id);
 
     const UptrsMap<std::string, BlockMaterial>& getBlockMaterials() const;
     const UptrsMap<std::string, ContentPackRuntime>& getPacks() const;

@@ -204,6 +204,8 @@ public:
     /// @brief Block script name in blocks/ without extension
     std::string scriptName = name.substr(name.find(':') + 1);
 
+    std::string scriptFile;
+
     /// @brief Block will be used instead of this if generated on surface
     std::string surfaceReplacement = name;
 

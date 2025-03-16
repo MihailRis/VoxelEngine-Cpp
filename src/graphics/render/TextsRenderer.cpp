@@ -10,6 +10,7 @@
 #include "graphics/core/Batch3D.hpp"
 #include "graphics/core/Shader.hpp"
 #include "presets/NotePreset.hpp"
+#include "constants.hpp"
 
 TextsRenderer::TextsRenderer(
     Batch3D& batch, const Assets& assets, const Frustum& frustum
@@ -44,7 +45,7 @@ void TextsRenderer::renderNote(
         }
         opacity = preset.xrayOpacity;
     }
-    const auto& font = assets.require<Font>("normal");
+    const auto& font = assets.require<Font>(FONT_DEFAULT);
 
     glm::vec3 xvec = note.getAxisX();
     glm::vec3 yvec = note.getAxisY();

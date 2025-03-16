@@ -135,7 +135,7 @@ class Hud : public util::ObjectsKeeper {
     void dropExchangeSlot();
 
     void showExchangeSlot();
-    void updateWorldGenDebugVisualization();
+    void updateWorldGenDebug();
 public:
     Hud(Engine& engine, LevelFrontend& frontend, Player& player);
     ~Hud();

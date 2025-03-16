@@ -4,10 +4,15 @@
 #include "Label.hpp"
 
 class Font;
+class ActionsHistory;
 
 namespace gui {
+    class TextBoxHistorian;
     class TextBox : public Container {
         LabelCache rawTextCache;
+        std::shared_ptr<ActionsHistory> history;
+        std::unique_ptr<TextBoxHistorian> historian;
+        int editedHistorySize = 0;
     protected:
         glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
         glm::vec4 invalidColor {0.1f, 0.05f, 0.03f, 1.0f};
@@ -29,6 +34,7 @@ namespace gui {
         wstringconsumer subconsumer = nullptr;
         /// @brief Text validator returning boolean value
         wstringchecker validator = nullptr;
+        key_handler controlCombinationsHandler = nullptr;
         /// @brief Function called on focus
         runnable onEditStart = nullptr;
         /// @brief Function called on up arrow pressed
@@ -68,7 +74,6 @@ namespace gui {
 
         int calcIndexAt(int x, int y) const;
         void setTextOffset(uint x);
-        void erase(size_t start, size_t length);
         bool eraseSelected();
         void resetSelection();
         void extendSelection(int index);
@@ -93,8 +98,11 @@ namespace gui {
             std::wstring placeholder, 
             glm::vec4 padding=glm::vec4(4.0f)
         );
+
+        virtual ~TextBox();
         
-        void paste(const std::wstring& text);
+        void paste(const std::wstring& text, bool history=true);
+        void erase(size_t start, size_t length);
             
         virtual void setTextSupplier(wstringsupplier supplier);
 
@@ -110,6 +118,8 @@ namespace gui {
         /// text is valid
         /// @param validator std::wstring consumer returning boolean 
         virtual void setTextValidator(wstringchecker validator);
+
+        virtual void setOnControlCombination(key_handler handler);
 
         virtual void setFocusedColor(glm::vec4 color);
         virtual glm::vec4 getFocusedColor() const;
@@ -198,8 +208,14 @@ namespace gui {
         /// @brief Check if text editing feature is enabled 
         virtual bool isEditable() const;
 
+        virtual bool isEdited() const;
+        virtual void setUnedited();
+
         virtual void setPadding(glm::vec4 padding);
         glm::vec4 getPadding() const;
+
+        size_t getSelectionStart() const;
+        size_t getSelectionEnd() const;
 
         /// @brief Set runnable called on textbox focus
         virtual void setOnEditStart(runnable oneditstart);
@@ -210,6 +226,7 @@ namespace gui {
         virtual void setShowLineNumbers(bool flag);
         virtual bool isShowLineNumbers() const;
 
+        virtual void reposition() override;
         virtual void onFocus(GUI*) override;
         virtual void refresh() override;
         virtual void doubleClick(GUI*, int x, int y) override;
@@ -220,9 +237,7 @@ namespace gui {
         virtual void drawBackground(const DrawContext& pctx, const Assets& assets) override;
         virtual void typed(unsigned int codepoint) override; 
         virtual void keyPressed(keycode key) override;
-        virtual std::shared_ptr<UINode> getAt(
-            const glm::vec2& pos, const std::shared_ptr<UINode>& self
-        ) override;
+        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos) override;
         virtual void setOnUpPressed(const runnable &callback);
         virtual void setOnDownPressed(const runnable &callback);
 

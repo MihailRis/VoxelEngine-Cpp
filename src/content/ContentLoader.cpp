@@ -394,6 +394,7 @@ void ContentLoader::loadBlock(
     if (def.hidden && def.pickingItem == def.name + BLOCK_ITEM_SUFFIX) {
         def.pickingItem = CORE_EMPTY;
     }
+    def.scriptFile = pack->id + ":scripts/" + def.scriptName + ".lua";
 }
 
 void ContentLoader::loadItem(
@@ -452,6 +453,8 @@ void ContentLoader::loadItem(
         def.emission[1] = emissionarr[1].asNumber();
         def.emission[2] = emissionarr[2].asNumber();
     }
+
+    def.scriptFile = pack->id + ":scripts/" + def.scriptName + ".lua";
 }
 
 void ContentLoader::loadEntity(
@@ -850,25 +853,54 @@ void ContentLoader::load() {
 }
 
 template <class T>
-static void load_scripts(Content& content, ContentUnitDefs<T>& units) {
-    for (const auto& [name, def] : units.getDefs()) {
-        size_t pos = name.find(':');
-        if (pos == std::string::npos) {
-            throw std::runtime_error("invalid content unit name");
-        }
-        const auto runtime = content.getPackRuntime(name.substr(0, pos));
-        const auto& pack = runtime->getInfo();
-        const auto& folder = pack.folder;
-        auto scriptfile = folder / ("scripts/" + def->scriptName + ".lua");
-        if (io::is_regular_file(scriptfile)) {
-            scripting::load_content_script(
-                runtime->getEnvironment(),
-                name,
-                scriptfile,
-                pack.id + ":scripts/" + def->scriptName + ".lua",
-                def->rt.funcsset
-            );
-        }
+static void load_script(const Content& content, T& def) {
+    const auto& name = def.name;
+    size_t pos = name.find(':');
+    if (pos == std::string::npos) {
+        throw std::runtime_error("invalid content unit name");
+    }
+    const auto runtime = content.getPackRuntime(name.substr(0, pos));
+    const auto& pack = runtime->getInfo();
+    const auto& folder = pack.folder;
+    auto scriptfile = folder / ("scripts/" + def.scriptName + ".lua");
+    if (io::is_regular_file(scriptfile)) {
+        scripting::load_content_script(
+            runtime->getEnvironment(),
+            name,
+            scriptfile,
+            def.scriptFile,
+            def.rt.funcsset
+        );
+    }
+}
+
+template <class T>
+static void load_scripts(const Content& content, ContentUnitDefs<T>& units) {
+    for (const auto& [_, def] : units.getDefs()) {
+        load_script(content, *def);
+    }
+}
+
+void ContentLoader::reloadScript(const Content& content, Block& block) {
+    load_script(content, block);
+}
+
+void ContentLoader::reloadScript(const Content& content, ItemDef& item) {
+    load_script(content, item);
+}
+
+void ContentLoader::loadWorldScript(ContentPackRuntime& runtime) {
+    const auto& pack = runtime.getInfo();
+    const auto& folder = pack.folder;
+    io::path scriptFile = folder / "scripts/world.lua";
+    if (io::is_regular_file(scriptFile)) {
+        scripting::load_world_script(
+            runtime.getEnvironment(),
+            pack.id,
+            scriptFile,
+            pack.id + ":scripts/world.lua",
+            runtime.worldfuncsset
+        );
     }
 }
 
@@ -881,16 +913,8 @@ void ContentLoader::loadScripts(Content& content) {
         const auto& folder = pack.folder;
         
         // Load main world script
-        io::path scriptFile = folder / "scripts/world.lua";
-        if (io::is_regular_file(scriptFile)) {
-            scripting::load_world_script(
-                runtime->getEnvironment(),
-                pack.id,
-                scriptFile,
-                pack.id + ":scripts/world.lua",
-                runtime->worldfuncsset
-            );
-        }
+        loadWorldScript(*runtime);
+
         // Load entity components
         io::path componentsDir = folder / "scripts/components";
         foreach_file(componentsDir, [&pack](const io::path& file) {

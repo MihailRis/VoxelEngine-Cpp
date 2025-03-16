@@ -151,6 +151,8 @@ public:
     /// @brief Get current Content instance
     const Content* getContent() const;
 
+    Content* getWriteableContent();
+
     /// @brief Get selected content packs
     std::vector<ContentPack>& getContentPacks();
 

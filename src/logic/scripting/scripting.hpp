@@ -42,6 +42,8 @@ namespace scripting {
     extern Level* level;
     extern BlocksController* blocks;
     extern LevelController* controller;
+    extern std::ostream* output_stream;
+    extern std::ostream* error_stream;
 
     void initialize(Engine* engine);
 
