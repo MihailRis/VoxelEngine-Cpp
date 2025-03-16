@@ -30,7 +30,7 @@ static int l_resolve(lua::State* L) {
 static int l_read(lua::State* L) {
     io::path path = lua::require_string(L, 1);
     if (io::is_regular_file(path)) {
-        return lua::pushstring(L, io::read_string(path));
+        return lua::pushlstring(L, io::read_string(path));
     }
     throw std::runtime_error(
         "file does not exists " + util::quote(path.string())
