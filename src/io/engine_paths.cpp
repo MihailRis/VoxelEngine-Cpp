@@ -10,8 +10,23 @@
 #include <utility>
 
 #include "io/devices/StdfsDevice.hpp"
+#include "io/devices/ZipFileDevice.hpp"
 #include "world/files/WorldFiles.hpp"
 #include "debug/Logger.hpp"
+
+#include <chrono>
+#include "maths/util.hpp"
+
+template<int n>
+static std::string generate_random_base64() {
+    auto now = std::chrono::high_resolution_clock::now();
+    auto seed = now.time_since_epoch().count();
+
+    util::PseudoRandom random(seed); // fixme: replace with safe random
+    ubyte bytes[n];
+    random.rand(bytes, n);
+    return util::base64_urlsafe_encode(bytes, n);
+}
 
 namespace fs = std::filesystem;
 
@@ -150,8 +165,32 @@ void EnginePaths::setCurrentWorldFolder(io::path folder) {
     io::create_subdevice("world", "user", currentWorldFolder);
 }
 
-#include <chrono>
-#include "maths/util.hpp"
+std::string EnginePaths::mount(const io::path& file) {
+    if (file.extension() == ".zip") {
+        auto stream = io::read(file);
+        auto device = std::make_unique<io::ZipFileDevice>(
+            std::move(stream), [file]() { return io::read(file); }
+        );
+        std::string name;
+        do {
+            name = std::string("M.") + generate_random_base64<6>();
+        } while (std::find(mounted.begin(), mounted.end(), name) != mounted.end());
+
+        io::set_device(name, std::move(device));
+        mounted.push_back(name);
+        return name;
+    }
+    throw std::runtime_error("unable to mount " + file.string());
+}
+
+void EnginePaths::unmount(const std::string& name) {
+    const auto& found = std::find(mounted.begin(), mounted.end(), name);
+    if (found == mounted.end()) {
+        throw std::runtime_error(name + " is not mounted");
+    }
+    io::remove_device(name);
+    mounted.erase(found);
+}
 
 std::string EnginePaths::createWriteablePackDevice(const std::string& name) {
     const auto& found = writeablePacks.find(name);
@@ -168,14 +207,7 @@ std::string EnginePaths::createWriteablePackDevice(const std::string& name) {
     if (folder.emptyOrInvalid()) {
         throw std::runtime_error("pack not found");
     }
-
-    auto now = std::chrono::high_resolution_clock::now();
-    auto seed = now.time_since_epoch().count();
-
-    util::PseudoRandom random(seed); // fixme: replace with safe random
-    auto number = random.rand64();
-    auto entryPoint = std::string("W.") + util::base64_urlsafe_encode(reinterpret_cast<ubyte*>(&number), 6);
-
+    auto entryPoint = std::string("W.") + generate_random_base64<6>();
     io::create_subdevice(entryPoint, folder.entryPoint(), folder.pathPart());
     writeablePacks[name] = entryPoint;
     return entryPoint;
@@ -187,6 +219,9 @@ void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
         io::remove_device(id);
     }
     for (const auto& [_, entryPoint] : writeablePacks) {
+        io::remove_device(entryPoint);
+    }
+    for (const auto& entryPoint : mounted) {
         io::remove_device(entryPoint);
     }
     contentEntryPoints.clear();

@@ -173,6 +173,20 @@ ZipFileDevice::ZipFileDevice(
         entries[entry.fileName] = std::move(entry);
     }
 
+    for (auto& [name, _] : entries) {
+        io::path path = name;
+
+        while (!(path = path.parent()).pathPart().empty()) {
+            if (entries.find(path.pathPart()) != entries.end()) {
+                continue;
+            }
+            Entry entry {};
+            entry.isDirectory = true;
+            entries[path.pathPart()] = entry;
+        }
+        break;
+    }
+
     for (auto& [_, entry] : entries) {
         findBlob(entry);
     }
@@ -243,6 +257,9 @@ bool ZipFileDevice::exists(std::string_view path) {
 }
 
 bool ZipFileDevice::isdir(std::string_view path) {
+    if (path.empty()) {
+        return true;
+    }
     const auto& found = entries.find(std::string(path));
     if (found == entries.end()) {
         return false;
@@ -375,7 +392,7 @@ static size_t write_zip(
 ) {
     size_t entries = 0;
     for (const auto& entry : io::directory_iterator(folder)) {
-        auto name = entry.pathPart().substr(root.length() + 1);
+        auto name = entry.pathPart().substr(root.length());
         auto last_write_time = io::last_write_time(entry);
         if (io::is_directory(entry)) {
             name = name + "/";

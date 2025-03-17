@@ -34,6 +34,9 @@ public:
     io::path getControlsFile() const;
     io::path getSettingsFile() const;
 
+    std::string mount(const io::path& file);
+    void unmount(const std::string& name);
+
     std::string createWriteablePackDevice(const std::string& name);
 
     void setContentPacks(std::vector<ContentPack>* contentPacks);
@@ -51,6 +54,7 @@ private:
     std::vector<ContentPack>* contentPacks = nullptr;
     std::vector<std::string> contentEntryPoints;
     std::unordered_map<std::string, std::string> writeablePacks;
+    std::vector<std::string> mounted;
 };
 
 struct PathsRoot {

@@ -37,6 +37,12 @@ namespace util {
             return static_cast<int>(seed);
         }
 
+        void rand(unsigned char* dst, size_t n) {
+            for (size_t i = 0; i < n; i++) {
+                dst[i] = rand();
+            }
+        }
+
         int32_t rand32() {
             return (rand() << 16) | rand();
         }
