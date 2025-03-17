@@ -134,6 +134,12 @@ file.unmount(entry_point: str) --> str
 Unmounts the entry point.
 
 ```lua
+file.create_zip(directory: str, output_file: str) --> str
+```
+
+Creates a ZIP archive from the contents of the specified directory.
+
+```lua
 file.name(path: str) --> str
 ```
 
