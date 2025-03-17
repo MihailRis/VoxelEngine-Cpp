@@ -114,7 +114,7 @@ void PrecipitationRenderer::render(
 
     batch->begin();
     auto& texture = assets.require<Texture>(weather.fall.texture);
-    texture.setMipMapping(false);
+    texture.setMipMapping(false, true);
     batch->setTexture(&texture, {});
 
     const struct {

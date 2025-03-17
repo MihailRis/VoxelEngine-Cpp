@@ -17,6 +17,7 @@ LuaCanvas::LuaCanvas(
 
 void LuaCanvas::createTexture() {
     mTexture = Texture::from(mData.get());
+    mTexture->setMipMapping(false, true);
 }
 
 union RGBA {
