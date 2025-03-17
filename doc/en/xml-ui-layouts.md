@@ -56,8 +56,6 @@ Examples:
 
 Buttons and panels are also containers.
 
-- `padding` - element padding. Type: 4D vector.
-  *left, top, right, bottom*
 - `scrollable` - element scrollability. Type: boolean.
 - `scroll-step` - scrolling step. Type: integer.
 
@@ -65,11 +63,29 @@ Buttons and panels are also containers.
 
 Buttons are also panels.
 
-- `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
-- `min-length` - minimal length of panel. Type: number
+- `padding` - element padding. Type: 4D vector.
+  *left, top, right, bottom*
+- `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number.
+- `min-length` - minimal length of panel. Type: number.
 - `orientation` - panel orientation: horizontal/vertical.
+- `interval` - space between elements. Type: number.
 
 # Common elements
+
+## *container*
+
+A primitive container.
+Use static positions / `gravity` / script to position elements.
+
+## *panel*
+
+A simple panel. Arranges elements in the order defined by the `orientation` attribute, adjusting the width (vertical) or height (horizontal) to the panel width.
+
+## *splitbox* (splitter)
+
+A panel that controls the size and position of two elements. Allows the user to move the splitter, changing the size of the elements.
+
+- `split-pos` - the initial position of the splitter from 0.0 to 1.0.
 
 ## *button*
 
