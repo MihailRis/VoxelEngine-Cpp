@@ -207,7 +207,7 @@ void SlotView::draw(const DrawContext& pctx, const Assets& assets) {
     drawItemIcon(batch, stack, item, assets, tint, pos);
 
     if (stack.getCount() > 1 || stack.getFields() != nullptr) {
-        const auto& font = assets.require<Font>("normal");
+        const auto& font = assets.require<Font>(FONT_DEFAULT);
         drawItemInfo(batch, stack, item, font, pos);
     }
 }

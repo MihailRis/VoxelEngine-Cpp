@@ -135,7 +135,7 @@ local function has_valid_config(id)
     for _, file_name in ipairs(files) do
         local name = file_name:match("([^/]+)%.([^%.]+)$")
 
-        if valid_name(name) then
+        if name and valid_name(name) then
             return true
         end
     end

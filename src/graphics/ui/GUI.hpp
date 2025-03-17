@@ -14,6 +14,7 @@ class DrawContext;
 class Assets;
 class Camera;
 class Batch2D;
+class LineBatch;
 
 /*
  Some info about padding and margin.
@@ -73,6 +74,7 @@ namespace gui {
         float doubleClickTimer = 0.0f;
         float doubleClickDelay = 0.5f;
         bool doubleClicked = false;
+        bool debug = false;
 
         void actMouse(float delta);
         void actFocused();
@@ -113,7 +115,11 @@ namespace gui {
         void add(std::shared_ptr<UINode> node);
 
         /// @brief Remove node from the main container
-        void remove(std::shared_ptr<UINode> node) noexcept;
+        void remove(UINode* node) noexcept;
+
+        void remove(const std::shared_ptr<UINode>& node) noexcept {
+            return remove(node.get());
+        }
 
         /// @brief Store node in the GUI nodes dictionary 
         /// (does not add node to the main container)
@@ -144,5 +150,7 @@ namespace gui {
 
         void setDoubleClickDelay(float delay);
         float getDoubleClickDelay() const;
+
+        void toggleDebug();
     };
 }

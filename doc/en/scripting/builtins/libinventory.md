@@ -12,7 +12,7 @@ inventory.get(
 ) -> int, int
 -- Returns item ID and count. 
 
--- Set slot content.
+-- Set slot content, deleting the data contained before.
 inventory.set(
     -- inventory ID
     invid: int,
@@ -23,6 +23,27 @@ inventory.set(
     -- item count
     count: int
 )
+
+-- Sets the count of items in the slot without affecting the data if the argument is non-zero.
+inventory.set_count(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- item count
+    count: int
+)
+
+-- Checks for the presence of a local property by name without copying its value.
+-- Preferably for tables, but not primitive types.
+inventory.has_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+) -> bool
 
 -- Returns inventory size (slots number). 
 -- Throws an exception if there's no inventory having specified ID.
@@ -63,6 +84,53 @@ inventory.remove(invid: int)
 > [!WARNING]
 > Unbound inventories will be deleted on world close.
 
+Local properties of an item are data attached to the last item in the stack.
+When splitting the stack (RMB), the data is not copied but moved to a new stack.
+Properties can be of any serializable type, including tables.
+Unlike block fields, property names do not need to be registered in the item definition.
+
+The combination of
+```lua
+inventory.get(...)
+inventory.get_all_data(...)
+inventory.set(...)
+inventory.set_all_data(...)
+```
+for moving is inefficient, use inventory.move or inventory.move_range.
+
+```lua
+-- Returns a copy of value of a local property of an item by name or nil.
+inventory.get_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+) -> any
+
+-- Sets the value of a local property of an item by name.
+-- Nil value removes the property.
+inventory.set_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+    -- property name
+    name: str
+    -- value
+    value: any
+)
+
+-- Returns a copy of the table of all local item properties.
+inventory.get_all_data(
+    -- inventory ID
+    invid: int,
+    -- slot index
+    slot: int,
+) -> table
+```
+
 ```lua
 -- Create inventory. Returns the created ID.
 inventory.create(size: int) -> int
@@ -86,5 +154,27 @@ inventory.move(
     invB: int, 
     rangeBegin: int, 
     [optional] rangeEnd: int
+)
+
+-- Decreases the item count in the slot by 1.
+inventory.decrement(
+    -- inventory id
+    invid: int,
+    -- slot index
+    slot: int,
+    -- count to subtract
+    [optional] count: int = 1
+)
+
+-- Decreases the remaining uses counter / durability of an item,
+-- creating a local `uses` property if none.
+-- Removes one item from the slot when the counter reaches zero.
+-- Does nothing if the `uses` property is not specified in the item's JSON.
+-- See [property `uses`](../../item-properties.md#number-of-uses-durability---uses)
+inventory.use(
+    -- inventory id
+    invid: int,
+    -- slot index
+    slot: int
 )
 ```

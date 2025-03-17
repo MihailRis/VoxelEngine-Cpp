@@ -144,3 +144,23 @@ file.prefix(path: str) --> str
 ```
 
 Extracts the entry point (prefix) from the path. Example: `world:data/base/config.toml` -> `world`.
+
+```lua
+file.parent(path: str) --> str
+```
+
+Returns the path one level up. Example: `world:data/base/config.toml` -> `world:data/base`
+
+```lua
+file.path(path: str) --> str
+```
+
+Removes the entry point (prefix) from the path. Example: `world:data/base/config.toml` -> `data/base/config.toml`
+
+```lua
+file.join(directory: str, path: str) --> str
+```
+
+Joins the path. Example: `file.join("world:data", "base/config.toml)` -> `world:data/base/config.toml`.
+
+You should use this function instead of concatenating with `/`, since `prefix:/path` is not valid.

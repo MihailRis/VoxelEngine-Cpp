@@ -4,7 +4,6 @@
 #include "typedefs.hpp"
 
 #include <memory>
-#include <glm/glm.hpp>
 
 class Assets;
 class DrawContext;

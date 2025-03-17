@@ -17,9 +17,7 @@ Container::~Container() {
     Container::clear();
 }
 
-std::shared_ptr<UINode> Container::getAt(
-    const glm::vec2& pos, const std::shared_ptr<UINode>& self
-) {
+std::shared_ptr<UINode> Container::getAt(const glm::vec2& pos) {
     if (!isInteractive() || !isEnabled()) {
         return nullptr;
     }
@@ -28,19 +26,19 @@ std::shared_ptr<UINode> Container::getAt(
     }
     int diff = (actualLength-size.y);
     if (scrollable && diff > 0 && pos.x > calcPos().x + getSize().x - scrollBarWidth) {
-        return UINode::getAt(pos, self);
+        return UINode::getAt(pos);
     }
 
     for (int i = nodes.size()-1; i >= 0; i--) {
         auto& node = nodes[i];
         if (!node->isVisible())
             continue;
-        auto hover = node->getAt(pos, node);
+        auto hover = node->getAt(pos);
         if (hover != nullptr) {
             return hover;
         }
     }
-    return UINode::getAt(pos, self);
+    return UINode::getAt(pos);
 }
 
 void Container::mouseMove(GUI* gui, int x, int y) {
@@ -172,11 +170,11 @@ void Container::add(const std::shared_ptr<UINode>& node, glm::vec2 pos) {
     add(node);
 }
 
-void Container::remove(const std::shared_ptr<UINode>& selected) {
+void Container::remove(UINode* selected) {
     selected->setParent(nullptr);
     nodes.erase(std::remove_if(nodes.begin(), nodes.end(), 
         [selected](const std::shared_ptr<UINode>& node) {
-            return node == selected;
+            return node.get() == selected;
         }
     ), nodes.end());
     refresh();
@@ -185,7 +183,7 @@ void Container::remove(const std::shared_ptr<UINode>& selected) {
 void Container::remove(const std::string& id) {
     for (auto& node : nodes) {
         if (node->getId() == id) {
-            return remove(node);
+            return remove(node.get());
         }
     }
 }

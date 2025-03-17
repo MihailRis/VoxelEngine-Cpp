@@ -108,3 +108,9 @@ pack.assemble(packis: table) -> table
 ```
 
 Checks the configuration for correctness and adds dependencies, returning the complete configuration.
+
+```lua
+pack.request_writeable(packid: str, callback: function(str))
+```
+
+Request pack modification permission. New entry-point will be passed to the callback if confirmed.

@@ -79,6 +79,7 @@ Properties:
 | hint        | string | yes  | yes   | text to display when nothing is entered                                              |
 | caret       | int    | yes  | yes   | carriage position. `textbox.caret = -1` will set the position to the end of the text |
 | editable    | bool   | yes  | yes   | text mutability                                                                      |
+| edited      | bool   | yes  | yes\* | is text edited since the last set / edited status reset                              |
 | multiline   | bool   | yes  | yes   | multiline support                                                                    |
 | lineNumbers | bool   | yes  | yes   | display line numbers                                                                 |
 | textWrap    | bool   | yes  | yes   | automatic text wrapping (only with multiline: "true")                                |
@@ -86,6 +87,8 @@ Properties:
 | textColor   | vec4   | yes  | yes   | text color                                                                           |
 | syntax      | string | yes  | yes   | syntax highlighting ("lua" - Lua)                                                    |
 | markup      | string | yes  | yes   | text markup language ("md" - Markdown)                                               |
+
+\* - false only
 
 Methods:
 

@@ -26,6 +26,38 @@ function __vc_Canvas_set_data(self, data)
     self:_set_data(tostring(_ffi.cast("uintptr_t", canvas_ffi_buffer)))
 end
 
+_ffi.cdef([[
+    unsigned long crc32(unsigned long crc, const char *buf, unsigned len);
+]])
+
+local zlib
+if _ffi.os == "Windows" then
+    zlib = _ffi.load("zlib1")
+elseif _ffi.os == "OSX" then
+    zlib = _ffi.load("z")
+elseif _ffi.os == "Linux" then
+    zlib = _ffi.load("libz.so.1")
+else
+    error("platform does not support zlib " .. _ffi.os)
+end
+
+function crc32(bytes, chksum)
+    local chksum = chksum or 0
+
+    local length = #bytes
+    if type(bytes) == "string" then
+        return zlib.crc32(chksum, bytes, length)
+    elseif type(bytes) == "table" then
+        local buffer = _ffi.new(
+            string.format("char[%s]", length)
+        )
+        for i=1, length do
+            buffer[i - 1] = bytes[i]
+        end
+        return zlib.crc32(chksum, buffer, length)
+    end
+end
+
 -- Check if given table is an array
 function is_array(x)
     if #x > 0 then
@@ -429,6 +461,18 @@ function file.readlines(path)
     return lines
 end
 
+function debug.count_frames()
+    local frames = 1
+    while true do
+        local info = debug.getinfo(frames)
+        if info then
+            frames = frames + 1
+        else
+            return frames - 1
+        end
+    end
+end
+
 function debug.get_traceback(start)
     local frames = {}
     local n = 2 + (start or 0)
@@ -460,6 +504,35 @@ function on_deprecated_call(name, alternatives)
             alternatives.." instead\n"..debug.traceback())
     else
         debug.warning("deprecated function called ("..name..")\n"..debug.traceback())
+    end
+end
+
+function reload_module(name)
+    local prefix, name = parse_path(name)
+    local path = prefix..":modules/"..name..".lua"
+
+    local previous = package.loaded[path]
+    if not previous then
+        debug.log("attempt to reload non-loaded module "..name.." ("..path..")")
+        return
+    end
+    local script, err = load(file.read(path), path)
+    if script == nil then
+        error(err)
+    end
+    local result = script()
+    if not result then
+        return
+    end
+    for i, value in ipairs(result) do
+        previous[i] = value
+    end
+    local copy = table.copy(result)
+    for key, value in pairs(result) do
+        result[key] = nil
+    end
+    for key, value in pairs(copy) do
+        previous[key] = value
     end
 end
 
@@ -513,9 +586,13 @@ function __scripts_cleanup()
     end
 end
 
-function __vc__error(msg, frame)
+function __vc__error(msg, frame, n, lastn)
     if events then
-        events.emit("core:error", msg, debug.get_traceback(1))
+        local frames = debug.get_traceback(1)
+        events.emit(
+            "core:error", msg, 
+            table.sub(frames, 1 + (n or 0), lastn and #frames-lastn)
+        )
     end
     return debug.traceback(msg, frame)
 end
@@ -542,4 +619,24 @@ end
 
 function file.prefix(path)
     return path:match("^([^:]+)")
+end
+
+function file.parent(path)
+    local dir = path:match("(.*)/")
+    if not dir then
+        return file.prefix(path)..":"
+    end
+    return dir
+end
+
+function file.path(path)
+    local pos = path:find(':')
+    return path:sub(pos + 1)
+end
+
+function file.join(a, b)
+    if a[#a] == ':' then
+        return a .. b
+    end
+    return a .. "/" .. b
 end

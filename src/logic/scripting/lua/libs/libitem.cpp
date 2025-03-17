@@ -1,6 +1,8 @@
 #include "content/Content.hpp"
+#include "content/ContentLoader.hpp"
 #include "items/ItemDef.hpp"
 #include "api_lua.hpp"
+#include "engine/Engine.hpp"
 
 using namespace scripting;
 
@@ -87,6 +89,17 @@ static int l_uses(lua::State* L) {
     return 0;
 }
 
+static int l_reload_script(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
+    auto& writeableContent = *engine->getWriteableContent();
+    auto& def = writeableContent.items.require(name);
+    ContentLoader::reloadScript(writeableContent, def);
+    return 0;
+}
+
 const luaL_Reg itemlib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_name>},
@@ -98,5 +111,6 @@ const luaL_Reg itemlib[] = {
     {"model_name", lua::wrap<l_model_name>},
     {"emission", lua::wrap<l_emission>},
     {"uses", lua::wrap<l_uses>},
+    {"reload_script", lua::wrap<l_reload_script>},
     {NULL, NULL}
 };

@@ -171,6 +171,23 @@ static int l_set_allow_pause(lua::State* L) {
     return 0;
 }
 
+static int l_reload_script(lua::State* L) {
+    auto packid = lua::require_string(L, 1);
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
+    auto& writeableContent = *engine->getWriteableContent();
+    auto pack = writeableContent.getPackRuntime(packid);
+    const auto& info = pack->getInfo();
+    scripting::load_hud_script(
+        pack->getEnvironment(),
+        packid,
+        info.folder / "scripts/hud.lua",
+        pack->getId() + ":scripts/hud.lua"
+    );
+    return 0;
+}
+
 const luaL_Reg hudlib[] = {
     {"open_inventory", wrap_hud<l_open_inventory>},
     {"close_inventory", wrap_hud<l_close_inventory>},
@@ -189,5 +206,6 @@ const luaL_Reg hudlib[] = {
     {"_set_content_access", wrap_hud<l_set_content_access>},
     {"_set_debug_cheats", wrap_hud<l_set_debug_cheats>},
     {"set_allow_pause", wrap_hud<l_set_allow_pause>},
+    {"reload_script", wrap_hud<l_reload_script>},
     {NULL, NULL}
 };

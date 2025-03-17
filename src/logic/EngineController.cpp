@@ -178,7 +178,7 @@ void EngineController::onMissingContent(const std::shared_ptr<ContentReport>& re
     if (engine.isHeadless()) {
         throw std::runtime_error(
             "missing content: " +
-            json::stringify(create_missing_content_report(report), true)
+            json::stringify(create_missing_content_report(report), true, "  ")
         );
     } else {
         engine.setScreen(std::make_shared<MenuScreen>(engine));

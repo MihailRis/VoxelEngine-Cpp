@@ -56,14 +56,14 @@ public:
     /// @param text selected text
     /// @param length max substring length (default: no limit)
     /// @return pixel width of the substring 
-    int calcWidth(const std::wstring& text, size_t length=-1) const;
+    int calcWidth(std::wstring_view text, size_t length=-1) const;
 
     /// @brief Calculate text width in pixels
     /// @param text selected text
     /// @param offset start of the substring
     /// @param length max substring length
     /// @return pixel width of the substring
-    int calcWidth(const std::wstring& text, size_t offset, size_t length) const;
+    int calcWidth(std::wstring_view text, size_t offset, size_t length) const;
 
     /// @brief Check if character is visible (non-whitespace)
     /// @param codepoint character unicode codepoint

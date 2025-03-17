@@ -44,7 +44,12 @@ static int l_post(lua::State* L) {
     lua::pushvalue(L, 3);
     auto onResponse = lua::create_lambda_nothrow(L);
 
-    auto string = json::stringify(data, false);
+    std::string string;
+    if (data.isString()) {
+        string = data.asString();
+    } else {
+        string = json::stringify(data, false);
+    }
     engine->getNetwork().post(url, string, [onResponse](std::vector<char> bytes) {
         auto buffer = std::make_shared<util::Buffer<ubyte>>(
             reinterpret_cast<const ubyte*>(bytes.data()), bytes.size()
