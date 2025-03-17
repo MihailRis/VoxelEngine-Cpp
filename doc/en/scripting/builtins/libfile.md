@@ -122,6 +122,18 @@ file.read_combined_object(path: str) -> array
 Combines objects from JSON files of different packs.
 
 ```lua
+file.mount(path: str) --> str
+```
+
+Mounts a ZIP archive to the filesystem. Returns the entry point name.
+
+```lua
+file.unmount(entry_point: str) --> str
+```
+
+Unmounts the entry point.
+
+```lua
 file.name(path: str) --> str
 ```
 
