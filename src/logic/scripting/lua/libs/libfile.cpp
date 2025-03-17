@@ -238,6 +238,17 @@ static int l_is_writeable(lua::State* L) {
     return lua::pushboolean(L, is_writeable(entryPoint));
 }
 
+static int l_mount(lua::State* L) {
+    auto& paths = engine->getPaths();
+    return lua::pushstring(L, paths.mount(lua::require_string(L, 1)));
+}
+
+static int l_unmount(lua::State* L) {
+    auto& paths = engine->getPaths();
+    paths.unmount(lua::require_string(L, 1));
+    return 0;
+}
+
 const luaL_Reg filelib[] = {
     {"exists", lua::wrap<l_exists>},
     {"find", lua::wrap<l_find>},
@@ -259,5 +270,7 @@ const luaL_Reg filelib[] = {
     {"read_combined_list", lua::wrap<l_read_combined_list>},
     {"read_combined_object", lua::wrap<l_read_combined_object>},
     {"is_writeable", lua::wrap<l_is_writeable>},
+    {"mount", lua::wrap<l_mount>},
+    {"unmount", lua::wrap<l_unmount>},
     {NULL, NULL}
 };
