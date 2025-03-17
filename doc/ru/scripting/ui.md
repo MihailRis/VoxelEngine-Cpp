@@ -185,6 +185,7 @@ document["worlds-panel"]:clear()
 | data:clear(*цвет*)                                       | заполняет холст указанным RGBA цветом                |
 | data:update()                                            | применяет изменения и загружает холст в видеопамять  |
 | data:set_data(data: table<int>)                          | заменяет данные пикселей (ширина * высота * 4 чисел) |
+| data:create_texture(name: str)                           | создаёт и делится текстурой с рендерером             |
 
 ## Inventory (inventory)
 
