@@ -392,7 +392,7 @@ static size_t write_zip(
 ) {
     size_t entries = 0;
     for (const auto& entry : io::directory_iterator(folder)) {
-        auto name = entry.pathPart().substr(root.length() + 1);
+        auto name = entry.pathPart().substr(root.length());
         auto last_write_time = io::last_write_time(entry);
         if (io::is_directory(entry)) {
             name = name + "/";

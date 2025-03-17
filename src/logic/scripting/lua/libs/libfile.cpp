@@ -6,6 +6,7 @@
 #include "engine/Engine.hpp"
 #include "io/engine_paths.hpp"
 #include "io/io.hpp"
+#include "io/devices/ZipFileDevice.hpp"
 #include "util/stringutil.hpp"
 #include "api_lua.hpp"
 #include "../lua_engine.hpp"
@@ -249,6 +250,16 @@ static int l_unmount(lua::State* L) {
     return 0;
 }
 
+static int l_create_zip(lua::State* L) {
+    io::path folder = lua::require_string(L, 1);
+    io::path outFile = lua::require_string(L, 2);
+    if (!is_writeable(outFile.entryPoint())) {
+        throw std::runtime_error("access denied");
+    }
+    io::write_zip(folder, outFile);
+    return 0;
+}
+
 const luaL_Reg filelib[] = {
     {"exists", lua::wrap<l_exists>},
     {"find", lua::wrap<l_find>},
@@ -272,5 +283,6 @@ const luaL_Reg filelib[] = {
     {"is_writeable", lua::wrap<l_is_writeable>},
     {"mount", lua::wrap<l_mount>},
     {"unmount", lua::wrap<l_unmount>},
+    {"create_zip", lua::wrap<l_create_zip>},
     {NULL, NULL}
 };
