@@ -38,7 +38,8 @@ elseif _ffi.os == "OSX" then
 elseif _ffi.os == "Linux" then
     zlib = _ffi.load("libz.so.1")
 else
-    error("platform does not support zlib " .. _ffi.os)
+    debug.error("platform does not support zlib " .. _ffi.os)
+    zlib = _ffi.C
 end
 
 function crc32(bytes, chksum)
