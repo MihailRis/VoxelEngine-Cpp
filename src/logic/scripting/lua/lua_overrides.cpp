@@ -1,4 +1,5 @@
 #include <iostream>
+#include <zlib.h>
 
 #include "libs/api_lua.hpp"
 
@@ -24,4 +25,28 @@ int l_print(lua::State* L) {
     }
     *output_stream << std::endl;
     return 0;
+}
+
+int l_crc32(lua::State* L) {
+    auto value = lua::tointeger(L, 2);
+    if (lua::isstring(L, 1)) {
+        auto string = lua::tolstring(L, 1);
+        return lua::pushinteger(
+            L,
+            crc32(
+                value,
+                reinterpret_cast<const ubyte*>(string.data()),
+                string.length()
+            )
+        );
+    } else if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, 1)) {
+        auto& bytes = bytearray->data();
+        return lua::pushinteger(L, crc32(value, bytes.data(), bytes.size()));
+    } else if (lua::istable(L, 1)) {
+        std::vector<ubyte> bytes;
+        lua::read_bytes_from_table(L, 1, bytes);
+        return lua::pushinteger(L, crc32(value, bytes.data(), bytes.size()));
+    } else {
+        throw std::runtime_error("invalid argument 1");
+    }
 }
