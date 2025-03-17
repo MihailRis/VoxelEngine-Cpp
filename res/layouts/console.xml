@@ -83,8 +83,13 @@
             <splitbox orientation="horizontal" split-pos="0.4">
                 <panel id="traceback" padding="4" color="#000000A0">
                 </panel>
-                <panel id="output" padding="4" color="#000000A0">
-                </panel>
+                <textbox id="output" 
+                         padding="4" 
+                         editable="false" 
+                         markup="md" 
+                         multiline="true" 
+                         color="#000000A0">
+                </textbox>
             </splitbox>
         </splitbox>
     </splitbox>

@@ -149,9 +149,9 @@ function run_current_file()
     clear_output()
     if not chunk then
         local line, message = err:match(".*:(%d*): (.*)")
-        document.output:add(
+        document.output:paste(
             string.format(
-                "<label color='#FF3030' enabled='false' margin='2'>%s: %s</label>", 
+                "\n[#FF3030]%s: %s[#FFFFFF]", 
                 gui.str("Error at line %{0}"):gsub("%%{0}", line), message)
         )
         return
@@ -176,11 +176,7 @@ function run_current_file()
     }
     func = funcs[script_type] or func
     local output = core.capture_output(function() func(unit) end)
-    document.output:add(
-        string.format(
-            "<label enabled='false' multiline='true' margin='2'>%s</label>", 
-            output)
-    )
+    document.output:paste(string.format("\n%s", output))
 end
 
 function save_current_file()
@@ -220,8 +216,8 @@ end
 
 function clear_output()
     local output = document.output
-    output:clear()
-    output:add("<label enabled='false' margin='2'>@devtools.output</label>")
+    output.text = ""
+    output:paste("[#FFFFFF80]"..gui.str("devtools.output").."[#FFFFFF]")
 end
 
 events.on("core:open_traceback", function(traceback_b64)
