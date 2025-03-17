@@ -84,6 +84,7 @@ static void create_libs(State* L, StateType stateType) {
     }
 
     addfunc(L, "print", lua::wrap<l_print>);
+    addfunc(L, "_crc32", lua::wrap<l_crc32>);
 }
 
 void lua::init_state(State* L, StateType stateType) {

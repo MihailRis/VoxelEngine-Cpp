@@ -56,6 +56,7 @@ extern const luaL_Reg transformlib[];
 
 // Lua Overrides
 extern int l_print(lua::State* L);
+extern int l_crc32(lua::State* L);
 
 namespace lua {
     inline uint check_argc(lua::State* L, int a) {

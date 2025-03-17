@@ -26,36 +26,21 @@ function __vc_Canvas_set_data(self, data)
     self:_set_data(tostring(_ffi.cast("uintptr_t", canvas_ffi_buffer)))
 end
 
-_ffi.cdef([[
-    unsigned long crc32(unsigned long crc, const char *buf, unsigned len);
-]])
-
-local zlib
-if _ffi.os == "Windows" then
-    zlib = _ffi.load("zlib1")
-elseif _ffi.os == "OSX" then
-    zlib = _ffi.load("z")
-elseif _ffi.os == "Linux" then
-    zlib = _ffi.load("libz.so.1")
-else
-    error("platform does not support zlib " .. _ffi.os)
-end
-
 function crc32(bytes, chksum)
     local chksum = chksum or 0
 
     local length = #bytes
-    if type(bytes) == "string" then
-        return zlib.crc32(chksum, bytes, length)
-    elseif type(bytes) == "table" then
+    if type(bytes) == "table" then
+        local buffer_len = _ffi.new('int[1]', length)
         local buffer = _ffi.new(
             string.format("char[%s]", length)
         )
         for i=1, length do
             buffer[i - 1] = bytes[i]
         end
-        return zlib.crc32(chksum, buffer, length)
+        bytes = _ffi.string(buffer, buffer_len[0])
     end
+    return _crc32(bytes, chksum)
 end
 
 -- Check if given table is an array
