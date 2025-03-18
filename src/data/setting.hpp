@@ -7,6 +7,7 @@
 
 #include "delegates.hpp"
 #include "typedefs.hpp"
+#include "util/observer_handler.hpp"
 
 enum class setting_format { simple, percent };
 
@@ -47,9 +48,8 @@ public:
         if (callOnStart) {
             callback(value);
         }
-        return std::shared_ptr<int>(new int(id), [this](int* id) { //-V508
-            observers.erase(*id);
-            delete id;
+        return observer_handler([this, id]() {
+            observers.erase(id);
         });
     }
 

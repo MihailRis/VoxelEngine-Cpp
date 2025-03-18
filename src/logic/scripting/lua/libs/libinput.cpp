@@ -1,5 +1,3 @@
-#include <filesystem>
-
 #include "engine/Engine.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
@@ -8,6 +6,7 @@
 #include "io/io.hpp"
 #include "libgui.hpp"
 #include "util/stringutil.hpp"
+#include "util/observer_handler.hpp"
 #include "window/Events.hpp"
 #include "window/input.hpp"
 #include "coders/toml.hpp"
@@ -61,13 +60,13 @@ static int l_add_callback(lua::State* L) {
     }
 
     if (hud) {
-        hud->keepAlive(handler);
+        hud->keepAlive(std::move(handler));
         return 0;
     } else if (lua::gettop(L) >= 3) {
         auto node = get_document_node(L, 3);
         if (auto container =
                 std::dynamic_pointer_cast<gui::Container>(node.node)) {
-            container->keepAlive(handler);
+            container->keepAlive(std::move(handler));
             return 0;
         }
         throw std::runtime_error("owner expected to be a container");

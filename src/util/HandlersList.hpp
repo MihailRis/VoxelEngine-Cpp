@@ -7,6 +7,7 @@
 
 #include "delegates.hpp"
 #include "typedefs.hpp"
+#include "util/observer_handler.hpp"
 
 namespace util {
     template <class... Types>
@@ -35,13 +36,12 @@ namespace util {
             int id = nextid++;
             handlers[id] = std::move(handler);
             order.push_back(id);
-            return observer_handler(new int(id), [this](int* id) {  //-V508
+            return observer_handler([this, id]() {
                 std::lock_guard lock(mutex);
-                handlers.erase(*id);
+                handlers.erase(id);
                 order.erase(
-                    std::remove(order.begin(), order.end(), *id), order.end()
+                    std::remove(order.begin(), order.end(), id), order.end()
                 );
-                delete id;
             });
         }
 
