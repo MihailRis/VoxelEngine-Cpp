@@ -46,5 +46,5 @@ add_custom_command(
 if(VOXELENGINE_BUILD_TESTS)
     add_subdirectory(test)
 endif()
-
+# Random changes
 add_subdirectory(vctest)
