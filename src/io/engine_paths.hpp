@@ -9,7 +9,15 @@
 
 #include "io.hpp"
 #include "data/dv.hpp"
-#include "content/ContentPack.hpp"
+
+struct PathsRoot {
+    std::string name;
+    io::path path;
+
+    PathsRoot(std::string name, io::path path)
+        : name(std::move(name)), path(std::move(path)) {
+    }
+};
 
 class EnginePaths {
 public:
@@ -37,9 +45,9 @@ public:
     std::string mount(const io::path& file);
     void unmount(const std::string& name);
 
-    std::string createWriteablePackDevice(const std::string& name);
+    std::string createWriteableDevice(const std::string& name);
 
-    void setContentPacks(std::vector<ContentPack>* contentPacks);
+    void setEntryPoints(std::vector<PathsRoot> entryPoints);
 
     std::vector<io::path> scanForWorlds() const;
 
@@ -51,15 +59,11 @@ private:
     std::filesystem::path resourcesFolder {"res"};
     io::path currentWorldFolder;
     std::optional<std::filesystem::path> scriptFolder;
-    std::vector<ContentPack>* contentPacks = nullptr;
-    std::vector<std::string> contentEntryPoints;
-    std::unordered_map<std::string, std::string> writeablePacks;
+    std::vector<PathsRoot> entryPoints;
+    std::unordered_map<std::string, std::string> writeables;
     std::vector<std::string> mounted;
-};
 
-struct PathsRoot {
-    std::string name;
-    io::path path;
+    void cleanup();
 };
 
 class ResPaths {

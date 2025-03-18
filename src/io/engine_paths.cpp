@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <array>
-#include <filesystem>
 #include <sstream>
 #include <stack>
 #include "typedefs.hpp"
@@ -192,15 +191,15 @@ void EnginePaths::unmount(const std::string& name) {
     mounted.erase(found);
 }
 
-std::string EnginePaths::createWriteablePackDevice(const std::string& name) {
-    const auto& found = writeablePacks.find(name);
-    if (found != writeablePacks.end()) {
+std::string EnginePaths::createWriteableDevice(const std::string& name) {
+    const auto& found = writeables.find(name);
+    if (found != writeables.end()) {
         return found->second;
     }
     io::path folder;
-    for (const auto& pack : *contentPacks) {
-        if (pack.id == name) {
-            folder = pack.folder;
+    for (const auto& point : entryPoints) {
+        if (point.name == name) {
+            folder = point.path;
             break;
         }
     }
@@ -209,29 +208,33 @@ std::string EnginePaths::createWriteablePackDevice(const std::string& name) {
     }
     auto entryPoint = std::string("W.") + generate_random_base64<6>();
     io::create_subdevice(entryPoint, folder.entryPoint(), folder.pathPart());
-    writeablePacks[name] = entryPoint;
+    writeables[name] = entryPoint;
     return entryPoint;
 }
 
-void EnginePaths::setContentPacks(std::vector<ContentPack>* contentPacks) {
+void EnginePaths::cleanup() {
     // Remove previous content entry-points
-    for (const auto& id : contentEntryPoints) {
+    for (const auto& [id, _] : entryPoints) {
         io::remove_device(id);
     }
-    for (const auto& [_, entryPoint] : writeablePacks) {
+    for (const auto& [_, entryPoint] : writeables) {
         io::remove_device(entryPoint);
     }
     for (const auto& entryPoint : mounted) {
         io::remove_device(entryPoint);
     }
-    contentEntryPoints.clear();
-    this->contentPacks = contentPacks;
-    // Create content devices
-    for (const auto& pack : *contentPacks) {
-        auto parent = pack.folder.entryPoint();
-        io::create_subdevice(pack.id, parent, pack.folder);
-        contentEntryPoints.push_back(pack.id);
+    entryPoints.clear();
+}
+
+void EnginePaths::setEntryPoints(std::vector<PathsRoot> entryPoints) {
+    cleanup();
+
+    // Create sub-devices
+    for (const auto& point : entryPoints) {
+        auto parent = point.path.entryPoint();
+        io::create_subdevice(point.name, parent, point.path);
     }
+    this->entryPoints = std::move(entryPoints);
 }
 
 std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view path) {

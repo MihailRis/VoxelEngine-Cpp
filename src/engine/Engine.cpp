@@ -346,14 +346,19 @@ void Engine::loadContent() {
         names.push_back(pack.id);
     }
 
-    ContentBuilder contentBuilder;
-    corecontent::setup(*input, contentBuilder);
-
-    paths.setContentPacks(&contentPacks);
     PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
     manager.scan();
     names = manager.assemble(names);
     contentPacks = manager.getAll(names);
+
+    std::vector<PathsRoot> entryPoints;
+    for (auto& pack : contentPacks) {
+        entryPoints.emplace_back(pack.id, pack.folder);
+    }
+    paths.setEntryPoints(std::move(entryPoints));
+
+    ContentBuilder contentBuilder;
+    corecontent::setup(*input, contentBuilder);
 
     auto corePack = ContentPack::createCore(paths);
 
@@ -443,7 +448,12 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 }
 
 void Engine::setLanguage(std::string locale) {
-    langs::setup("res:", std::move(locale), resPaths->collectRoots());
+    langs::setup(
+        "res:",
+        std::move(locale),
+        resPaths ? resPaths->collectRoots()
+                 : std::vector<io::path> {{"core", "res:"}}
+    );
 }
 
 void Engine::onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer) {
