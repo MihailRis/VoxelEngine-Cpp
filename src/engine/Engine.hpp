@@ -4,7 +4,6 @@
 #include "typedefs.hpp"
 #include "settings.hpp"
 
-#include "assets/Assets.hpp"
 #include "content/content_fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "content/PacksManager.hpp"
@@ -15,10 +14,10 @@
 #include "Time.hpp"
 
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
+class Assets;
 class Level;
 class Screen;
 class EnginePaths;

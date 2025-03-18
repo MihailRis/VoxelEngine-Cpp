@@ -5,6 +5,7 @@
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
+#include "assets/Assets.hpp"
 #include "maths/UVRegion.hpp"
 #include "window/Window.hpp"
 #include "window/Camera.hpp"

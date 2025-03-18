@@ -2,7 +2,6 @@
 
 #include <glm/glm.hpp>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "io/fwd.hpp"

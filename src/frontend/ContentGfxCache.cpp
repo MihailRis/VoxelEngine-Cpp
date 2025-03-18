@@ -7,6 +7,7 @@
 #include "content/Content.hpp"
 #include "content/ContentPack.hpp"
 #include "graphics/core/Atlas.hpp"
+#include "graphics/commons/Model.hpp"
 #include "maths/UVRegion.hpp"
 #include "voxels/Block.hpp"
 #include "core_defs.hpp"

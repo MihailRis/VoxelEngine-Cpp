@@ -1,4 +1,5 @@
 #include "audio/audio.hpp"
+#include "assets/Assets.hpp"
 #include "engine/Engine.hpp"
 #include "api_lua.hpp"
 

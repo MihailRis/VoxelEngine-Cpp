@@ -1,7 +1,7 @@
 #pragma once
 
 #include "data/dv.hpp"
-#include "graphics/ui/elements/Menu.hpp"
+#include "delegates.hpp"
 
 #include <string>
 #include <vector>
@@ -11,6 +11,10 @@ class Task;
 class Engine;
 
 class UiDocument;
+
+namespace gui {
+    class GUI;
+}
 
 namespace menus {
     /// @brief Create development version label at the top-right screen corner
@@ -22,7 +26,11 @@ namespace menus {
         std::vector<dv::value> args
     );
 
-    void show_process_panel(Engine& engine, const std::shared_ptr<Task>& task, const std::wstring& text=L"");
+    void show_process_panel(
+        Engine& engine,
+        const std::shared_ptr<Task>& task,
+        const std::wstring& text = L""
+    );
 
     bool call(Engine& engine, runnable func);
 }

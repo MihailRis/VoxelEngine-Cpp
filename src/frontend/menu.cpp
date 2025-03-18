@@ -1,6 +1,5 @@
 #include "menu.hpp"
 
-#include <filesystem>
 #include <glm/glm.hpp>
 
 #include "UiDocument.hpp"
@@ -18,9 +17,8 @@
 #include "screens/MenuScreen.hpp"
 #include "settings.hpp"
 #include "util/stringutil.hpp"
+#include "assets/assetload_funcs.hpp"
 
-
-namespace fs = std::filesystem;
 using namespace gui;
 
 void menus::create_version_label(gui::GUI& gui) {

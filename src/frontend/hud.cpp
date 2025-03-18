@@ -13,8 +13,6 @@
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/Batch3D.hpp"
 #include "graphics/core/DrawContext.hpp"
-#include "graphics/core/Font.hpp"
-#include "graphics/core/Mesh.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/core/ImageData.hpp"

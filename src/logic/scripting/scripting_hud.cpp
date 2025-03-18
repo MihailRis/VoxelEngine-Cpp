@@ -3,6 +3,7 @@
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
 #include "io/io.hpp"
+#include "assets/Assets.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/UiDocument.hpp"
 #include "graphics/render/WorldRenderer.hpp"

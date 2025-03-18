@@ -21,11 +21,11 @@ void UiDocument::rebuildIndices() {
     gui::UINode::getIndices(root, map);
 }
 
-const uinodes_map& UiDocument::getMap() const {
+const UINodesMap& UiDocument::getMap() const {
     return map;
 }
 
-uinodes_map& UiDocument::getMapWriteable() {
+UINodesMap& UiDocument::getMapWriteable() {
     return map;
 }
 

@@ -4,6 +4,7 @@
 #include "WorldRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "TextNote.hpp"
+#include "assets/Assets.hpp"
 #include "assets/assets_util.hpp"
 #include "content/Content.hpp"
 #include "voxels/Chunks.hpp"

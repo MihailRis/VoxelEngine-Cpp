@@ -14,6 +14,7 @@
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
 #include "graphics/core/Viewport.hpp"
+#include "graphics/commons/Model.hpp"
 
 #include <glm/ext.hpp>
 

@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include "graphics/commons/Model.hpp"
+#include "maths/UVRegion.hpp"
 
 class Content;
 class Assets;

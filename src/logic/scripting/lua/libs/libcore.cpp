@@ -4,6 +4,7 @@
 #include "api_lua.hpp"
 #include "coders/png.hpp"
 #include "constants.hpp"
+#include "assets/Assets.hpp"
 #include "content/Content.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
