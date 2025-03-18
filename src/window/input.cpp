@@ -239,6 +239,13 @@ const Binding& Bindings::require(const std::string& name) const {
     throw std::runtime_error("binding '" + name + "' does not exist");
 }
 
+Binding& Bindings::require(const std::string& name) {
+    if (const auto found = get(name)) {
+        return *found;
+    }
+    throw std::runtime_error("binding '" + name + "' does not exist");
+}
+
 void Bindings::read(const dv::value& map, BindType bindType) {
     for (auto& [sectionName, section] : map.asObject()) {
         for (auto& [name, value] : section.asObject()) {

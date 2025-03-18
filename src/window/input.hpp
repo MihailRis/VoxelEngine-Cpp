@@ -204,7 +204,11 @@ public:
     }
 
     Binding* get(const std::string& name) {
-        return const_cast<Bindings*>(this)->get(name);
+        const auto found = bindings.find(name);
+        if (found == bindings.end()) {
+            return nullptr;
+        }
+        return &found->second;
     }
 
     const Binding* get(const std::string& name) const {
@@ -215,9 +219,7 @@ public:
         return &found->second;
     }
 
-    Binding& require(const std::string& name) {
-        return const_cast<Bindings*>(this)->require(name);
-    }
+    Binding& require(const std::string& name);
 
     const Binding& require(const std::string& name) const;
 
