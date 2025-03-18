@@ -179,7 +179,7 @@ static int l_move_range(lua::State* L) {
     auto invBid = lua::tointeger(L, 3);
     auto slotBegin = lua::isnoneornil(L, 4) ? -1 : lua::tointeger(L, 4);
     auto slotEnd = lua::isnoneornil(L, 5) ? -1 : lua::tointeger(L, 5) + 1;
-    auto invB = get_inventory(invBid, 3);
+    auto& invB = get_inventory(invBid, 3);
     auto& slot = invA.getSlot(slotAid);
     if (slotBegin == -1) {
         invB.move(slot, *content->getIndices());

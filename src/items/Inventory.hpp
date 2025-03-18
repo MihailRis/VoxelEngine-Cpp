@@ -18,7 +18,7 @@ public:
 
     Inventory(int64_t id, size_t size);
 
-    Inventory(const Inventory& orig);
+    explicit Inventory(const Inventory& orig);
 
     ItemStack& getSlot(size_t index);
     size_t findEmptySlot(size_t begin = 0, size_t end = -1) const;
