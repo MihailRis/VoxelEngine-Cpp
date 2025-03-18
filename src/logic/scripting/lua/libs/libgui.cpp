@@ -771,7 +771,7 @@ static int l_gui_reindex(lua::State* L) {
 
 /// @brief gui.get_locales_info() -> table of tables
 static int l_gui_get_locales_info(lua::State* L) {
-    auto& locales = langs::locales_info;
+    auto& locales = langs::get_locales_info();
     lua::createtable(L, 0, locales.size());
     for (auto& entry : locales) {
         lua::createtable(L, 0, 1);

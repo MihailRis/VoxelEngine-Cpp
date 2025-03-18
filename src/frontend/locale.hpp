@@ -7,8 +7,6 @@
 
 #include "io/fwd.hpp"
 
-struct ContentPack;
-
 namespace langs {
     const char LANG_FILE_EXT[] = ".txt";
     const char TEXTS_FOLDER[] = "texts";
@@ -41,30 +39,21 @@ namespace langs {
         std::string name;
     };
 
-    extern std::unique_ptr<Lang> current;
-    extern std::unordered_map<std::string, LocaleInfo> locales_info;
+    std::string locale_by_envlocale(
+        const std::string& envlocale, const io::path& resdir
+    );
 
-    extern void loadLocalesInfo(
+    const std::string& get_current();
+    const std::unordered_map<std::string, LocaleInfo>& get_locales_info();
+
+    const std::wstring& get(const std::wstring& key);
+    const std::wstring& get(
+        const std::wstring& key, const std::wstring& context
+    );
+
+    void setup(
         const io::path& resdir,
-        std::string& fallback);
-
-    extern std::string locale_by_envlocale(const std::string& envlocale,
-                                           const io::path& resdir);
-
-    extern void load(const io::path& resdir,
-                     const std::string& locale,
-                     const std::vector<ContentPack>& packs,
-                     Lang& lang);
-    extern void load(const io::path& resdir,
-                     const std::string& locale,
-                     const std::string& fallback,
-                     const std::vector<ContentPack>& packs);
-
-    extern const std::wstring& get(const std::wstring& key);
-    extern const std::wstring& get(const std::wstring& key, 
-                                   const std::wstring& context);
-
-    extern void setup(const io::path& resdir,
-                      std::string locale,
-                      const std::vector<ContentPack>& packs);
+        std::string locale,
+        const std::vector<io::path>& roots
+    );
 }

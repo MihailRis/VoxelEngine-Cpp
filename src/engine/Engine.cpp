@@ -380,7 +380,7 @@ void Engine::loadContent() {
 
     ContentLoader::loadScripts(*content);
 
-    langs::setup("res:", langs::current->getId(), contentPacks);
+    langs::setup("res:", langs::get_current(), resPaths->collectRoots());
     if (!isHeadless()) {
         loadAssets();
         onAssetsLoaded();
@@ -404,7 +404,7 @@ void Engine::resetContent() {
     contentPacks.clear();
     content.reset();
 
-    langs::setup("res:", langs::current->getId(), contentPacks);
+    langs::setup("res:", langs::get_current(), resPaths->collectRoots());
     if (!isHeadless()) {
         loadAssets();
         onAssetsLoaded();
@@ -443,7 +443,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 }
 
 void Engine::setLanguage(std::string locale) {
-    langs::setup("res:", std::move(locale), contentPacks);
+    langs::setup("res:", std::move(locale), resPaths->collectRoots());
 }
 
 void Engine::onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer) {

@@ -345,6 +345,15 @@ dv::value ResPaths::readCombinedObject(const std::string& filename, bool deep) c
     return object;
 }
 
+std::vector<io::path> ResPaths::collectRoots() {
+    std::vector<io::path> collected;
+    collected.reserve(roots.size());
+    for (const auto& root : roots) {
+        collected.emplace_back(root.path);
+    }
+    return collected;
+}
+
 const io::path& ResPaths::getMainRoot() const {
     return mainRoot;
 }

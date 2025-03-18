@@ -78,6 +78,8 @@ public:
 
     dv::value readCombinedObject(const std::string& file, bool deep=false) const;
 
+    std::vector<io::path> collectRoots();
+
     const io::path& getMainRoot() const;
 
 private:
