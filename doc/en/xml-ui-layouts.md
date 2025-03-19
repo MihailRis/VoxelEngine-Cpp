@@ -110,6 +110,8 @@ Inner text - initially entered text
 - `supplier` - text supplier (called every frame)
 - `consumer` - lua function that receives the entered text. Called only when input is complete
 - `sub-consumer` - lua function-receiver of the input text. Called during text input or deletion.
+- `oncontrolkey` - lua function called for combinations of the form (Ctrl + ?). The codepoint of the second key is given as the first argument.
+The key code for comparison can be obtained via `input.keycode("key_name")`
 - `autoresize` - automatic change of element size (default - false). Does not affect font size.
 - `multiline` - allows display of multiline text.
 - `text-wrap` - allows automatic text wrapping (works only with multiline: "true")

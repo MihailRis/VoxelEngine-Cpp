@@ -2,17 +2,14 @@
     <panel interval="0"
            orientation="horizontal"
            color="#00000010"
-           size-func="gui.get_viewport()[1]-350,30">
+           size-func="gui.get_viewport()[1],30">
         <button id="s_chat" size="110,30" onclick="modes:set('chat')">@Chat</button>
         <button id="s_console" size="110,30" onclick="modes:set('console')">@Console</button>
         <button id="s_debug" size="110,30" onclick="modes:set('debug')">@Debug</button>
     </panel>
-    <container pos="0,30" size-func="gui.get_viewport()[1]-350,30" color="#00000020">
-        <label id="title" pos="8,8"></label>
-    </container>
     
     <container id="logContainer" pos="0,60"
-               size-func="unpack(vec2.add(gui.get_viewport(), {-350,-100}))">
+               size-func="unpack(vec2.add(gui.get_viewport(), {-450,-100}))">
         <textbox 
             id='log' 
             color='0'
@@ -20,38 +17,77 @@
             margin='0'
             editable='false' 
             multiline='true' 
-            size-func="gui.get_viewport()[1]-350,40"
+            size-func="-1,40"
             gravity="bottom-left"
             markup="md"
         ></textbox>
     </container>
-    <container id="editorContainer" pos="0,60" color="#00000080"
-               size-func="unpack(vec2.add(gui.get_viewport(), {-350,-230}))">
-        <textbox
-            id='editor'
-            color='0'
-            autoresize='true'
-            margin='0'
-            padding='5'
-            multiline='true'
-            line-numbers='true'
-            syntax='lua'
-            size-func="gui.get_viewport()[1]-350,40"
-            gravity="top-left"
-            text-wrap='false'
-            scroll-step='50'
-        ></textbox>
-    </container>
-    <panel id="traceback" gravity="bottom-left" padding="4" color="#000000A0" 
-        max-length="170" size-func="gui.get_viewport()[1]-350,170">
-    </panel>
-    <panel id="problemsLog"
-        color="#00000010" 
-        position-func="gui.get_viewport()[1]-350,0" 
-        size-func="350,gui.get_viewport()[2]-40"
-        padding="5,15,5,15">
-        <label margin="0,0,0,5">@Problems</label>
-    </panel>
+    <splitbox id="editorRoot" pos="0,30" size-func="-1,gui.get_viewport()[2]-30" 
+              orientation="horizontal" split-pos="0.3">
+        <splitbox split-pos="0.75">
+            <panel interval="2" color="0" padding="2">
+                <textbox pos="2" sub-consumer="filter_files"></textbox>
+                <panel id="filesList" color="#00000010" interval="6" padding="4"
+                       size-func="-1,-45" pos="2,38">
+                    <!-- content is generated in script -->
+                </panel>
+            </panel>
+            <panel id="problemsLog"
+                color="#00000010" 
+                padding="5,15,5,15">
+                <label margin="0,0,0,5">@Problems</label>
+            </panel>
+        </splitbox>
+        <splitbox id="editorContainer" split-pos="0.8">
+            <container color="#00000080" 
+                       onclick="document.editor.focused = true document.editor.caret = -1">
+                <container size-func="-1,30" color="#00000020">
+                    <image id="lockIcon" src="gui/lock" tooltip="@Read only"
+                           interactive="true" onclick="unlock_access()"
+                           color="#FFFFFF80" size="16" pos="4,6"
+                           hover-color="#1080FF"></image>
+                    <panel orientation="horizontal" gravity="top-right" 
+                           size="60,16" padding="8" interval="8" color="0">
+                        <image id="saveIcon" src="gui/save" tooltip="@Save" 
+                            enabled="false" interactive="true" 
+                            hover-color="#1080FF"
+                            onclick="save_current_file()"
+                            color="#FFFFFF80" size="16"></image>
+                        <image id="infoIcon" src="gui/info" tooltip="@editor.info.tooltip" 
+                            enabled="true" interactive="true" 
+                            color="#FFFFFF80" size="16"></image>
+                        <image id="syncIcon" src="gui/play" tooltip="@Run" 
+                            enabled="true" interactive="true" 
+                            hover-color="#1080FF"
+                            onclick="run_current_file()"
+                            color="#FFFFFF80" size="16"></image>
+                    </panel>
+                    <label id="title" pos="26,8"></label>
+                </container>
+                <textbox
+                    id='editor'
+                    pos='0,30'
+                    color='0'
+                    autoresize='true'
+                    margin='0'
+                    padding='5'
+                    multiline='true'
+                    line-numbers='true'
+                    oncontrolkey='on_control_combination'
+                    syntax='lua'
+                    size-func="-1,40"
+                    text-wrap='false'
+                    scroll-step='50'
+                ></textbox>
+            </container>
+            <splitbox orientation="horizontal" split-pos="0.4">
+                <panel id="traceback" padding="4" color="#000000A0">
+                </panel>
+                <panel id="output" padding="4" color="#000000A0">
+                </panel>
+            </splitbox>
+        </splitbox>
+    </splitbox>
     <textbox id='prompt' 
              consumer='submit' 
              margin='0' 

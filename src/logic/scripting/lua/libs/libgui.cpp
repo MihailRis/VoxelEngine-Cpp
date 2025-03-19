@@ -96,7 +96,7 @@ static int l_node_destruct(lua::State* L) {
     engine->getGUI()->postRunnable([node]() {
         auto parent = node->getParent();
         if (auto container = dynamic_cast<Container*>(parent)) {
-            container->remove(node);
+            container->remove(node.get());
         }
     });
     return 0;
@@ -294,6 +294,13 @@ static int p_get_editable(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_edited(UINode* node, lua::State* L) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return lua::pushboolean(L, box->isEdited());
+    }
+    return 0;
+}
+
 static int p_get_line_numbers(UINode* node, lua::State* L) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         return lua::pushboolean(L, box->isShowLineNumbers());
@@ -451,6 +458,7 @@ static int l_gui_getattr(lua::State* L) {
             {"caret", p_get_caret},
             {"text", p_get_text},
             {"editable", p_get_editable},
+            {"edited", p_get_edited},
             {"lineNumbers", p_get_line_numbers},
             {"lineAt", p_get_line_at},
             {"linePos", p_get_line_pos},
@@ -543,6 +551,13 @@ static void p_set_caret(UINode* node, lua::State* L, int idx) {
 static void p_set_editable(UINode* node, lua::State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setEditable(lua::toboolean(L, idx));
+    }
+}
+static void p_set_edited(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        if (!lua::toboolean(L, idx)) {
+            box->setUnedited();
+        }
     }
 }
 static void p_set_line_numbers(UINode* node, lua::State* L, int idx) {
@@ -667,6 +682,7 @@ static int l_gui_setattr(lua::State* L) {
             {"hint", p_set_hint},
             {"text", p_set_text},
             {"editable", p_set_editable},
+            {"edited", p_set_edited},
             {"lineNumbers", p_set_line_numbers},
             {"syntax", p_set_syntax},
             {"markup", p_set_markup},

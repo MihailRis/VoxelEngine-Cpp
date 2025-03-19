@@ -11,6 +11,9 @@ namespace json {
     dv::value parse(std::string_view source);
 
     std::string stringify(
-        const dv::value& value, bool nice, const std::string& indent="  "
+        const dv::value& value,
+        bool nice,
+        const std::string& indent = "  ",
+        bool escapeUtf8 = false
     );
 }

@@ -7,6 +7,7 @@
 #include "elements/Canvas.hpp"
 #include "elements/CheckBox.hpp"
 #include "elements/TextBox.hpp"
+#include "elements/SplitBox.hpp"
 #include "elements/TrackBar.hpp"
 #include "elements/InputBindBox.hpp"
 #include "elements/InventoryView.hpp"
@@ -157,7 +158,13 @@ static void read_uinode(
     }
 
     if (element.has("tooltip")) {
-        node.setTooltip(util::str2wstr_utf8(element.attr("tooltip").getText()));
+        auto tooltip = util::str2wstr_utf8(element.attr("tooltip").getText());
+        if (!tooltip.empty() && tooltip[0] == '@') {
+            tooltip = langs::get(
+                tooltip.substr(1), util::str2wstr_utf8(reader.getContext())
+            );
+        }
+        node.setTooltip(tooltip);
     }
     if (element.has("tooltip-delay")) {
         node.setTooltipDelay(element.attr("tooltip-delay").asFloat());
@@ -206,11 +213,10 @@ void UiXmlReader::readUINode(
     read_uinode(reader, element, node);
 }
 
-static void read_panel_impl(
+static void read_base_panel_impl(
     UiXmlReader& reader,
     const xml::xmlelement& element,
-    Panel& panel,
-    bool subnodes = true
+    BasePanel& panel
 ) {
     read_uinode(reader, element, panel);
 
@@ -223,6 +229,22 @@ static void read_panel_impl(
             size.y + padding.y + padding.w
         ));
     }
+    if (element.has("orientation")) {
+        auto &oname = element.attr("orientation").getText();
+        if (oname == "horizontal") {
+            panel.setOrientation(Orientation::horizontal);
+        }
+    }
+}
+
+static void read_panel_impl(
+    UiXmlReader& reader,
+    const xml::xmlelement& element,
+    Panel& panel,
+    bool subnodes = true
+) {
+    read_base_panel_impl(reader, element, panel);
+
     if (element.has("size")) {
         panel.setResizing(false);
     }
@@ -231,12 +253,6 @@ static void read_panel_impl(
     }
     if (element.has("min-length")) {
         panel.setMinLength(element.attr("min-length").asInt());
-    }
-    if (element.has("orientation")) {
-        auto &oname = element.attr("orientation").getText();
-        if (oname == "horizontal") {
-            panel.setOrientation(Orientation::horizontal);
-        }
     }
     if (subnodes) {
         for (auto& sub : element.getElements()) {
@@ -311,6 +327,28 @@ static std::shared_ptr<UINode> read_container(
     auto container = std::make_shared<Container>(glm::vec2());
     read_container_impl(reader, element, *container);
     return container;
+}
+
+static std::shared_ptr<UINode> read_split_box(
+    UiXmlReader& reader, const xml::xmlelement& element
+) {
+    float splitPos = element.attr("split-pos", "0.5").asFloat();
+    Orientation orientation =
+        element.attr("orientation", "vertical").getText() == "horizontal"
+            ? Orientation::horizontal
+            : Orientation::vertical;
+    auto splitBox =
+        std::make_shared<SplitBox>(glm::vec2(), splitPos, orientation);
+    read_base_panel_impl(reader, element, *splitBox);
+    for (auto& sub : element.getElements()) {
+        if (sub->isText())
+            continue;
+        auto subnode = reader.readUINode(*sub);
+        if (subnode) {
+            splitBox->add(subnode);
+        }
+    }
+    return splitBox;
 }
 
 static std::shared_ptr<UINode> read_panel(
@@ -452,6 +490,13 @@ static std::shared_ptr<UINode> read_text_box(
         textbox->setTextValidator(scripting::create_wstring_validator(
             reader.getEnvironment(),
             element.attr("validator").getText(),
+            reader.getFilename()
+        ));
+    }
+    if (element.has("oncontrolkey")) {
+        textbox->setOnControlCombination(scripting::create_key_handler(
+            reader.getEnvironment(),
+            element.attr("oncontrolkey").getText(),
             reader.getFilename()
         ));
     }
@@ -677,6 +722,7 @@ UiXmlReader::UiXmlReader(const scriptenv& env) : env(env) {
     add("button", read_button);
     add("textbox", read_text_box);
     add("pagebox", read_page_box);
+    add("splitbox", read_split_box);
     add("checkbox", read_check_box);
     add("trackbar", read_track_bar);
     add("container", read_container);

@@ -5,6 +5,7 @@
 #include "graphics/core/DrawContext.hpp"
 #include "assets/Assets.hpp"
 #include "util/stringutil.hpp"
+#include "constants.hpp"
 
 using namespace gui;
 
@@ -37,7 +38,7 @@ void Plotter::draw(const DrawContext& pctx, const Assets& assets) {
     }
 
     int current_point = static_cast<int>(points[index % dmwidth]);
-    auto font = assets.get<Font>("normal");
+    auto font = assets.get<Font>(FONT_DEFAULT);
     for (int y = 0; y < dmheight; y += labelsInterval) {
         std::wstring string;
         if (current_point/16 == y/labelsInterval) {

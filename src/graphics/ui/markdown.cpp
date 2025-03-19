@@ -23,10 +23,6 @@ static inline void emit_md(
 
 template <typename CharT>
 static glm::vec4 parse_color(const std::basic_string_view<CharT>& color_code) {
-    if (color_code.size() != 8 || color_code[0] != '#') {
-        return glm::vec4(1, 1, 1, 1);  // default to white
-    }
-
     auto hex_to_float = [](char high, char low) {
         int high_val = hexchar2int(high);
         int low_val = hexchar2int(low);
@@ -36,11 +32,18 @@ static glm::vec4 parse_color(const std::basic_string_view<CharT>& color_code) {
         return (high_val * 16 + low_val) / 255.0f;
     };
 
+    if (color_code[0] != '#') {
+        return glm::vec4(1, 1, 1, 1);
+    }
+
+    if (color_code.size() < 8) {
+        return glm::vec4(1, 1, 1, 1);
+    }
     return glm::vec4(
         hex_to_float(color_code[1], color_code[2]),
         hex_to_float(color_code[3], color_code[4]),
         hex_to_float(color_code[5], color_code[6]),
-        1
+        color_code.size() == 10 ? hex_to_float(color_code[7], color_code[8]) : 1
     );
 }
 
@@ -99,18 +102,24 @@ Result<CharT> process_markdown(
                         pos++;
                         continue;
                     case '[':
-                        if (pos + 9 < source.size() && source[pos + 1] == '#' &&
-                            source[pos + 8] == ']') {
-                            if (!eraseMarkdown) {
-                                emit_md(source[pos - 1], styles, ss);
+                        if (source[pos + 1] == '#') {
+                            int closingPos = -1;
+                            if (pos + 8 < source.size() && source[pos + 8] == ']') {
+                                closingPos = 8;
+                            } else if (pos + 10 < source.size() && source[pos + 10] == ']') {
+                                closingPos = 10;
                             }
-                            for (int i = 0; i < 10; ++i) {
-                                
-                                emit(source[pos + i], styles, ss);
+                            if (closingPos != -1) {
+                                if (!eraseMarkdown) {
+                                    emit_md(source[pos - 1], styles, ss);
+                                }
+                                int length = closingPos + 2;
+                                for (int i = 0; i < length; ++i) {
+                                    emit(source[pos + i], styles, ss);
+                                }
+                                pos += length;
+                                continue;
                             }
-
-                            pos += 10;
-                            continue;
                         }
                 }
                 pos--;
@@ -124,6 +133,16 @@ Result<CharT> process_markdown(
                 }
             }
             pos += 9;  // Skip past the color code
+            continue;
+        } else if (first == '[' && pos + 11 <= source.size() && source[pos + 1] == '#' && source[pos + 10] == ']') {
+            std::basic_string_view<CharT> color_code = source.substr(pos + 1, 10);
+            apply_color(color_code, styles, style);
+            if (!eraseMarkdown) {
+                for (int i = 0; i < 11; ++i) {
+                    emit_md(source[pos + i], styles, ss);
+                }
+            }
+            pos += 11;  // Skip past the color code
             continue;
         } else if (first == '*') {
             if (pos + 1 < source.size() && source[pos + 1] == '*') {

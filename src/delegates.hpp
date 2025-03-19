@@ -15,6 +15,7 @@ using wstringsupplier = std::function<std::wstring()>;
 using doublesupplier = std::function<double()>;
 using boolsupplier = std::function<bool()>;
 using vec2supplier = std::function<glm::vec2()>;
+using key_handler = std::function<bool(int)>;
 
 using stringconsumer = std::function<void(const std::string&)>;
 using wstringconsumer = std::function<void(const std::wstring&)>;

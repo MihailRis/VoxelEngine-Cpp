@@ -108,20 +108,32 @@ cmake --build .
 >[!NOTE]
 > Requirement:
 >
-> CMake, Git
+> vcpkg, CMake, Git
+There are two options to use vcpkg:
+1. If you have Visual Studio installed, most likely the **VCPKG_ROOT** environment variable will already exist in **Developer Command Prompt for VS**
+2. If you want use **vcpkg**, install **vcpkg** from git to you system:
+```PowerShell
+cd C:/
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+```
+After installing **vcpkg**, setup env variable **VCPKG_ROOT** and add it to **PATH**:
+```PowerShell
+$env:VCPKG_ROOT = "C:\path\to\vcpkg"
+$env:PATH = "$env:VCPKG_ROOT;$env:PATH"
+```
+>[!TIP]
+>For troubleshooting you can read full [documentation](https://learn.microsoft.com/ru-ru/vcpkg/get_started/get-started?pivots=shell-powershell) for **vcpkg**
 
+After installing **vcpkg** you can build project:
 ```PowerShell
 git clone --recursive https://github.com/MihailRis/VoxelEngine-Cpp.git
 cd VoxelEngine-Cpp
 cmake --preset default-vs-msvc-windows
 cmake --build --preset default-vs-msvc-windows
 ```
-If you already have a repository, and get error with vcpkg, you need to initialize the git submodules and rerun cmake.
-```PowerShell
-git submodule update --init --recursive
-cmake --preset default-vs-msvc-windows
-cmake --build --preset default-vs-msvc-windows
-```
+
 ## Build using Docker
 
 ### Step 0. Install docker on your system

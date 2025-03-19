@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UINode.hpp"
+#include "constants.hpp"
 
 class Font;
 struct FontStylesScheme;
@@ -17,9 +18,10 @@ namespace gui {
         /// @brief Reset cache flag
         bool resetFlag = true;
         size_t wrapWidth = -1;
+        int multilineWidth = 0;
     
         void prepare(Font* font, size_t wrapWidth);
-        void update(const std::wstring& text, bool multiline, bool wrap);
+        void update(std::wstring_view text, bool multiline, bool wrap);
 
         size_t getTextLineOffset(size_t line) const;
         uint getLineByTextIndex(size_t index) const;
@@ -61,8 +63,8 @@ namespace gui {
 
         std::unique_ptr<FontStylesScheme> styles;
     public:
-        Label(const std::string& text, std::string fontName="normal");
-        Label(const std::wstring& text, std::string fontName="normal");
+        Label(const std::string& text, std::string fontName=FONT_DEFAULT);
+        Label(const std::wstring& text, std::string fontName=FONT_DEFAULT);
 
         virtual ~Label();
 

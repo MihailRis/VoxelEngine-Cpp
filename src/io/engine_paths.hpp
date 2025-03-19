@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include <stdexcept>
 #include <optional>
 #include <string>
@@ -33,6 +34,8 @@ public:
     io::path getControlsFile() const;
     io::path getSettingsFile() const;
 
+    std::string createWriteablePackDevice(const std::string& name);
+
     void setContentPacks(std::vector<ContentPack>* contentPacks);
 
     std::vector<io::path> scanForWorlds() const;
@@ -47,6 +50,7 @@ private:
     std::optional<std::filesystem::path> scriptFolder;
     std::vector<ContentPack>* contentPacks = nullptr;
     std::vector<std::string> contentEntryPoints;
+    std::unordered_map<std::string, std::string> writeablePacks;
 };
 
 struct PathsRoot {

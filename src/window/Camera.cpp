@@ -33,14 +33,15 @@ glm::mat4 Camera::getProjection() const {
     constexpr float epsilon = 1e-6f; // 0.000001
     float aspect_ratio = this->aspect;
     if (std::fabs(aspect_ratio) < epsilon) {
-        aspect_ratio = (float)Window::width / (float)Window::height;
+        aspect_ratio = Window::width / static_cast<float>(Window::height);
     }
-    if (perspective)
+    if (perspective) {
         return glm::perspective(fov * zoom, aspect_ratio, near, far);
-    else if (flipped)
-        return glm::ortho(0.0f, fov * aspect_ratio, fov, 0.0f);
-    else
-        return glm::ortho(0.0f, fov * aspect_ratio, 0.0f, fov);
+    } else if (flipped) {
+        return glm::ortho(-0.5f, fov * aspect_ratio-0.5f, fov, 0.0f);
+    } else {
+        return glm::ortho(-0.5f, fov * aspect_ratio-0.5f, 0.0f, fov);
+    }
 }
 
 glm::mat4 Camera::getView(bool pos) const {

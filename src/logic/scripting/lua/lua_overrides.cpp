@@ -2,6 +2,8 @@
 
 #include "libs/api_lua.hpp"
 
+using namespace scripting;
+
 /// @brief Modified version of luaB_print from lbaselib.c
 int l_print(lua::State* L) {
     int n = lua::gettop(L); /* number of arguments */
@@ -16,10 +18,10 @@ int l_print(lua::State* L) {
                 L,
                 LUA_QL("tostring") " must return a string to " LUA_QL("print")
             );
-        if (i > 1) std::cout << "\t";
-        std::cout << s;
+        if (i > 1) *output_stream << "\t";
+        *output_stream << s;
         lua::pop(L); /* pop result */
     }
-    std::cout << std::endl;
+    *output_stream << std::endl;
     return 0;
 }

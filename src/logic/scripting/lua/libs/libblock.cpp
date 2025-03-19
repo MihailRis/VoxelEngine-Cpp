@@ -1,4 +1,5 @@
 #include "content/Content.hpp"
+#include "content/ContentLoader.hpp"
 #include "lighting/Lighting.hpp"
 #include "logic/BlocksController.hpp"
 #include "logic/LevelController.hpp"
@@ -12,6 +13,7 @@
 #include "world/Level.hpp"
 #include "maths/voxmaths.hpp"
 #include "data/StructLayout.hpp"
+#include "engine/Engine.hpp"
 #include "api_lua.hpp"
 
 using namespace scripting;
@@ -617,6 +619,17 @@ static int l_set_field(lua::State* L) {
     return set_field(L, dst, *field, index, dataStruct, value);
 }
 
+static int l_reload_script(lua::State* L) {
+    auto name = lua::require_string(L, 1);
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
+    auto& writeableContent = *engine->getWriteableContent();
+    auto& def = writeableContent.blocks.require(name);
+    ContentLoader::reloadScript(writeableContent, def);
+    return 0;
+}
+
 const luaL_Reg blocklib[] = {
     {"index", lua::wrap<l_index>},
     {"name", lua::wrap<l_get_def>},
@@ -652,5 +665,6 @@ const luaL_Reg blocklib[] = {
     {"decompose_state", lua::wrap<l_decompose_state>},
     {"get_field", lua::wrap<l_get_field>},
     {"set_field", lua::wrap<l_set_field>},
+    {"reload_script", lua::wrap<l_reload_script>},
     {NULL, NULL}
 };

@@ -20,6 +20,7 @@ Subsections:
     - [gfx.blockwraps](scripting/builtins/libgfx-blockwraps.md)
     - [gfx.particles](particles.md#gfxparticles-library)
     - [gfx.text3d](3d-text.md#gfxtext3d-library)
+    - [gfx.weather](scripting/builtins/libgfx-weather.md)
     - [gui](scripting/builtins/libgui.md)
     - [hud](scripting/builtins/libhud.md)
     - [input](scripting/builtins/libinput.md)

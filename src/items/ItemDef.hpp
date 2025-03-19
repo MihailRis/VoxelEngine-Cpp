@@ -59,6 +59,8 @@ struct ItemDef {
 
     std::string modelName = name + ".model";
 
+    std::string scriptFile;
+
     struct {
         itemid_t id;
         blockid_t placingBlock;

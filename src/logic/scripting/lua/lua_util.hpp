@@ -184,6 +184,11 @@ namespace lua {
         return 1;
     }
 
+    inline int pushlstring(lua::State* L, std::string_view view) {
+        lua_pushlstring(L, reinterpret_cast<const char*>(view.data()), view.size());
+        return 1;
+    }
+
     template <typename... Args>
     inline int pushfstring(lua_State* L, const char* fmt, Args... args) {
         lua_pushfstring(L, fmt, args...);

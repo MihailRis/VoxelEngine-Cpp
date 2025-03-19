@@ -144,3 +144,24 @@ file.prefix(путь: str) --> str
 ```
 
 Извлекает точку входа (префикс) из пути. Пример: `world:data/base/config.toml` -> `world`.
+
+```lua
+file.parent(путь: str) --> str
+```
+
+Возвращает путь на уровень выше. Пример: `world:data/base/config.toml` -> `world:data/base`
+
+```lua
+file.path(путь: str) --> str
+```
+
+Убирает точку входа (префикс) из пути. Пример: `world:data/base/config.toml` -> `data/base/config.toml`
+
+
+```lua
+file.join(директория: str, путь: str) --> str
+```
+
+Соединяет путь. Пример: `file.join("world:data", "base/config.toml)` -> `world:data/base/config.toml`.
+
+Следует использовать данную функцию вместо конкатенации с `/`, так как `префикс:/путь` не является валидным.

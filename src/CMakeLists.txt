@@ -93,6 +93,7 @@ target_compile_options(
            /wd4100 # unreferenced formal parameter
            /wd4458 # declaration of 'var' hides class member
            /wd4101 # 'var': unreferenced local variable
+           /wd4388 # 'token' : signed/unsigned mismatch
            >
            $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
            -Wall
@@ -104,6 +105,7 @@ target_compile_options(
            -Wundef
            -Wwrite-strings
            -Wno-unused-parameter
+           -Wno-sign-compare
            $<$<CONFIG:Debug>:-Og>
            >)
 

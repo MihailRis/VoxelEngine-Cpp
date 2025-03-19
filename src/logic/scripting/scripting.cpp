@@ -34,6 +34,8 @@ static debug::Logger logger("scripting");
 
 static inline const std::string STDCOMP = "stdcomp";
 
+std::ostream* scripting::output_stream = &std::cout;
+std::ostream* scripting::error_stream = &std::cerr;
 Engine* scripting::engine = nullptr;
 Level* scripting::level = nullptr;
 const Content* scripting::content = nullptr;
@@ -804,21 +806,21 @@ bool scripting::register_event(
     if (lua::pushenv(L, env) == 0) {
         lua::pushglobals(L);
     }
-    if (lua::getfield(L, name)) {
-        lua::pop(L);
-        lua::getglobal(L, "events");
-        lua::getfield(L, "reset");
-        lua::pushstring(L, id);
-        lua::getfield(L, name, -4);
-        lua::call_nothrow(L, 2);
-        lua::pop(L);
-
-        // remove previous name
+    bool success = true;
+    lua::getglobal(L, "events");
+    lua::getfield(L, "reset");
+    lua::pushstring(L, id);
+    if (!lua::getfield(L, name, -4)) {
+        success = false;
         lua::pushnil(L);
-        lua::setfield(L, name);
-        return true;
     }
-    return false;
+    lua::call_nothrow(L, 2);
+    lua::pop(L);
+
+    // remove previous name
+    lua::pushnil(L);
+    lua::setfield(L, name);
+    return success;
 }
 
 int scripting::get_values_on_stack() {
@@ -834,6 +836,8 @@ void scripting::load_content_script(
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "block", file, fileName));
+
+    funcsset = {};
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.update = register_event(env, "on_update", prefix + ".update");
     funcsset.randupdate =
@@ -859,6 +863,8 @@ void scripting::load_content_script(
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "item", file, fileName));
+
+    funcsset = {};
     funcsset.init = register_event(env, "init", prefix + ".init");
     funcsset.on_use = register_event(env, "on_use", prefix + ".use");
     funcsset.on_use_on_block =
@@ -886,6 +892,8 @@ void scripting::load_world_script(
 ) {
     int env = *senv;
     lua::pop(lua::get_main_state(), load_script(env, "world", file, fileName));
+
+    funcsset = {};
     register_event(env, "init", prefix + ".init");
     register_event(env, "on_world_open", prefix + ":.worldopen");
     register_event(env, "on_world_tick", prefix + ":.worldtick");

@@ -20,7 +20,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'true'
+
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+
       - name: Configure and build project with CMake and vcpkg
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         run: |
           cmake --preset default-vs-msvc-windows
           cmake --build --preset default-vs-msvc-windows --config Release

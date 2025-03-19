@@ -5,9 +5,7 @@
 using namespace gui;
 
 Panel::Panel(glm::vec2 size, glm::vec4 padding, float interval)
-  : Container(size), 
-    padding(padding), 
-    interval(interval) 
+  : BasePanel(size, padding, interval, Orientation::vertical)
 {
     setColor(glm::vec4(0.0f, 0.0f, 0.0f, 0.75f));
 }
@@ -29,15 +27,6 @@ void Panel::setMinLength(int value) {
 
 int Panel::getMinLength() const {
     return minLength;
-}
-
-void Panel::setPadding(glm::vec4 padding) {
-    this->padding = padding;
-    refresh();
-}
-
-glm::vec4 Panel::getPadding() const {
-    return padding;
 }
 
 void Panel::cropToContent() {
@@ -63,7 +52,7 @@ void Panel::add(const std::shared_ptr<UINode> &node) {
     fullRefresh();
 }
 
-void Panel::remove(const std::shared_ptr<UINode> &node) {
+void Panel::remove(UINode* node) {
     Container::remove(node);
     fullRefresh();
 }
@@ -108,12 +97,4 @@ void Panel::refresh() {
         }
         actualLength = size.y;
     }
-}
-
-void Panel::setOrientation(Orientation orientation) {
-    this->orientation = orientation;
-}
-
-Orientation Panel::getOrientation() const {
-    return orientation;
 }
