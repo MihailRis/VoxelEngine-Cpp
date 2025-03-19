@@ -44,6 +44,7 @@ add_custom_command(
             ${CMAKE_CURRENT_SOURCE_DIR}/res $<TARGET_FILE_DIR:VoxelEngine>/res)
 
 if(VOXELENGINE_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(test)
 endif()
 

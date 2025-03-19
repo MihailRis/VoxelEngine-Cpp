@@ -82,7 +82,7 @@ target_link_libraries(
 target_compile_options(
     VoxelEngineSrc
     PUBLIC $<$<CXX_COMPILER_ID:MSVC>:
-           /source-charset:UTF-8
+           /utf-8
            /MP
            /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
            /W4
@@ -94,6 +94,7 @@ target_compile_options(
            /wd4458 # declaration of 'var' hides class member
            /wd4101 # 'var': unreferenced local variable
            /wd4388 # 'token' : signed/unsigned mismatch
+           /wd4018 # '>': signed/unsigned mismatch
            >
            $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
            -Wall

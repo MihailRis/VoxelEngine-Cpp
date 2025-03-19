@@ -1,5 +1,4 @@
 project(VoxelEngineTest)
-enable_testing()
 
 file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
