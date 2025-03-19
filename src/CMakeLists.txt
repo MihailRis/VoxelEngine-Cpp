@@ -112,7 +112,6 @@ target_link_options(
     PUBLIC
     $<$<CXX_COMPILER_ID:GNU>:
     -no-pie
-    -lstdc++fs
     >
     # Need for static compilation on Windows with clang TODO: Make single build
     # on Windows to avoid dependence on combinations of platforms and compilers

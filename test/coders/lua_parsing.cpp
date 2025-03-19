@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 
 #include "coders/commons.hpp"
-#include "coders/lua_parsing.hpp"
 #include "io/io.hpp"
 #include "io/devices/StdfsDevice.hpp"
 #include "util/stringutil.hpp"
