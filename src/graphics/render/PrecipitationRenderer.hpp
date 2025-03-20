@@ -12,10 +12,8 @@ struct WeatherPreset;
 
 class PrecipitationRenderer {
     std::unique_ptr<MainBatch> batch;
-    const Level& level;
     const Chunks& chunks;
     const Assets& assets;
-    const GraphicsSettings* settings;
     float timer = 0.0f;
 
     int getHeightAt(int x, int z);

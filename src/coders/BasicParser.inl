@@ -6,7 +6,7 @@
 #include "util/stringutil.hpp"
 
 namespace {
-    int is_box(int c) {
+    inline int is_box(int c) {
         switch (c) {
             case 'B':
             case 'b':
@@ -21,7 +21,7 @@ namespace {
         return 10;
     }
 
-    double power(double base, int64_t power) {
+    inline double power(double base, int64_t power) {
         double result = 1.0;
         for (int64_t i = 0; i < power; i++) {
             result *= base;

@@ -68,7 +68,7 @@ static model::Mesh build_mesh(
     const glm::vec2* uvs = nullptr;
     const glm::vec3* normals = nullptr;
 
-    int coordsIndex, uvsIndex, normalsIndex;
+    int coordsIndex = 0, uvsIndex = 0, normalsIndex = 0;
 
     for (int i = 0; i < attrs.size(); i++) {
         const auto& attr = attrs[i];
@@ -204,7 +204,7 @@ File vec3::load(
     // Header
     reader.checkMagic("\0\0VEC3\0\0", 8);
     int version = reader.getInt16();
-    int reserved = reader.getInt16();
+    [[maybe_unused]] int reserved = reader.getInt16();
     if (version > VERSION) {
         throw std::runtime_error("unsupported VEC3 version");
     }

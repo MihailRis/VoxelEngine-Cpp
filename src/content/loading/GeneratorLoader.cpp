@@ -7,6 +7,7 @@
 #include "io/io.hpp"
 #include "io/engine_paths.hpp"
 #include "logic/scripting/scripting.hpp"
+#include "util/stringutil.hpp"
 #include "world/generator/GeneratorDef.hpp"
 #include "world/generator/VoxelFragment.hpp"
 #include "debug/Logger.hpp"

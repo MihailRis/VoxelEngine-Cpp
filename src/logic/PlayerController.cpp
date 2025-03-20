@@ -217,8 +217,7 @@ PlayerController::PlayerController(
     Player& player,
     BlocksController& blocksController
 )
-    : settings(settings),
-      level(level),
+    : level(level),
       player(player),
       camControl(player, settings.camera),
       blocksController(blocksController) {

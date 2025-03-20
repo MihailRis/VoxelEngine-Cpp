@@ -227,7 +227,6 @@ static int l_has_data(lua::State* L, ItemStack& stack) {
 static int l_set_data(lua::State* L, ItemStack& stack) {
     auto key = lua::require_string(L, 3);
     auto value = lua::tovalue(L, 4);
-    auto& fields = stack.getFields();
     stack.setField(key, std::move(value));
     return 0;
 }

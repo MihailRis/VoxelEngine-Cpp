@@ -43,10 +43,10 @@ class WorldRenderer {
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<Batch3D> batch3d;
-    std::unique_ptr<ChunksRenderer> chunks;
-    std::unique_ptr<GuidesRenderer> guides;
-    std::unique_ptr<Skybox> skybox;
     std::unique_ptr<ModelBatch> modelBatch;
+    std::unique_ptr<GuidesRenderer> guides;
+    std::unique_ptr<ChunksRenderer> chunks;
+    std::unique_ptr<Skybox> skybox;
     Weather weather {};
     
     float timer = 0.0f;
@@ -73,8 +73,8 @@ class WorldRenderer {
         float fogFactor
     );
 public:
-    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<ParticlesRenderer> particles;
+    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<BlockWrapsRenderer> blockWraps;
     std::unique_ptr<PrecipitationRenderer> precipitation;
 

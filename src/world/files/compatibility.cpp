@@ -43,7 +43,7 @@ util::Buffer<ubyte> compatibility::convert_region_2to3(
     const util::Buffer<ubyte>& src, RegionLayerIndex layer
 ) {
     const size_t REGION_CHUNKS = 1024;
-    const size_t HEADER_SIZE = 10;
+    // const size_t HEADER_SIZE = 10;
     const size_t OFFSET_TABLE_SIZE = REGION_CHUNKS * sizeof(uint32_t);
     const ubyte COMPRESS_NONE = 0;
     const ubyte COMPRESS_EXTRLE8 = 1;
@@ -61,7 +61,6 @@ util::Buffer<ubyte> compatibility::convert_region_2to3(
     }
 
     uint32_t offsets[REGION_CHUNKS] {};
-    size_t chunkIndex = 0;
 
     auto tablePtr = reinterpret_cast<const uint32_t*>(
         ptr + src.size() - OFFSET_TABLE_SIZE

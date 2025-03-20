@@ -13,6 +13,7 @@
 #include "content/Content.hpp"
 #include "maths/voxmaths.hpp"
 
+#include <algorithm>
 #include <set>
 #include <algorithm>
 #include <stdint.h>

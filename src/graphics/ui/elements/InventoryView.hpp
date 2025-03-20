@@ -12,7 +12,7 @@
 
 class Font;
 class Assets;
-class ItemDef;
+struct ItemDef;
 class Batch2D;
 class DrawContext;
 class Content;

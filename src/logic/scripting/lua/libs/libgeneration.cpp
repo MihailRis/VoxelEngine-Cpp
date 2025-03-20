@@ -13,7 +13,6 @@
 using namespace scripting;
 
 static int l_save_fragment(lua::State* L) {
-    const auto& paths = engine->getPaths();
     auto fragment = lua::touserdata<lua::LuaVoxelFragment>(L, 1);
     auto file = lua::require_string(L, 2);
     auto map = fragment->getFragment()->serialize();
@@ -55,13 +54,11 @@ static int l_get_generators(lua::State* L) {
 
     lua::createtable(L, 0, 0);
 
-    int i = 1;
     for (const auto& pack : packs) {
         auto pairs = ContentLoader::scanContent(pack, ContentType::GENERATOR);
         for (const auto& [name, caption] : pairs) {
             lua::pushstring(L, caption);
             lua::setfield(L, name);
-            i++;
         }
     }
     return 1;

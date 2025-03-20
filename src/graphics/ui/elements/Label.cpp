@@ -1,12 +1,13 @@
 #include "Label.hpp"
 
 #include <utility>
+
+#include "assets/Assets.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/Font.hpp"
-#include "assets/Assets.hpp"
+#include "graphics/ui/markdown.hpp"
 #include "util/stringutil.hpp"
-#include "../markdown.hpp"
 
 using namespace gui;
 
@@ -60,7 +61,6 @@ void LabelCache::update(std::wstring_view text, bool multiline, bool wrap) {
             }
         }
         if (font != nullptr) {
-            int lineHeight = font->getLineHeight();
             int maxWidth = 0;
             for (int i = 0; i < lines.size() - 1; i++) {
                 const auto& next = lines[i + 1];

@@ -30,7 +30,6 @@ class TomlReader : BasicParser<char> {
     // todo: extract common part
     std::string parseMultilineString() {
         pos += 2;
-        char next = peek();
 
         std::stringstream ss;
         while (hasNext()) {

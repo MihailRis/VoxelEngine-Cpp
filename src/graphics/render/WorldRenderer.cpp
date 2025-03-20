@@ -72,10 +72,6 @@ WorldRenderer::WorldRenderer(
       modelBatch(std::make_unique<ModelBatch>(
           MODEL_BATCH_CAPACITY, assets, *player.chunks, engine.getSettings()
       )),
-      particles(std::make_unique<ParticlesRenderer>(
-          assets, level, *player.chunks, &engine.getSettings().graphics
-      )),
-      texts(std::make_unique<TextsRenderer>(*batch3d, assets, *frustumCulling)),
       guides(std::make_unique<GuidesRenderer>()),
       chunks(std::make_unique<ChunksRenderer>(
           &level,
@@ -85,6 +81,10 @@ WorldRenderer::WorldRenderer(
           frontend.getContentGfxCache(),
           engine.getSettings()
       )),
+      particles(std::make_unique<ParticlesRenderer>(
+        assets, level, *player.chunks, &engine.getSettings().graphics
+      )),
+      texts(std::make_unique<TextsRenderer>(*batch3d, assets, *frustumCulling)),
       blockWraps(
           std::make_unique<BlockWrapsRenderer>(assets, level, *player.chunks)
       ),
