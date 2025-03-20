@@ -783,7 +783,7 @@ static int l_gui_escape_markup(lua::State* L) {
     auto lang = lua::require_string(L, 1);
     std::string text = lua::require_string(L, 2);
     if (std::strcmp(lang, "md") == 0) {
-        text = std::move(markdown::escape<char>(text));
+        text = markdown::escape<char>(text);
     }
     return lua::pushstring(L, text);
 }

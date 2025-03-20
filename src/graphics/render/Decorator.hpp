@@ -18,11 +18,10 @@ class Block;
 class Engine;
 class LevelController;
 class WorldRenderer;
-class Weather;
+struct Weather;
 struct WeatherPreset;
 
 class Decorator {
-    Engine& engine;
     const Level& level;
     const Assets& assets;
     Player& player;

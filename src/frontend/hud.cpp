@@ -310,7 +310,6 @@ void Hud::updateWorldGenDebug() {
 }
 
 void Hud::update(bool visible) {
-    const auto& level = frontend.getLevel();
     const auto& chunks = *player.chunks;
     const auto& menu = gui.getMenu();
 

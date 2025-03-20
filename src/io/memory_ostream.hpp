@@ -9,8 +9,8 @@
 class memory_buffer : public std::streambuf {
 public:
     explicit memory_buffer(size_t initial_size = 64)
-        : capacity(initial_size),
-          buffer(std::make_unique<char[]>(initial_size)) {
+        : buffer(std::make_unique<char[]>(initial_size)),
+          capacity(initial_size) {
         setp(buffer.get(), buffer.get() + initial_size);
     }
 

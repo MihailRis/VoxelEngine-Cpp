@@ -46,7 +46,7 @@ void guiutil::alert(
 
     auto menuPtr = engine.getGUI()->getMenu();
     auto& menu = *menuPtr;
-    runnable on_hidden_final = [on_hidden, &menu, &engine]() {
+    runnable on_hidden_final = [on_hidden, &menu]() {
         menu.removePage("<alert>");
         if (on_hidden) {
             on_hidden();
@@ -103,7 +103,7 @@ void guiutil::confirm(
 
     auto menu = engine.getGUI()->getMenu();
 
-    runnable on_confirm_final = [on_confirm, menu, &engine]() {
+    runnable on_confirm_final = [on_confirm, menu]() {
         menu->removePage("<confirm>");
         if (on_confirm) {
             on_confirm();
@@ -112,7 +112,7 @@ void guiutil::confirm(
         }
     };
 
-    runnable on_deny_final = [on_deny, menu, &engine]() {
+    runnable on_deny_final = [on_deny, menu]() {
         menu->removePage("<confirm>");
         if (on_deny) {
             on_deny();

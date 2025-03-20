@@ -149,9 +149,7 @@ static int l_get_chunk_data(lua::State* L) {
 static void integrate_chunk_client(Chunk& chunk) {
     int x = chunk.x;
     int z = chunk.z;
-    auto chunksController = controller->getChunksController();
-    
-    Lighting& lighting = *chunksController->lighting;
+
     chunk.flags.loadedLights = false;
     chunk.flags.lighted = false;
     chunk.lightmap.clear();

@@ -235,7 +235,7 @@ static int l_pack_assemble(lua::State* L) {
     auto manager = engine->createPacksManager(worldFolder);
     manager.scan();
     try {
-        ids = std::move(manager.assemble(ids));
+        ids = manager.assemble(ids);
     } catch (const contentpack_error& err) {
         throw std::runtime_error(
             std::string(err.what()) + " [" + err.getPackId() + "]"

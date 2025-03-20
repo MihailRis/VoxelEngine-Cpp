@@ -54,7 +54,6 @@ void WorldConverter::addRegionsTasks(
 }
 
 void WorldConverter::createUpgradeTasks() {
-    const auto& regions = wfile->getRegions();
     for (auto& issue : report->getIssues()) {
         if (issue.issueType != ContentIssueType::REGION_FORMAT_UPDATE) {
             continue;
@@ -83,7 +82,6 @@ void WorldConverter::createConvertTasks() {
         }
     };
 
-    const auto& regions = wfile->getRegions();
     for (auto& issue : report->getIssues()) {
         switch (issue.issueType) {
             case ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE:
@@ -97,13 +95,13 @@ void WorldConverter::createConvertTasks() {
         }
     }
 
-    tasks.push(ConvertTask {ConvertTaskType::PLAYER, wfile->getPlayerFile()});
+    tasks.push(ConvertTask {
+        ConvertTaskType::PLAYER, wfile->getPlayerFile(), 0, 0, {}});
 }
 
 void WorldConverter::createBlockFieldsConvertTasks() {
     // blocks data conversion requires correct block indices
     // so it must be done AFTER voxels conversion
-    const auto& regions = wfile->getRegions();
     for (auto& issue : report->getIssues()) {
         switch (issue.issueType) {
             case ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE:
