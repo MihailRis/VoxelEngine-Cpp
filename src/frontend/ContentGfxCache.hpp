@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "maths/UVRegion.hpp"
+#include "graphics/commons/Model.hpp"
 
 class Content;
 class Assets;
@@ -14,10 +15,6 @@ class Atlas;
 class Block;
 struct UVRegion;
 struct GraphicsSettings;
-
-namespace model {
-    struct Model;
-}
 
 class ContentGfxCache {
     const Content& content;

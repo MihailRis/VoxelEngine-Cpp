@@ -533,32 +533,6 @@ void Window::setClipboardText(const char* text) {
     glfwSetClipboardString(window, text);
 }
 
-static bool try_to_maximize(GLFWwindow* window, GLFWmonitor* monitor) {
-    glm::ivec4 windowFrame(0);
-    glm::ivec4 workArea(0);
-    glfwGetWindowFrameSize(
-        window, &windowFrame.x, &windowFrame.y, &windowFrame.z, &windowFrame.w
-    );
-    glfwGetMonitorWorkarea(
-        monitor, &workArea.x, &workArea.y, &workArea.z, &workArea.w
-    );
-    if (Window::width > (uint)workArea.z) Window::width = (uint)workArea.z;
-    if (Window::height > (uint)workArea.w) Window::height = (uint)workArea.w;
-    if (Window::width >= (uint)(workArea.z - (windowFrame.x + windowFrame.z)) &&
-        Window::height >=
-            (uint)(workArea.w - (windowFrame.y + windowFrame.w))) {
-        glfwMaximizeWindow(window);
-        return true;
-    }
-    glfwSetWindowSize(window, Window::width, Window::height);
-    glfwSetWindowPos(
-        window,
-        workArea.x + (workArea.z - Window::width) / 2,
-        workArea.y + (workArea.w - Window::height) / 2 + windowFrame.y / 2
-    );
-    return false;
-}
-
 void Window::setIcon(const ImageData* image) {
     GLFWimage icon {
         static_cast<int>(image->getWidth()),
