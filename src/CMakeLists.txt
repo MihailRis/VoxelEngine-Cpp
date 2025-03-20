@@ -107,6 +107,7 @@ target_compile_options(
            -Wwrite-strings
            -Wno-unused-parameter
            -Wno-sign-compare
+           -Wno-unknown-pragmas
            $<$<CONFIG:Debug>:-Og>
            >)
 

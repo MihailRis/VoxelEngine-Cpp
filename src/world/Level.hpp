@@ -20,7 +20,6 @@ struct EngineSettings;
 
 /// @brief A level, contains chunks and objects
 class Level {
-    const EngineSettings& settings;
     std::unique_ptr<World> world;
 public:
     const Content& content;

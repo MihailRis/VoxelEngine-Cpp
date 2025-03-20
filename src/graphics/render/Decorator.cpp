@@ -40,11 +40,10 @@ Decorator::Decorator(
     const Assets& assets,
     Player& player
 )
-    : engine(engine),
-      level(*controller.getLevel()),
-      renderer(renderer),
+    : level(*controller.getLevel()),
       assets(assets),
-      player(player) {
+      player(player),
+      renderer(renderer) {
     controller.getBlocksController()->listenBlockInteraction(
     [this](auto player, const auto& pos, const auto& def, BlockInteraction type) {
         if (type == BlockInteraction::placing && def.particles) {

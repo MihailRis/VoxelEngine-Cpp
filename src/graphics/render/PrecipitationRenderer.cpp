@@ -18,15 +18,13 @@
 
 PrecipitationRenderer::PrecipitationRenderer(
     const Assets& assets,
-    const Level& level,
+    const Level&,
     const Chunks& chunks,
-    const GraphicsSettings* settings
+    const GraphicsSettings*
 )
     : batch(std::make_unique<MainBatch>(4096)),
-      level(level),
       chunks(chunks),
-      assets(assets),
-      settings(settings) {
+      assets(assets) {
 }
 
 PrecipitationRenderer::~PrecipitationRenderer() = default;

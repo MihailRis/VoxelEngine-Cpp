@@ -16,7 +16,6 @@ class Level;
 struct GraphicsSettings;
 
 class ParticlesRenderer {
-    const Level& level;
     const Chunks& chunks;
     const Assets& assets;
     const GraphicsSettings* settings;

@@ -153,7 +153,6 @@ static inline void draw_text(
     }
     batch.texture(font.getPage(0));
     for (size_t i = 0; i < text.length(); i++) {
-        uint c = text[i];
         size_t styleIndex = styles->map.at(
             std::min(styles->map.size() - 1, i + styleMapOffset)
         );

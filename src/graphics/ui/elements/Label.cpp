@@ -61,7 +61,6 @@ void LabelCache::update(std::wstring_view text, bool multiline, bool wrap) {
             }
         }
         if (font != nullptr) {
-            int lineHeight = font->getLineHeight();
             int maxWidth = 0;
             for (int i = 0; i < lines.size() - 1; i++) {
                 const auto& next = lines[i + 1];
