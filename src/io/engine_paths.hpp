@@ -19,8 +19,33 @@ struct PathsRoot {
     }
 };
 
+class ResPaths {
+public:
+    ResPaths() = default;
+
+    ResPaths(std::vector<PathsRoot> roots);
+
+    io::path find(const std::string& filename) const;
+    std::string findRaw(const std::string& filename) const;
+    std::vector<io::path> listdir(const std::string& folder) const;
+    std::vector<std::string> listdirRaw(const std::string& folder) const;
+
+    /// @brief Read all found list versions from all packs and combine into a
+    /// single list. Invalid versions will be skipped with logging a warning
+    /// @param file *.json file path relative to entry point 
+    dv::value readCombinedList(const std::string& file) const;
+
+    dv::value readCombinedObject(const std::string& file, bool deep=false) const;
+
+    std::vector<io::path> collectRoots();
+private:
+    std::vector<PathsRoot> roots;
+};
+
 class EnginePaths {
 public:
+    ResPaths resPaths;
+
     void prepare();
 
     void setUserFilesFolder(std::filesystem::path folder);
@@ -64,29 +89,4 @@ private:
     std::vector<std::string> mounted;
 
     void cleanup();
-};
-
-class ResPaths {
-public:
-    ResPaths(io::path mainRoot, std::vector<PathsRoot> roots);
-
-    io::path find(const std::string& filename) const;
-    std::string findRaw(const std::string& filename) const;
-    std::vector<io::path> listdir(const std::string& folder) const;
-    std::vector<std::string> listdirRaw(const std::string& folder) const;
-
-    /// @brief Read all found list versions from all packs and combine into a
-    /// single list. Invalid versions will be skipped with logging a warning
-    /// @param file *.json file path relative to entry point 
-    dv::value readCombinedList(const std::string& file) const;
-
-    dv::value readCombinedObject(const std::string& file, bool deep=false) const;
-
-    std::vector<io::path> collectRoots();
-
-    const io::path& getMainRoot() const;
-
-private:
-    io::path mainRoot;
-    std::vector<PathsRoot> roots;
 };

@@ -25,7 +25,7 @@ namespace fs = std::filesystem;
 
 static debug::Logger logger("assets-loader");
 
-AssetsLoader::AssetsLoader(Engine& engine, Assets& assets, const ResPaths* paths)
+AssetsLoader::AssetsLoader(Engine& engine, Assets& assets, const ResPaths& paths)
     : engine(engine), assets(assets), paths(paths) {
     addLoader(AssetType::SHADER, assetload::shader);
     addLoader(AssetType::TEXTURE, assetload::texture);
@@ -200,7 +200,7 @@ void AssetsLoader::processPreloadConfig(const io::path& file) {
 }
 
 void AssetsLoader::processPreloadConfigs(const Content* content) {
-    auto preloadFile = paths->getMainRoot() / "preload.json";
+    io::path preloadFile = "res:preload.json";
     if (io::exists(preloadFile)) {
         processPreloadConfig(preloadFile);
     }
@@ -212,7 +212,7 @@ void AssetsLoader::processPreloadConfigs(const Content* content) {
             continue;
         }
         const auto& pack = entry.second;
-        auto preloadFile = pack->getInfo().folder / "preload.json";
+        preloadFile = pack->getInfo().folder / "preload.json";
         if (io::exists(preloadFile)) {
             processPreloadConfig(preloadFile);
         }
@@ -301,7 +301,7 @@ Engine& AssetsLoader::getEngine() {
     return engine;
 }
 
-const ResPaths* AssetsLoader::getPaths() const {
+const ResPaths& AssetsLoader::getPaths() const {
     return paths;
 }
 

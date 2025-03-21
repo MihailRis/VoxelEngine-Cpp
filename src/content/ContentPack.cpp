@@ -124,7 +124,7 @@ ContentPack ContentPack::read(const std::string& path, const io::path& folder) {
 }
 
 void ContentPack::scanFolder(
-    const std::string& path, const io::path& folder, std::vector<ContentPack>& packs
+    const io::path& folder, std::vector<ContentPack>& packs
 ) {
     if (!io::is_directory(folder)) {
         return;
@@ -133,9 +133,7 @@ void ContentPack::scanFolder(
         if (!io::is_directory(packFolder)) continue;
         if (!is_pack(packFolder)) continue;
         try {
-            packs.push_back(
-                read(path + "/" + packFolder.name(), packFolder)
-            );
+            packs.push_back(read(packFolder.string(), packFolder));
         } catch (const contentpack_error& err) {
             std::cerr << "package.json error at " << err.getFolder().string();
             std::cerr << ": " << err.what() << std::endl;

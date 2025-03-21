@@ -74,7 +74,7 @@ UiDocument* menus::show(
     Engine& engine, const std::string& name, std::vector<dv::value> args
 ) {
     auto menu = engine.getGUI().getMenu();
-    auto file = engine.getResPaths()->find("layouts/" + name + ".xml");
+    auto file = engine.getResPaths().find("layouts/" + name + ".xml");
     auto fullname = "core:layouts/" + name;
 
     auto documentPtr = UiDocument::read(

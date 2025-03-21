@@ -68,7 +68,7 @@ static int l_get_generators(lua::State* L) {
 /// @return The ID of the default world generator
 static int l_get_default_generator(lua::State* L) {
     // content is not initialized yet
-    auto combined = engine->getResPaths()->readCombinedObject(
+    auto combined = engine->getResPaths().readCombinedObject(
         EnginePaths::CONFIG_DEFAULTS.string()
     );
     return lua::pushstring(L, combined["generator"].asString());

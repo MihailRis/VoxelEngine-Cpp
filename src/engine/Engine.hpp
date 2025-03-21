@@ -23,6 +23,7 @@ class Level;
 class Screen;
 class EnginePaths;
 class ResPaths;
+class ContentControl;
 class EngineController;
 class SettingsHandler;
 struct EngineSettings;
@@ -64,14 +65,12 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
     std::vector<ContentPack> contentPacks;
-    std::unique_ptr<Content> content;
-    std::unique_ptr<ResPaths> resPaths;
+    std::unique_ptr<ContentControl> content;
     std::unique_ptr<EngineController> controller;
     std::unique_ptr<cmd::CommandsInterpreter> cmd;
     std::unique_ptr<network::Network> network;
     std::unique_ptr<Window> window;
     std::unique_ptr<Input> input;
-    std::vector<std::string> basePacks;
     std::unique_ptr<gui::GUI> gui;
     PostRunnables postRunnables;
     Time time;
@@ -127,9 +126,6 @@ public:
     /// @param folder world folder
     void loadWorldContent(const io::path& folder);
 
-    /// @brief Collect all available content-packs from res/content
-    void loadAllPacks();
-
     /// @brief Get active assets storage instance
     Assets* getAssets();
 
@@ -140,7 +136,7 @@ public:
     EnginePaths& getPaths();
 
     /// @brief Get engine resource paths controller
-    ResPaths* getResPaths();
+    ResPaths& getResPaths();
 
     void onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer);
     void onWorldClosed();
@@ -159,8 +155,6 @@ public:
 
     std::vector<ContentPack> getAllContentPacks();
 
-    std::vector<std::string>& getBasePacks();
-
     /// @brief Get current screen
     std::shared_ptr<Screen> getScreen();
 
@@ -173,8 +167,6 @@ public:
 
     EngineController* getController();
 
-    PacksManager createPacksManager(const io::path& worldFolder);
-
     void setLevelConsumer(OnWorldOpen levelConsumer);
 
     SettingsHandler& getSettingsHandler();
@@ -184,6 +176,8 @@ public:
     const CoreParameters& getCoreParameters() const;
 
     bool isHeadless() const;
+
+    ContentControl& getContentControl();
 
     gui::GUI& getGUI() {
         return *gui;

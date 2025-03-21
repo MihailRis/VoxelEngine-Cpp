@@ -57,7 +57,7 @@ struct AtlasCfg : AssetCfg {
 
 using aloader_func = std::function<
     assetload::
-        postfunc(AssetsLoader*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
+        postfunc(AssetsLoader*, const ResPaths&, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
 
 struct aloader_entry {
     AssetType tag;
@@ -72,7 +72,7 @@ class AssetsLoader {
     std::map<AssetType, aloader_func> loaders;
     std::queue<aloader_entry> entries;
     std::set<std::pair<AssetType, std::string>> enqueued;
-    const ResPaths* paths;
+    const ResPaths& paths;
 
     void tryAddSound(const std::string& name);
 
@@ -83,7 +83,7 @@ class AssetsLoader {
     void processPreloadConfig(const io::path& file);
     void processPreloadConfigs(const Content* content);
 public:
-    AssetsLoader(Engine& engine, Assets& assets, const ResPaths* paths);
+    AssetsLoader(Engine& engine, Assets& assets, const ResPaths& paths);
     void addLoader(AssetType tag, aloader_func func);
 
     /// @brief Enqueue asset load
@@ -105,7 +105,7 @@ public:
 
     std::shared_ptr<Task> startTask(runnable onDone);
 
-    const ResPaths* getPaths() const;
+    const ResPaths& getPaths() const;
     aloader_func getLoader(AssetType tag);
 
     /// @brief Enqueue core and content assets

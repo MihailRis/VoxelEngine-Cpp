@@ -247,8 +247,8 @@ std::tuple<std::string, std::string> EnginePaths::parsePath(std::string_view pat
     return {prefix, filename};
 }
 
-ResPaths::ResPaths(io::path mainRoot, std::vector<PathsRoot> roots)
-    : mainRoot(std::move(mainRoot)), roots(std::move(roots)) {
+ResPaths::ResPaths(std::vector<PathsRoot> roots)
+    : roots(std::move(roots)) {
 }
 
 io::path ResPaths::find(const std::string& filename) const {
@@ -259,7 +259,7 @@ io::path ResPaths::find(const std::string& filename) const {
             return file;
         }
     }
-    return mainRoot / filename;
+    return io::path("res:") / filename;
 }
 
 std::string ResPaths::findRaw(const std::string& filename) const {
@@ -355,8 +355,4 @@ std::vector<io::path> ResPaths::collectRoots() {
         collected.emplace_back(root.path);
     }
     return collected;
-}
-
-const io::path& ResPaths::getMainRoot() const {
-    return mainRoot;
 }

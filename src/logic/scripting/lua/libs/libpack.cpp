@@ -6,6 +6,7 @@
 
 #include "assets/AssetsLoader.hpp"
 #include "content/Content.hpp"
+#include "content/ContentControl.hpp"
 #include "engine/Engine.hpp"
 #include "graphics/ui/gui_util.hpp"
 #include "graphics/ui/elements/Menu.hpp"
@@ -47,7 +48,8 @@ static int l_pack_get_available(lua::State* L) {
     if (level) {
         worldFolder = level->getWorld()->wfile->getFolder();
     }
-    auto manager = engine->createPacksManager(worldFolder);
+    PacksManager manager;
+    manager.setSources(engine->getContentControl().getDefaultSources());
     manager.scan();
 
     const auto& installed = engine->getContentPacks();
@@ -153,7 +155,8 @@ static int pack_get_infos(lua::State* L) {
         if (level) {
             worldFolder = level->getWorld()->wfile->getFolder();
         }
-        auto manager = engine->createPacksManager(worldFolder);
+        PacksManager manager;
+        manager.setSources(engine->getContentControl().getDefaultSources());
         manager.scan();
         auto vec =
             manager.getAll(std::vector<std::string>(ids.begin(), ids.end()));
@@ -195,7 +198,8 @@ static int l_pack_get_info(lua::State* L) {
         if (level) {
             worldFolder = level->getWorld()->wfile->getFolder();
         }
-        auto manager = engine->createPacksManager(worldFolder);
+        PacksManager manager;
+        manager.setSources(engine->getContentControl().getDefaultSources());
         manager.scan();
         auto vec = manager.getAll({packid});
         if (!vec.empty()) {
@@ -208,7 +212,7 @@ static int l_pack_get_info(lua::State* L) {
 }
 
 static int l_pack_get_base_packs(lua::State* L) {
-    auto& packs = engine->getBasePacks();
+    auto& packs = engine->getContentControl().getBasePacks();
     lua::createtable(L, packs.size(), 0);
     for (size_t i = 0; i < packs.size(); i++) {
         lua::pushstring(L, packs[i]);
@@ -232,7 +236,8 @@ static int l_pack_assemble(lua::State* L) {
     if (level) {
         worldFolder = level->getWorld()->wfile->getFolder();
     }
-    auto manager = engine->createPacksManager(worldFolder);
+    PacksManager manager;
+    manager.setSources(engine->getContentControl().getDefaultSources());
     manager.scan();
     try {
         ids = manager.assemble(ids);

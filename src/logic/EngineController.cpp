@@ -9,6 +9,7 @@
 #include "debug/Logger.hpp"
 #include "coders/json.hpp"
 #include "content/ContentReport.hpp"
+#include "content/ContentControl.hpp"
 #include "world/files/WorldConverter.hpp"
 #include "world/files/WorldFiles.hpp"
 #include "frontend/locale.hpp"
@@ -318,7 +319,8 @@ void EngineController::reconfigPacks(
     runnable removeFunc = [this, controller, packsToAdd, packsToRemove]() {
         if (controller == nullptr) {
             try {
-                auto manager = engine.createPacksManager("");
+                PacksManager manager;
+                manager.setSources(engine.getContentControl().getDefaultSources());
                 manager.scan();
                 auto names = PacksManager::getNames(engine.getContentPacks());
                 for (const auto& id : packsToAdd) {
@@ -339,7 +341,9 @@ void EngineController::reconfigPacks(
             auto world = controller->getLevel()->getWorld();
             auto& wfile = *world->wfile;
             controller->saveWorld();
-            auto manager = engine.createPacksManager(wfile.getFolder());
+
+            PacksManager manager;
+            manager.setSources(engine.getContentControl().getDefaultSources());
             manager.scan();
 
             auto names = PacksManager::getNames(world->getPacks());

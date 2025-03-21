@@ -7,14 +7,14 @@
 #include "debug/Logger.hpp"
 #include "assets/AssetsLoader.hpp"
 #include "audio/audio.hpp"
+#include "voxels/Block.hpp"
 #include "coders/GLSLExtension.hpp"
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
 #include "coders/commons.hpp"
 #include "content/Content.hpp"
-#include "content/ContentBuilder.hpp"
-#include "content/ContentLoader.hpp"
+#include "content/ContentControl.hpp"
 #include "core_defs.hpp"
 #include "io/io.hpp"
 #include "frontend/locale.hpp"
@@ -146,7 +146,14 @@ void Engine::initialize(CoreParameters coreParameters) {
     keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
-    basePacks = io::read_list("res:config/builtins.list");
+
+    content = std::make_unique<ContentControl>([this]() {
+        langs::setup("res:", langs::get_current(), paths.resPaths.collectRoots());
+        if (!isHeadless()) {
+            loadAssets();
+            onAssetsLoaded();
+        }
+    });
 }
 
 void Engine::loadSettings() {
@@ -284,27 +291,19 @@ EngineController* Engine::getController() {
     return controller.get();
 }
 
-PacksManager Engine::createPacksManager(const io::path& worldFolder) {
-    PacksManager manager;
-    manager.setSources({
-        {"world:content", worldFolder.empty() ? worldFolder : worldFolder / "content"},
-        {"user:content", "user:content"},
-        {"res:content", "res:content"}
-    });
-    return manager;
-}
-
 void Engine::setLevelConsumer(OnWorldOpen levelConsumer) {
     this->levelConsumer = std::move(levelConsumer);
 }
 
 void Engine::loadAssets() {
     logger.info() << "loading assets";
-    Shader::preprocessor->setPaths(resPaths.get());
+    Shader::preprocessor->setPaths(&paths.resPaths);
+
+    auto content = this->content->get();
 
     auto new_assets = std::make_unique<Assets>();
-    AssetsLoader loader(*this, *new_assets, resPaths.get());
-    AssetsLoader::addDefaults(loader, content.get());
+    AssetsLoader loader(*this, *new_assets, paths.resPaths);
+    AssetsLoader::addDefaults(loader, content);
 
     // no need
     // correct log messages order is more useful
@@ -345,118 +344,21 @@ void Engine::loadAssets() {
     }
 }
 
-static void load_configs(Engine& engine, const io::path& root) {
-    auto& input = engine.getInput();
-    auto configFolder = root / "config";
-    auto bindsFile = configFolder / "bindings.toml";
-    if (io::is_regular_file(bindsFile)) {
-        input.getBindings().read(
-            toml::parse(bindsFile.string(), io::read_string(bindsFile)),
-            BindType::BIND
-        );
-    }
-}
-
 void Engine::loadContent() {
-    scripting::cleanup();
-
-    std::vector<std::string> names;
-    for (auto& pack : contentPacks) {
-        names.push_back(pack.id);
-    }
-
-    PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
-    manager.scan();
-    names = manager.assemble(names);
-    contentPacks = manager.getAll(names);
-
-    std::vector<PathsRoot> entryPoints;
-    for (auto& pack : contentPacks) {
-        entryPoints.emplace_back(pack.id, pack.folder);
-    }
-    paths.setEntryPoints(std::move(entryPoints));
-
-    ContentBuilder contentBuilder;
-    corecontent::setup(*input, contentBuilder);
-
-    auto corePack = ContentPack::createCore(paths);
-
-    // Setup filesystem entry points
-    std::vector<PathsRoot> resRoots {
-        {"core", corePack.folder}
-    };
-    for (auto& pack : contentPacks) {
-        resRoots.push_back({pack.id, pack.folder});
-    }
-    resPaths = std::make_unique<ResPaths>("res:", resRoots);
-
-    // Load content
-    {
-        ContentLoader(&corePack, contentBuilder, *resPaths).load();
-        load_configs(*this, corePack.folder);
-    }
-    for (auto& pack : contentPacks) {
-        ContentLoader(&pack, contentBuilder, *resPaths).load();
-        load_configs(*this, pack.folder);
-    }
-    content = contentBuilder.build();
-    scripting::on_content_load(content.get());
-
-    ContentLoader::loadScripts(*content);
-
-    langs::setup("res:", langs::get_current(), resPaths->collectRoots());
-    if (!isHeadless()) {
-        loadAssets();
-        onAssetsLoaded();
-    }
+    content->loadContent(paths, *input, contentPacks);
 }
 
 void Engine::resetContent() {
-    scripting::cleanup();
-    std::vector<PathsRoot> resRoots;
-    {
-        auto pack = ContentPack::createCore(paths);
-        resRoots.push_back({"core", pack.folder});
-        load_configs(*this, pack.folder);
-    }
-    auto manager = createPacksManager(io::path());
-    manager.scan();
-    for (const auto& pack : manager.getAll(basePacks)) {
-        resRoots.push_back({pack.id, pack.folder});
-    }
-    resPaths = std::make_unique<ResPaths>("res:", resRoots);
-    contentPacks.clear();
-    content.reset();
-
-    langs::setup("res:", langs::get_current(), resPaths->collectRoots());
-    if (!isHeadless()) {
-        loadAssets();
-        onAssetsLoaded();
-    }
-
-    contentPacks = manager.getAll(basePacks);
+    paths.setCurrentWorldFolder("");
+    content->resetContent(paths, *input, contentPacks);
 }
 
 void Engine::loadWorldContent(const io::path& folder) {
     contentPacks.clear();
-    auto packNames = ContentPack::worldPacksList(folder);
-    PacksManager manager;
-    manager.setSources(
-        {{"world:content", folder.empty() ? folder : folder / "content"},
-         {"user:content", "user:content"},
-         {"res:content", "res:content"}}
-    );
-    manager.scan();
-    contentPacks = manager.getAll(manager.assemble(packNames));
     paths.setCurrentWorldFolder(folder);
-    loadContent();
-}
-
-void Engine::loadAllPacks() {
-    PacksManager manager = createPacksManager(paths.getCurrentWorldFolder());
-    manager.scan();
-    auto allnames = manager.getAllNames();
-    contentPacks = manager.getAll(manager.assemble(allnames));
+    content->loadContent(
+        paths, *input, contentPacks, ContentPack::worldPacksList("world:")
+    );
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
@@ -467,12 +369,7 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
 }
 
 void Engine::setLanguage(std::string locale) {
-    langs::setup(
-        "res:",
-        std::move(locale),
-        resPaths ? resPaths->collectRoots()
-                 : std::vector<io::path> {{"core", "res:"}}
-    );
+    langs::setup("res:", std::move(locale), paths.resPaths.collectRoots());
 }
 
 void Engine::onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer) {
@@ -505,11 +402,11 @@ Assets* Engine::getAssets() {
 }
 
 const Content* Engine::getContent() const {
-    return content.get();
+    return content->get();
 }
 
 Content* Engine::getWriteableContent() {
-    return content.get();
+    return content->get();
 }
 
 std::vector<ContentPack> Engine::getAllContentPacks() {
@@ -522,16 +419,12 @@ std::vector<ContentPack>& Engine::getContentPacks() {
     return contentPacks;
 }
 
-std::vector<std::string>& Engine::getBasePacks() {
-    return basePacks;
-}
-
 EnginePaths& Engine::getPaths() {
     return paths;
 }
 
-ResPaths* Engine::getResPaths() {
-    return resPaths.get();
+ResPaths& Engine::getResPaths() {
+    return paths.resPaths;
 }
 
 std::shared_ptr<Screen> Engine::getScreen() {
@@ -552,4 +445,8 @@ const CoreParameters& Engine::getCoreParameters() const {
 
 bool Engine::isHeadless() const {
     return params.headless;
+}
+
+ContentControl& Engine::getContentControl() {
+    return *content;
 }
