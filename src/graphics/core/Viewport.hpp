@@ -9,6 +9,7 @@ class Viewport {
     uint height;
 public:
     Viewport(uint width, uint height);
+    Viewport(const glm::ivec2& size);
 
     virtual uint getWidth() const;
     virtual uint getHeight() const;

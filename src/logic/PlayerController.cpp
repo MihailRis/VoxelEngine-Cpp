@@ -60,7 +60,7 @@ void CameraControl::refreshRotation() {
     );
 }
 
-void CameraControl::updateMouse(PlayerInput& input) {
+void CameraControl::updateMouse(PlayerInput& input, int windowHeight) {
     glm::vec3 rotation = player.getRotation();
 
     float sensitivity =
@@ -68,7 +68,7 @@ void CameraControl::updateMouse(PlayerInput& input) {
                     : settings.sensitivity.get());
 
     auto d = glm::degrees(
-        input.delta / static_cast<float>(Window::height) * sensitivity
+        input.delta / static_cast<float>(windowHeight) * sensitivity
     );
     rotation.x -= d.x;
     rotation.y -= d.y;
@@ -272,13 +272,15 @@ void PlayerController::update(float delta, const Input* inputEvents) {
     updatePlayer(delta);
 }
 
-void PlayerController::postUpdate(float delta, const Input* input, bool pause) {
+void PlayerController::postUpdate(
+    float delta, int windowHeight, const Input* input, bool pause
+) {
     if (!pause) {
         updateFootsteps(delta);
     }
 
     if (!pause && input) {
-        camControl.updateMouse(this->input);
+        camControl.updateMouse(this->input, windowHeight);
     }
     camControl.refreshRotation();
     player.postUpdate();

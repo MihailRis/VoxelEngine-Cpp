@@ -7,7 +7,6 @@
 #include "libgui.hpp"
 #include "util/stringutil.hpp"
 #include "util/observer_handler.hpp"
-#include "window/Events.hpp"
 #include "window/input.hpp"
 #include "coders/toml.hpp"
 

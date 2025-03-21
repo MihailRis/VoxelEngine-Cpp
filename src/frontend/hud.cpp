@@ -40,7 +40,6 @@
 #include "voxels/Chunks.hpp"
 #include "voxels/GlobalChunks.hpp"
 #include "window/Camera.hpp"
-#include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
@@ -225,7 +224,8 @@ void Hud::cleanup() {
 }
 
 void Hud::processInput(bool visible) {
-    if (!Window::isFocused() && !menu.hasOpenPage() && !isInventoryOpen()) {
+    const auto& window = engine.getWindow();
+    if (!window.isFocused() && !menu.hasOpenPage() && !isInventoryOpen()) {
         setPause(true);
     }
     const auto& bindings = input.getBindings();
@@ -343,10 +343,11 @@ void Hud::update(bool visible) {
         element.getNode()->setVisible(visible);
     }
 
+    const auto& windowSize = engine.getWindow().getSize();
     glm::vec2 caSize = contentAccessPanel->getSize();
     contentAccessPanel->setVisible(inventoryView != nullptr && showContentPanel);
-    contentAccessPanel->setSize(glm::vec2(caSize.x, Window::height));
-    contentAccess->setMinSize(glm::vec2(1, Window::height));
+    contentAccessPanel->setSize(glm::vec2(caSize.x, windowSize.y));
+    contentAccess->setMinSize(glm::vec2(1, windowSize.y));
     hotbarView->setVisible(visible && !(secondUI && !inventoryView));
 
     if (visible) {

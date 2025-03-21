@@ -25,10 +25,11 @@ static void set_blend_mode(BlendMode mode) {
 
 DrawContext::DrawContext(
     const DrawContext* parent, 
-    Viewport  viewport,
+    Window& window,
     Batch2D* g2d
-) : parent(parent), 
-    viewport(std::move(viewport)),
+) : window(window),
+    parent(parent), 
+    viewport({window.getSize()}),
     g2d(g2d),
     flushable(g2d)
 {}
@@ -39,7 +40,7 @@ DrawContext::~DrawContext() {
     }
 
     while (scissorsCount--) {
-        Window::popScissor();
+        window.popScissor();
     }
 
     if (parent == nullptr)
@@ -54,7 +55,7 @@ DrawContext::~DrawContext() {
         }
     }
 
-    Window::viewport(
+    glViewport(
         0, 0,
         parent->viewport.getWidth(), 
         parent->viewport.getHeight()
@@ -100,7 +101,7 @@ DrawContext DrawContext::sub(Flushable* flushable) const {
 
 void DrawContext::setViewport(const Viewport& viewport) {
     this->viewport = viewport;
-    Window::viewport(
+    glViewport(
         0, 0,
         viewport.getWidth(),
         viewport.getHeight()
@@ -153,7 +154,7 @@ void DrawContext::setBlendMode(BlendMode mode) {
 }
 
 void DrawContext::setScissors(const glm::vec4& area) {
-    Window::pushScissor(area);
+    window.pushScissor(area);
     scissorsCount++;
 }
 

@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 
+class Window;
 class Assets;
 class Level;
 class Screen;
@@ -68,6 +69,7 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<EngineController> controller;
     std::unique_ptr<cmd::CommandsInterpreter> cmd;
     std::unique_ptr<network::Network> network;
+    std::unique_ptr<Window> window;
     std::unique_ptr<Input> input;
     std::vector<std::string> basePacks;
     std::unique_ptr<gui::GUI> gui;
@@ -189,6 +191,10 @@ public:
 
     Input& getInput() {
         return *input;
+    }
+
+    Window& getWindow() {
+        return *window;
     }
 
     network::Network& getNetwork() {

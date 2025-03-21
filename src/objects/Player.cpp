@@ -14,7 +14,6 @@
 #include "physics/PhysicsSolver.hpp"
 #include "voxels/Chunks.hpp"
 #include "window/Camera.hpp"
-#include "window/Events.hpp"
 #include "world/Level.hpp"
 #include "data/dv_util.hpp"
 #include "debug/Logger.hpp"

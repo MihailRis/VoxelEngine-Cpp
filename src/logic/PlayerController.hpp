@@ -41,7 +41,7 @@ class CameraControl {
     void switchCamera();
 public:
     CameraControl(Player& player, const CameraSettings& settings);
-    void updateMouse(PlayerInput& input);
+    void updateMouse(PlayerInput& input, int windowHeight);
     void update(PlayerInput input, float delta, const Chunks& chunks);
     void refreshPosition();
     void refreshRotation();
@@ -84,6 +84,8 @@ public:
     /// @param delta delta time
     /// @param inputEvents nullable window inputs
     /// @param pause is game paused
-    void postUpdate(float delta, const Input* inputEvents, bool pause);
+    void postUpdate(
+        float delta, int windowHeight, const Input* inputEvents, bool pause
+    );
     Player* getPlayer();
 };

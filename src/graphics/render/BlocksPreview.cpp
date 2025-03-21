@@ -26,7 +26,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
     const Block& def, 
     int size
 ){
-    Window::clear();
+    display::clear();
     blockid_t id = def.rt.id;
     const UVRegion texfaces[6]{cache.getRegion(id, 0), cache.getRegion(id, 1),
                                cache.getRegion(id, 2), cache.getRegion(id, 3),
@@ -98,6 +98,7 @@ std::unique_ptr<ImageData> BlocksPreview::draw(
 }
 
 std::unique_ptr<Atlas> BlocksPreview::build(
+    Window& window,
     const ContentGfxCache& cache,
     const Assets& assets, 
     const ContentIndices& indices
@@ -108,8 +109,7 @@ std::unique_ptr<Atlas> BlocksPreview::build(
     auto& shader = assets.require<Shader>("ui3d");
     const auto& atlas = assets.require<Atlas>("blocks");
 
-    Viewport viewport(iconSize, iconSize);
-    DrawContext pctx(nullptr, viewport, nullptr);
+    DrawContext pctx(nullptr, window, nullptr);
     DrawContext ctx = pctx.sub();
     ctx.setCullFace(true);
     ctx.setDepthTest(true);
@@ -127,8 +127,8 @@ std::unique_ptr<Atlas> BlocksPreview::build(
                     glm::vec3(0, 1, 0)));
 
     AtlasBuilder builder;
-    Window::viewport(0, 0, iconSize, iconSize);
-    Window::setBgColor(glm::vec4(0.0f));
+    ctx.setViewport(Viewport(iconSize, iconSize));
+    display::setBgColor(glm::vec4(0.0f));
     
     fbo.bind();
     for (size_t i = 0; i < count; i++) {
@@ -137,7 +137,5 @@ std::unique_ptr<Atlas> BlocksPreview::build(
         builder.add(def.name, draw(cache, shader, fbo, batch, def, iconSize));
     }
     fbo.unbind();
-
-    Window::viewport(0, 0, Window::width, Window::height);
     return builder.build(2);
 }

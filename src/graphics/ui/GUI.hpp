@@ -17,6 +17,7 @@ class Batch2D;
 struct CursorState;
 class Engine;
 class Input;
+class Window;
 
 /*
  Some info about padding and margin.
@@ -158,5 +159,6 @@ namespace gui {
         void toggleDebug();
         const Input& getInput() const;
         Input& getInput();
+        Window& getWindow();
     };
 }

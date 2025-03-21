@@ -18,7 +18,8 @@ MenuScreen::MenuScreen(Engine& engine) : Screen(engine) {
     menu->reset();
     menu->setPage("main");
 
-    uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
+    uicamera =
+        std::make_unique<Camera>(glm::vec3(), engine.getWindow().getSize().y);
     uicamera->perspective = false;
     uicamera->flipped = true;
 }
@@ -31,13 +32,14 @@ void MenuScreen::update(float delta) {
 void MenuScreen::draw(float delta) {
     auto assets = engine.getAssets();
 
-    Window::clear();
-    Window::setBgColor(glm::vec3(0.2f));
+    display::clear();
+    display::setBgColor(glm::vec3(0.2f));
 
-    uint width = Window::width;
-    uint height = Window::height;
+    const auto& size = engine.getWindow().getSize();
+    uint width = size.x;
+    uint height = size.y;
 
-    uicamera->setFov(Window::height);
+    uicamera->setFov(height);
     uicamera->setAspectRatio(width / static_cast<float>(height));
     auto uishader = assets->get<Shader>("ui");
     uishader->use();
@@ -49,7 +51,7 @@ void MenuScreen::draw(float delta) {
     batch->rect(
         0, 0, 
         width, height, 0, 0, 0, 
-        UVRegion(0, 0, width/bg->getWidth(), height/bg->getHeight()), 
+        UVRegion(0, 0, width / bg->getWidth(), height / bg->getHeight()), 
         false, false, glm::vec4(1.0f)
     );
     batch->flush();

@@ -258,6 +258,7 @@ public:
     virtual void pollEvents() = 0;
 
     virtual const char* getClipboardText() const = 0;
+    virtual void setClipboardText(const char* str) = 0;
 
     virtual int getScroll() = 0;
 
@@ -269,6 +270,7 @@ public:
 
     virtual CursorState getCursor() const = 0;
 
+    virtual bool isCursorLocked() const = 0;
     virtual void toggleCursor() = 0;
 
     virtual Bindings& getBindings() = 0;

@@ -30,7 +30,6 @@
 #include "util/stringutil.hpp"
 #include "voxels/Chunks.hpp"
 #include "window/Camera.hpp"
-#include "window/Events.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
@@ -64,7 +63,7 @@ LevelScreen::LevelScreen(
     );
 
     frontend = std::make_unique<LevelFrontend>(
-        player, controller.get(), assets, settings
+        engine, player, controller.get(), settings
     );
     renderer = std::make_unique<WorldRenderer>(
         engine, *frontend, *player
@@ -162,11 +161,14 @@ void LevelScreen::saveWorldPreview() {
         Camera camera = *player->fpCamera;
         camera.setFov(glm::radians(70.0f));
 
-        DrawContext pctx(nullptr, {Window::width, Window::height}, batch.get());
+        DrawContext pctx(nullptr, engine.getWindow(), batch.get());
 
-        Viewport viewport(previewSize * 1.5, previewSize);
-        DrawContext ctx(&pctx, viewport, batch.get());
-        
+        DrawContext ctx(&pctx, engine.getWindow(), batch.get());
+        ctx.setViewport(
+            {static_cast<uint>(previewSize * 1.5),
+             static_cast<uint>(previewSize)}
+        );
+
         renderer->draw(ctx, camera, false, true, 0.0f, *postProcessing);
         auto image = postProcessing->toImage();
         image->flipY();
@@ -226,7 +228,12 @@ void LevelScreen::update(float delta) {
         playerController->update(delta, inputLocked ? nullptr : &engine.getInput());
     }
     controller->update(glm::min(delta, 0.2f), paused);
-    playerController->postUpdate(delta, inputLocked ? nullptr : &engine.getInput(), paused);
+    playerController->postUpdate(
+        delta,
+        engine.getWindow().getSize().y,
+        inputLocked ? nullptr : &engine.getInput(),
+        paused
+    );
 
     hud->update(hudVisible);
 
@@ -239,8 +246,7 @@ void LevelScreen::update(float delta) {
 void LevelScreen::draw(float delta) {
     auto camera = playerController->getPlayer()->currentCamera;
 
-    Viewport viewport(Window::width, Window::height);
-    DrawContext ctx(nullptr, viewport, batch.get());
+    DrawContext ctx(nullptr, engine.getWindow(), batch.get());
 
     if (!hud->isPause()) {
         scripting::on_entities_render(engine.getTime().getDelta());

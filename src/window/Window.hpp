@@ -12,43 +12,52 @@ class ImageData;
 class Input;
 struct DisplaySettings;
 
-namespace Window {
-    extern uint width;
-    extern uint height;
+class Window {
+public:
+    Window(glm::ivec2 size) : size(std::move(size)) {}
 
-    std::unique_ptr<Input> initialize(DisplaySettings* settings);
-    void terminate();
+    virtual ~Window() = default;
+    virtual void swapBuffers() = 0;
 
-    void viewport(int x, int y, int width, int height);
-    void setCursorMode(int mode);
-    bool isShouldClose();
-    void setShouldClose(bool flag);
-    void swapBuffers();
-    void setFramerate(int interval);
-    void toggleFullscreen();
-    bool isFullscreen();
-    bool isMaximized();
-    bool isFocused();
-    bool isIconified();
+    virtual bool isMaximized() const = 0;
+    virtual bool isFocused() const = 0;
+    virtual bool isIconified() const = 0;
 
-    void pushScissor(glm::vec4 area);
-    void popScissor();
-    void resetScissor();
+    virtual bool isShouldClose() const = 0;
+    virtual void setShouldClose(bool flag) = 0;
 
-    void setCursor(CursorShape shape);
+    virtual void setCursor(CursorShape shape) = 0;
+    virtual void toggleFullscreen() = 0;
+    virtual bool isFullscreen() const = 0;
+
+    virtual void setIcon(const ImageData* image) = 0;
+
+    virtual void pushScissor(glm::vec4 area) = 0;
+    virtual void popScissor() = 0;
+    virtual void resetScissor() = 0;
+
+    virtual double time() = 0;
+
+    virtual void setFramerate(int framerate) = 0;
+
+    // TODO: move somewhere
+    virtual std::unique_ptr<ImageData> takeScreenshot() = 0;
+
+    const glm::ivec2& getSize() const {
+        return size;
+    }
+protected:
+    glm::ivec2 size;
+};
+
+namespace display {
+    std::tuple<
+        std::unique_ptr<Window>,
+        std::unique_ptr<Input>
+    > initialize(DisplaySettings* settings);
 
     void clear();
     void clearDepth();
     void setBgColor(glm::vec3 color);
     void setBgColor(glm::vec4 color);
-    double time();
-    void setClipboardText(const char* text);
-    DisplaySettings* getSettings();
-    void setIcon(const ImageData* image);
-
-    inline glm::vec2 size() {
-        return glm::vec2(width, height);
-    }
-
-    std::unique_ptr<ImageData> takeScreenshot();
 };

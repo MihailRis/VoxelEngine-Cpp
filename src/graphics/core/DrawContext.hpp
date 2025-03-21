@@ -4,10 +4,12 @@
 #include "Viewport.hpp"
 #include "typedefs.hpp"
 
+class Window;
 class Batch2D;
 class Framebuffer;
 
 class DrawContext {
+    Window& window;
     const DrawContext* parent;
     Viewport viewport;
     Batch2D* g2d;
@@ -20,7 +22,11 @@ class DrawContext {
     int scissorsCount = 0;
     float lineWidth = 1.0f;
 public:
-    DrawContext(const DrawContext* parent, Viewport viewport, Batch2D* g2d);
+    DrawContext(
+        const DrawContext* parent,
+        Window& window,
+        Batch2D* g2d
+    );
     ~DrawContext();
     
     Batch2D* getBatch2D() const;

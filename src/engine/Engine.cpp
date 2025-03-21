@@ -34,7 +34,6 @@
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
 #include "window/Camera.hpp"
-#include "window/Events.hpp"
 #include "window/input.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
@@ -96,20 +95,34 @@ void Engine::initialize(CoreParameters coreParameters) {
 
     controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
-        if (!(input = Window::initialize(&settings.display))){
+        auto [window, input] = display::initialize(&settings.display);
+        if (!window || !input){
             throw initialize_error("could not initialize window");
         }
-        time.set(Window::time());
+        window->setFramerate(settings.display.framerate.get());
+
+        time.set(window->time());
         if (auto icon = load_icon()) {
             icon->flipY();
-            Window::setIcon(icon.get());
+            window->setIcon(icon.get());
         }
+        this->window = std::move(window);
+        this->input = std::move(input);
+
         loadControls();
 
         gui = std::make_unique<gui::GUI>(*this);
         if (ENGINE_DEBUG_BUILD) {
             menus::create_version_label(*gui);
         }
+        keepAlive(settings.display.fullscreen.observe(
+            [this](bool value) {
+                if (value != this->window->isFullscreen()) {
+                    this->window->toggleFullscreen();
+                }
+            },
+            true
+        ));
     }
     audio::initialize(!params.headless, settings.audio);
 
@@ -173,7 +186,7 @@ void Engine::updateHotkeys() {
 }
 
 void Engine::saveScreenshot() {
-    auto image = Window::takeScreenshot();
+    auto image = window->takeScreenshot();
     image->flipY();
     io::path filename = paths.getNewScreenshotFile("png");
     imageio::write(filename.string(), image.get());
@@ -198,26 +211,26 @@ void Engine::updateFrontend() {
     double delta = time.getDelta();
     updateHotkeys();
     audio::update(delta);
-    gui->act(delta, Viewport(Window::width, Window::height));
+    gui->act(delta, Viewport(window->getSize()));
     screen->update(delta);
     gui->postAct();
 }
 
 void Engine::nextFrame() {
-    Window::setFramerate(
-        Window::isIconified() && settings.display.limitFpsIconified.get()
+    window->setFramerate(
+        window->isIconified() && settings.display.limitFpsIconified.get()
             ? 20
             : settings.display.framerate.get()
     );
-    Window::swapBuffers();
+    window->swapBuffers();
     input->pollEvents();
 }
 
 void Engine::renderFrame() {
     screen->draw(time.getDelta());
 
-    Viewport viewport(Window::width, Window::height);
-    DrawContext ctx(nullptr, viewport, nullptr);
+    Viewport viewport(window->getSize());
+    DrawContext ctx(nullptr, *window, nullptr);
     gui->draw(ctx, *assets);
 }
 
@@ -250,7 +263,7 @@ void Engine::close() {
     scripting::close();
     logger.info() << "scripting finished";
     if (!params.headless) {
-        Window::terminate();
+        window.reset();
         logger.info() << "window closed";
     }
     logger.info() << "engine finished";
@@ -469,7 +482,7 @@ void Engine::onWorldClosed() {
 void Engine::quit() {
     quitSignal = true;
     if (!isHeadless()) {
-        Window::setShouldClose(true);
+        window->setShouldClose(true);
     }
 }
 
