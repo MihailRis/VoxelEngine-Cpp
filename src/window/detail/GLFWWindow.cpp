@@ -1,10 +1,12 @@
-#include "window/Window.hpp"
+#include "window/display.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <unordered_set>
 
 #include <chrono>
+#include <stack>
+#include <vector>
 
 #include "debug/Logger.hpp"
 #include "graphics/core/ImageData.hpp"

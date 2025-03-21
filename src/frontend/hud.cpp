@@ -41,7 +41,7 @@
 #include "voxels/GlobalChunks.hpp"
 #include "window/Camera.hpp"
 #include "window/input.hpp"
-#include "window/Window.hpp"
+#include "window/display.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "debug/Logger.hpp"

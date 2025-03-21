@@ -2,8 +2,6 @@
 
 #include <glm/glm.hpp>
 #include <memory>
-#include <stack>
-#include <vector>
 
 #include "graphics/core/commons.hpp"
 #include "typedefs.hpp"
@@ -40,7 +38,7 @@ public:
 
     virtual void setFramerate(int framerate) = 0;
 
-    // TODO: move somewhere
+    // todo: move somewhere
     virtual std::unique_ptr<ImageData> takeScreenshot() = 0;
 
     const glm::ivec2& getSize() const {

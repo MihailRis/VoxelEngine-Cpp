@@ -20,7 +20,7 @@
 #include "graphics/core/Shader.hpp"
 #include "gui_util.hpp"
 #include "window/Camera.hpp"
-#include "window/Window.hpp"
+#include "window/display.hpp"
 #include "window/input.hpp"
 
 #include <algorithm>
