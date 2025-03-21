@@ -87,6 +87,7 @@ end
 
 function build_files_list(filenames, selected)
     local files_list = document.filesList
+    files_list.scroll = 0
     files_list:clear()
 
     for _, actual_filename in ipairs(filenames) do
@@ -193,6 +194,7 @@ end
 function open_file_in_editor(filename, line, mutable)
     local editor = document.editor
     local source = file.read(filename):gsub('\t', '    ')
+    editor.scroll = 0
     editor.text = source
     editor.focused = true
     if line then

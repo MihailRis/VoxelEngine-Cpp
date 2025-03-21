@@ -237,15 +237,30 @@ void Label::draw(const DrawContext& pctx, const Assets& assets) {
     textYOffset = pos.y-calcPos().y;
     totalLineHeight = lineHeight;
 
+    auto& viewport = pctx.getViewport();
+    glm::vec4 bounds {0, 0, viewport.getWidth(), viewport.getHeight()};
+    if (parent) {
+        auto ppos = parent->calcPos();
+        auto psize = parent->getSize();
+        bounds.x = std::max(bounds.x, ppos.x);
+        bounds.y = std::max(bounds.y, ppos.y);
+        bounds.z = std::min(bounds.z, ppos.x + psize.x);
+        bounds.w = std::min(bounds.w, ppos.y + psize.y);
+    }
     if (multiline) {
+        // todo: reduce loop range to the actual area
         for (size_t i = 0; i < cache.lines.size(); i++) {
+            float y = pos.y + i * totalLineHeight;
+            if (y + totalLineHeight < bounds.y || y > bounds.w) {
+                continue;
+            }
             auto& line = cache.lines[i];
             size_t offset = line.offset;
             std::wstring_view view(text.c_str()+offset, text.length()-offset);
             if (i < cache.lines.size()-1) {
                 view = std::wstring_view(text.c_str()+offset, cache.lines.at(i+1).offset-offset);
             }
-            font->draw(*batch, view, pos.x, pos.y + i * totalLineHeight, styles.get(), offset);
+            font->draw(*batch, view, pos.x, y, styles.get(), offset);
         }
     } else {
         font->draw(*batch, text, pos.x, pos.y, styles.get(), 0);
