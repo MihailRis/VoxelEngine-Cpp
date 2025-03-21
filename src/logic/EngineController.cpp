@@ -10,6 +10,7 @@
 #include "coders/json.hpp"
 #include "content/ContentReport.hpp"
 #include "content/ContentControl.hpp"
+#include "content/PacksManager.hpp"
 #include "world/files/WorldConverter.hpp"
 #include "world/files/WorldFiles.hpp"
 #include "frontend/locale.hpp"
@@ -130,12 +131,15 @@ static void show_convert_request(
 }
 
 static bool load_world_content(Engine& engine, const io::path& folder) {
+    auto& paths = engine.getPaths();
+    auto& contentControl = engine.getContentControl();
+    paths.setCurrentWorldFolder(folder);
     if (engine.isHeadless()) {
-        engine.loadWorldContent(folder);
+        contentControl.loadContent(ContentPack::worldPacksList("world:"));
         return true;
     } else {
-        return menus::call(engine, [&engine, folder]() {
-            engine.loadWorldContent(folder);
+        return menus::call(engine, [&contentControl]() {
+            contentControl.loadContent(ContentPack::worldPacksList("world:"));
         });
     }
 }
@@ -263,10 +267,10 @@ void EngineController::createWorld(
     auto folder = paths.getWorldsFolder() / name;
 
     if (engine.isHeadless()) {
-        engine.loadContent();
+        engine.getContentControl().loadContent();
         paths.setCurrentWorldFolder(folder);
     } else if (!menus::call(engine, [this, &paths, folder]() {
-            engine.loadContent();
+            engine.getContentControl().loadContent();
             paths.setCurrentWorldFolder(folder);
         })) {
         return;

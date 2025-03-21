@@ -48,6 +48,8 @@ std::vector<std::string>& ContentControl::getBasePacks() {
 }
 
 void ContentControl::resetContent() {
+    paths.setCurrentWorldFolder("");
+
     scripting::cleanup();
     std::vector<PathsRoot> resRoots;
     {

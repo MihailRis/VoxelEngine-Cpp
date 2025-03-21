@@ -6,6 +6,7 @@
 #include "constants.hpp"
 #include "assets/Assets.hpp"
 #include "content/Content.hpp"
+#include "content/ContentControl.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
 #include "io/engine_paths.hpp"
@@ -30,7 +31,7 @@ static int l_get_version(lua::State* L) {
 }
 
 static int l_load_content(lua::State* L) {
-    engine->loadContent();
+    content_control->loadContent();
     return 0;
 }
 
@@ -38,7 +39,7 @@ static int l_reset_content(lua::State* L) {
     if (level != nullptr) {
         throw std::runtime_error("world must be closed before");
     }
-    engine->resetContent();
+    content_control->resetContent();
     return 0;
 }
 

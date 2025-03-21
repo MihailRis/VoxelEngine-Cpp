@@ -29,6 +29,7 @@ public:
 
     std::vector<std::string>& getBasePacks();
 
+    /// @brief Reset content to base packs list
     void resetContent();
 
     void loadContent(const std::vector<std::string>& names);

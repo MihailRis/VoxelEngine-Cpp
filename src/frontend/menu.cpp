@@ -18,6 +18,7 @@
 #include "settings.hpp"
 #include "util/stringutil.hpp"
 #include "assets/assetload_funcs.hpp"
+#include "content/ContentPack.hpp"
 
 using namespace gui;
 

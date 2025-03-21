@@ -7,6 +7,7 @@
 #include "assets/AssetsLoader.hpp"
 #include "content/Content.hpp"
 #include "content/ContentControl.hpp"
+#include "content/PacksManager.hpp"
 #include "engine/Engine.hpp"
 #include "graphics/ui/gui_util.hpp"
 #include "graphics/ui/elements/Menu.hpp"
@@ -44,10 +45,6 @@ static int l_pack_get_installed(lua::State* L) {
 
 /// @brief pack.get_available() -> array<string>
 static int l_pack_get_available(lua::State* L) {
-    io::path worldFolder;
-    if (level) {
-        worldFolder = level->getWorld()->wfile->getFolder();
-    }
     PacksManager manager;
     manager.setSources(content_control->getDefaultSources());
     manager.scan();
@@ -150,10 +147,6 @@ static int pack_get_infos(lua::State* L) {
         }
     }
     if (!ids.empty()) {
-        io::path worldFolder;
-        if (level) {
-            worldFolder = level->getWorld()->wfile->getFolder();
-        }
         PacksManager manager;
         manager.setSources(content_control->getDefaultSources());
         manager.scan();

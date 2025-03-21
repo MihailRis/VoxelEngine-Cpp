@@ -1,5 +1,6 @@
 #include "MenuScreen.hpp"
 
+#include "content/ContentControl.hpp"
 #include "graphics/ui/GUI.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 #include "graphics/core/Batch2D.hpp"
@@ -12,7 +13,7 @@
 #include "engine/Engine.hpp"
 
 MenuScreen::MenuScreen(Engine& engine) : Screen(engine) {
-    engine.resetContent();
+    engine.getContentControl().resetContent();
     
     auto menu = engine.getGUI().getMenu();
     menu->reset();

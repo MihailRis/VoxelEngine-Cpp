@@ -13,7 +13,6 @@
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
 #include "coders/commons.hpp"
-#include "content/Content.hpp"
 #include "content/ContentControl.hpp"
 #include "core_defs.hpp"
 #include "io/io.hpp"
@@ -320,20 +319,6 @@ void Engine::loadAssets() {
     if (content) {
         ModelsGenerator::prepare(*content, *assets);
     }
-}
-
-void Engine::loadContent() {
-    content->loadContent();
-}
-
-void Engine::resetContent() {
-    paths.setCurrentWorldFolder("");
-    content->resetContent();
-}
-
-void Engine::loadWorldContent(const io::path& folder) {
-    paths.setCurrentWorldFolder(folder);
-    content->loadContent(ContentPack::worldPacksList("world:"));
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {

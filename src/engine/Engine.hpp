@@ -4,9 +4,6 @@
 #include "typedefs.hpp"
 #include "settings.hpp"
 
-#include "content/content_fwd.hpp"
-#include "content/ContentPack.hpp"
-#include "content/PacksManager.hpp"
 #include "io/engine_paths.hpp"
 #include "io/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
@@ -15,7 +12,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 class Window;
 class Assets;
@@ -113,17 +109,6 @@ public:
     /// @brief Change locale to specified
     /// @param locale isolanguage_ISOCOUNTRY (example: en_US)
     void setLanguage(std::string locale);
-
-    /// @brief Load all selected content-packs and reload assets
-    void loadContent();
-
-    /// @brief Reset content to base packs list
-    void resetContent();
-    
-    /// @brief Collect world content-packs and load content
-    /// @see loadContent
-    /// @param folder world folder
-    void loadWorldContent(const io::path& folder);
 
     /// @brief Get active assets storage instance
     Assets* getAssets();
