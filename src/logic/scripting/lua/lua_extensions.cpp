@@ -3,6 +3,9 @@
 
 #include "libs/api_lua.hpp"
 #include "debug/Logger.hpp"
+#include "logic/scripting/scripting.hpp"
+
+using namespace scripting;
 
 static debug::Logger logger("lua-debug");
 
@@ -28,13 +31,13 @@ const int MAX_DEPTH = 10;
 
 int l_debug_print(lua::State* L) {
     auto addIndentation = [](int depth) {
-        for (int i = 0; i < depth; ++i) std::cout << "  ";
+        for (int i = 0; i < depth; ++i) *output_stream << "  ";
     };
 
     auto printHexData = [](const void* ptr, size_t size) {
         const auto* bytePtr = reinterpret_cast<const uint8_t*>(ptr);
         for (size_t i = 0; i < size; ++i) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0')
+            *output_stream << std::hex << std::setw(2) << std::setfill('0')
                       << static_cast<int>(bytePtr[i])
                       << ((i + 1) % 8 == 0 && i + 1 < size ? "\n" : " ");
         }
@@ -43,20 +46,20 @@ int l_debug_print(lua::State* L) {
     auto printEscapedString = [](const char* str) {
         while (*str) {
             switch (*str) {
-                case '\\': std::cout << "\\\\"; break;
-                case '\"': std::cout << "\\\""; break;
-                case '\n': std::cout << "\\n"; break;
-                case '\t': std::cout << "\\t"; break;
-                case '\r': std::cout << "\\r"; break;
-                case '\b': std::cout << "\\b"; break;
-                case '\f': std::cout << "\\f"; break;
+                case '\\': *output_stream << "\\\\"; break;
+                case '\"': *output_stream << "\\\""; break;
+                case '\n': *output_stream << "\\n"; break;
+                case '\t': *output_stream << "\\t"; break;
+                case '\r': *output_stream << "\\r"; break;
+                case '\b': *output_stream << "\\b"; break;
+                case '\f': *output_stream << "\\f"; break;
                 default:
                     if (iscntrl(static_cast<unsigned char>(*str))) {
                         // Print other control characters in \xHH format
-                        std::cout << "\\x" << std::hex << std::setw(2) << std::setfill('0')
+                        *output_stream << "\\x" << std::hex << std::setw(2) << std::setfill('0')
                                   << static_cast<int>(static_cast<unsigned char>(*str)) << std::dec;
                     } else {
-                        std::cout << *str;
+                        *output_stream << *str;
                     }
                     break;
             }
@@ -68,80 +71,80 @@ int l_debug_print(lua::State* L) {
                                                          int depth,
                                                          bool is_key) {
         if (depth > MAX_DEPTH) {
-            std::cout << "{...}";
+            *output_stream << "{...}";
             return;
         }
         switch (lua::type(L, index)) {
             case LUA_TSTRING:
                 if (is_key){
-                    std::cout << lua::tostring(L, index);
+                    *output_stream << lua::tostring(L, index);
                 }else{
-                    std::cout << "\"";
+                    *output_stream << "\"";
                     printEscapedString(lua::tostring(L, index));
-                    std::cout << "\"";
+                    *output_stream << "\"";
                 }
                 break;
             case LUA_TBOOLEAN:
-                std::cout << (lua::toboolean(L, index) ? "true" : "false");
+                *output_stream << (lua::toboolean(L, index) ? "true" : "false");
                 break;
             case LUA_TNUMBER:
-                std::cout << lua::tonumber(L, index);
+                *output_stream << lua::tonumber(L, index);
                 break;
             case LUA_TTABLE: {
                 bool is_list = lua::objlen(L, index) > 0, hadItems = false;
                 int absTableIndex =
                     index > 0 ? index : lua::gettop(L) + index + 1;
-                std::cout << "{";
+                *output_stream << "{";
                 lua::pushnil(L);
                 while (lua::next(L, absTableIndex) != 0) {
                     if (hadItems)
-                        std::cout << "," << '\n';
+                        *output_stream << "," << '\n';
                     else
-                        std::cout << '\n';
+                        *output_stream << '\n';
 
                     addIndentation(depth + 1);
                     if (!is_list) {
                         debugPrint(-2, depth, true);
-                        std::cout << " = ";
+                        *output_stream << " = ";
                     }
                     debugPrint(-1, depth + 1, false);
                     lua::pop(L, 1);
                     hadItems = true;
                 }
-                if (hadItems) std::cout << '\n';
+                if (hadItems) *output_stream << '\n';
                 addIndentation(depth);
-                std::cout << "}";
+                *output_stream << "}";
                 break;
             }
             case LUA_TFUNCTION:
-                std::cout << "function(0x" << std::hex
+                *output_stream << "function(0x" << std::hex
                           << lua::topointer(L, index) << std::dec << ")";
                 break;
             case LUA_TUSERDATA:
-                std::cout << "userdata:\n";
+                *output_stream << "userdata:\n";
                 printHexData(lua::topointer(L, index), lua::objlen(L, index));
                 break;
             case LUA_TLIGHTUSERDATA:
-                std::cout << "lightuserdata:\n";
+                *output_stream << "lightuserdata:\n";
                 printHexData(lua::topointer(L, index), sizeof(void*));
                 break;
             case LUA_TNIL:
-                std::cout << "nil";
+                *output_stream << "nil";
                 break;
             default:
-                std::cout << lua::type_name(L, lua::type(L, index));
+                *output_stream << lua::type_name(L, lua::type(L, index));
                 break;
         }
     };
 
     int n = lua::gettop(L);
-    std::cout << "debug.print(" << '\n';
+    *output_stream << "debug.print(" << '\n';
     for (int i = 1; i <= n; ++i) {
         addIndentation(1);
         debugPrint(i, 1, false);
-        if (i < n) std::cout << "," << '\n';
+        if (i < n) *output_stream << "," << '\n';
     }
-    std::cout << '\n' << ")" << std::endl;
+    *output_stream << '\n' << ")" << std::endl;
     lua::pop(L, n);
     return 0;
 }
