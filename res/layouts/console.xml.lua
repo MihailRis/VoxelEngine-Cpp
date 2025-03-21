@@ -194,6 +194,7 @@ end
 function open_file_in_editor(filename, line, mutable)
     local editor = document.editor
     local source = file.read(filename):gsub('\t', '    ')
+    editor.scroll = 0
     editor.text = source
     editor.focused = true
     if line then
