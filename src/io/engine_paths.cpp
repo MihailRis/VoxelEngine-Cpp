@@ -31,13 +31,9 @@ namespace fs = std::filesystem;
 
 static debug::Logger logger("engine-paths");
 
-static inline io::path SCREENSHOTS_FOLDER = "screenshots";
-static inline io::path CONTENT_FOLDER = "content";
-static inline io::path WORLDS_FOLDER = "worlds";
-static inline io::path CONFIG_FOLDER = "config";
-static inline io::path EXPORT_FOLDER = "export";
-static inline io::path CONTROLS_FILE = "controls.toml";
-static inline io::path SETTINGS_FILE = "settings.toml";
+static inline io::path SCREENSHOTS_FOLDER = "user:screenshots";
+static inline io::path CONTENT_FOLDER = "user:content";
+static inline io::path WORLDS_FOLDER = "user:worlds";
 
 void EnginePaths::prepare() {
     io::set_device("res", std::make_shared<io::StdfsDevice>(resourcesFolder, false));
@@ -51,14 +47,13 @@ void EnginePaths::prepare() {
     logger.info() << "resources folder: " << fs::canonical(resourcesFolder).u8string();
     logger.info() << "user files folder: " << fs::canonical(userFilesFolder).u8string();
     
-    auto contentFolder = io::path("user:") / CONTENT_FOLDER;
-    if (!io::is_directory(contentFolder)) {
-        io::create_directories(contentFolder);
+    if (!io::is_directory(CONTENT_FOLDER)) {
+        io::create_directories(CONTENT_FOLDER);
     }
 
     io::create_subdevice("core", "res", "");
-    io::create_subdevice("export", "user", EXPORT_FOLDER);
-    io::create_subdevice("config", "user", CONFIG_FOLDER);
+    io::create_subdevice("export", "user", "export");
+    io::create_subdevice("config", "user", "config");
 }
 
 const std::filesystem::path& EnginePaths::getUserFilesFolder() const {
@@ -70,7 +65,7 @@ const std::filesystem::path& EnginePaths::getResourcesFolder() const {
 }
 
 io::path EnginePaths::getNewScreenshotFile(const std::string& ext) {
-    auto folder = io::path("user:") / SCREENSHOTS_FOLDER;
+    auto folder = SCREENSHOTS_FOLDER;
     if (!io::is_directory(folder)) {
         io::create_directories(folder);
     }
@@ -94,11 +89,7 @@ io::path EnginePaths::getNewScreenshotFile(const std::string& ext) {
 }
 
 io::path EnginePaths::getWorldsFolder() const {
-    return io::path("user:") / WORLDS_FOLDER;
-}
-
-io::path EnginePaths::getConfigFolder() const {
-    return io::path("user:") / CONFIG_FOLDER;
+    return WORLDS_FOLDER;
 }
 
 io::path EnginePaths::getCurrentWorldFolder() {
@@ -107,14 +98,6 @@ io::path EnginePaths::getCurrentWorldFolder() {
 
 io::path EnginePaths::getWorldFolderByName(const std::string& name) {
     return getWorldsFolder() / name;
-}
-
-io::path EnginePaths::getControlsFile() const {
-    return io::path("user:") / CONTROLS_FILE;
-}
-
-io::path EnginePaths::getSettingsFile() const {
-    return io::path("user:") / SETTINGS_FILE;
 }
 
 std::vector<io::path> EnginePaths::scanForWorlds() const {

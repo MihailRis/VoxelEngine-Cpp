@@ -58,14 +58,10 @@ public:
 
     io::path getWorldFolderByName(const std::string& name);
     io::path getWorldsFolder() const;
-    io::path getConfigFolder() const;
 
     void setCurrentWorldFolder(io::path folder);
     io::path getCurrentWorldFolder();
-    
     io::path getNewScreenshotFile(const std::string& ext);
-    io::path getControlsFile() const;
-    io::path getSettingsFile() const;
 
     std::string mount(const io::path& file);
     void unmount(const std::string& name);
@@ -79,6 +75,8 @@ public:
     static std::tuple<std::string, std::string> parsePath(std::string_view view);
 
     static inline io::path CONFIG_DEFAULTS = "config/defaults.toml";
+    static inline io::path CONTROLS_FILE = "user:controls.toml";
+    static inline io::path SETTINGS_FILE = "user:settings.toml";
 private:
     std::filesystem::path userFilesFolder {"."};
     std::filesystem::path resourcesFolder {"res"};

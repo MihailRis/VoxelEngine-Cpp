@@ -7,7 +7,6 @@
 #include "debug/Logger.hpp"
 #include "assets/AssetsLoader.hpp"
 #include "audio/audio.hpp"
-#include "voxels/Block.hpp"
 #include "coders/GLSLExtension.hpp"
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
@@ -30,7 +29,6 @@
 #include "logic/scripting/scripting.hpp"
 #include "logic/scripting/scripting_hud.hpp"
 #include "network/Network.hpp"
-#include "util/listutil.hpp"
 #include "util/platform.hpp"
 #include "window/Camera.hpp"
 #include "window/input.hpp"
@@ -89,8 +87,6 @@ void Engine::initialize(CoreParameters coreParameters) {
         paths.setScriptFolder(params.scriptFile.parent_path());
     }
     loadSettings();
-
-    auto resdir = paths.getResourcesFolder();
 
     controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
@@ -153,7 +149,7 @@ void Engine::initialize(CoreParameters coreParameters) {
 }
 
 void Engine::loadSettings() {
-    io::path settings_file = paths.getSettingsFile();
+    io::path settings_file = EnginePaths::SETTINGS_FILE;
     if (io::is_regular_file(settings_file)) {
         logger.info() << "loading settings";
         std::string text = io::read_string(settings_file);
@@ -167,7 +163,7 @@ void Engine::loadSettings() {
 }
 
 void Engine::loadControls() {
-    io::path controls_file = paths.getControlsFile();
+    io::path controls_file = EnginePaths::CONTROLS_FILE;
     if (io::is_regular_file(controls_file)) {
         logger.info() << "loading controls";
         std::string text = io::read_string(controls_file);
@@ -240,10 +236,10 @@ void Engine::renderFrame() {
 
 void Engine::saveSettings() {
     logger.info() << "saving settings";
-    io::write_string(paths.getSettingsFile(), toml::stringify(*settingsHandler));
+    io::write_string(EnginePaths::SETTINGS_FILE, toml::stringify(*settingsHandler));
     if (!params.headless) {
         logger.info() << "saving bindings";
-        io::write_string(paths.getControlsFile(), input->getBindings().write());
+        io::write_string(EnginePaths::CONTROLS_FILE, input->getBindings().write());
     }
 }
 
@@ -308,11 +304,9 @@ void Engine::loadAssets() {
         }
     }
     assets = std::move(new_assets);
-
     if (content) {
         ModelsGenerator::prepare(*content, *assets);
     }
-
     assets->setup();
     gui->onAssetsLoad(assets.get());
 }
