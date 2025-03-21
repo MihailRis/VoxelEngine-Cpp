@@ -139,6 +139,13 @@ void Engine::initialize(CoreParameters coreParameters) {
             "res:"
         ));
     }
+    content = std::make_unique<ContentControl>(paths, *input, [this]() {
+        langs::setup("res:", langs::get_current(), paths.resPaths.collectRoots());
+        if (!isHeadless()) {
+            loadAssets();
+            onAssetsLoaded();
+        }
+    });
     scripting::initialize(this);
     if (!isHeadless()) {
         gui->setPageLoader(scripting::create_page_loader());
@@ -146,14 +153,6 @@ void Engine::initialize(CoreParameters coreParameters) {
     keepAlive(settings.ui.language.observe([this](auto lang) {
         setLanguage(lang);
     }, true));
-
-    content = std::make_unique<ContentControl>([this]() {
-        langs::setup("res:", langs::get_current(), paths.resPaths.collectRoots());
-        if (!isHeadless()) {
-            loadAssets();
-            onAssetsLoaded();
-        }
-    });
 }
 
 void Engine::loadSettings() {
@@ -318,47 +317,23 @@ void Engine::loadAssets() {
     }
     assets = std::move(new_assets);
 
-    if (content == nullptr) {
-        return;
-    }
-    for (auto& [name, def] : content->blocks.getDefs()) {
-        if (def->model == BlockModel::custom && def->modelName.empty()) {
-            assets->store(
-                std::make_unique<model::Model>(
-                    ModelsGenerator::loadCustomBlockModel(
-                        def->customModelRaw, *assets, !def->shadeless
-                    )
-                ),
-                name + ".model"
-            );
-            def->modelName = def->name + ".model";
-        }
-    }
-    for (auto& [name, def] : content->items.getDefs()) {
-        assets->store(
-            std::make_unique<model::Model>(
-                ModelsGenerator::generate(*def, *content, *assets)
-            ),
-            name + ".model"
-        );
+    if (content) {
+        ModelsGenerator::prepare(*content, *assets);
     }
 }
 
 void Engine::loadContent() {
-    content->loadContent(paths, *input, contentPacks);
+    content->loadContent();
 }
 
 void Engine::resetContent() {
     paths.setCurrentWorldFolder("");
-    content->resetContent(paths, *input, contentPacks);
+    content->resetContent();
 }
 
 void Engine::loadWorldContent(const io::path& folder) {
-    contentPacks.clear();
     paths.setCurrentWorldFolder(folder);
-    content->loadContent(
-        paths, *input, contentPacks, ContentPack::worldPacksList("world:")
-    );
+    content->loadContent(ContentPack::worldPacksList("world:"));
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
@@ -399,24 +374,6 @@ EngineSettings& Engine::getSettings() {
 
 Assets* Engine::getAssets() {
     return assets.get();
-}
-
-const Content* Engine::getContent() const {
-    return content->get();
-}
-
-Content* Engine::getWriteableContent() {
-    return content->get();
-}
-
-std::vector<ContentPack> Engine::getAllContentPacks() {
-    auto packs = getContentPacks();
-    packs.insert(packs.begin(), ContentPack::createCore(paths));
-    return packs;
-}
-
-std::vector<ContentPack>& Engine::getContentPacks() {
-    return contentPacks;
 }
 
 EnginePaths& Engine::getPaths() {

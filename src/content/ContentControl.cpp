@@ -24,9 +24,13 @@ static void load_configs(Input& input, const io::path& root) {
     }
 }
 
-ContentControl::ContentControl(std::function<void()> postContent)
-    : postContent(std::move(postContent)) {
-    basePacks = io::read_list("res:config/builtins.list");
+ContentControl::ContentControl(
+    EnginePaths& paths, Input& input, std::function<void()> postContent
+)
+    : paths(paths),
+      input(input),
+      postContent(std::move(postContent)),
+      basePacks(io::read_list("res:config/builtins.list")) {
 }
 
 ContentControl::~ContentControl() = default;
@@ -35,13 +39,15 @@ Content* ContentControl::get() {
     return content.get();
 }
 
+const Content* ContentControl::get() const {
+    return content.get();
+}
+
 std::vector<std::string>& ContentControl::getBasePacks() {
     return basePacks;
 }
 
-void ContentControl::resetContent(
-    EnginePaths& paths, Input& input, std::vector<ContentPack>& contentPacks
-) {
+void ContentControl::resetContent() {
     scripting::cleanup();
     std::vector<PathsRoot> resRoots;
     {
@@ -67,24 +73,15 @@ void ContentControl::resetContent(
     postContent();
 }
 
-void ContentControl::loadContent(
-    EnginePaths& paths,
-    Input& input,
-    std::vector<ContentPack>& packs,
-    const std::vector<std::string>& names
-) {
+void ContentControl::loadContent(const std::vector<std::string>& names) {
     PacksManager manager;
     manager.setSources(getDefaultSources());
     manager.scan();
-    packs = manager.getAll(manager.assemble(names));
-    loadContent(paths, input, packs);
+    contentPacks = manager.getAll(manager.assemble(names));
+    loadContent();
 }
 
-void ContentControl::loadContent(
-    EnginePaths& paths,
-    Input& input,
-    std::vector<ContentPack>& contentPacks
-) {
+void ContentControl::loadContent() {
     scripting::cleanup();
 
     std::vector<std::string> names;
@@ -137,4 +134,14 @@ std::vector<io::path> ContentControl::getDefaultSources() {
         "user:content",
         "res:content",
     };
+}
+
+std::vector<ContentPack>& ContentControl::getContentPacks() {
+    return contentPacks;
+}
+
+std::vector<ContentPack> ContentControl::getAllContentPacks() {
+    auto packs = contentPacks;
+    packs.insert(packs.begin(), ContentPack::createCore(paths));
+    return packs;
 }

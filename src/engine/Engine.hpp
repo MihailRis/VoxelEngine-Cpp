@@ -64,7 +64,6 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<SettingsHandler> settingsHandler;
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
-    std::vector<ContentPack> contentPacks;
     std::unique_ptr<ContentControl> content;
     std::unique_ptr<EngineController> controller;
     std::unique_ptr<cmd::CommandsInterpreter> cmd;
@@ -144,16 +143,6 @@ public:
     void quit();
 
     bool isQuitSignal() const;
-
-    /// @brief Get current Content instance
-    const Content* getContent() const;
-
-    Content* getWriteableContent();
-
-    /// @brief Get selected content packs
-    std::vector<ContentPack>& getContentPacks();
-
-    std::vector<ContentPack> getAllContentPacks();
 
     /// @brief Get current screen
     std::shared_ptr<Screen> getScreen();

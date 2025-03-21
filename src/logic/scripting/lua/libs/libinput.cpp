@@ -1,4 +1,5 @@
 #include "engine/Engine.hpp"
+#include "content/ContentControl.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "graphics/ui/GUI.hpp"
@@ -136,7 +137,7 @@ static void reset_pack_bindings(const io::path& packFolder) {
 
 static int l_reset_bindings(lua::State*) {
     reset_pack_bindings("res:");
-    for (auto& pack : engine->getContentPacks()) {
+    for (const auto& pack : content_control->getContentPacks()) {
         reset_pack_bindings(pack.folder);
     }
     return 0;

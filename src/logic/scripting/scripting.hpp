@@ -14,6 +14,7 @@ class Engine;
 class Content;
 struct ContentPack;
 class ContentIndices;
+class ContentControl;
 class Level;
 class Block;
 class Chunk;
@@ -38,6 +39,7 @@ namespace scripting {
     extern Engine* engine;
     extern const Content* content;
     extern const ContentIndices* indices;
+    extern ContentControl* content_control;
     extern Level* level;
     extern BlocksController* blocks;
     extern LevelController* controller;

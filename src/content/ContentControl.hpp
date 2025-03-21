@@ -5,6 +5,8 @@
 #include <string>
 #include <functional>
 
+#include "ContentPack.hpp"
+
 class Content;
 struct ContentPack;
 class EnginePaths;
@@ -16,33 +18,31 @@ namespace io {
 
 class ContentControl {
 public:
-    ContentControl(std::function<void()> postContent);
+    ContentControl(
+        EnginePaths& paths, Input& input, std::function<void()> postContent
+    );
     ~ContentControl();
 
     Content* get();
 
+    const Content* get() const;
+
     std::vector<std::string>& getBasePacks();
 
-    void resetContent(
-        EnginePaths& paths, Input& input, std::vector<ContentPack>& packs
-    );
+    void resetContent();
 
-    void loadContent(
-        EnginePaths& paths,
-        Input& input,
-        std::vector<ContentPack>& packs,
-        const std::vector<std::string>& names
-    );
+    void loadContent(const std::vector<std::string>& names);
 
-    void loadContent(
-        EnginePaths& paths,
-        Input& input,
-        std::vector<ContentPack>& packs
-    );
+    void loadContent();
 
     std::vector<io::path> getDefaultSources();
+    std::vector<ContentPack>& getContentPacks();
+    std::vector<ContentPack> getAllContentPacks();
 private:
+    EnginePaths& paths;
+    Input& input;
     std::unique_ptr<Content> content;
-    std::vector<std::string> basePacks;
     std::function<void()> postContent;
+    std::vector<std::string> basePacks;
+    std::vector<ContentPack> contentPacks;
 };

@@ -7,6 +7,7 @@
 #include "world/generator/VoxelFragment.hpp"
 #include "content/ContentLoader.hpp"
 #include "content/Content.hpp"
+#include "content/ContentControl.hpp"
 #include "engine/Engine.hpp"
 #include "../lua_custom_types.hpp"
 
@@ -50,7 +51,7 @@ static int l_load_fragment(lua::State* L) {
 /// @brief Get a list of all world generators
 /// @return A table with the IDs of all world generators
 static int l_get_generators(lua::State* L) {
-    auto packs = engine->getAllContentPacks();
+    auto packs = content_control->getAllContentPacks();
 
     lua::createtable(L, 0, 0);
 

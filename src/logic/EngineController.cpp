@@ -146,8 +146,9 @@ static void load_world(
     int64_t localPlayer
 ) {
     try {
-        auto content = engine.getContent();
-        auto& packs = engine.getContentPacks();
+        auto& contentControl = engine.getContentControl();
+        auto content = contentControl.get();
+        auto& packs = contentControl.getContentPacks();
         auto& settings = engine.getSettings();
 
         auto level = World::load(worldFiles, settings, *content, packs);
@@ -203,7 +204,8 @@ void EngineController::openWorld(const std::string& name, bool confirmConvert) {
         return;
     }
 
-    const Content* content = engine.getContent();
+    const auto& contentControl = engine.getContentControl();
+    const Content* content = contentControl.get();
     auto worldFiles = std::make_shared<WorldFiles>(
         folder, engine.getSettings().debug);
     if (auto report = World::checkIndices(worldFiles, content)) {
@@ -269,14 +271,15 @@ void EngineController::createWorld(
         })) {
         return;
     }
+    auto& contentControl = engine.getContentControl();
     auto level = World::create(
         name,
         generatorID,
         folder,
         seed,
         engine.getSettings(),
-        *engine.getContent(),
-        engine.getContentPacks()
+        *contentControl.get(),
+        contentControl.getContentPacks()
     );
     if (!engine.isHeadless()) {
         level->players->create(localPlayer);
@@ -299,7 +302,8 @@ void EngineController::reconfigPacks(
     const std::vector<std::string>& packsToAdd,
     const std::vector<std::string>& packsToRemove
 ) {
-    auto content = engine.getContent();
+    auto& contentControl = engine.getContentControl();
+    auto content = contentControl.get();
     bool hasIndices = false;
 
     std::stringstream ss;
@@ -322,7 +326,9 @@ void EngineController::reconfigPacks(
                 PacksManager manager;
                 manager.setSources(engine.getContentControl().getDefaultSources());
                 manager.scan();
-                auto names = PacksManager::getNames(engine.getContentPacks());
+                auto names = PacksManager::getNames(
+                    engine.getContentControl().getContentPacks()
+                );
                 for (const auto& id : packsToAdd) {
                     names.push_back(id);
                 }
@@ -331,7 +337,7 @@ void EngineController::reconfigPacks(
                     names.erase(std::find(names.begin(), names.end(), id));
                 }
                 names = manager.assemble(names);
-                engine.getContentPacks() = manager.getAll(names);
+                engine.getContentControl().getContentPacks() = manager.getAll(names);
             } catch (const contentpack_error& err) {
                 throw std::runtime_error(
                     std::string(err.what()) + " [" + err.getPackId() + "]"
