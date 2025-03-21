@@ -87,6 +87,7 @@ end
 
 function build_files_list(filenames, selected)
     local files_list = document.filesList
+    files_list.scroll = 0
     files_list:clear()
 
     for _, actual_filename in ipairs(filenames) do

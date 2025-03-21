@@ -60,7 +60,13 @@ Common element methods:
 
 ## Containers
 
-Common methods for containers (elements: container, panel, button, pagebox):
+Common properties for containers (elements: container, panel, button, pagebox):
+
+| Name   | Type   | Read | Write | Description     |
+| ------ | ------ | ---- | ----- | --------------- |
+| scroll | string | yes  | yes   | scroll contents |
+
+Common methods:
 
 | Method                          | Description                                                                                  |
 | ------------------------------- | -------------------------------------------------------------------------------------------- |
