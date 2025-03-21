@@ -15,7 +15,7 @@
 #include "graphics/core/Font.hpp"
 #include "graphics/ui/markdown.hpp"
 #include "util/stringutil.hpp"
-#include "window/display.hpp"
+#include "window/Window.hpp"
 #include "devtools/actions.hpp"
 #include "../markdown.hpp"
 

@@ -1,4 +1,4 @@
-#include "window/display.hpp"
+#include "window/Window.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -85,6 +85,45 @@ static void GLAPIENTRY gl_message_callback(
               << gl_severity_name(severity) << ": " << message;
 }
 
+static bool initialize_gl(int width, int height) {
+    glewExperimental = GL_TRUE;
+
+    GLenum glewErr = glewInit();
+    if (glewErr != GLEW_OK) {
+        if (glewErr == GLEW_ERROR_NO_GLX_DISPLAY) {
+            // see issue #240
+            logger.warning()
+                << "glewInit() returned GLEW_ERROR_NO_GLX_DISPLAY; ignored";
+        } else {
+            logger.error() << "failed to initialize GLEW:\n"
+                           << glewGetErrorString(glewErr);
+            return true;
+        }
+    }
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(gl_message_callback, 0);
+
+    glViewport(0, 0, width, height);
+    glClearColor(0.0f, 0.0f, 0.0f, 1);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLint maxTextureSize[1] {static_cast<GLint>(Texture::MAX_RESOLUTION)};
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, maxTextureSize);
+    if (maxTextureSize[0] > 0) {
+        Texture::MAX_RESOLUTION = maxTextureSize[0];
+        logger.info() << "max texture size is " << Texture::MAX_RESOLUTION;
+    }
+
+    const GLubyte* vendor = glGetString(GL_VENDOR);
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    logger.info() << "GL Vendor: " << reinterpret_cast<const char*>(vendor);
+    logger.info() << "GL Renderer: " << reinterpret_cast<const char*>(renderer);
+    logger.info() << "GLFW: " << glfwGetVersionString();
+    return false;
+}
+
 static const char* glfw_error_name(int error) {
     switch (error) {
         case GLFW_NO_ERROR:
@@ -124,7 +163,7 @@ static void glfw_error_callback(int error, const char* description) {
 }
 
 inline constexpr short KEYS_BUFFER_SIZE = 1036;
-inline constexpr short _MOUSE_KEYS_OFFSET = 1024;
+inline constexpr short MOUSE_KEYS_OFFSET = 1024;
 
 static GLFWcursor* standard_cursors[static_cast<int>(CursorShape::LAST) + 1] = {};
 
@@ -201,7 +240,7 @@ public:
     }
 
     void onMouseCallback(int button, bool pressed) {
-        int key = button + _MOUSE_KEYS_OFFSET;
+        int key = button + MOUSE_KEYS_OFFSET;
         onKeyCallback(key, pressed);
     }
 
@@ -231,12 +270,12 @@ public:
 
     bool clicked(mousecode code) const override {
         return pressed(
-            static_cast<keycode>(_MOUSE_KEYS_OFFSET + static_cast<int>(code))
+            static_cast<keycode>(MOUSE_KEYS_OFFSET + static_cast<int>(code))
         );
     }
     bool jclicked(mousecode code) const override {
         return clicked(code) &&
-               frames[static_cast<int>(code) + _MOUSE_KEYS_OFFSET] ==
+               frames[static_cast<int>(code) + MOUSE_KEYS_OFFSET] ==
                    currentFrame;
     }
 
@@ -560,19 +599,33 @@ static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
     handler->input.setCursorPosition(xpos, ypos);
 }
 
+static void create_standard_cursors() {
+    for (int i = 0; i <= static_cast<int>(CursorShape::LAST); i++) {
+        int cursor = GLFW_ARROW_CURSOR + i;
+        // GLFW 3.3 does not support some cursors
+        if (GLFW_VERSION_MAJOR <= 3 && GLFW_VERSION_MINOR <= 3 &&
+            cursor > GLFW_VRESIZE_CURSOR) {
+            break;
+        }
+        standard_cursors[i] = glfwCreateStandardCursor(cursor);
+    }
+}
+
+static void setup_callbacks(GLFWwindow* window) {
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetCharCallback(window, character_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+}
+
 std::tuple<
     std::unique_ptr<Window>, 
     std::unique_ptr<Input>
-> display::initialize(DisplaySettings* settings) {
+> Window::initialize(DisplaySettings* settings, std::string title) {
     int width = settings->width.get();
     int height = settings->height.get();
-
-    std::string title = "VoxelCore v" +
-                        std::to_string(ENGINE_VERSION_MAJOR) + "." +
-                        std::to_string(ENGINE_VERSION_MINOR);
-    if (ENGINE_DEBUG_BUILD) {
-        title += " [debug]";
-    }
 
     glfwSetErrorCallback(glfw_error_callback);
     if (glfwInit() == GLFW_FALSE) {
@@ -632,34 +685,21 @@ std::tuple<
         Texture::MAX_RESOLUTION = maxTextureSize[0];
         logger.info() << "max texture size is " << Texture::MAX_RESOLUTION;
     }
-
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCursorPosCallback(window, cursor_pos_callback);
-    glfwSetWindowSizeCallback(window, window_size_callback);
-    glfwSetCharCallback(window, character_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-
+    setup_callbacks(window);
+    
     glfwSwapInterval(1);
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    logger.info() << "GL Vendor: " << reinterpret_cast<const char*>(vendor);
-    logger.info() << "GL Renderer: " << reinterpret_cast<const char*>(renderer);
-    logger.info() << "GLFW: " << glfwGetVersionString();
+    input_util::initialize();
+    create_standard_cursors();
+
     glm::vec2 scale;
     glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &scale.x, &scale.y);
     logger.info() << "monitor content scale: " << scale.x << "x" << scale.y;
 
-    input_util::initialize();
-
-    for (int i = 0; i <= static_cast<int>(CursorShape::LAST); i++) {
-        int cursor = GLFW_ARROW_CURSOR + i;
-        // GLFW 3.3 does not support some cursors
-        if (GLFW_VERSION_MAJOR <= 3 && GLFW_VERSION_MINOR <= 3 && cursor > GLFW_VRESIZE_CURSOR) {
-            break;
-        }
-        standard_cursors[i] = glfwCreateStandardCursor(cursor);
+    if (initialize_gl(width, height)) {
+        glfwTerminate();
+        return {nullptr, nullptr};
     }
+
     auto inputPtr = std::make_unique<GLFWInput>(window);
     auto windowPtr = std::make_unique<GLFWWindow>(
         *inputPtr, window, settings, width, height

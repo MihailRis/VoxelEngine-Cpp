@@ -7,7 +7,7 @@
 #include "graphics/core/Cubemap.hpp"
 #include "graphics/core/Framebuffer.hpp"
 #include "graphics/core/DrawContext.hpp"
-#include "window/display.hpp"
+#include "window/Window.hpp"
 #include "window/Camera.hpp"
 #include "maths/UVRegion.hpp"
 

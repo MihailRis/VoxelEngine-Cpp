@@ -7,7 +7,7 @@
 #include "graphics/core/Texture.hpp"
 #include "assets/Assets.hpp"
 #include "maths/UVRegion.hpp"
-#include "window/display.hpp"
+#include "window/Window.hpp"
 #include "window/Camera.hpp"
 #include "engine/Engine.hpp"
 

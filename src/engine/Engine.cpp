@@ -35,7 +35,7 @@
 #include "util/platform.hpp"
 #include "window/Camera.hpp"
 #include "window/input.hpp"
-#include "window/display.hpp"
+#include "window/Window.hpp"
 #include "world/Level.hpp"
 #include "Mainloop.hpp"
 #include "ServerMainloop.hpp"
@@ -95,7 +95,13 @@ void Engine::initialize(CoreParameters coreParameters) {
 
     controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
-        auto [window, input] = display::initialize(&settings.display);
+        std::string title = "VoxelCore v" +
+                            std::to_string(ENGINE_VERSION_MAJOR) + "." +
+                            std::to_string(ENGINE_VERSION_MINOR);
+        if (ENGINE_DEBUG_BUILD) {
+            title += " [debug]";
+        }
+        auto [window, input] = Window::initialize(&settings.display, title);
         if (!window || !input){
             throw initialize_error("could not initialize window");
         }

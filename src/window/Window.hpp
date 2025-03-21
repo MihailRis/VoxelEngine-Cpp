@@ -44,16 +44,16 @@ public:
     const glm::ivec2& getSize() const {
         return size;
     }
+
+    static std::tuple<
+        std::unique_ptr<Window>,
+        std::unique_ptr<Input>
+    > initialize(DisplaySettings* settings, std::string title);
 protected:
     glm::ivec2 size;
 };
 
 namespace display {
-    std::tuple<
-        std::unique_ptr<Window>,
-        std::unique_ptr<Input>
-    > initialize(DisplaySettings* settings);
-
     void clear();
     void clearDepth();
     void setBgColor(glm::vec3 color);
