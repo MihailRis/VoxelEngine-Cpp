@@ -42,6 +42,7 @@ namespace gui {
         virtual int getScrollStep() const;
         virtual void setScrollStep(int step);
         virtual void refresh() override;
+        void setScroll(int scroll);
 
         virtual void mouseMove(GUI*, int x, int y) override;
         virtual void mouseRelease(GUI*, int x, int y) override;

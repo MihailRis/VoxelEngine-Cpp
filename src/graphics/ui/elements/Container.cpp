@@ -226,6 +226,10 @@ void Container::refresh() {
     });
 }
 
+void Container::setScroll(int scroll) {
+    this->scroll = scroll;
+}
+
 const std::vector<std::shared_ptr<UINode>>& Container::getNodes() const {
     return nodes;
 }
