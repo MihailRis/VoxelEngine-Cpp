@@ -8,7 +8,7 @@
 #include "ContentPack.hpp"
 
 class Content;
-struct ContentPack;
+class PacksManager;
 class EnginePaths;
 class Input;
 
@@ -36,14 +36,16 @@ public:
 
     void loadContent();
 
-    std::vector<io::path> getDefaultSources();
     std::vector<ContentPack>& getContentPacks();
     std::vector<ContentPack> getAllContentPacks();
+
+    PacksManager& scan();
 private:
     EnginePaths& paths;
     Input& input;
     std::unique_ptr<Content> content;
     std::function<void()> postContent;
     std::vector<std::string> basePacks;
+    std::unique_ptr<PacksManager> manager;
     std::vector<ContentPack> contentPacks;
 };

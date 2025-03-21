@@ -324,12 +324,10 @@ void EngineController::reconfigPacks(
         }
     }
 
-    runnable removeFunc = [this, controller, packsToAdd, packsToRemove]() {
+    runnable removeFunc = [this, controller, packsToAdd, packsToRemove, &contentControl]() {
+        auto& manager = contentControl.scan();
         if (controller == nullptr) {
             try {
-                PacksManager manager;
-                manager.setSources(engine.getContentControl().getDefaultSources());
-                manager.scan();
                 auto names = PacksManager::getNames(
                     engine.getContentControl().getContentPacks()
                 );
@@ -351,10 +349,6 @@ void EngineController::reconfigPacks(
             auto world = controller->getLevel()->getWorld();
             auto& wfile = *world->wfile;
             controller->saveWorld();
-
-            PacksManager manager;
-            manager.setSources(engine.getContentControl().getDefaultSources());
-            manager.scan();
 
             auto names = PacksManager::getNames(world->getPacks());
             for (const auto& id : packsToAdd) {

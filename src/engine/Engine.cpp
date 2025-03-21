@@ -133,16 +133,14 @@ void Engine::initialize(CoreParameters coreParameters) {
 
     bool langNotSet = settings.ui.language.get() == "auto";
     if (langNotSet) {
-        settings.ui.language.set(langs::locale_by_envlocale(
-            platform::detect_locale(),
-            "res:"
-        ));
+        settings.ui.language.set(
+            langs::locale_by_envlocale(platform::detect_locale())
+        );
     }
     content = std::make_unique<ContentControl>(paths, *input, [this]() {
-        langs::setup("res:", langs::get_current(), paths.resPaths.collectRoots());
+        langs::setup(langs::get_current(), paths.resPaths.collectRoots());
         if (!isHeadless()) {
             loadAssets();
-            onAssetsLoaded();
         }
     });
     scripting::initialize(this);
@@ -150,7 +148,7 @@ void Engine::initialize(CoreParameters coreParameters) {
         gui->setPageLoader(scripting::create_page_loader());
     }
     keepAlive(settings.ui.language.observe([this](auto lang) {
-        setLanguage(lang);
+        langs::setup(lang, paths.resPaths.collectRoots());
     }, true));
 }
 
@@ -177,11 +175,6 @@ void Engine::loadControls() {
             toml::parse(controls_file.string(), text), BindType::BIND
         );
     }
-}
-
-void Engine::onAssetsLoaded() {
-    assets->setup();
-    gui->onAssetsLoad(assets.get());
 }
 
 void Engine::updateHotkeys() {
@@ -319,6 +312,9 @@ void Engine::loadAssets() {
     if (content) {
         ModelsGenerator::prepare(*content, *assets);
     }
+
+    assets->setup();
+    gui->onAssetsLoad(assets.get());
 }
 
 void Engine::setScreen(std::shared_ptr<Screen> screen) {
@@ -326,10 +322,6 @@ void Engine::setScreen(std::shared_ptr<Screen> screen) {
     audio::reset_channel(audio::get_channel_index("regular"));
     audio::reset_channel(audio::get_channel_index("ambient"));
     this->screen = std::move(screen);
-}
-
-void Engine::setLanguage(std::string locale) {
-    langs::setup("res:", std::move(locale), paths.resPaths.collectRoots());
 }
 
 void Engine::onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer) {

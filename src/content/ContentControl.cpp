@@ -30,7 +30,13 @@ ContentControl::ContentControl(
     : paths(paths),
       input(input),
       postContent(std::move(postContent)),
-      basePacks(io::read_list("res:config/builtins.list")) {
+      basePacks(io::read_list("res:config/builtins.list")),
+      manager(std::make_unique<PacksManager>()) {
+    manager->setSources({
+        "world:content",
+        "user:content",
+        "res:content",
+    });
 }
 
 ContentControl::~ContentControl() = default;
@@ -57,29 +63,22 @@ void ContentControl::resetContent() {
         resRoots.push_back({"core", pack.folder});
         load_configs(input, pack.folder);
     }
-    PacksManager manager;
-    manager.setSources({
-        "user:content",
-        "res:content",
-    });
-    manager.scan();
-    for (const auto& pack : manager.getAll(basePacks)) {
+    manager->scan();
+    for (const auto& pack : manager->getAll(basePacks)) {
         resRoots.push_back({pack.id, pack.folder});
     }
     paths.resPaths = ResPaths(resRoots);
     content.reset();
 
     contentPacks.clear();
-    contentPacks = manager.getAll(basePacks);
+    contentPacks = manager->getAll(basePacks);
 
     postContent();
 }
 
 void ContentControl::loadContent(const std::vector<std::string>& names) {
-    PacksManager manager;
-    manager.setSources(getDefaultSources());
-    manager.scan();
-    contentPacks = manager.getAll(manager.assemble(names));
+    manager->scan();
+    contentPacks = manager->getAll(manager->assemble(names));
     loadContent();
 }
 
@@ -90,12 +89,9 @@ void ContentControl::loadContent() {
     for (auto& pack : contentPacks) {
         names.push_back(pack.id);
     }
-
-    PacksManager manager;
-    manager.setSources(getDefaultSources());
-    manager.scan();
-    names = manager.assemble(names);
-    contentPacks = manager.getAll(names);
+    manager->scan();
+    names = manager->assemble(names);
+    contentPacks = manager->getAll(names);
 
     std::vector<PathsRoot> entryPoints;
     for (auto& pack : contentPacks) {
@@ -130,14 +126,6 @@ void ContentControl::loadContent() {
     postContent();
 }
 
-std::vector<io::path> ContentControl::getDefaultSources() {
-    return {
-        "world:content",
-        "user:content",
-        "res:content",
-    };
-}
-
 std::vector<ContentPack>& ContentControl::getContentPacks() {
     return contentPacks;
 }
@@ -146,4 +134,9 @@ std::vector<ContentPack> ContentControl::getAllContentPacks() {
     auto packs = contentPacks;
     packs.insert(packs.begin(), ContentPack::createCore(paths));
     return packs;
+}
+
+PacksManager& ContentControl::scan() {
+    manager->scan();
+    return *manager;
 }

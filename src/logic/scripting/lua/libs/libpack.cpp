@@ -45,10 +45,7 @@ static int l_pack_get_installed(lua::State* L) {
 
 /// @brief pack.get_available() -> array<string>
 static int l_pack_get_available(lua::State* L) {
-    PacksManager manager;
-    manager.setSources(content_control->getDefaultSources());
-    manager.scan();
-
+    auto& manager = content_control->scan();
     const auto& installed = content_control->getContentPacks();
     for (auto& pack : installed) {
         manager.exclude(pack.id);
@@ -83,7 +80,7 @@ static int l_pack_get_info(
     lua::pushstring(L, pack.version);
     lua::setfield(L, "version");
 
-    lua::pushstring(L, pack.path);
+    lua::pushstring(L, pack.folder.string());
     lua::setfield(L, "path");
 
     if (!engine->isHeadless()) {
@@ -147,9 +144,7 @@ static int pack_get_infos(lua::State* L) {
         }
     }
     if (!ids.empty()) {
-        PacksManager manager;
-        manager.setSources(content_control->getDefaultSources());
-        manager.scan();
+        auto& manager = content_control->scan();
         auto vec =
             manager.getAll(std::vector<std::string>(ids.begin(), ids.end()));
         for (const auto& pack : vec) {
@@ -185,13 +180,7 @@ static int l_pack_get_info(lua::State* L) {
             return pack.id == packid;
         });
     if (found == packs.end()) {
-        io::path worldFolder;
-        if (level) {
-            worldFolder = level->getWorld()->wfile->getFolder();
-        }
-        PacksManager manager;
-        manager.setSources(content_control->getDefaultSources());
-        manager.scan();
+        auto& manager = content_control->scan();
         auto vec = manager.getAll({packid});
         if (!vec.empty()) {
             return l_pack_get_info(L, vec[0], content);
@@ -223,13 +212,7 @@ static int l_pack_assemble(lua::State* L) {
         ids.push_back(lua::require_string(L, -1));
         lua::pop(L);
     }
-    io::path worldFolder;
-    if (level) {
-        worldFolder = level->getWorld()->wfile->getFolder();
-    }
-    PacksManager manager;
-    manager.setSources(content_control->getDefaultSources());
-    manager.scan();
+    auto& manager = content_control->scan();
     try {
         ids = manager.assemble(ids);
     } catch (const contentpack_error& err) {

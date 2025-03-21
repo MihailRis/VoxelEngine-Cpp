@@ -39,9 +39,7 @@ namespace langs {
         std::string name;
     };
 
-    std::string locale_by_envlocale(
-        const std::string& envlocale, const io::path& resdir
-    );
+    std::string locale_by_envlocale(const std::string& envlocale);
 
     const std::string& get_current();
     const std::unordered_map<std::string, LocaleInfo>& get_locales_info();
@@ -51,9 +49,7 @@ namespace langs {
         const std::wstring& key, const std::wstring& context
     );
 
-    void setup(
-        const io::path& resdir,
-        std::string locale,
-        const std::vector<io::path>& roots
-    );
+    /// @brief Change locale to specified
+    /// @param locale isolanguage_ISOCOUNTRY (example: en_US)
+    void setup(std::string locale, const std::vector<io::path>& roots);
 }

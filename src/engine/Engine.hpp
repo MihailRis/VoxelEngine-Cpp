@@ -17,12 +17,8 @@ class Window;
 class Assets;
 class Level;
 class Screen;
-class EnginePaths;
-class ResPaths;
 class ContentControl;
 class EngineController;
-class SettingsHandler;
-struct EngineSettings;
 class Input;
 
 namespace gui {
@@ -96,9 +92,6 @@ public:
     void updateFrontend();
     void renderFrame();
     void nextFrame();
-
-    /// @brief Called after assets loading when all engine systems are initialized
-    void onAssetsLoaded();
     
     /// @brief Set screen (scene).
     /// nullptr may be used to delete previous screen before creating new one,
@@ -106,10 +99,6 @@ public:
     /// @param screen nullable screen
     void setScreen(std::shared_ptr<Screen> screen);
     
-    /// @brief Change locale to specified
-    /// @param locale isolanguage_ISOCOUNTRY (example: en_US)
-    void setLanguage(std::string locale);
-
     /// @brief Get active assets storage instance
     Assets* getAssets();
 
