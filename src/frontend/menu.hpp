@@ -32,5 +32,5 @@ namespace menus {
         const std::wstring& text = L""
     );
 
-    bool call(Engine& engine, runnable func);
+    void call(Engine& engine, runnable func);
 }

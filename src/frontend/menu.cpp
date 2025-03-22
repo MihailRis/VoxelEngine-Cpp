@@ -32,13 +32,12 @@ void menus::create_version_label(gui::GUI& gui) {
     ));
 }
 
-bool menus::call(Engine& engine, runnable func) {
+void menus::call(Engine& engine, runnable func) {
     if (engine.isHeadless()) {
         throw std::runtime_error("menus::call(...) in headless mode");
     }
     try {
         func();
-        return true;
     } catch (const contentpack_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         // could not to find or read pack
@@ -47,7 +46,7 @@ bool menus::call(Engine& engine, runnable func) {
             langs::get(L"error.pack-not-found") + L": " +
                 util::str2wstr_utf8(error.getPackId())
         );
-        return false;
+        throw std::runtime_error(error);
     } catch (const assetload::error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
@@ -55,11 +54,11 @@ bool menus::call(Engine& engine, runnable func) {
             langs::get(L"Assets Load Error", L"menu") + L":\n" +
             util::str2wstr_utf8(error.what())
         );
-        return false;
+        throw std::runtime_error(error);
     } catch (const parsing_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(engine, util::str2wstr_utf8(error.errorLog()));
-        return false;
+        throw std::runtime_error(error);
     } catch (const std::runtime_error& error) {
         engine.setScreen(std::make_shared<MenuScreen>(engine));
         guiutil::alert(
@@ -67,7 +66,7 @@ bool menus::call(Engine& engine, runnable func) {
             langs::get(L"Content Error", L"menu") + L":\n" +
             util::str2wstr_utf8(error.what())
         );
-        return false;
+        throw std::runtime_error(error);
     }
 }
 

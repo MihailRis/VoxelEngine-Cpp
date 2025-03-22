@@ -38,8 +38,6 @@ public:
 
     const model::Model& getModel(blockid_t id) const;
 
-    const Content* getContent() const;
-
     void refresh(const Block& block, const Atlas& atlas);
 
     void refresh();
