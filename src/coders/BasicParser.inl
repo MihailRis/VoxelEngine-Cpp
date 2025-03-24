@@ -283,8 +283,11 @@ std::basic_string_view<CharT> BasicParser<CharT>::readUntilWhitespace() {
 template <typename CharT>
 std::basic_string_view<CharT> BasicParser<CharT>::readUntilEOL() {
     int start = pos;
-    while (hasNext() && source[pos] != '\r' && source[pos] != '\n') {
+    while (hasNext() && source[pos] != '\n') {
         pos++;
+    }
+    if (pos > start && source[pos - 1] == '\r') {
+        return source.substr(start, pos - start - 1);
     }
     return source.substr(start, pos - start);
 }
