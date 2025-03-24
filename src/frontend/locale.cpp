@@ -40,18 +40,10 @@ const std::string& langs::Lang::getId() const {
 /// @brief Language key-value txt files parser
 namespace {
     class Reader : BasicParser<char> {
-        void skipWhitespace() override {
-            BasicParser::skipWhitespace();
-            if (hasNext() && source[pos] == '#') {
-                skipLine();
-                if (hasNext() && is_whitespace(peek())) {
-                    skipWhitespace();
-                }
-            }
-        }
     public:
         Reader(std::string_view file, std::string_view source)
             : BasicParser(file, source) {
+            hashComment = true;
         }
 
         void read(langs::Lang& lang, const std::string &prefix) {
