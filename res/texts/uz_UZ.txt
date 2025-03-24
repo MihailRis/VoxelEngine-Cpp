@@ -12,12 +12,12 @@ Dependencies=Bog'liqliklar
 Description=Tavsif
 Converting world...=Dunyo konvertatsiya qilinmoqda...
 Unlimited=Cheksiz
-Chat=Suhbat
+Chat=Chat
 Console=Konsol
 Log=Log
 Problems=Muammolar
 Monitor=Monitoring
-Debug=Nosozliklarni tuzatish
+Debug=Tuzatish
 File=Fayl
 Read only=Только для чтения
 Save=Saqlash
@@ -27,7 +27,7 @@ Run=Ishga tushirish
 
 editor.info.tooltip=CTRL+S - Saqlash\nCTRL+R - Ishga tushirish\nCTRL+Z - Bekor qilish\nCTRL+Y - Qayta bajarish
 devtools.traceback=Chaqiruvlar steki (so`nggisidan boshlab)
-devtools.output=Chiqarish
+devtools.output=Natija(Output)
 
 error.pack-not-found=Paketni topib bo'lmadi
 error.dependency-not-found=Amaldagi qaramliklar topilmadi
