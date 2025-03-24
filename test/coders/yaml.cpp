@@ -14,7 +14,7 @@ TEST(YAML, EncodeDecode) {
     auto filename = "root:.github/workflows/windows-clang.yml";
     try {
         auto value = yaml::parse(io::read_string(filename));
-        std::cout << json::stringify(value, true) << std::endl;
+        std::cout << yaml::stringify(value) << std::endl;
     } catch (const parsing_error& error) {
         std::cerr << error.errorLog() << std::endl;
         throw error;

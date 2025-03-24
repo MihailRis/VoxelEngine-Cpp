@@ -1,6 +1,8 @@
 #include "yaml.hpp"
 #include "BasicParser.hpp"
 
+#include <iomanip>
+
 using namespace yaml;
 
 namespace {
@@ -315,4 +317,143 @@ dv::value yaml::parse(std::string_view filename, std::string_view source) {
 
 dv::value yaml::parse(std::string_view source) {
     return parse("[string]", source);
+}
+
+static void add_indent(std::stringstream& ss, int indent) {
+    for (int i = 0; i < indent; i++) {
+        ss << "  ";
+    }
+}
+
+static void insert_string(
+    std::stringstream& ss, const std::string& string, int indent
+) {
+    bool has_spec_chars = false;
+    bool multiline = false;
+    for (char c : string) {
+        if (c < ' ' || c == '"' || c == '\'') {
+            has_spec_chars = true;
+            if (multiline) {
+                break;
+            }
+        }
+        if (c == '\n') {
+            multiline = true;
+            break;
+        }
+    }
+    if (multiline) {
+        ss << "|-\n";
+        size_t offset = 0;
+        size_t newoffset = 0;
+
+        do {
+            offset = newoffset;
+            if (offset == string.length() - 1 && string[offset] == '\n') {
+                break;
+            }
+            add_indent(ss, indent);
+            newoffset = string.find('\n', offset + 1);
+            if (newoffset == std::string::npos) {
+                ss << string.substr(offset);
+                break;
+            } else {
+                ss << string.substr(offset + 1, newoffset - offset - 1);
+            }
+            ss << '\n';
+        } while (true);
+    } else {
+        if (has_spec_chars || string.empty()) {
+            ss << util::escape(string, false);
+        } else {
+            ss << string;
+        }
+    }
+}
+
+static void to_string(
+    std::stringstream& ss,
+    const dv::value& value,
+    int indent,
+    bool eliminateIndent = false
+) {
+    using dv::value_type;
+
+    switch (value.getType()) {
+        case value_type::string:
+            insert_string(ss, value.asString(), indent);
+            break;
+        case value_type::number:
+            ss << std::setprecision(15) << value.asNumber();
+            break;
+        case value_type::integer:
+            ss << value.asInteger();
+            break;
+        case value_type::boolean:
+            ss << (value.asBoolean() ? "true" : "false");
+            break;
+        case value_type::none:
+            ss << "null";
+            break;
+        case value_type::object: {
+            if (value.empty()) {
+                ss << "{}";
+                break;
+            }
+            bool first = true;
+            for (const auto& [key, elem] : value.asObject()) {
+                if (!first) {
+                    ss << '\n';   
+                }
+                if (!eliminateIndent) {
+                    add_indent(ss, indent);
+                } else {
+                    eliminateIndent = false;
+                }
+                ss << key << ": ";
+                if ((elem.isObject() || elem.isList()) && !elem.empty()) {
+                    ss << "\n";
+                    to_string(ss, elem, indent + 1);
+                } else {
+                    to_string(ss, elem, indent + 1);
+                }
+                first = false;
+            }
+            break;
+        }
+        case value_type::list: {
+            if (value.empty()) {
+                ss << "[]";
+                break;
+            }
+            bool first = true;
+            for (const auto& elem : value) {
+                if (!first) {
+                    ss << '\n';   
+                }
+                if (!eliminateIndent) {
+                    add_indent(ss, indent);
+                } else {
+                    eliminateIndent = false;
+                }
+                ss << "- ";
+                to_string(ss, elem, indent + 1, true);
+                first = false;
+            }
+            break;
+        }
+        case value_type::bytes: {
+            const auto& bytes = value.asBytes();
+            auto b64 = util::base64_encode(bytes.data(), bytes.size());
+            b64 = util::join(util::split_by_n(b64, 64), '\n');
+            insert_string(ss, b64, indent);
+            break;
+        }
+    }
+}
+
+std::string yaml::stringify(const dv::value& value) {
+    std::stringstream ss;
+    to_string(ss, value, 0);
+    return ss.str();
 }
