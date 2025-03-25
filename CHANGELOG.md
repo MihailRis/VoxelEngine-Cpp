@@ -1,4 +1,4 @@
-# 0.27 - 2025.03.??
+# 0.27 - 2025.03.25
 
 [Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.27/doc/en/main-page.md) for 0.27
 
@@ -18,13 +18,15 @@ Table of contents:
 - history in textbox
 - reloading content scripts within the editor
 - libraries:
-	- gfx.weather
+    - gfx.weather
 - [add side mouse buttons](https://github.com/MihailRis/VoxelEngine-Cpp/pull/461)
 - item properties:
-	- uses
-	- uses-display
+    - uses
+    - uses-display
 - textbox attributes:
-	- oncontrolkey
+    - oncontrolkey
+- container attributes:
+    - scroll
 - multiline tooltips suppoirt
 - ['@' prefix support in tooltips](https://github.com/MihailRis/VoxelEngine-Cpp/commit/fa990e393986aad07e9fb9a570338b08fd4f9a0c)
 
@@ -106,3 +108,4 @@ Methods:
 - [fix syntax highlighting unicode support](https://github.com/MihailRis/VoxelEngine-Cpp/pull/475)
 - [fix reading binary file as string](https://github.com/MihailRis/VoxelEngine-Cpp/commit/104cc116456aba6e569892521ecae92d8bf6b9ff)
 - [fix inventory.move_range](https://github.com/MihailRis/VoxelEngine-Cpp/commit/f5a4b5ca79806418b0736d3f84e9efa8d9992a34)
+- [fix: multiline text draw is not limited to the render area](https://github.com/MihailRis/VoxelEngine-Cpp/commit/a8067ad9d634cb3fc4632378277d62b32e4afb15)
