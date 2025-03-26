@@ -12,15 +12,23 @@ Dependencies=Bog'liqliklar
 Description=Tavsif
 Converting world...=Dunyo konvertatsiya qilinmoqda...
 Unlimited=Cheksiz
-Chat=Suhbat
+Chat=Chat
 Console=Konsol
-Log=log
+Log=Log
 Problems=Muammolar
 Monitor=Monitoring
-Debug=Debug
+Debug=Tuzatish
 File=Fayl
+Read only="Faqat o‘qish uchun
+Save=Saqlash
+Grant %{0} pack modification permission?=%{0} to‘plamini o‘zgartirish ruxsatini berilsinmi?
+Error at line %{0}=%{0}-qatorida xatolik
+Run=Ishga tushirish
 
+editor.info.tooltip=CTRL+S - Saqlash\nCTRL+R - Ishga tushirish\nCTRL+Z - Bekor qilish\nCTRL+Y - Qayta bajarish
 devtools.traceback=Chaqiruvlar steki (so`nggisidan boshlab)
+devtools.output=Natija(Output)
+
 error.pack-not-found=Paketni topib bo'lmadi
 error.dependency-not-found=Amaldagi qaramliklar topilmadi
 pack.remove-confirm=Paketlar bilan taqdim etilgan barcha contentni dunyodan olib tashlash (qaytarib bo'lmaydi)?
@@ -28,11 +36,13 @@ pack.remove-confirm=Paketlar bilan taqdim etilgan barcha contentni dunyodan olib
 # Maslahatlar
 graphics.gamma.tooltip=Yorug'lik yorqinligi egri chizig'i
 graphics.backlight.tooltip=To'liq zulmatni oldini oladigan orqa yorug'ligi
+graphics.dense-render.tooltip=Bloklar, masalan, barglar uchun shaffoflikni yoqadi.
 
 # Menyu
 menu.Apply=Qo'llash
 menu.Audio=Tovush
 menu.Back to Main Menu=Menyuga qaytish
+menu.Scripts=Ssenariylar
 menu.Content Error=Kontent Xatosi
 menu.Content=Kontent
 menu.Continue=Davom ettirish
@@ -67,6 +77,7 @@ world.delete-confirm=Dunyoni doimiy o'chirasizmi?
 # Sozlamalar
 settings.Ambient=Fon
 settings.Backlight=Yoritish
+settings.Dense blocks render=Bloklarning zich render qilinishi
 settings.Camera Shaking=Kamera titrashi
 settings.Camera Inertia=Kamera inertsiyasi
 settings.Camera FOV Effects=Ko'rish maydoni effektlari
@@ -100,6 +111,7 @@ movement.sprint=Tez yugurish
 movement.crouch=Egilish
 movement.cheat=Hiyla (Chit)
 hud.inventory=Inventar
+hud.chat=Chat
 player.pick=Blokni olish
 player.attack=Hujum qilish
 player.destroy=Sindirish
