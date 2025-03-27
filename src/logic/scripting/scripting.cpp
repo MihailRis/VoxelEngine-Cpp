@@ -549,6 +549,7 @@ void scripting::on_entity_spawn(
     const dv::value& saved
 ) {
     auto L = lua::get_main_state();
+    lua::stackguard guard(L);
     lua::requireglobal(L, STDCOMP);
     if (lua::getfield(L, "new_Entity")) {
         lua::pushinteger(L, eid);

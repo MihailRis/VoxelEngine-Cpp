@@ -63,8 +63,10 @@ static int l_spawn(lua::State* L) {
     if (lua::gettop(L) > 2) {
         args = lua::tovalue(L, 3);
     }
-    level->entities->spawn(def, pos, std::move(args));
-    return 1;
+    entityid_t id = level->entities->spawn(def, pos, std::move(args));
+    lua::get_from(L, "entities", "get", true);
+    lua::pushinteger(L, id);
+    return lua::call_nothrow(L, 1);
 }
 
 static int l_despawn(lua::State* L) {
