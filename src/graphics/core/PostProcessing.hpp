@@ -1,12 +1,23 @@
 #pragma once
 
 #include <memory>
+#include <glm/glm.hpp>
+#include "MeshData.hpp"
 
-class Mesh;
+template<typename VertexStructure> class Mesh;
 class Shader;
 class Framebuffer;
 class DrawContext;
 class ImageData;
+
+struct PostProcessingVertex {
+    glm::vec2 position;
+
+    static constexpr VertexAttribute ATTRIBUTES[] {
+            {GL_FLOAT,false,2},
+            {0}
+    };
+};
 
 /// @brief Framebuffer with blitting with shaders.
 /// @attention Current implementation does not support multiple render passes 
@@ -15,7 +26,7 @@ class PostProcessing {
     /// @brief Main framebuffer (lasy field)
     std::unique_ptr<Framebuffer> fbo;
     /// @brief Fullscreen quad mesh as the post-processing canvas
-    std::unique_ptr<Mesh> quadMesh;
+    std::unique_ptr<Mesh<PostProcessingVertex>> quadMesh;
 public:
     PostProcessing();
     ~PostProcessing();

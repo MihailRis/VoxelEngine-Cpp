@@ -2,7 +2,7 @@
 
 layout (location = 0) in vec3 v_position;
 layout (location = 1) in vec2 v_texCoord;
-layout (location = 2) in float v_light;
+layout (location = 2) in vec4 v_light;
 
 out vec4 a_color;
 out vec2 a_texCoord;
@@ -27,13 +27,13 @@ uniform vec3 u_torchlightColor;
 uniform float u_torchlightDistance;
 
 void main() {
-    vec4 modelpos = u_model * vec4(v_position, 1.0);
+    vec4 modelpos = u_model * vec4(v_position, 1.0f);
     vec3 pos3d = modelpos.xyz-u_cameraPos;
     modelpos.xyz = apply_planet_curvature(modelpos.xyz, pos3d);
 
-    vec4 decomp_light = decompress_light(v_light);
+    vec4 decomp_light = v_light;
     vec3 light = decomp_light.rgb;
-    float torchlight = max(0.0, 1.0-distance(u_cameraPos, modelpos.xyz) / 
+    float torchlight = max(0.0, 1.0-distance(u_cameraPos, modelpos.xyz) /
                        u_torchlightDistance);
     light += torchlight * u_torchlightColor;
     a_color = vec4(pow(light, vec3(u_gamma)),1.0f);

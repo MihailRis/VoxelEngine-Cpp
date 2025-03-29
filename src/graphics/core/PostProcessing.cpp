@@ -7,15 +7,20 @@
 #include "DrawContext.hpp"
 
 #include <stdexcept>
+#include <GL/glew.h>
 
 PostProcessing::PostProcessing() {
-    // Fullscreen quad mesh bulding
-    float vertices[] {
-        -1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f,  1.0f, 1.0f, 1.0f, -1.0f
+    // Fullscreen quad mesh buiding
+    PostProcessingVertex meshData[]{
+        {{-1.0f, -1.0f}},
+        {{-1.0f, 1.0f}},
+        {{1.0f, 1.0f}},
+        {{-1.0f, -1.0f}},
+        {{1.0f, 1.0f}},
+        {{1.0f, -1.0f}},
     };
-    VertexAttribute attrs[] {{2}, {0}};
-    quadMesh = std::make_unique<Mesh>(vertices, 6, attrs);
+
+    quadMesh = std::make_unique<Mesh<PostProcessingVertex>>(meshData, 6, PostProcessingVertex::ATTRIBUTES);
 }
 
 PostProcessing::~PostProcessing() = default;
