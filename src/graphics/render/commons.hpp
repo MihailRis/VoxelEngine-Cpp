@@ -12,7 +12,6 @@
 
 
 /// @brief Chunk mesh vertex format
-#pragma pack(push, 2)
 struct ChunkVertex {
     glm::vec3 position;
     glm::vec2 uv;
@@ -25,7 +24,6 @@ struct ChunkVertex {
             {0}
     };
 };
-#pragma pack(pop)
 
 /// @brief Chunk mesh vertex attributes
 
