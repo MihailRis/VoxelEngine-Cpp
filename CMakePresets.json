@@ -56,6 +56,11 @@
             "configuration": "Release"
         },
         {
+            "name": "default-vs-msvc-windows",
+            "configurePreset": "default-vs-msvc-windows",
+            "configuration": "Debug"
+        },
+        {
             "name": "default-ninja-gnu-linux",
             "configurePreset": "default-ninja-gnu-linux",
             "configuration": "Debug"
