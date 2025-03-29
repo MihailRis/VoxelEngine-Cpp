@@ -31,8 +31,7 @@ void main() {
     vec3 pos3d = modelpos.xyz-u_cameraPos;
     modelpos.xyz = apply_planet_curvature(modelpos.xyz, pos3d);
 
-    vec4 decomp_light = v_light;
-    vec3 light = decomp_light.rgb;
+    vec3 light = v_light.rgb;
     float torchlight = max(0.0, 1.0-distance(u_cameraPos, modelpos.xyz) /
                        u_torchlightDistance);
     light += torchlight * u_torchlightColor;
@@ -41,7 +40,7 @@ void main() {
 
     a_dir = modelpos.xyz - u_cameraPos;
     vec3 skyLightColor = pick_sky_color(u_cubemap);
-    a_color.rgb = max(a_color.rgb, skyLightColor.rgb*decomp_light.a);
+    a_color.rgb = max(a_color.rgb, skyLightColor.rgb*v_light.a);
 
     a_distance = length(u_view * u_model * vec4(pos3d * FOG_POS_SCALE, 0.0));
     float depth = (a_distance / 256.0);
