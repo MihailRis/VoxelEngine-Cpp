@@ -10,6 +10,9 @@
 
 #include "typedefs.hpp"
 
+#include "presets/WeatherPreset.hpp"
+#include "world/Weather.hpp"
+
 class Level;
 class Player;
 class Camera;
@@ -18,6 +21,7 @@ class LineBatch;
 class ChunksRenderer;
 class ParticlesRenderer;
 class BlockWrapsRenderer;
+class PrecipitationRenderer;
 class GuidesRenderer;
 class TextsRenderer;
 class Shader;
@@ -39,10 +43,11 @@ class WorldRenderer {
     std::unique_ptr<Frustum> frustumCulling;
     std::unique_ptr<LineBatch> lineBatch;
     std::unique_ptr<Batch3D> batch3d;
-    std::unique_ptr<ChunksRenderer> chunks;
-    std::unique_ptr<GuidesRenderer> guides;
-    std::unique_ptr<Skybox> skybox;
     std::unique_ptr<ModelBatch> modelBatch;
+    std::unique_ptr<GuidesRenderer> guides;
+    std::unique_ptr<ChunksRenderer> chunks;
+    std::unique_ptr<Skybox> skybox;
+    Weather weather {};
     
     float timer = 0.0f;
     bool debug = false;
@@ -68,9 +73,10 @@ class WorldRenderer {
         float fogFactor
     );
 public:
-    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<ParticlesRenderer> particles;
+    std::unique_ptr<TextsRenderer> texts;
     std::unique_ptr<BlockWrapsRenderer> blockWraps;
+    std::unique_ptr<PrecipitationRenderer> precipitation;
 
     static bool showChunkBorders;
     static bool showEntitiesDebug;
@@ -84,7 +90,7 @@ public:
         bool hudVisible,
         bool pause,
         float delta,
-        PostProcessing* postProcessing
+        PostProcessing& postProcessing
     );
 
     /// @brief Render level without diegetic interface
@@ -103,4 +109,6 @@ public:
     void clear();
 
     void setDebug(bool flag);
+
+    Weather& getWeather();
 };

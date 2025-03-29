@@ -17,6 +17,12 @@ namespace scripting {
         const std::string& file = "[string]"
     );
 
+    key_handler create_key_handler(
+        const scriptenv& env,
+        const std::string& src,
+        const std::string& file = "[string]"
+    );
+
     wstringconsumer create_wstring_consumer(
         const scriptenv& env,
         const std::string& src,

@@ -11,7 +11,9 @@ world.delete-confirm=Do you want to delete world forever?
 world.generators.default=Default
 world.generators.flat=Flat
 
+editor.info.tooltip=CTRL+S - Save\nCTRL+R - Run\nCTRL+Z - Undo\nCTRL+Y - Redo
 devtools.traceback=Traceback (most recent call first)
+devtools.output=Output
 
 # Tooltips
 graphics.gamma.tooltip=Lighting brightness curve
@@ -33,6 +35,7 @@ movement.sprint=Sprint
 movement.crouch=Crouch
 movement.cheat=Cheat
 hud.inventory=Inventory
+hud.chat=Chat
 player.pick=Pick Block
 player.attack=Attack
 player.destroy=Destroy

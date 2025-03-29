@@ -27,4 +27,7 @@ item.model_name(itemid: int) -> str
 
 -- Returns item emission property value
 item.emission(itemid: int) -> str
+
+-- Returns the value of the `uses` property
+item.uses(itemid: int) -> int
 ```

@@ -63,7 +63,7 @@ namespace gui {
     };
 
     /// @brief Base abstract class for all UI elements
-    class UINode {
+    class UINode : public std::enable_shared_from_this<UINode> {
         /// @brief element identifier used for direct access in UiDocument
         std::string id = "";
         /// @brief element enabled state
@@ -75,6 +75,8 @@ namespace gui {
         glm::vec2 size;
         /// @brief minimal element size
         glm::vec2 minSize {1.0f};
+        /// @brief maximal element size
+        glm::vec2 maxSize {1e6f};
         /// @brief element primary color (background-color or text-color if label)
         glm::vec4 color {1.0f};
         /// @brief element color when mouse is over it
@@ -193,7 +195,7 @@ namespace gui {
         /// @param pos cursor screen position
         /// @param self shared pointer to element
         /// @return self, sub-element or nullptr if element is not interractive
-        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos, const std::shared_ptr<UINode>& self);
+        virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos);
 
         /// @brief Check if element is opaque for cursor
         virtual bool isInteractive() const;
@@ -224,6 +226,8 @@ namespace gui {
         virtual void setSize(glm::vec2 size);
         virtual glm::vec2 getMinSize() const;
         virtual void setMinSize(glm::vec2 size);
+        virtual glm::vec2 getMaxSize() const;
+        virtual void setMaxSize(glm::vec2 size);
         /// @brief Called in containers when new element added
         virtual void refresh() {};
         virtual void fullRefresh() {
@@ -246,7 +250,7 @@ namespace gui {
         const std::string& getId() const;
 
         /// @brief Fetch pos from positionfunc if assigned
-        void reposition();
+        virtual void reposition();
 
         virtual void setGravity(Gravity gravity);
 

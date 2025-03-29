@@ -3,6 +3,7 @@
 #include "engine/Engine.hpp"
 #include "frontend/locale.hpp"
 #include "graphics/ui/elements/Button.hpp"
+#include "graphics/ui/elements/Canvas.hpp"
 #include "graphics/ui/elements/CheckBox.hpp"
 #include "graphics/ui/elements/Image.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
@@ -95,9 +96,15 @@ static int l_node_destruct(lua::State* L) {
     engine->getGUI()->postRunnable([node]() {
         auto parent = node->getParent();
         if (auto container = dynamic_cast<Container*>(parent)) {
-            container->remove(node);
+            container->remove(node.get());
         }
     });
+    return 0;
+}
+
+static int l_node_reposition(lua::State* L) {
+    auto docnode = get_document_node(L);
+    docnode.node->reposition();
     return 0;
 }
 
@@ -287,6 +294,13 @@ static int p_get_editable(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_edited(UINode* node, lua::State* L) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        return lua::pushboolean(L, box->isEdited());
+    }
+    return 0;
+}
+
 static int p_get_line_numbers(UINode* node, lua::State* L) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         return lua::pushboolean(L, box->isShowLineNumbers());
@@ -317,6 +331,13 @@ static int p_get_src(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_data(UINode* node, lua::State* L) {
+    if (auto canvas = dynamic_cast<Canvas*>(node)) {
+        return lua::newuserdata<lua::LuaCanvas>(L, canvas->texture(), canvas->data());
+    }
+    return 0;
+}
+
 static int p_get_add(UINode* node, lua::State* L) {
     if (dynamic_cast<Container*>(node)) {
         return lua::pushcfunction(L, lua::wrap<l_container_add>);
@@ -326,6 +347,10 @@ static int p_get_add(UINode* node, lua::State* L) {
 
 static int p_get_destruct(UINode*, lua::State* L) {
     return lua::pushcfunction(L, lua::wrap<l_node_destruct>);
+}
+
+static int p_get_reposition(UINode*, lua::State* L) {
+    return lua::pushcfunction(L, lua::wrap<l_node_reposition>);
 }
 
 static int p_get_clear(UINode* node, lua::State* L) {
@@ -398,6 +423,13 @@ static int p_get_cursor(UINode* node, lua::State* L) {
     return lua::pushstring(L, to_string(node->getCursor()));
 }
 
+static int p_get_scroll(UINode* node, lua::State* L) {
+    if (auto container = dynamic_cast<Container*>(node)) {
+        return lua::pushnumber(L, container->getContentOffset().y);
+    }
+    return 0;
+}
+
 static int l_gui_getattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
     auto element = lua::require_string(L, 2);
@@ -424,6 +456,7 @@ static int l_gui_getattr(lua::State* L) {
             {"moveInto", p_move_into},
             {"add", p_get_add},
             {"destruct", p_get_destruct},
+            {"reposition", p_get_reposition},
             {"clear", p_get_clear},
             {"setInterval", p_set_interval},
             {"placeholder", p_get_placeholder},
@@ -432,6 +465,7 @@ static int l_gui_getattr(lua::State* L) {
             {"caret", p_get_caret},
             {"text", p_get_text},
             {"editable", p_get_editable},
+            {"edited", p_get_edited},
             {"lineNumbers", p_get_line_numbers},
             {"lineAt", p_get_line_at},
             {"linePos", p_get_line_pos},
@@ -442,6 +476,7 @@ static int l_gui_getattr(lua::State* L) {
             {"min", p_get_min},
             {"max", p_get_max},
             {"step", p_get_step},
+            {"scroll", p_get_scroll},
             {"trackWidth", p_get_track_width},
             {"trackColor", p_get_track_color},
             {"textColor", p_get_text_color},
@@ -453,6 +488,7 @@ static int l_gui_getattr(lua::State* L) {
             {"inventory", p_get_inventory},
             {"focused", p_get_focused},
             {"cursor", p_get_cursor},
+            {"data", p_get_data},
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {
@@ -523,6 +559,13 @@ static void p_set_caret(UINode* node, lua::State* L, int idx) {
 static void p_set_editable(UINode* node, lua::State* L, int idx) {
     if (auto box = dynamic_cast<TextBox*>(node)) {
         box->setEditable(lua::toboolean(L, idx));
+    }
+}
+static void p_set_edited(UINode* node, lua::State* L, int idx) {
+    if (auto box = dynamic_cast<TextBox*>(node)) {
+        if (!lua::toboolean(L, idx)) {
+            box->setUnedited();
+        }
     }
 }
 static void p_set_line_numbers(UINode* node, lua::State* L, int idx) {
@@ -620,6 +663,13 @@ static void p_set_cursor(UINode* node, lua::State* L, int idx) {
     }
 }
 
+static int p_set_scroll(UINode* node, lua::State* L, int idx) {
+    if (auto container = dynamic_cast<Container*>(node)) {
+        container->setScroll(lua::tointeger(L, idx));
+    }
+    return 0;
+}
+
 static int l_gui_setattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
     auto element = lua::require_string(L, 2);
@@ -647,6 +697,7 @@ static int l_gui_setattr(lua::State* L) {
             {"hint", p_set_hint},
             {"text", p_set_text},
             {"editable", p_set_editable},
+            {"edited", p_set_edited},
             {"lineNumbers", p_set_line_numbers},
             {"syntax", p_set_syntax},
             {"markup", p_set_markup},
@@ -656,6 +707,7 @@ static int l_gui_setattr(lua::State* L) {
             {"min", p_set_min},
             {"max", p_set_max},
             {"step", p_set_step},
+            {"scroll", p_set_scroll},
             {"trackWidth", p_set_track_width},
             {"trackColor", p_set_track_color},
             {"textColor", p_set_text_color},
@@ -747,7 +799,7 @@ static int l_gui_escape_markup(lua::State* L) {
     auto lang = lua::require_string(L, 1);
     std::string text = lua::require_string(L, 2);
     if (std::strcmp(lang, "md") == 0) {
-        text = std::move(markdown::escape<char>(text));
+        text = markdown::escape<char>(text);
     }
     return lua::pushstring(L, text);
 }
@@ -788,15 +840,15 @@ static int l_gui_alert(lua::State* L) {
 }
 
 static int l_gui_load_document(lua::State* L) {
-    auto filename = lua::require_string(L, 1);
+    io::path filename = lua::require_string(L, 1);
     auto alias = lua::require_string(L, 2);
     auto args = lua::tovalue(L, 3);
     
     auto documentPtr = UiDocument::read(
         scripting::get_root_environment(),
         alias,
-        engine->getPaths().resolve(filename),
-        filename  
+        filename,
+        filename.string()
     );
     auto document = documentPtr.get();
     engine->getAssets()->store(std::move(documentPtr), alias);

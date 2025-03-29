@@ -37,8 +37,12 @@ local function complete_app_lib(app)
     app.tick = coroutine.yield
     app.get_version = core.get_version
     app.get_setting_info = core.get_setting_info
-    app.load_content = core.load_content
+    app.load_content = function()
+        core.load_content()
+        app.tick()
+    end
     app.reset_content = core.reset_content
+    app.is_content_loaded = core.is_content_loaded
     
     function app.config_packs(packs_list)
         -- Check if packs are valid and add dependencies to the configuration
@@ -88,6 +92,40 @@ if app then
     complete_app_lib(app)
 elseif __vc_app then
     complete_app_lib(__vc_app)
+end
+
+function inventory.get_uses(invid, slot)
+    local uses = inventory.get_data(invid, slot, "uses")
+    if uses == nil then
+        return item.uses(inventory.get(invid, slot))
+    end
+    return uses
+end
+
+function inventory.use(invid, slot)
+    local itemid, count = inventory.get(invid, slot)
+    if itemid == nil then
+        return
+    end
+    local item_uses = inventory.get_uses(invid, slot)
+    if item_uses == nil then
+        return
+    end
+    if item_uses == 1 then
+        inventory.set(invid, slot, itemid, count - 1)
+    elseif item_uses > 1 then
+        inventory.set_data(invid, slot, "uses", item_uses - 1)
+    end
+end
+
+function inventory.decrement(invid, slot, count)
+    count = count or 1
+    local itemid, itemcount = inventory.get(invid, slot)
+    if itemcount <= count then
+        inventory.set(invid, slot, 0)
+    else
+        inventory.set_count(invid, slot, itemcount - count)
+    end
 end
 
 ------------------------------------------------
@@ -145,63 +183,15 @@ function events.emit(event, ...)
     return result
 end
 
--- class designed for simple UI-nodes access via properties syntax
-local Element = {}
-function Element.new(docname, name)
-    return setmetatable({docname=docname, name=name}, {
-        __index=function(self, k)
-            return gui.getattr(self.docname, self.name, k)
-        end,
-        __newindex=function(self, k, v)
-            gui.setattr(self.docname, self.name, k, v)
-        end
-    })
-end
+gui_util = require "core:internal/gui_util"
 
--- the engine automatically creates an instance for every ui document (layout)
-Document = {}
-function Document.new(docname)
-    return setmetatable({name=docname}, {
-        __index=function(self, k)
-            local elem = Element.new(self.name, k)
-            rawset(self, k, elem)
-            return elem
-        end
-    })
-end
-
-local _RadioGroup = {}
-function _RadioGroup:set(key)
-    if type(self) ~= 'table' then
-        error("called as non-OOP via '.', use radiogroup:set")
-    end
-    if self.current then
-        self.elements[self.current].enabled = true
-    end
-    self.elements[key].enabled = false
-    self.current = key
-    if self.callback then
-        self.callback(key)
-    end
-end
-function _RadioGroup:__call(elements, onset, default)
-    local group = setmetatable({
-        elements=elements, 
-        callback=onset, 
-        current=nil
-    }, {__index=_RadioGroup})
-    group:set(default)
-    return group
-end
-setmetatable(_RadioGroup, _RadioGroup)
-RadioGroup = _RadioGroup
+Document = gui_util.Document
+RadioGroup = gui_util.RadioGroup
+__vc_page_loader = gui_util.load_page
 
 _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu
 menu = _MENU
-
-local gui_util = require "core:gui_util"
-__vc_page_loader = gui_util.load_page
 
 ---  Console library extension ---
 console.cheats = {}
@@ -224,6 +214,11 @@ function console.log(...)
     log_element:paste(text)
 end
 
+function console.chat(...)
+    console.log(...)
+    events.emit("core:chat", ...)
+end
+
 function gui.template(name, params)
     local text = file.read(file.find("layouts/templates/"..name..".xml"))
     for k,v in pairs(params) do
@@ -233,8 +228,8 @@ function gui.template(name, params)
     text = text:gsub("if%s*=%s*'%%{%w+}'", "if=''")
     text = text:gsub("if%s*=%s*\"%%{%w+}\"", "if=\"\"")
     -- remove unsolved properties: attr='%{var}'
-    text = text:gsub("%w+%s*=%s*'%%{%w+}'%s?", "")
-    text = text:gsub("%w+%s*=%s*\"%%{%w+}\"%s?", "")
+    text = text:gsub("%s*%S+='%%{[^}]+}'%s*", " ")
+    text = text:gsub('%s*%S+="%%{[^}]+}"%s*', " ")
     return text
 end
 
@@ -369,13 +364,31 @@ function __vc_on_hud_open()
         hud._set_debug_cheats(value)
     end)
     input.add_callback("devtools.console", function()
-        if hud.is_paused() then
+        if menu.page ~= "" then
             return
         end
         time.post_runnable(function()
             hud.show_overlay("core:console", false, {"console"})
         end)
     end)
+    input.add_callback("hud.chat", function()
+        if menu.page ~= "" then
+            return
+        end
+        time.post_runnable(function()
+            hud.show_overlay("core:console", false, {"chat"})
+        end)
+    end)
+    input.add_callback("key:escape", function()
+        if menu.page ~= "" then
+            menu:reset()
+        elseif hud.is_inventory_open() then
+            hud.close_inventory()
+        else
+            hud.pause()
+        end
+    end)
+    hud.open_permanent("core:ingame_chat")
 end
 
 local RULES_FILE = "world:rules.toml"
@@ -399,20 +412,16 @@ end
 
 function __vc_on_world_quit()
     _rules.clear()
+    gui_util:__reset_local()
+    stdcomp.__reset()
 end
 
 local __vc_coroutines = {}
 local __vc_named_coroutines = {}
 local __vc_next_coroutine = 1
-local __vc_coroutine_error = nil
 
 function __vc_start_coroutine(chunk)
-    local co = coroutine.create(function()
-        local status, err = pcall(chunk)
-        if not status then
-            __vc_coroutine_error = err
-        end
-    end)
+    local co = coroutine.create(chunk)
     local id = __vc_next_coroutine
     __vc_next_coroutine = __vc_next_coroutine + 1
     __vc_coroutines[id] = co
@@ -422,10 +431,10 @@ end
 function __vc_resume_coroutine(id)
     local co = __vc_coroutines[id]
     if co then
-        coroutine.resume(co)
-        if __vc_coroutine_error then
-            debug.error(__vc_coroutine_error)
-            error(__vc_coroutine_error)
+        local success, err = coroutine.resume(co)
+        if not success then
+            debug.error(err)
+            error(err)
         end
         return coroutine.status(co) ~= "dead"
     end
@@ -444,7 +453,19 @@ end
 
 function start_coroutine(chunk, name)
     local co = coroutine.create(function()
-        local status, error = xpcall(chunk, __vc__error)
+        local status, error = xpcall(chunk, function(err)
+            local fullmsg = "error: "..string.match(err, ": (.+)").."\n"..debug.traceback()
+            gui.alert(fullmsg, function()
+                if world.is_open() then
+                    __vc_app.close_world()
+                else
+                    __vc_app.reset_content()
+                    menu:reset()
+                    menu.page = "main"
+                end
+            end)
+            return fullmsg
+        end)
         if not status then
             debug.error(error)
         end
@@ -467,7 +488,10 @@ function __process_post_runnables()
 
     local dead = {}
     for name, co in pairs(__vc_named_coroutines) do
-        coroutine.resume(co)
+        local success, err = coroutine.resume(co)
+        if not success then
+            debug.error(err)
+        end
         if coroutine.status(co) == "dead" then
             table.insert(dead, name)
         end

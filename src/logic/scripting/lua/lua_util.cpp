@@ -1,4 +1,5 @@
 #include "lua_util.hpp"
+#include "lua_engine.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -60,13 +61,7 @@ int lua::pushvalue(State* L, const dv::value& value) {
             break;
         case value_type::bytes: {
             const auto& bytes = value.asBytes();
-            createtable(L, 0, bytes.size());
-            size_t size = bytes.size();
-            for (size_t i = 0; i < size;) {
-                pushinteger(L, bytes[i]);
-                i++;
-                rawseti(L, i);
-            }
+            newuserdata<LuaBytearray>(L, bytes.data(), bytes.size());
             break;
         }
     }
@@ -133,6 +128,13 @@ dv::value lua::tovalue(State* L, int idx) {
                 return map;
             }
         }
+        case LUA_TUSERDATA: {
+            if (auto bytes = touserdata<LuaBytearray>(L, idx)) {
+                const auto& data = bytes->data();
+                return std::make_shared<dv::objects::Bytes>(data.data(), data.size());
+            }
+            [[fallthrough]];
+        }
         default:
             throw std::runtime_error(
                 "lua type " + std::string(lua_typename(L, type)) +
@@ -161,20 +163,23 @@ int lua::call(State* L, int argc, int nresults) {
     int handler_pos = gettop(L) - argc;
     pushcfunction(L, l_error_handler);
     insert(L, handler_pos);
+    int top = gettop(L);
     if (lua_pcall(L, argc, nresults, handler_pos)) {
         std::string log = tostring(L, -1);
         pop(L);
         remove(L, handler_pos);
         throw luaerror(log);
     }
+    int added = gettop(L) - (top - argc - 1);
     remove(L, handler_pos);
-    return nresults == -1 ? 1 : nresults;
+    return added;
 }
 
 int lua::call_nothrow(State* L, int argc, int nresults) {
     int handler_pos = gettop(L) - argc;
     pushcfunction(L, l_error_handler);
     insert(L, handler_pos);
+    int top = gettop(L);
     if (lua_pcall(L, argc, -1, handler_pos)) {
         auto errorstr = tostring(L, -1);
         if (errorstr) {
@@ -186,8 +191,9 @@ int lua::call_nothrow(State* L, int argc, int nresults) {
         remove(L, handler_pos);
         return 0;
     }
+    int added = gettop(L) - (top - argc - 1);
     remove(L, handler_pos);
-    return 1;
+    return added;
 }
 
 void lua::dump_stack(State* L) {
@@ -227,6 +233,7 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
     return std::shared_ptr<std::string>(
         new std::string(name),
         [=](std::string* name) {
+            auto L = lua::get_main_state();
             requireglobal(L, LAMBDAS_TABLE);
             pushnil(L);
             setfield(L, *name);
@@ -239,6 +246,7 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
 runnable lua::create_runnable(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=]() {
+        auto L = lua::get_main_state();
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return;
         call_nothrow(L, 0, 0);
@@ -268,14 +276,15 @@ KeyCallback lua::create_simple_handler(State* L) {
 scripting::common_func lua::create_lambda(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {
-        int top = gettop(L) + 1;
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return nullptr;
+        int top = gettop(L) - 1;
         for (const auto& arg : args) {
             pushvalue(L, arg);
         }
         if (call(L, args.size(), 1)) {
             int nres = gettop(L) - top;
+            assert(nres >= 0);
             if (nres) {
                 auto result = tovalue(L, -1);
                 pop(L, 1 + nres);
@@ -290,9 +299,9 @@ scripting::common_func lua::create_lambda(State* L) {
 scripting::common_func lua::create_lambda_nothrow(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=](const std::vector<dv::value>& args) -> dv::value {
-        int top = gettop(L) - 1;
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return nullptr;
+        int top = gettop(L) - 1;
         for (const auto& arg : args) {
             pushvalue(L, arg);
         }

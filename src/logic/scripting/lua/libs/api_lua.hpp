@@ -46,6 +46,7 @@ extern const luaL_Reg utf8lib[];
 extern const luaL_Reg vec2lib[];  // vecn.cpp
 extern const luaL_Reg vec3lib[];  // vecn.cpp
 extern const luaL_Reg vec4lib[];  // vecn.cpp
+extern const luaL_Reg weatherlib[];
 extern const luaL_Reg worldlib[];
 
 // Components
@@ -55,6 +56,7 @@ extern const luaL_Reg transformlib[];
 
 // Lua Overrides
 extern int l_print(lua::State* L);
+extern int l_crc32(lua::State* L);
 
 namespace lua {
     inline uint check_argc(lua::State* L, int a) {

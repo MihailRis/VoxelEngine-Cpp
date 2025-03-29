@@ -8,7 +8,7 @@
 #include "engine/Engine.hpp"
 #include "data/dv.hpp"
 #include "interfaces/Task.hpp"
-#include "files/engine_paths.hpp"
+#include "io/engine_paths.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 #include "graphics/ui/gui_util.hpp"
 #include "graphics/ui/GUI.hpp"
@@ -38,7 +38,6 @@ bool menus::call(Engine& engine, runnable func) {
     if (engine.isHeadless()) {
         throw std::runtime_error("menus::call(...) in headless mode");
     }
-    auto gui = engine.getGUI();
     try {
         func();
         return true;

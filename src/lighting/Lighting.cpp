@@ -8,8 +8,11 @@
 #include "voxels/Block.hpp"
 #include "constants.hpp"
 #include "util/timeutil.hpp"
+#include "debug/Logger.hpp"
 
 #include <memory>
+
+static debug::Logger logger("lighting");
 
 Lighting::Lighting(const Content& content, Chunks& chunks) 
   : content(content), chunks(chunks) {
@@ -63,6 +66,10 @@ void Lighting::buildSkyLight(int cx, int cz){
     const auto blockDefs = content.getIndices()->blocks.getDefs();
 
     Chunk* chunk = chunks.getChunk(cx, cz);
+    if (chunk == nullptr) {
+        logger.error() << "attempted to build sky lights to chunk missing in local matrix";
+        return;
+    }
     for (int z = 0; z < CHUNK_D; z++){
         for (int x = 0; x < CHUNK_W; x++){
             int gx = x + cx * CHUNK_W;
@@ -95,7 +102,10 @@ void Lighting::onChunkLoaded(int cx, int cz, bool expand) {
 
     auto blockDefs = content.getIndices()->blocks.getDefs();
     auto chunk = chunks.getChunk(cx, cz);
-
+    if (chunk == nullptr) {
+        logger.error() << "attempted to build lights to chunk missing in local matrix";
+        return;
+    }
     for (uint y = 0; y < CHUNK_H; y++){
         for (uint z = 0; z < CHUNK_D; z++){
             for (uint x = 0; x < CHUNK_W; x++){

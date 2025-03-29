@@ -51,11 +51,10 @@ ModelBatch::ModelBatch(
     const Chunks& chunks,
     const EngineSettings& settings
 )
-    : batch(std::make_unique<MainBatch>(capacity)),
-      assets(assets),
+    : assets(assets),
       chunks(chunks),
-      settings(settings) {
-}
+      settings(settings),
+      batch(std::make_unique<MainBatch>(capacity)) {}
 
 ModelBatch::~ModelBatch() = default;
 

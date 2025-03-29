@@ -85,7 +85,8 @@ public:
         OnReject onReject,
         long maxSize
     ) override {
-        Request request {RequestType::GET, url, onResponse, onReject, maxSize};
+        Request request {
+            RequestType::GET, url, onResponse, onReject, maxSize, false, ""};
         processRequest(std::move(request));
     }
 
@@ -96,7 +97,8 @@ public:
         OnReject onReject=nullptr,
         long maxSize=0
     ) override {
-        Request request {RequestType::POST, url, onResponse, onReject, maxSize};
+        Request request {
+            RequestType::POST, url, onResponse, onReject, maxSize, false, ""};
         request.data = data;
         processRequest(std::move(request));
     }
@@ -288,7 +290,6 @@ static std::string to_string(const sockaddr_in& addr, bool port=true) {
 
 class SocketConnection : public Connection {
     SOCKET descriptor;
-    bool open = true;
     sockaddr_in addr;
     size_t totalUpload = 0;
     size_t totalDownload = 0;
@@ -319,7 +320,6 @@ public:
     ~SocketConnection() {
         if (state != ConnectionState::CLOSED) {
             shutdown(descriptor, 2);
-            closesocket(descriptor);
         }
         if (thread) {
             thread->join();
@@ -382,6 +382,9 @@ public:
     }
 
     int send(const char* buffer, size_t length) override {
+        if (state == ConnectionState::CLOSED) {
+            return 0;
+        }
         int len = sendsocket(descriptor, buffer, length, 0);
         if (len == -1) {
             int err = errno;
@@ -400,10 +403,15 @@ public:
         return readBatch.size();
     }
 
-    void close() override {
-        if (state != ConnectionState::CLOSED) {
-            shutdown(descriptor, 2);
-            closesocket(descriptor);
+    void close(bool discardAll=false) override {
+        {
+            std::lock_guard lock(mutex);
+            readBatch.clear();
+
+            if (state != ConnectionState::CLOSED) {
+                shutdown(descriptor, 2);
+                closesocket(descriptor);
+            }
         }
         if (thread) {
             thread->join();
@@ -439,20 +447,20 @@ public:
         hints.ai_family = AF_INET;
         hints.ai_socktype = SOCK_STREAM;
 
-        addrinfo* addrinfo;
+        addrinfo* addrinfo = nullptr;
         if (int res = getaddrinfo(
             address.c_str(), nullptr, &hints, &addrinfo
         )) {
             throw std::runtime_error(gai_strerror(res));
         }
 
-        sockaddr_in serverAddress = *(sockaddr_in*)addrinfo->ai_addr;
-        freeaddrinfo(addrinfo);
+        sockaddr_in serverAddress;
+        std::memcpy(&serverAddress, addrinfo->ai_addr, sizeof(sockaddr_in));
         serverAddress.sin_port = htons(port);
+        freeaddrinfo(addrinfo);
 
         SOCKET descriptor = socket(AF_INET, SOCK_STREAM, 0);
         if (descriptor == -1) {
-            freeaddrinfo(addrinfo);
             throw std::runtime_error("Could not create socket");
         }
         auto socket = std::make_shared<SocketConnection>(descriptor, std::move(serverAddress));

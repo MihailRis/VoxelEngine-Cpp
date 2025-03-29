@@ -374,6 +374,8 @@ namespace dv {
 
         const value& operator[](const key_t& key) const;
 
+        void merge(dv::value&& other, bool deep);
+
         value& operator[](size_t index);
 
         const value& operator[](size_t index) const;

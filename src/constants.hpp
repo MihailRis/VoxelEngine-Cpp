@@ -6,7 +6,7 @@
 #include <string>
 
 inline constexpr int ENGINE_VERSION_MAJOR = 0;
-inline constexpr int ENGINE_VERSION_MINOR = 26;
+inline constexpr int ENGINE_VERSION_MINOR = 27;
 
 #ifdef NDEBUG
 inline constexpr bool ENGINE_DEBUG_BUILD = false;
@@ -14,7 +14,7 @@ inline constexpr bool ENGINE_DEBUG_BUILD = false;
 inline constexpr bool ENGINE_DEBUG_BUILD = true;
 #endif // NDEBUG
 
-inline const std::string ENGINE_VERSION_STRING = "0.26";
+inline const std::string ENGINE_VERSION_STRING = "0.27";
 
 /// @brief world regions format version
 inline constexpr uint REGION_FORMAT_VERSION = 3;
@@ -27,6 +27,7 @@ inline constexpr blockid_t BLOCK_OBSTACLE = 1;
 inline constexpr blockid_t BLOCK_STRUCT_AIR = 2;
 inline constexpr itemid_t ITEM_EMPTY = 0;
 inline constexpr entityid_t ENTITY_NONE = 0;
+inline constexpr entityid_t ENTITY_AUTO = std::numeric_limits<entityid_t>::max();
 
 inline constexpr int CHUNK_W = 16;
 inline constexpr int CHUNK_H = 256;
@@ -67,3 +68,5 @@ inline const std::string LAYOUTS_FOLDER = "layouts";
 inline const std::string SOUNDS_FOLDER = "sounds";
 inline const std::string MODELS_FOLDER = "models";
 inline const std::string SKELETONS_FOLDER = "skeletons";
+
+inline const std::string FONT_DEFAULT = "normal";

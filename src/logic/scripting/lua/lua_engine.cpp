@@ -3,8 +3,8 @@
 #include <iomanip>
 #include <iostream>
 
-#include "files/files.hpp"
-#include "files/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/engine_paths.hpp"
 #include "debug/Logger.hpp"
 #include "util/stringutil.hpp"
 #include "libs/api_lua.hpp"
@@ -84,18 +84,22 @@ static void create_libs(State* L, StateType stateType) {
     }
 
     addfunc(L, "print", lua::wrap<l_print>);
+    addfunc(L, "_crc32", lua::wrap<l_crc32>);
 }
 
 void lua::init_state(State* L, StateType stateType) {
     // Allowed standard libraries
-    pop(L, luaopen_base(L));
-    pop(L, luaopen_math(L));
-    pop(L, luaopen_string(L));
-    pop(L, luaopen_table(L));
-    pop(L, luaopen_debug(L));
-    pop(L, luaopen_jit(L));
-    pop(L, luaopen_bit(L));
-    pop(L, luaopen_os(L));
+    luaL_openlibs(L);
+
+    if (getglobal(L, "require")) {
+        pushstring(L, "ffi");
+        if (call_nothrow(L, 1, 1)) {
+            setglobal(L, "ffi");
+        }
+    }
+    pushnil(L);
+    setglobal(L, "io");
+
     const char* removed_os[] {
         "execute", "exit", "remove", "rename", "setlocale", "tmpname", nullptr};
     remove_lib_funcs(L, "os", removed_os);
@@ -115,6 +119,7 @@ void lua::init_state(State* L, StateType stateType) {
     newusertype<LuaBytearray>(L);
     newusertype<LuaHeightmap>(L);
     newusertype<LuaVoxelFragment>(L);
+    newusertype<LuaCanvas>(L);
 }
 
 void lua::initialize(const EnginePaths& paths, const CoreParameters& params) {
@@ -158,9 +163,8 @@ State* lua::create_state(const EnginePaths& paths, StateType stateType) {
     }
     init_state(L, stateType);
     
-    auto resDir = paths.getResourcesFolder();
-    auto file = resDir / fs::u8path("scripts/stdmin.lua");
-    auto src = files::read_string(file);
+    auto file = "res:scripts/stdmin.lua";
+    auto src = io::read_string(file);
     lua::pop(L, lua::execute(L, 0, src, "core:scripts/stdmin.lua"));
     return L;
 }

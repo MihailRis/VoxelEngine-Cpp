@@ -13,7 +13,9 @@
 #include "content/Content.hpp"
 #include "maths/voxmaths.hpp"
 
+#include <algorithm>
 #include <set>
+#include <algorithm>
 #include <stdint.h>
 #include <stdexcept>
 #include <glm/glm.hpp>

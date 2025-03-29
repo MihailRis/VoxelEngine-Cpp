@@ -18,7 +18,7 @@ Creates a rule. If a handler is specified, returns the id for deletion.
 > Rules that have not been created can be used, but resetting via rules.reset will result in setting the value to nil.
 
 ```lua
-    rules.listen(
+rules.listen(
     -- rule name
     name: str,
     -- value change handler function

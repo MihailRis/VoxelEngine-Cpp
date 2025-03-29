@@ -1,7 +1,7 @@
 #include <filesystem>
 
 #include "engine/Engine.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/screens/Screen.hpp"
 #include "graphics/ui/GUI.hpp"
@@ -45,11 +45,6 @@ static int l_add_callback(lua::State* L) {
             handler = Events::keyCallbacks[key].add(actual_callback);
         }
     }
-
-    const auto& bind = Events::bindings.find(bindname);
-    if (bind == Events::bindings.end()) {
-        throw std::runtime_error("unknown binding " + util::quote(bindname));
-    }
     auto callback = [=]() -> bool {
         if (!scripting::engine->getGUI()->isFocusCaught()) {
             return actual_callback();
@@ -57,6 +52,10 @@ static int l_add_callback(lua::State* L) {
         return false;
     };
     if (handler == nullptr) {
+        const auto& bind = Events::bindings.find(bindname);
+        if (bind == Events::bindings.end()) {
+            throw std::runtime_error("unknown binding " + util::quote(bindname));
+        }
         handler = bind->second.onactived.add(callback);
     }
 
@@ -136,23 +135,22 @@ static int l_is_pressed(lua::State* L) {
     }
 }
 
-static void resetPackBindings(fs::path& packFolder) {
-    auto configFolder = packFolder/fs::path("config");
-    auto bindsFile = configFolder/fs::path("bindings.toml");
-    if (fs::is_regular_file(bindsFile)) {
+static void reset_pack_bindings(const io::path& packFolder) {
+    auto configFolder = packFolder / "config";
+    auto bindsFile = configFolder / "bindings.toml";
+    if (io::is_regular_file(bindsFile)) {
         Events::loadBindings(
-            bindsFile.u8string(),
-            files::read_string(bindsFile),
+            bindsFile.string(),
+            io::read_string(bindsFile),
             BindType::REBIND
         );
     }
 }
 
 static int l_reset_bindings(lua::State*) {
-    auto resFolder = engine->getPaths().getResourcesFolder();
-    resetPackBindings(resFolder);
+    reset_pack_bindings("res:");
     for (auto& pack : engine->getContentPacks()) {
-        resetPackBindings(pack.folder);
+        reset_pack_bindings(pack.folder);
     }
     return 0;
 }

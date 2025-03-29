@@ -7,10 +7,9 @@ namespace gui {
     
     class InputBindBox : public Panel {
     protected:
-        glm::vec4 hoverColor {0.05f, 0.1f, 0.2f, 0.75f};
-        glm::vec4 focusedColor {0.0f, 0.0f, 0.0f, 1.0f};
-        std::shared_ptr<Label> label;
         Binding& binding;
+        glm::vec4 focusedColor {0.1f, 0.15f, 0.35f, 0.75f};
+        std::shared_ptr<Label> label;
     public:
         InputBindBox(Binding& binding, glm::vec4 padding=glm::vec4(6.0f));
         

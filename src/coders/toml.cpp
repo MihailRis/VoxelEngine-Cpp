@@ -7,13 +7,13 @@
 #include <sstream>
 
 #include "data/setting.hpp"
-#include "files/settings_io.hpp"
+#include "io/settings_io.hpp"
 #include "util/stringutil.hpp"
-#include "commons.hpp"
+#include "BasicParser.hpp"
 
 using namespace toml;
 
-class TomlReader : BasicParser {
+class TomlReader : BasicParser<char> {
     dv::value root;
 
     void skipWhitespace() override {
@@ -30,7 +30,6 @@ class TomlReader : BasicParser {
     // todo: extract common part
     std::string parseMultilineString() {
         pos += 2;
-        char next = peek();
 
         std::stringstream ss;
         while (hasNext()) {

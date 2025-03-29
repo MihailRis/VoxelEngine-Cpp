@@ -5,13 +5,14 @@
 #include "content/Content.hpp"
 #include "coders/json.hpp"
 #include "debug/Logger.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "items/Inventories.hpp"
 #include "lighting/Lightmap.hpp"
 #include "maths/voxmaths.hpp"
 #include "objects/Entities.hpp"
 #include "voxels/blocks_agent.hpp"
 #include "typedefs.hpp"
+#include "world/LevelEvents.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "Block.hpp"
@@ -125,6 +126,8 @@ std::shared_ptr<Chunk> GlobalChunks::create(int x, int z) {
         chunk->flags.loadedLights = true;
     }
     chunk->blocksMetadata = regions.getBlocksData(chunk->x, chunk->z);
+
+    level.events->trigger(LevelEventType::CHUNK_PRESENT, chunk.get());
     return chunk;
 }
 

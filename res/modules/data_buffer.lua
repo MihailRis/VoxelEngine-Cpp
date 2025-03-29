@@ -144,31 +144,31 @@ function data_buffer:put_number(num)
 
 	if math.floor(num) ~= num then
 		type = TYPE_FLOAT64
-		bytes = bit_converter.float64_to_bytes(num)
+		bytes = bit_converter.float64_to_bytes(num, self.order)
 	elseif num == 0 then
 		type = TYPE_ZERO
 		bytes = { }
 	elseif num > 0 then
 		if num <= MAX_UINT16 then
 			type = TYPE_UINT16
-			bytes = bit_converter.uint16_to_bytes(num)
+			bytes = bit_converter.uint16_to_bytes(num, self.order)
 		elseif num <= MAX_UINT32 then
 			type = TYPE_UINT32
-			bytes = bit_converter.uint32_to_bytes(num)
+			bytes = bit_converter.uint32_to_bytes(num, self.order)
 		elseif num <= MAX_INT64 then
 			type = TYPE_INT64
-			bytes = bit_converter.int64_to_bytes(num)
+			bytes = bit_converter.int64_to_bytes(num, self.order)
 		end
 	elseif num < 0 then
 		if num >= MIN_INT16 then
 			type = TYPE_SINT16
-			bytes = bit_converter.sint16_to_bytes(num)
+			bytes = bit_converter.sint16_to_bytes(num, self.order)
 		elseif num >= MIN_INT32 then
 			type = TYPE_SINT32
-			bytes = bit_converter.sint32_to_bytes(num)
+			bytes = bit_converter.sint32_to_bytes(num, self.order)
 		elseif num >= MIN_INT64 then
 			type = TYPE_INT64
-			bytes = bit_converter.int64_to_bytes(num)
+			bytes = bit_converter.int64_to_bytes(num, self.order)
 		end
 	end
 

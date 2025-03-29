@@ -63,6 +63,17 @@ gui.escape_markup(
 Escapes markup in text.
 
 ```lua
+gui.alert(
+    -- message (not automatically translated, use gui.str(...))
+    message: str,
+    -- function called on close
+    on_ok: function() -> nil
+)
+```
+
+Displays a message box. **Non-blocking**.
+
+```lua
 gui.confirm(
     -- message (does not translate automatically, use gui.str(...))
     message: str,
@@ -78,7 +89,7 @@ gui.confirm(
 )
 ```
 
-Requests confirmation from the user for an action. **Does not** stop code execution.
+Requests confirmation from the user for an action. **Non-blocking**.
 
 ```lua
 gui.load_document(

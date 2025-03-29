@@ -21,6 +21,15 @@ namespace lua {
     }
 
     inline void pop(lua::State* L, int n = 1) {
+#ifndef NDEBUG
+        if (n < 0) {
+            abort();
+        }
+        int top = lua_gettop(L);
+        if (top < n) {
+            abort();
+        }
+#endif
         lua_pop(L, n);
     }
     inline void insert(lua::State* L, int idx) {
@@ -54,6 +63,9 @@ namespace lua {
     }
     inline void rawseti(lua::State* L, int n, int idx = -2) {
         lua_rawseti(L, idx, n);
+    }
+    inline void rawset(lua::State* L, int idx = -3) {
+        lua_rawset(L, idx);
     }
 
     inline int createtable(lua::State* L, int narr, int nrec) {

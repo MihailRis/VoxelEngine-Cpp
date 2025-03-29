@@ -2,5 +2,6 @@
     "texture": "lamp",
     "emission": [15, 14, 13],
     "shadeless": true,
+    "material": "base:glass",
     "base:durability": 0.3
 }

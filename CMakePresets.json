@@ -16,13 +16,6 @@
             }
         },
         {
-            "name": "profiler-tracy-vs-msvc-windows",
-            "inherits": "default-vs-msvc-windows",
-            "cacheVariables": {
-                "VOXELENGINE_TRACY_PROFILER": "ON"
-            }
-        },
-        {
             "name": "default-ninja-gnu-linux",
             "condition": {
                 "type": "equals",
@@ -32,12 +25,34 @@
             "generator": "Ninja Multi-Config",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "VOXELENGINE_BUILD_TESTS": "ON"
+                "VOXELENGINE_BUILD_TESTS": "ON",
+                "VOXELENGINE_BUILD_APPDIR": "ON"
+            }
+        },
+        {
+            "name": "default-ninja-clang-macos",
+            "condition": {
+                "type": "equals",
+                "rhs": "${hostSystemName}",
+                "lhs": "Darwin"
+            },
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "VOXELENGINE_BUILD_TESTS": "ON",
+                "VOXELENGINE_BUILD_APPDIR": "ON"
             }
         },
         {
             "name": "profiler-tracy-ninja-gnu-linux",
             "inherits": "default-ninja-gnu-linux",
+            "cacheVariables": {
+                "VOXELENGINE_TRACY_PROFILER": "ON"
+            }
+        },
+        {
+            "name": "profiler-tracy-vs-msvc-windows",
+            "inherits": "default-vs-msvc-windows",
             "cacheVariables": {
                 "VOXELENGINE_TRACY_PROFILER": "ON"
             }
@@ -50,14 +65,19 @@
             "configuration": "Debug"
         },
         {
-            "name": "profiler-tracy-vs-msvc-windows",
-            "configurePreset": "profiler-tracy-vs-msvc-windows",
-            "configuration": "RelWithDebInfo"
-        },
-        {
             "name": "default-ninja-gnu-linux",
             "configurePreset": "default-ninja-gnu-linux",
             "configuration": "Debug"
+        },
+        {
+            "name": "default-ninja-clang-macos",
+            "configurePreset": "default-ninja-clang-macos",
+            "configuration": "Debug"
+        },
+        {
+            "name": "profiler-tracy-vs-msvc-windows",
+            "configurePreset": "profiler-tracy-vs-msvc-windows",
+            "configuration": "RelWithDebInfo"
         },
         {
             "name": "profiler-tracy-ninja-gnu-linux",
@@ -74,15 +94,22 @@
             }
         },
         {
-            "name": "profiler-tracy-vs-msvc-windows",
-            "configurePreset": "profiler-tracy-vs-msvc-windows",
+            "name": "default-ninja-gnu-linux",
+            "configurePreset": "default-ninja-gnu-linux",
             "output": {
                 "outputOnFailure": true
             }
         },
         {
-            "name": "default-ninja-gnu-linux",
-            "configurePreset": "default-ninja-gnu-linux",
+            "name": "default-ninja-clang-macos",
+            "configurePreset": "default-ninja-clang-macos",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "profiler-tracy-vs-msvc-windows",
+            "configurePreset": "profiler-tracy-vs-msvc-windows",
             "output": {
                 "outputOnFailure": true
             }

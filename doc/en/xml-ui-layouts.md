@@ -35,6 +35,7 @@ Examples:
 - `margin` - element margin. Type: 4D vector
   *left, top, right, bottom*
 - `visible` - element visibility. Type: boolean (true/false)
+- `min-size` - minimal element size. Type: 2D vector.
 - `position-func` - position supplier for an element (two numbers), called on every parent container size update or on element adding on a container. May be called before *on_hud_open*
 - `size-func` - element size provider (two numbers), called when the size of the container in which the element is located changes, or when an element is added to the container. Can be called before on_hud_open is called.
 - `onclick` - lua function called when an element is clicked.
@@ -55,8 +56,6 @@ Examples:
 
 Buttons and panels are also containers.
 
-- `padding` - element padding. Type: 4D vector.
-  *left, top, right, bottom*
 - `scrollable` - element scrollability. Type: boolean.
 - `scroll-step` - scrolling step. Type: integer.
 
@@ -64,10 +63,29 @@ Buttons and panels are also containers.
 
 Buttons are also panels.
 
-- `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number
+- `padding` - element padding. Type: 4D vector.
+  *left, top, right, bottom*
+- `max-length` - maximal length of panel stretching before scrolling (if scrollable = true). Type: number.
+- `min-length` - minimal length of panel. Type: number.
 - `orientation` - panel orientation: horizontal/vertical.
+- `interval` - space between elements. Type: number.
 
 # Common elements
+
+## *container*
+
+A primitive container.
+Use static positions / `gravity` / script to position elements.
+
+## *panel*
+
+A simple panel. Arranges elements in the order defined by the `orientation` attribute, adjusting the width (vertical) or height (horizontal) to the panel width.
+
+## *splitbox* (splitter)
+
+A panel that controls the size and position of two elements. Allows the user to move the splitter, changing the size of the elements.
+
+- `split-pos` - the initial position of the splitter from 0.0 to 1.0.
 
 ## *button*
 
@@ -95,7 +113,11 @@ Inner text is a button text.
 - `src` - name of an image stored in textures folder. Extension is not specified. Type: string.
   Example: *gui/error*
 
-  ## *textbox*
+## *canvas*
+
+- _No additional attributes_
+
+## *textbox*
 
 Inner text - initially entered text
 
@@ -104,6 +126,8 @@ Inner text - initially entered text
 - `supplier` - text supplier (called every frame)
 - `consumer` - lua function that receives the entered text. Called only when input is complete
 - `sub-consumer` - lua function-receiver of the input text. Called during text input or deletion.
+- `oncontrolkey` - lua function called for combinations of the form (Ctrl + ?). The codepoint of the second key is given as the first argument.
+The key code for comparison can be obtained via `input.keycode("key_name")`
 - `autoresize` - automatic change of element size (default - false). Does not affect font size.
 - `multiline` - allows display of multiline text.
 - `text-wrap` - allows automatic text wrapping (works only with multiline: "true")

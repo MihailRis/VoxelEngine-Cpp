@@ -122,6 +122,24 @@ file.read_combined_object(path: str) -> array
 Combines objects from JSON files of different packs.
 
 ```lua
+file.mount(path: str) --> str
+```
+
+Mounts a ZIP archive to the filesystem. Returns the entry point name.
+
+```lua
+file.unmount(entry_point: str) --> str
+```
+
+Unmounts the entry point.
+
+```lua
+file.create_zip(directory: str, output_file: str) --> str
+```
+
+Creates a ZIP archive from the contents of the specified directory.
+
+```lua
 file.name(path: str) --> str
 ```
 
@@ -144,3 +162,23 @@ file.prefix(path: str) --> str
 ```
 
 Extracts the entry point (prefix) from the path. Example: `world:data/base/config.toml` -> `world`.
+
+```lua
+file.parent(path: str) --> str
+```
+
+Returns the path one level up. Example: `world:data/base/config.toml` -> `world:data/base`
+
+```lua
+file.path(path: str) --> str
+```
+
+Removes the entry point (prefix) from the path. Example: `world:data/base/config.toml` -> `data/base/config.toml`
+
+```lua
+file.join(directory: str, path: str) --> str
+```
+
+Joins the path. Example: `file.join("world:data", "base/config.toml)` -> `world:data/base/config.toml`.
+
+You should use this function instead of concatenating with `/`, since `prefix:/path` is not valid.

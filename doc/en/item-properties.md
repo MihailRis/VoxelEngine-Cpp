@@ -45,3 +45,16 @@ Examples:
 ### *stack-size*
 
 Maximal number of an item units in one slot. Default - 64.
+
+### Number of uses (durability) - `uses`
+
+Property used via [inventory.use](scripting/builtins/libinventory.md).
+
+Property status is displayed in the inventory interface. Display method is defined via `uses-display`.
+
+### Display of uses - `uses-display`
+
+- `none` - display disabled
+- `number` - number
+- `relation` - current value to initial value (x/y)
+- `vbar` - vertical scale (used by default)

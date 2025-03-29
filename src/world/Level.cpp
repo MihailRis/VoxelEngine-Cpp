@@ -21,8 +21,7 @@ Level::Level(
     const Content& content,
     EngineSettings& settings
 )
-    : settings(settings),
-      world(std::move(worldPtr)),
+    : world(std::move(worldPtr)),
       content(content),
       chunks(std::make_unique<GlobalChunks>(*this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),
@@ -52,13 +51,14 @@ Level::Level(
         entities->setNextID(worldInfo.nextEntityId);
     }
 
-    events->listen(LevelEventType::EVT_CHUNK_SHOWN, [this](LevelEventType, Chunk* chunk) {
+    events->listen(LevelEventType::CHUNK_SHOWN, [this](LevelEventType, Chunk* chunk) {
         chunks->incref(chunk);
     });
-    events->listen(LevelEventType::EVT_CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
+    events->listen(LevelEventType::CHUNK_HIDDEN, [this](LevelEventType, Chunk* chunk) {
         chunks->decref(chunk);
     });
-    chunks->setOnUnload([this](const Chunk& chunk) {
+    chunks->setOnUnload([this](Chunk& chunk) {
+        events->trigger(LevelEventType::CHUNK_UNLOAD, &chunk);
         AABB aabb = chunk.getAABB();
         entities->despawn(entities->getAllInside(aabb));
     });

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "content/ContentPack.hpp"
 #include "interfaces/Serializable.hpp"
+#include "io/fwd.hpp"
 #include "typedefs.hpp"
 #include "util/timeutil.hpp"
 
@@ -15,8 +15,6 @@ class WorldFiles;
 class Level;
 class ContentReport;
 struct EngineSettings;
-
-namespace fs = std::filesystem;
 
 class world_load_error : public std::runtime_error {
 public:
@@ -35,7 +33,6 @@ struct WorldInfo : public Serializable {
     /// 0.5 - is noon
     float daytime = timeutil::time_value(10, 00, 00);
 
-    // looking bad
     float daytimeSpeed = 1.0f;
 
     /// @brief total time passed in the world (not depending on daytimeSpeed)
@@ -100,7 +97,7 @@ public:
     static std::unique_ptr<Level> create(
         const std::string& name,
         const std::string& generator,
-        const fs::path& directory,
+        const io::path& directory,
         uint64_t seed,
         EngineSettings& settings,
         const Content& content,
@@ -139,6 +136,10 @@ public:
 
     /// @brief Get world generator id
     std::string getGenerator() const;
+
+    bool isNameless() const {
+        return info.name.empty();
+    }
 
     WorldInfo& getInfo() {
         return info;

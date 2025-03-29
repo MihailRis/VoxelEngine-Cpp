@@ -38,11 +38,11 @@ bool Font::isPrintableChar(uint codepoint) const {
     }
 }
 
-int Font::calcWidth(const std::wstring& text, size_t length) const {
+int Font::calcWidth(std::wstring_view text, size_t length) const {
     return calcWidth(text, 0, length);
 }
 
-int Font::calcWidth(const std::wstring& text, size_t offset, size_t length) const {
+int Font::calcWidth(std::wstring_view text, size_t offset, size_t length) const {
     return std::min(text.length()-offset, length) * glyphInterval;
 }
 
@@ -153,7 +153,6 @@ static inline void draw_text(
     }
     batch.texture(font.getPage(0));
     for (size_t i = 0; i < text.length(); i++) {
-        uint c = text[i];
         size_t styleIndex = styles->map.at(
             std::min(styles->map.size() - 1, i + styleMapOffset)
         );

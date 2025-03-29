@@ -9,7 +9,7 @@
 #include "lighting/Lightmap.hpp"
 #include "frontend/ContentGfxCache.hpp"
 
-const glm::vec3 BlocksRenderer::SUN_VECTOR (0.411934f, 0.863868f, -0.279161f);
+const glm::vec3 BlocksRenderer::SUN_VECTOR (0.2275f,0.9388f,-0.1005f);
 
 BlocksRenderer::BlocksRenderer(
     size_t capacity,
@@ -129,7 +129,7 @@ void BlocksRenderer::faceAO(
     float s = 0.5f;
     if (lights) {
         float d = glm::dot(glm::normalize(Z), SUN_VECTOR);
-        d = 0.8f + d * 0.2f;
+        d = 0.7f + d * 0.3f;
 
         auto axisX = glm::normalize(X);
         auto axisY = glm::normalize(Y);
@@ -167,7 +167,7 @@ void BlocksRenderer::face(
     float s = 0.5f;
     if (lights) {
         float d = glm::dot(glm::normalize(Z), SUN_VECTOR);
-        d = 0.8f + d * 0.2f;
+        d = 0.7f + d * 0.3f;
         tint *= d;
     }
     vertex(coord + (-X - Y + Z) * s, region.u1, region.v1, tint);
@@ -329,8 +329,6 @@ void BlocksRenderer::blockCube(
     bool lights,
     bool ao
 ) {
-    ubyte group = block.drawGroup;
-
     glm::ivec3 X(1, 0, 0);
     glm::ivec3 Y(0, 1, 0);
     glm::ivec3 Z(0, 0, 1);
@@ -557,7 +555,7 @@ SortingMeshData BlocksRenderer::renderTranslucent(
                     y + 0.5f,
                     z + chunk->z * CHUNK_D + 0.5f
                 ),
-                util::Buffer<float>(indexSize * CHUNK_VERTEX_SIZE)};
+                util::Buffer<float>(indexSize * CHUNK_VERTEX_SIZE), 0};
 
             totalSize += entry.vertexData.size();
 
@@ -593,7 +591,8 @@ SortingMeshData BlocksRenderer::renderTranslucent(
          sortingMesh.entries.size() > 1) {
         SortingMeshEntry newEntry {
             sortingMesh.entries[0].position,
-            util::Buffer<float>(totalSize)
+            util::Buffer<float>(totalSize),
+            0
         };
         size_t offset = 0;
         for (const auto& entry : sortingMesh.entries) {
@@ -643,7 +642,7 @@ void BlocksRenderer::build(const Chunk* chunk, const Chunks* chunks) {
     vertexOffset = 0;
     indexOffset = indexSize = 0;
     
-    sortingMesh = std::move(renderTranslucent(voxels, beginEnds));
+    sortingMesh = renderTranslucent(voxels, beginEnds);
     
     overflow = false;
     vertexOffset = 0;

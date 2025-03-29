@@ -6,10 +6,10 @@
 #include "assets/assets_util.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
-#include "graphics/render/MainBatch.hpp"
 #include "window/Camera.hpp"
 #include "world/Level.hpp"
 #include "voxels/Chunks.hpp"
+#include "MainBatch.hpp"
 #include "settings.hpp"
 
 size_t ParticlesRenderer::visibleParticles = 0;
@@ -21,11 +21,10 @@ ParticlesRenderer::ParticlesRenderer(
     const Chunks& chunks,
     const GraphicsSettings* settings
 )
-    : batch(std::make_unique<MainBatch>(4096)),
-      level(level),
-      chunks(chunks),
+    : chunks(chunks),
       assets(assets),
-      settings(settings) {
+      settings(settings),
+      batch(std::make_unique<MainBatch>(4096)) {
 }
 
 ParticlesRenderer::~ParticlesRenderer() = default;
@@ -171,29 +170,10 @@ void ParticlesRenderer::render(const Camera& camera, float delta) {
             continue;
         }
         auto texture = emitter.getTexture();
-        const auto& found = particles.find(texture);
         std::vector<Particle>* vec;
         vec = &particles[texture];
         emitter.update(delta, camera.position, *vec);
         iter++;
-    }
-}
-
-void ParticlesRenderer::gc() {
-    std::set<Emitter*> usedEmitters;
-    for (const auto& [_, vec] : particles) {
-        for (const auto& particle : vec) {
-            usedEmitters.insert(particle.emitter);
-        }
-    }
-    auto iter = emitters.begin();
-    while (iter != emitters.end()) {
-        auto emitter = iter->second.get();
-        if (usedEmitters.find(emitter) == usedEmitters.end()) {
-            iter = emitters.erase(iter);
-        } else {
-            iter++;
-        }
     }
 }
 

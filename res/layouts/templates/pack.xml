@@ -1,4 +1,4 @@
-<container id='pack_%{id}' onclick='%{callback}' size='0,80' color='#00000040' hover-color='#00000080' z-index="%{index}">
+<container id='pack_%{id}' onclick='%{callback}' size='0,80' color='#00000040' hover-color='#00000080' position-func="%{position_func}" z-index="%{index}">
     <label color='#FFFFFF80' size='300,25' align='right' gravity='top-right'>
         [%{id_verbose}]
     </label>

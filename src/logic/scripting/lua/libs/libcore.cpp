@@ -7,9 +7,9 @@
 #include "content/Content.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
-#include "files/settings_io.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/settings_io.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/MenuScreen.hpp"
 #include "graphics/core/Texture.hpp"
@@ -43,6 +43,10 @@ static int l_reset_content(lua::State* L) {
     return 0;
 }
 
+static int l_is_content_loaded(lua::State* L) {
+    return lua::pushboolean(L, content != nullptr);
+}
+
 /// @brief Creating new world
 /// @param name Name world
 /// @param seed Seed world
@@ -51,7 +55,15 @@ static int l_new_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto seed = lua::require_string(L, 2);
     auto generator = lua::require_string(L, 3);
+    int64_t localPlayer = 0;
+    if (lua::gettop(L) >= 4) {
+        localPlayer = lua::tointeger(L, 4);
+    }
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     auto controller = engine->getController();
+    controller->setLocalPlayer(localPlayer);
     controller->createWorld(name, seed, generator);
     return 0;
 }
@@ -60,8 +72,11 @@ static int l_new_world(lua::State* L) {
 /// @param name Name world
 static int l_open_world(lua::State* L) {
     auto name = lua::require_string(L, 1);
-
+    if (level != nullptr) {
+        throw std::runtime_error("world must be closed before");
+    }
     auto controller = engine->getController();
+    controller->setLocalPlayer(0);
     controller->openWorld(name, false);
     return 0;
 }
@@ -133,7 +148,13 @@ static int l_reconfig_packs(lua::State* L) {
         lua::pop(L);
     }
     auto engineController = engine->getController();
-    engineController->reconfigPacks(controller, addPacks, remPacks);
+    try {
+        engineController->reconfigPacks(controller, addPacks, remPacks);
+    } catch (const contentpack_error& err) {
+        throw std::runtime_error(
+            std::string(err.what()) + " [" + err.getPackId() + " ]"
+        );
+    }
     return 0;
 }
 
@@ -238,8 +259,7 @@ static int l_load_texture(lua::State* L) {
 }
 
 static int l_open_folder(lua::State* L) {
-    auto path = engine->getPaths().resolve(lua::require_string(L, 1));
-    platform::open_folder(path);
+    platform::open_folder(io::resolve(lua::require_string(L, 1)));
     return 0;
 }
 
@@ -253,11 +273,39 @@ static int l_blank(lua::State*) {
     return 0;
 }
 
+static int l_capture_output(lua::State* L) {
+    int argc = lua::gettop(L) - 1;
+    if (!lua::isfunction(L, 1)) {
+        throw std::runtime_error("function expected as argument 1");
+    }
+    for (int i = 0; i < argc; i++) {
+        lua::pushvalue(L, i + 2);
+    }
+    lua::pushvalue(L, 1);
+
+    auto prev_output = output_stream;
+    auto prev_error = error_stream;
+
+    std::stringstream captured_output;
+
+    output_stream = &captured_output;
+    error_stream = &captured_output;
+    
+    lua::call_nothrow(L, argc, 0);
+
+    output_stream = prev_output;
+    error_stream = prev_error;
+    
+    lua::pushstring(L, captured_output.str());
+    return 1;
+}
+
 const luaL_Reg corelib[] = {
     {"blank", lua::wrap<l_blank>},
     {"get_version", lua::wrap<l_get_version>},
     {"load_content", lua::wrap<l_load_content>},
     {"reset_content", lua::wrap<l_reset_content>},
+    {"is_content_loaded", lua::wrap<l_is_content_loaded>},
     {"new_world", lua::wrap<l_new_world>},
     {"open_world", lua::wrap<l_open_world>},
     {"reopen_world", lua::wrap<l_reopen_world>},
@@ -271,6 +319,7 @@ const luaL_Reg corelib[] = {
     {"get_setting_info", lua::wrap<l_get_setting_info>},
     {"open_folder", lua::wrap<l_open_folder>},
     {"quit", lua::wrap<l_quit>},
+    {"capture_output", lua::wrap<l_capture_output>},
     {"__load_texture", lua::wrap<l_load_texture>},
     {NULL, NULL}
 };

@@ -133,11 +133,12 @@ static inline const Biome* choose_biome(
             score += glm::abs((params[i] - biome.parameters[i].value) / 
                               biome.parameters[i].weight);
         }
-        if (score < chosenScore) {
+        if (score < chosenScore || std::isinf(chosenScore)) {
             chosenScore = score;
             chosenBiome = &biome;
         }
     }
+    assert(chosenBiome != nullptr);
     return chosenBiome;
 }
 
@@ -388,7 +389,12 @@ void WorldGenerator::generatePlants(
                     }
                     auto& groundVoxel = voxels[vox_index(x, height, z)];
                     if (indices.get(groundVoxel.id)->rt.solid) {
+                        const auto& def = indices.require(plant);
                         voxel = {plant, {}};
+                        if (def.rotatable && def.rotations.variantsCount) {
+                            voxel.state.rotation =
+                                plantsRand.rand() % def.rotations.variantsCount;
+                        }
                     }
                 }
             }
@@ -431,7 +437,6 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
 
     std::memset(voxels, 0, sizeof(voxel) * CHUNK_VOL);
 
-    const auto& indices = content.getIndices()->blocks;
     const auto& biomes = prototype.biomes.get();
     for (uint z = 0; z < CHUNK_D; z++) {
         for (uint x = 0; x < CHUNK_W; x++) {
@@ -450,6 +455,7 @@ void WorldGenerator::generate(voxel* voxels, int chunkX, int chunkZ) {
     generatePlacements(prototype, voxels, chunkX, chunkZ);
     generatePlants(prototype, values, voxels, chunkX, chunkZ, biomes);
 
+    [[maybe_unused]] const auto& indices = content.getIndices()->blocks;
     for (uint i = 0; i < CHUNK_VOL; i++) {
         blockid_t& id = voxels[i].id;
         if (id == BLOCK_STRUCT_AIR) {
@@ -602,4 +608,8 @@ WorldGenDebugInfo WorldGenerator::createDebugInfo() const {
         static_cast<uint>(area.getHeight()),
         std::move(values)
     };
+}
+
+uint64_t WorldGenerator::getSeed() const {
+    return seed;
 }

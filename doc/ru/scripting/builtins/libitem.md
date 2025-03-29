@@ -27,6 +27,9 @@ item.model_name(itemid: int) -> str
 
 -- Возвращает emission параметр у предмета
 item.emission(itemid: int) -> str
+
+-- Возвращает значение свойства `uses`
+item.uses(itemid: int) -> int
 ```
 
 

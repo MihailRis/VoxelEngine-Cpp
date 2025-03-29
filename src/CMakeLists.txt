@@ -1,80 +1,130 @@
 project(VoxelEngineSrc)
 
-set(CMAKE_CXX_STANDARD 17)
+file(GLOB_RECURSE sources ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-list(REMOVE_ITEM SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-
-add_library(VoxelEngineSrc STATIC ${SOURCES} ${HEADERS})
+add_library(VoxelEngineSrc STATIC ${sources})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+find_package(glm REQUIRED)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     # specific for vcpkg
     find_package(OpenAL CONFIG REQUIRED)
-    set(OPENAL_LIBRARY OpenAL::OpenAL)
 else()
     find_package(OpenAL REQUIRED)
 endif()
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(CURL REQUIRED)
-if (NOT APPLE)
+find_package(glfw3 REQUIRED)
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     find_package(EnTT REQUIRED)
 endif()
-
-set(LIBS "")
-
-# Tested only for Windows
-if (VOXELENGINE_TRACY_PROFILER)
+if(VOXELENGINE_TRACY_PROFILER)
     find_package(Tracy CONFIG REQUIRED)
 endif()
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    # Use directly linking to lib instead PkgConfig (because pkg-config dont install on windows as default) 
-    # TODO: Do it with findLua.
-    if (MSVC)
-        set(LUA_INCLUDE_DIR "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit")
-        find_package(Lua REQUIRED)
-    else()
-        # Used for mingw-clang cross compiling from msys2
-        set(LIBS ${LIBS} luajit-5.1)
-    endif()
-    find_package(glfw3 REQUIRED)
-    find_package(glm REQUIRED)
-    find_package(vorbis REQUIRED)
-    set(VORBISLIB Vorbis::vorbis Vorbis::vorbisfile)
 
-elseif(APPLE)
-    find_package(PkgConfig)
-    pkg_check_modules(LUAJIT REQUIRED luajit)
-    pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
-    set(LUA_INCLUDE_DIR "/opt/homebrew/include/luajit-2.1")
-    set(LUA_LIBRARIES "/opt/homebrew/lib/libluajit-5.1.a")
-    message(STATUS "LUA Libraries: ${LUA_LIBRARIES}")
-    message(STATUS "LUA Include Dir: ${LUA_INCLUDE_DIR}")
-    
-    set(VORBISLIB ${VORBIS_LDFLAGS})
-    message(STATUS "Vorbis Lib: ${VORBIS_LDFLAGS}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    find_package(vorbis REQUIRED)
+    if(VCPKG_TARGET_TRIPLET MATCHES "static")
+        add_library(luajit STATIC IMPORTED)
+        set_target_properties(
+            luajit
+            PROPERTIES
+                IMPORTED_LOCATION
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/libluajit-5.1.a"
+                INTERFACE_INCLUDE_DIRECTORIES
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/"
+        )
+    else()
+        add_library(luajit SHARED IMPORTED)
+        set_target_properties(
+            luajit
+            PROPERTIES
+                IMPORTED_LOCATION
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/bin/lua51.dll"
+                IMPORTED_IMPLIB
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/lib/lua51.lib"
+                INTERFACE_INCLUDE_DIRECTORIES
+                "$ENV{VCPKG_ROOT}/packages/luajit_${VCPKG_TARGET_TRIPLET}/include/luajit"
+        )
+    endif()
+
+    add_library(luajit::luajit ALIAS luajit)
 else()
     find_package(PkgConfig)
-    pkg_check_modules(LUAJIT REQUIRED luajit)
-    pkg_check_modules(VORBIS REQUIRED vorbis vorbisfile)
-    set(LUA_LIBRARIES ${LUAJIT_LIBRARIES})
-    set(LUA_INCLUDE_DIR ${LUAJIT_INCLUDE_DIRS})
-    set(VORBISLIB ${VORBIS_LDFLAGS})
+
+    pkg_check_modules(luajit REQUIRED IMPORTED_TARGET luajit)
+    pkg_check_modules(vorbis REQUIRED IMPORTED_TARGET vorbis)
+    pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
+    add_library(Vorbis::vorbis ALIAS PkgConfig::vorbis)
+    add_library(Vorbis::vorbisfile ALIAS PkgConfig::vorbisfile)
+    add_library(luajit::luajit ALIAS PkgConfig::luajit)
 endif()
 
-if(UNIX)
-    find_package(glfw3 3.3 REQUIRED)
-    find_package(Threads REQUIRED)
-    set(LIBS ${LIBS} Threads::Threads)
-endif()
+target_include_directories(VoxelEngineSrc PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-include_directories(${LUA_INCLUDE_DIR})
-target_include_directories(VoxelEngineSrc PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(VoxelEngineSrc PUBLIC ${LIBS} glfw OpenGL::GL ${OPENAL_LIBRARY} GLEW::GLEW ZLIB::ZLIB PNG::PNG CURL::libcurl ${VORBISLIB} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
-if (VOXELENGINE_TRACY_PROFILER)
-    target_link_libraries(VoxelEngineSrc PUBLIC Tracy::TracyClient)
-    target_compile_definitions(VoxelEngineSrc PUBLIC VOXELENGINE_PROFILER VOXELENGINE_PROFILER_GPU TRACY_ENABLE VOXELENGINE_TRACY_PROFILER)
-endif()
+target_link_libraries(
+    VoxelEngineSrc
+    PRIVATE glfw
+            OpenGL::GL
+            GLEW::GLEW
+            ZLIB::ZLIB
+            PNG::PNG
+            CURL::libcurl
+            OpenAL::OpenAL
+            Vorbis::vorbis
+            Vorbis::vorbisfile
+            luajit::luajit
+    PUBLIC glm::glm # Need public for src/delegates.hpp, which including to
+                    # main.cpp
+           $<$<BOOL:${VOXELENGINE_TRACY_PROFILER}>:Tracy::TracyClient>)
+
+target_compile_options(
+    VoxelEngineSrc
+    PUBLIC $<$<CXX_COMPILER_ID:MSVC>:
+           /utf-8
+           /MP
+           /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR
+           /W4
+           /wd4244 # conversion from 'a' to 'T', possible loss of data
+           /wd4267 # conversion from 'size_t' to 'int', possible loss of data
+           /wd4245 # conversion from 'int' to 'const size_t', signed/unsigned
+                   # mismatch
+           /wd4100 # unreferenced formal parameter
+           /wd4458 # declaration of 'var' hides class member
+           /wd4101 # 'var': unreferenced local variable
+           /wd4388 # 'token' : signed/unsigned mismatch
+           /wd4018 # '>': signed/unsigned mismatch
+           >
+           $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
+           -Wall
+           -Wextra
+           # additional warnings
+           -Wformat-nonliteral
+           -Wcast-align
+           -Wpointer-arith
+           -Wundef
+           -Wwrite-strings
+           -Wno-unused-parameter
+           -Wno-sign-compare
+           -Wno-unknown-pragmas
+           $<$<CONFIG:Debug>:-Og>
+           >)
+
+target_link_options(
+    VoxelEngineSrc
+    PUBLIC
+    $<$<CXX_COMPILER_ID:GNU>:
+    -no-pie
+    >
+    # Need for static compilation on Windows with clang TODO: Make single build
+    # on Windows to avoid dependence on combinations of platforms and compilers
+    # and make it independent
+    $<$<PLATFORM_ID:Windows>:$<$<CXX_COMPILER_ID:Clang>:-static>>)
+
+target_compile_definitions(
+    VoxelEngineSrc
+    PUBLIC $<$<BOOL:${VOXELENGINE_TRACY_PROFILER}>:VOXELENGINE_PROFILER
+           VOXELENGINE_PROFILER_GPU TRACY_ENABLE VOXELENGINE_TRACY_PROFILER>)

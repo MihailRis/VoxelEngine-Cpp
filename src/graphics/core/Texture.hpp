@@ -34,7 +34,7 @@ public:
 
     virtual uint getId() const = 0;
 
-    virtual void setMipMapping(bool flag) = 0;
+    virtual void setMipMapping(bool flag, bool pixelated) = 0;
 
     static std::unique_ptr<Texture> from(const ImageData* image);
 };

@@ -5,23 +5,26 @@
 #include <utility>
 
 #include "AL/ALAudio.hpp"
-#include "NoAudio.hpp"
 #include "coders/ogg.hpp"
 #include "coders/wav.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Profiler.hpp"
+#include "io/io.hpp"
+#include "NoAudio.hpp"
+#include "util/ObjectsKeeper.hpp"
 
 static debug::Logger logger("audio");
 
-namespace audio {
+using namespace audio;
+
+namespace {
     static speakerid_t nextId = 1;
     static Backend* backend;
     static std::unordered_map<speakerid_t, std::unique_ptr<Speaker>> speakers;
     static std::unordered_map<speakerid_t, std::shared_ptr<Stream>> streams;
     static std::vector<std::unique_ptr<Channel>> channels;
+    static util::ObjectsKeeper objects_keeper {};
 }
-
-using namespace audio;
 
 Channel::Channel(std::string name) : name(std::move(name)) {
 }
@@ -149,7 +152,8 @@ public:
     }
 };
 
-void audio::initialize(bool enabled) {
+void audio::initialize(bool enabled, AudioSettings& settings) {
+    enabled = enabled && settings.enabled.get();
     if (enabled) {
         logger.info() << "initializing ALAudio backend";
         backend = ALAudio::create().release();
@@ -161,14 +165,29 @@ void audio::initialize(bool enabled) {
         logger.info() << "initializing NoAudio backend";
         backend = NoAudio::create().release();
     }
-    create_channel("master");
+    struct {
+        std::string name;
+        NumberSetting* setting;
+    } builtin_channels[] {
+        {"master", &settings.volumeMaster},
+        {"regular", &settings.volumeRegular},
+        {"music", &settings.volumeMusic},
+        {"ambient", &settings.volumeAmbient},
+        {"ui", &settings.volumeUI}
+    };
+    for (auto& channel : builtin_channels) {
+        create_channel(channel.name);
+        objects_keeper.keepAlive(channel.setting->observe([=](auto value) {
+            audio::get_channel(channel.name)->setVolume(value * value);
+        }, true));
+    }
 }
 
-std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
-    if (!fs::exists(file)) {
-        throw std::runtime_error("file not found '" + file.u8string() + "'");
+std::unique_ptr<PCM> audio::load_PCM(const io::path& file, bool headerOnly) {
+    if (!io::exists(file)) {
+        throw std::runtime_error("file not found '" + file.string() + "'");
     }
-    std::string ext = file.extension().u8string();
+    std::string ext = file.extension();
     if (ext == ".wav" || ext == ".WAV") {
         return wav::load_pcm(file, headerOnly);
     } else if (ext == ".ogg" || ext == ".OGG") {
@@ -177,7 +196,7 @@ std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
     throw std::runtime_error("unsupported audio format");
 }
 
-std::unique_ptr<Sound> audio::load_sound(const fs::path& file, bool keepPCM) {
+std::unique_ptr<Sound> audio::load_sound(const io::path& file, bool keepPCM) {
     std::shared_ptr<PCM> pcm(
         load_PCM(file, !keepPCM && backend->isDummy()).release()
     );
@@ -190,8 +209,8 @@ std::unique_ptr<Sound> audio::create_sound(
     return backend->createSound(std::move(pcm), keepPCM);
 }
 
-std::unique_ptr<PCMStream> audio::open_PCM_stream(const fs::path& file) {
-    std::string ext = file.extension().u8string();
+std::unique_ptr<PCMStream> audio::open_PCM_stream(const io::path& file) {
+    std::string ext = file.extension();
     if (ext == ".wav" || ext == ".WAV") {
         return wav::create_stream(file);
     } else if (ext == ".ogg" || ext == ".OGG") {
@@ -201,7 +220,7 @@ std::unique_ptr<PCMStream> audio::open_PCM_stream(const fs::path& file) {
 }
 
 std::unique_ptr<Stream> audio::open_stream(
-    const fs::path& file, bool keepSource
+    const io::path& file, bool keepSource
 ) {
     if (!keepSource && backend->isDummy()) {
         auto header = load_PCM(file, true);
@@ -321,7 +340,7 @@ speakerid_t audio::play(
 }
 
 speakerid_t audio::play_stream(
-    const fs::path& file,
+    const io::path& file,
     glm::vec3 position,
     bool relative,
     float volume,
@@ -444,4 +463,5 @@ void audio::close() {
     speakers.clear();
     delete backend;
     backend = nullptr;
+    objects_keeper.clearKeepedObjects();
 }

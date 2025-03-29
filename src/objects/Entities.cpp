@@ -31,11 +31,23 @@ static inline std::string SAVED_DATA_VARNAME = "SAVED_DATA";
 void Transform::refresh() {
     combined = glm::mat4(1.0f);
     combined = glm::translate(combined, pos);
-    combined = glm::scale(combined, size);
     combined = combined * glm::mat4(rot);
+    combined = glm::scale(combined, size);
     displayPos = pos;
     displaySize = size;
     dirty = false;
+}
+
+void Entity::setInterpolatedPosition(const glm::vec3& position) {
+    getSkeleton().interpolation.refresh(position);
+}
+
+glm::vec3 Entity::getInterpolatedPosition() const {
+    const auto& skeleton = getSkeleton();
+    if (skeleton.interpolation.isEnabled()) {
+        return skeleton.interpolation.getCurrent();
+    }
+    return getTransform().pos;
 }
 
 void Entity::destroy() {
@@ -250,7 +262,7 @@ std::optional<Entities::RaycastResult> Entities::rayCast(
     glm::ivec3 foundNormal;
 
     for (auto [entity, eid, transform, body] : view.each()) {
-        if (eid.uid == ignore) {
+        if (eid.uid == ignore || !body.enabled) {
             continue;
         }
         auto& hitbox = body.hitbox;
@@ -358,11 +370,14 @@ dv::value Entities::serialize(const Entity& entity) {
 dv::value Entities::serialize(const std::vector<Entity>& entities) {
     auto list = dv::list();
     for (auto& entity : entities) {
-        if (!entity.getDef().save.enabled) {
+        const EntityId& eid = entity.getID();
+        if (!entity.getDef().save.enabled || eid.destroyFlag) {
             continue;
         }
         level.entities->onSave(entity);
-        list.add(level.entities->serialize(entity));
+        if (!eid.destroyFlag) {
+            list.add(level.entities->serialize(entity));
+        }
     }
     return list;
 }
@@ -561,11 +576,14 @@ void Entities::render(
         if (transform.dirty) {
             transform.refresh();
         }
+        if (skeleton.interpolation.isEnabled()) {
+            skeleton.interpolation.updateTimer(delta);
+        }
         const auto& pos = transform.pos;
         const auto& size = transform.size;
         if (!frustum || frustum->isBoxVisible(pos - size, pos + size)) {
             const auto* rigConfig = skeleton.config;
-            rigConfig->render(assets, batch, skeleton, transform.combined);
+            rigConfig->render(assets, batch, skeleton, transform.combined, pos);
         }
     }
 }
@@ -582,9 +600,9 @@ bool Entities::hasBlockingInside(AABB aabb) {
 
 std::vector<Entity> Entities::getAllInside(AABB aabb) {
     std::vector<Entity> collected;
-    auto view = registry.view<Transform>();
-    for (auto [entity, transform] : view.each()) {
-        if (aabb.contains(transform.pos)) {
+    auto view = registry.view<EntityId, Transform>();
+    for (auto [entity, eid, transform] : view.each()) {
+        if (!eid.destroyFlag && aabb.contains(transform.pos)) {
             const auto& found = uids.find(entity);
             if (found == uids.end()) {
                 continue;

@@ -42,7 +42,6 @@ struct RendererResult {
 };
 
 class ChunksRenderer {
-    const Level& level;
     const Chunks& chunks;
     const Assets& assets;
     const Frustum& frustum;

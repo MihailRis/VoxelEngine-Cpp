@@ -19,3 +19,34 @@ Styles can be combined. Example:
 Output:
 
 ***<ins>Message</ins>*** using *~~combed~~ combined* styles<ins>~~.~~</ins>
+
+# Colors
+
+Text color can be set using a color code: [#RRGGBB]
+
+
+| Component | Purpose                           |
+| --------- | --------------------------------- |
+| R         | Represents the intensity of red   |
+| G         | Represents the intensity of green |
+| B         | Represents the intensity of blue  |
+
+### Example:
+
+<span style="color: #ff0000">
+    <span style="color:rgb(105, 105, 105)">
+    [#ff0000]
+    </span>Red Text
+</span>
+
+<span style="color: #00ff00">
+    <span style="color:rgb(105, 105, 105)">
+    [#00ff00]
+    </span>Green Text
+</span>
+
+<span style="color: #0000ff">
+    <span style="color:rgb(105, 105, 105)">
+    [#0000ff]
+    </span>Blue Text
+</span>

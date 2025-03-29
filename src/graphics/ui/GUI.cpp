@@ -1,42 +1,57 @@
 #include "GUI.hpp"
 
-#include <algorithm>
-#include <iostream>
-#include <utility>
+#include "gui_util.hpp"
+
+#include "elements/UINode.hpp"
+#include "elements/Label.hpp"
+#include "elements/Menu.hpp"
+#include "elements/Panel.hpp"
 
 #include "assets/Assets.hpp"
 #include "elements/Label.hpp"
 #include "elements/Menu.hpp"
 #include "elements/UINode.hpp"
 #include "engine/Profiler.hpp"
+#include "engine/Profiler.hpp"
 #include "engine/ProfilerGpu.hpp"
-#include "frontend/UiDocument.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "frontend/locale.hpp"
+#include "frontend/UiDocument.hpp"
 #include "graphics/core/Batch2D.hpp"
 #include "graphics/core/DrawContext.hpp"
+#include "graphics/core/Font.hpp"
+#include "graphics/core/LineBatch.hpp"
+#include "graphics/core/Shader.hpp"
 #include "graphics/core/Shader.hpp"
 #include "gui_util.hpp"
 #include "window/Camera.hpp"
+#include "window/Camera.hpp"
 #include "window/Events.hpp"
-#include "window/Window.hpp"
 #include "window/input.hpp"
+#include "window/Window.hpp"
+
+#include <algorithm>
+#include <utility>
 
 using namespace gui;
 
-GUI::GUI() : batch2D(std::make_unique<Batch2D>(1024)) {
-    container = std::make_shared<Container>(glm::vec2(1000));
+GUI::GUI()
+    : batch2D(std::make_unique<Batch2D>(1024)),
+      container(std::make_shared<Container>(glm::vec2(1000))) {
+    container->setId("root");
     uicamera = std::make_unique<Camera>(glm::vec3(), Window::height);
     uicamera->perspective = false;
     uicamera->flipped = true;
 
     menu = std::make_shared<Menu>();
     menu->setId("menu");
+    menu->setZIndex(10);
     container->add(menu);
     container->setScrollable(false);
 
     tooltip = guiutil::create(
         "<container color='#000000A0' interactive='false' z-index='999'>"
-        "<label id='tooltip.label' pos='2' autoresize='true'></label>"
+            "<label id='tooltip.label' pos='2' autoresize='true' multiline='true' text-wrap='false'></label>"
         "</container>"
     );
     store("tooltip", tooltip);
@@ -108,7 +123,7 @@ void GUI::actMouse(float delta) {
     doubleClicked = false;
     doubleClickTimer += delta + mouseDelta * 0.1f;
 
-    auto hover = container->getAt(Events::cursor, nullptr);
+    auto hover = container->getAt(Events::cursor);
     if (this->hover && this->hover != hover) {
         this->hover->setHover(false);
     }
@@ -170,10 +185,10 @@ void GUI::actFocused() {
         focus->keyPressed(key);
     }
 
-    if (!Events::_cursor_locked) {
-        if (Events::clicked(mousecode::BUTTON_1) &&
-            (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x ||
-             Events::delta.y)) {
+    if (!Events::isCursorLocked()) {
+        if (Events::clicked(mousecode::BUTTON_1) && 
+            (Events::jclicked(mousecode::BUTTON_1) || Events::delta.x || Events::delta.y))
+        {
             if (!doubleClicked) {
                 focus->mouseMove(this, Events::cursor.x, Events::cursor.y);
             }
@@ -182,18 +197,12 @@ void GUI::actFocused() {
 }
 
 void GUI::act(float delta, const Viewport& vp) {
-    while (!postRunnables.empty()) {
-        runnable callback = postRunnables.back();
-        postRunnables.pop();
-        callback();
-    }
-
     container->setSize(vp.size());
     container->act(delta);
     auto prevfocus = focus;
 
     updateTooltip(delta);
-    if (!Events::_cursor_locked) {
+    if (!Events::isCursorLocked()) {
         actMouse(delta);
     } else {
         if (hover) {
@@ -210,6 +219,14 @@ void GUI::act(float delta, const Viewport& vp) {
     }
 }
 
+void GUI::postAct() {
+    while (!postRunnables.empty()) {
+        runnable callback = postRunnables.front();
+        postRunnables.pop();
+        callback();
+    }
+}
+
 void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     VOXELENGINE_PROFILE;
     VOXELENGINE_PROFILE_GPU("GUI::draw");
@@ -219,6 +236,14 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     auto& viewport = ctx.getViewport();
     glm::vec2 wsize = viewport.size();
 
+    auto& page = menu->getCurrent();
+    if (page.panel) {
+        menu->setSize(page.panel->getSize());
+        page.panel->refresh();
+        if (auto panel = std::dynamic_pointer_cast<gui::Panel>(page.panel)) {
+            panel->cropToContent();
+        }
+    }
     menu->setPos((wsize - menu->getSize()) / 2.0f);
     uicamera->setFov(wsize.y);
 
@@ -231,6 +256,39 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
 
     if (hover) {
         Window::setCursor(hover->getCursor());
+    }
+    if (hover && debug) {
+        auto pos = hover->calcPos();
+        const auto& id = hover->getId();
+        if (!id.empty()) {
+            auto& font = assets.require<Font>(FONT_DEFAULT);
+            auto text = util::str2wstr_utf8(id);
+            int width = font.calcWidth(text);
+            int height = font.getLineHeight();
+
+            batch2D->untexture();
+            batch2D->setColor(0, 0, 0);
+            batch2D->rect(pos.x, pos.y, width, height);
+
+            batch2D->resetColor();
+            font.draw(*batch2D, text, pos.x, pos.y, nullptr, 0);
+        }
+
+        batch2D->untexture();
+        auto node = hover->getParent();
+        while (node) {
+            auto pos = node->calcPos();
+            auto size = node->getSize();
+
+            batch2D->setColor(0, 255, 255);
+            batch2D->lineRect(pos.x, pos.y, size.x-1, size.y-1);
+
+            node = node->getParent();
+        }
+        // debug draw
+        auto size = hover->getSize();
+        batch2D->setColor(0, 255, 0);
+        batch2D->lineRect(pos.x, pos.y, size.x-1, size.y-1);
     }
 }
 
@@ -246,8 +304,8 @@ void GUI::add(std::shared_ptr<UINode> node) {
     container->add(std::move(node));
 }
 
-void GUI::remove(std::shared_ptr<UINode> node) noexcept {
-    container->remove(std::move(node));
+void GUI::remove(UINode* node) noexcept {
+    container->remove(node);
 }
 
 void GUI::store(const std::string& name, std::shared_ptr<UINode> node) {
@@ -290,4 +348,8 @@ void GUI::setDoubleClickDelay(float delay) {
 
 float GUI::getDoubleClickDelay() const {
     return doubleClickDelay;
+}
+
+void GUI::toggleDebug() {
+    debug = !debug;
 }

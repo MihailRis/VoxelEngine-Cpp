@@ -1,96 +1,111 @@
-# 0.25 - 2024.12.01
+# 0.27 - 2025.03.25
 
-[Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.25/doc/en/main-page.md) for 0.25
+[Documentation](https://github.com/MihailRis/VoxelEngine-Cpp/tree/release-0.27/doc/en/main-page.md) for 0.27
 
 Table of contents:
 
 - [Added](#added)
+    - [Changes](#changes)
     - [Functions](#functions)
 - [Fixes](#fixes)
 
 ## Added
 
-- 3dtext
-- blockwraps
-- network (http requests and sockets)
+- items data
+- weather
+- work with ZIP-files
+- splitbox ui element
+- history in textbox
+- reloading content scripts within the editor
 - libraries:
-	- base64
-	- gfx.text3d
-	- gfx.blockwraps
-    - network
-- events:
-    - on_replaced
-    - on_block_replaced
-    - on_player_tick
-- structures 'lowering' property
-- add 'hint' property to textbox
-- add 'taking' and 'placing' properties to slot and slotsgrid
-- add 'scroll-step' property to container
-- add 'line-numbers' and 'text-color' to textbox
-- modules:
-    - base:util
-- uinode property 'id'
-- block.materials table
-- block.properties table
-- item.properties table
-- add version to world info table
-- add 'sizeSpread' particles property
-- add user properties
+    - gfx.weather
+- [add side mouse buttons](https://github.com/MihailRis/VoxelEngine-Cpp/pull/461)
+- item properties:
+    - uses
+    - uses-display
+- textbox attributes:
+    - oncontrolkey
+- container attributes:
+    - scroll
+- multiline tooltips suppoirt
+- ['@' prefix support in tooltips](https://github.com/MihailRis/VoxelEngine-Cpp/commit/fa990e393986aad07e9fb9a570338b08fd4f9a0c)
+
+### Changes
+
+- file subsystem upgrade
+- code editor upgrade
+- block materials update
+- actual file path now may be specified in audio.play_stream/play_stream_2d call.
 
 ### Functions
 
-- player.is_infinite_items
-- player.set_infinite_items
-- player.is_instant_destruction
-- player.set_instant_destruction
-- player.get_name
-- player.set_name
-- hud.open
-- base64.encode
-- base64.decode
-- utf8.escape
-- string.escape
-- textbox:lineAt
-- textbox:linePos
-- network.get
-- network.get_binary
-- network.tcp_connect
-- network.tcp_open
-- network.get_total_upload
-- network.get_total_download
-- gfx.text3d.show
-- gfx.text3d.hide
-- gfx.text3d.get_text
-- gfx.text3d.set_text
-- gfx.text3d.get_pos
-- gfx.text3d.set_pos
-- gfx.text3d.get_axis_x
-- gfx.text3d.set_axis_x
-- gfx.text3d.get_axis_y
-- gfx.text3d.set_axis_y
-- gfx.text3d.set_rotation
-- gfx.text3d.update_settings
+- file.create_zip
+- file.mount
+- file.unmount
+- file.path
+- file.parent
+- file.join
+- pack.request_writeable
+- crc32
+- table.merge
+- table.map
+- table.filter
+- table.set_default
+- table.flat
+- table.deep_flat
+- table.sub
+- math.sum
+- string.pad
+- string.left_pad
+- string.right_pad
+- block.reload_script
+- world.reload_script
+- entities.reload_component
+- hud.reload_script
+- item.reload_script
+- gfx.weather.change
+- gfx.weather.get_current
+- gfx.weather.get_current_data
+- gfx.weather.get_fall_intensity
+- gfx.weather.is_transition
+- inventory.decrement
+- inventory.use
+- inventory.set_count
+- inventory.get_data
+- inventory.set_data
+- inventory.get_all_data
+- inventory.has_data
+- item.uses
+- core.capture_output
+
+Methods:
+
+- canvas:set_data
+- canvas:line
+- canvas:blit
+- canvas:clear
+- canvas:create_texture
 
 ## Fixes
 
-- [fix translucent blocks render](https://github.com/MihailRis/VoxelEngine-Cpp/pull/370)
-- [fix blocks selection with semi-transparent blocks](https://github.com/MihailRis/VoxelEngine-Cpp/commit/171cbb48d099032d7e78c51a46c374104f96f0d1)
-- [fix: commands repository not reset before world open](https://github.com/MihailRis/VoxelEngine-Cpp/commit/1a00a91b604399f3108aa995422d371e573e650b)
-- [mip-mapping related fixes](https://github.com/MihailRis/VoxelEngine-Cpp/commit/d9277e1b31714632bd7f5f601b8362a9e7cb8819)
-- [fix disabled slots display](https://github.com/MihailRis/VoxelEngine-Cpp/commit/e8ee3e04b1398a3ada8445591267525304410571)
-- [fix attack](https://github.com/MihailRis/VoxelEngine-Cpp/commit/bc17abc8b3ee7ff9027f7e3c375ca0330bb8e7bc)
-- [fix: commands repository not reset before world open](https://github.com/MihailRis/VoxelEngine-Cpp/commit/1a00a91b604399f3108aa995422d371e573e650b)
-- [fix stdlib.lua](https://github.com/MihailRis/VoxelEngine-Cpp/commit/6ec33ab98c78523eaececf40f113f2323d25a33a)
-- [fix file.write_bytes](https://github.com/MihailRis/VoxelEngine-Cpp/commit/0fec17a8b69ac81255b77022f3af5addf8fcc8f8)
-- [fix World::nextInventoryId](https://github.com/MihailRis/VoxelEngine-Cpp/commit/371fdaedcef2c163edd226160f388068b2bf5e83)
-- [fix block inventory unbinding](https://github.com/MihailRis/VoxelEngine-Cpp/commit/6f6c2a916afd6b9b79221111fc72b1a86109be13)
-- [fix xml text escapes handling](https://github.com/MihailRis/VoxelEngine-Cpp/commit/53c54dc91d132c221ff5fea2f7e9fb4568db9a0f)
-- [fix `\'` escape parsing](https://github.com/MihailRis/VoxelEngine-Cpp/commit/2bc6cbda2e809b14fa6cffe09161b53c1636675f)
-- [fix crosshair look](https://github.com/MihailRis/VoxelEngine-Cpp/commit/e034bda477c35efe96548e78ecc722966a7a2197)
-- [fix: actual block inventory size not updating on inventory-size property update](https://github.com/MihailRis/VoxelEngine-Cpp/commit/1ba5b0ce33103e539ccb199ee1cd52095e286a1f)
-- [fix falling block hitbox](https://github.com/MihailRis/VoxelEngine-Cpp/commit/352ef6485a4b796d1cdc8dd0e00ab1a1d72a2c0a)
-- [fix console position](https://github.com/MihailRis/VoxelEngine-Cpp/commit/3ea213e8d3cee7be55ec39ffb18dc557dec7557b)
-- [fix: fatal error on pack removal when no world open](https://github.com/MihailRis/VoxelEngine-Cpp/commit/78d5ab02c2ba8a3d05cf5639eb10a49c9ca14ec3)
-- [fix custom model lighting](https://github.com/MihailRis/VoxelEngine-Cpp/commit/a333cadfcaeb485a30833343d55faf01b28a5c5f)
-- [fix: emitter does not skip particles](https://github.com/MihailRis/VoxelEngine-Cpp/commit/983e516fb4ebc1f2def592f2b7f3195d968deed2)
-- [fix old custom models render](https://github.com/MihailRis/VoxelEngine-Cpp/commit/82733d38011b52a426cb74560521949c1cd43cc1)
+- [fix incorrect entity transform scale & rotation combination](https://github.com/MihailRis/VoxelEngine-Cpp/commit/b832b9850f709053b43714bb0e3481560711e872)
+- [fix syntax highlighting not refreshing on selected text removal](https://github.com/MihailRis/VoxelEngine-Cpp/commit/33795f06f710de569a24b2d1937310b16dd040f5)
+- [fix TextBox behavior with markup used](https://github.com/MihailRis/VoxelEngine-Cpp/commit/31d5cb68800d965a668a67fd60bb4d3365181242)
+- [fix: console/chat open still available when menu is open & cleanup](https://github.com/MihailRis/VoxelEngine-Cpp/commit/c7061c70cb3b6382197c93d9442bfbb4c9fc1def)
+- [fix: Label.cpp: uinode size](https://github.com/MihailRis/VoxelEngine-Cpp/commit/6e8a4bacff77b7eba39393bcc8a5fb417a288884)
+- [fix: camera rotation not updating when menu is open](https://github.com/MihailRis/VoxelEngine-Cpp/commit/801354c15d96343b00963183f6f08219bd375ee8)
+- [fix stack split (right click) with item data](https://github.com/MihailRis/VoxelEngine-Cpp/commit/6ef82982bdc813bfc5c0ed2437a1a3fa9a2242d1)
+- [fix stack increment (right click) with item data](https://github.com/MihailRis/VoxelEngine-Cpp/commit/449b0ebca464f913f63913ad7af91811c717c349)
+- [fix caves generation](https://github.com/MihailRis/VoxelEngine-Cpp/commit/4c8b0824181f05aa5611a1e077f999788f575c42)
+- [fix: incorrect UV on custom model blocks](https://github.com/MihailRis/VoxelEngine-Cpp/commit/12105c29335481de429c8e6acc953e8cbcdc6ecf)
+- [bug fix content_menu.xml.lua](https://github.com/MihailRis/VoxelEngine-Cpp/commit/15e143afb0364f816a1033868b2501c9a9e69fda)
+- [fix: disabled bodies not skipping in entities raycast](https://github.com/MihailRis/VoxelEngine-Cpp/commit/5e10afc9b5d6582617fe34ec37abdb682e46197a)
+- [table.filter bug fix](https://github.com/MihailRis/VoxelEngine-Cpp/pull/481)
+- [fix: incorrect canvas Y direction](https://github.com/MihailRis/VoxelEngine-Cpp/commit/ee3fbc68314865384d2a7d78a22221b5987979a4)
+- [fix fatal error on audio.play_sound in headless-mode](https://github.com/MihailRis/VoxelEngine-Cpp/commit/a74a4fcf5366c8f78625f7087f42a8150f6896e0)
+- [fix BasicParser '\v' and '\x' escapes](https://github.com/MihailRis/VoxelEngine-Cpp/commit/8b0935d2b745acb11cba9c8bc647b4186d1817a3)
+- [fix: entity:despawn in on_save not preventing entity save](https://github.com/MihailRis/VoxelEngine-Cpp/pull/480)
+- [fix syntax highlighting unicode support](https://github.com/MihailRis/VoxelEngine-Cpp/pull/475)
+- [fix reading binary file as string](https://github.com/MihailRis/VoxelEngine-Cpp/commit/104cc116456aba6e569892521ecae92d8bf6b9ff)
+- [fix inventory.move_range](https://github.com/MihailRis/VoxelEngine-Cpp/commit/f5a4b5ca79806418b0736d3f84e9efa8d9992a34)
+- [fix: multiline text draw is not limited to the render area](https://github.com/MihailRis/VoxelEngine-Cpp/commit/a8067ad9d634cb3fc4632378277d62b32e4afb15)

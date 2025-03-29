@@ -8,13 +8,12 @@
 #include "content/content_fwd.hpp"
 #include "content/ContentPack.hpp"
 #include "content/PacksManager.hpp"
-#include "files/engine_paths.hpp"
-#include "files/settings_io.hpp"
+#include "io/engine_paths.hpp"
+#include "io/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
 #include "PostRunnables.hpp"
 #include "Time.hpp"
 
-#include <filesystem>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -48,17 +47,19 @@ public:
 struct CoreParameters {
     bool headless = false;
     bool testMode = false;
-    std::filesystem::path resFolder {"res"};
-    std::filesystem::path userFolder {"."};
+    std::filesystem::path resFolder = "res";
+    std::filesystem::path userFolder = ".";
     std::filesystem::path scriptFile;
 };
+
+using OnWorldOpen = std::function<void(std::unique_ptr<Level>, int64_t)>;
 
 class Engine : public util::ObjectsKeeper {
     CoreParameters params;
     EngineSettings settings;
-    SettingsHandler settingsHandler;
     EnginePaths paths;
 
+    std::unique_ptr<SettingsHandler> settingsHandler;
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
     std::vector<ContentPack> contentPacks;
@@ -71,7 +72,7 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<gui::GUI> gui;
     PostRunnables postRunnables;
     Time time;
-    consumer<std::unique_ptr<Level>> levelConsumer;
+    OnWorldOpen levelConsumer;
     bool quitSignal = false;
     
     void loadControls();
@@ -80,8 +81,14 @@ class Engine : public util::ObjectsKeeper {
     void updateHotkeys();
     void loadAssets();
 public:
-    Engine(CoreParameters coreParameters);
+    Engine();
     ~Engine();
+
+    static Engine& getInstance();
+
+    void initialize(CoreParameters coreParameters);
+
+    static void terminate();
 
     /// @brief Start the engine
     void run();
@@ -114,7 +121,7 @@ public:
     /// @brief Collect world content-packs and load content
     /// @see loadContent
     /// @param folder world folder
-    void loadWorldContent(const fs::path& folder);
+    void loadWorldContent(const io::path& folder);
 
     /// @brief Collect all available content-packs from res/content
     void loadAllPacks();
@@ -134,7 +141,7 @@ public:
     /// @brief Get engine resource paths controller
     ResPaths* getResPaths();
 
-    void onWorldOpen(std::unique_ptr<Level> level);
+    void onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer);
     void onWorldClosed();
 
     void quit();
@@ -143,6 +150,8 @@ public:
 
     /// @brief Get current Content instance
     const Content* getContent() const;
+
+    Content* getWriteableContent();
 
     /// @brief Get selected content packs
     std::vector<ContentPack>& getContentPacks();
@@ -164,9 +173,9 @@ public:
     EngineController* getController();
     cmd::CommandsInterpreter* getCommandsInterpreter();
 
-    PacksManager createPacksManager(const fs::path& worldFolder);
+    PacksManager createPacksManager(const io::path& worldFolder);
 
-    void setLevelConsumer(consumer<std::unique_ptr<Level>> levelConsumer);
+    void setLevelConsumer(OnWorldOpen levelConsumer);
 
     SettingsHandler& getSettingsHandler();
 

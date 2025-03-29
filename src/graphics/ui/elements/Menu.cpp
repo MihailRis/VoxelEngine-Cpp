@@ -55,7 +55,7 @@ void Menu::setPage(const std::string &name, bool history) {
 
 void Menu::setPage(Page page, bool history) {
     if (current.panel) {
-        Container::remove(current.panel);
+        Container::remove(current.panel.get());
         if (history && !current.temporal) {
             pageStack.push(current);
         }
@@ -65,9 +65,10 @@ void Menu::setPage(Page page, bool history) {
     setSize(current.panel->getSize());
 }
 
-void Menu::back() {
-    if (pageStack.empty())
-        return;
+bool Menu::back() {
+    if (pageStack.empty()) {
+        return false;
+    }
     Page page = pageStack.top();
     pageStack.pop();
 
@@ -77,6 +78,7 @@ void Menu::back() {
     }
 
     setPage(page, false);
+    return true;
 }
 
 void Menu::setPageLoader(PageLoaderFunc loader) {
@@ -91,6 +93,10 @@ Page& Menu::getCurrent() {
     return current;
 }
 
+bool Menu::hasOpenPage() const {
+    return current.panel != nullptr;
+}
+
 void Menu::clearHistory() {
     pageStack = std::stack<Page>();
 }
@@ -98,7 +104,7 @@ void Menu::clearHistory() {
 void Menu::reset() {
     clearHistory();
     if (current.panel) {
-        Container::remove(current.panel);
+        Container::remove(current.panel.get());
         current = Page {"", nullptr};
     }
 }

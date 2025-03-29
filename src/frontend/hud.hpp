@@ -30,26 +30,26 @@ namespace gui {
     class SlotView;
 }
 
-enum class hud_element_mode {
+enum class HudElementMode {
     // element is hidden if menu or inventory open
-    ingame,
+    INGAME,
     // element is visible if hud is visible
-    permanent,
+    PERMANENT,
     // element is visible in inventory mode
-    inventory_any,
+    INVENTORY_ANY,
     // element will be removed on inventory close
-    inventory_bound
+    INVENTORY
 };
 
 class HudElement {
-    hud_element_mode mode;
+    HudElementMode mode;
     UiDocument* document;
     std::shared_ptr<gui::UINode> node;
 
     bool debug;
     bool removed = false;
 public:
-    HudElement(hud_element_mode mode, UiDocument* document, std::shared_ptr<gui::UINode> node, bool debug);
+    HudElement(HudElementMode mode, UiDocument* document, std::shared_ptr<gui::UINode> node, bool debug);
 
     void update(bool pause, bool inventoryOpen, bool debug);
 
@@ -57,7 +57,7 @@ public:
     std::shared_ptr<gui::UINode> getNode() const;
 
     bool isInventoryBound() const {
-        return mode == hud_element_mode::inventory_bound;
+        return mode == HudElementMode::INVENTORY;
     }
 
     void setRemoved() {
@@ -113,6 +113,8 @@ class Hud : public util::ObjectsKeeper {
     bool showContentPanel = true;
     /// @brief Provide cheat controllers to the debug panel
     bool allowDebugCheats = true;
+    /// @brief Allow actual pause
+    bool allowPause = true;
     bool debug = false;
     /// @brief UI element will be dynamicly positioned near to inventory or in screen center
     std::shared_ptr<gui::UINode> secondUI;
@@ -133,7 +135,7 @@ class Hud : public util::ObjectsKeeper {
     void dropExchangeSlot();
 
     void showExchangeSlot();
-    void updateWorldGenDebugVisualization();
+    void updateWorldGenDebug();
 public:
     Hud(Engine& engine, LevelFrontend& frontend, Player& player);
     ~Hud();
@@ -205,6 +207,8 @@ public:
     void setContentAccess(bool flag);
 
     void setDebugCheats(bool flag);
+
+    void setAllowPause(bool flag);
 
     static bool showGeneratorMinimap;
 

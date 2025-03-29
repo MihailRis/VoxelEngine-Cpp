@@ -54,7 +54,7 @@ namespace gui {
         PageLoaderFunc getPageLoader();
 
         /// @brief Set page to previous saved in history
-        void back();
+        bool back();
 
         /// @brief Clear pages history
         void clearHistory();
@@ -64,5 +64,7 @@ namespace gui {
     
         /// @brief Get current page
         Page& getCurrent();
+
+        bool hasOpenPage() const;
     };
 }

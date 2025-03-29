@@ -13,19 +13,6 @@ Chunk::Chunk(int xpos, int zpos) : x(xpos), z(zpos) {
     top = CHUNK_H;
 }
 
-bool Chunk::isEmpty() const {
-    int id = -1;
-    for (uint i = 0; i < CHUNK_VOL; i++) {
-        if (voxels[i].id != id) {
-            if (id != -1)
-                return false;
-            else
-                id = voxels[i].id;
-        }
-    }
-    return true;
-}
-
 void Chunk::updateHeights() {
     for (uint i = 0; i < CHUNK_VOL; i++) {
         if (voxels[i].id != 0) {

@@ -1,9 +1,8 @@
 #include "command_line.hpp"
 
-#include <filesystem>
 #include <iostream>
 
-#include "files/engine_paths.hpp"
+#include "io/engine_paths.hpp"
 #include "util/ArgsReader.hpp"
 #include "engine/Engine.hpp"
 
@@ -14,10 +13,10 @@ static bool perform_keyword(
 ) {
     if (keyword == "--res") {
         auto token = reader.next();
-        params.resFolder = fs::u8path(token);
+        params.resFolder = token;
     } else if (keyword == "--dir") {
         auto token = reader.next();
-        params.userFolder = fs::u8path(token);
+        params.userFolder = token;
     } else if (keyword == "--help" || keyword == "-h") {
         std::cout << "VoxelCore v" << ENGINE_VERSION_STRING << "\n\n";
         std::cout << "command-line arguments:\n";
@@ -38,11 +37,11 @@ static bool perform_keyword(
     } else if (keyword == "--test") {
         auto token = reader.next();
         params.testMode = true;
-        params.scriptFile = fs::u8path(token);
+        params.scriptFile = token;
     } else if (keyword == "--script") {
         auto token = reader.next();
         params.testMode = false;
-        params.scriptFile = fs::u8path(token);
+        params.scriptFile = token;
     } else {
         throw std::runtime_error("unknown argument " + keyword);
     }

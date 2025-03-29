@@ -4,16 +4,18 @@
 
 #include "api_lua.hpp"
 #include "assets/AssetsLoader.hpp"
-#include "coders/compression.hpp"
-#include "coders/gzip.hpp"
 #include "coders/json.hpp"
+#include "content/Content.hpp"
+#include "content/ContentLoader.hpp"
 #include "engine/Engine.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
+#include "world/files/WorldFiles.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
 #include "lighting/Lighting.hpp"
 #include "voxels/Chunk.hpp"
 #include "voxels/Chunks.hpp"
 #include "voxels/GlobalChunks.hpp"
+#include "voxels/compressed_chunks.hpp"
 #include "world/Level.hpp"
 #include "world/World.hpp"
 #include "logic/LevelController.hpp"
@@ -44,22 +46,22 @@ static int l_get_list(lua::State* L) {
         const auto& folder = worlds[i];
 
         auto root =
-            json::parse(files::read_string(folder / fs::u8path("world.json")));
+            json::parse(io::read_string(folder / "world.json"));
         const auto& versionMap = root["version"];
         int versionMajor = versionMap["major"].asInteger();
         int versionMinor = versionMap["minor"].asInteger();
 
-        auto name = folder.filename().u8string();
+        auto name = folder.name();
         lua::pushstring(L, name);
         lua::setfield(L, "name");
 
         auto assets = engine->getAssets();
         std::string icon = "world#" + name + ".icon";
-        if (!AssetsLoader::loadExternalTexture(
+        if (!engine->isHeadless() && !AssetsLoader::loadExternalTexture(
                 assets,
                 icon,
-                {worlds[i] / fs::path("icon.png"),
-                 worlds[i] / fs::path("preview.png")}
+                {worlds[i] / "icon.png",
+                 worlds[i] / "preview.png"}
             )) {
             icon = "gui/no_world_icon";
         }
@@ -105,7 +107,7 @@ static int l_get_seed(lua::State* L) {
 static int l_exists(lua::State* L) {
     auto name = lua::require_string(L, 1);
     auto worldsDir = engine->getPaths().getWorldFolderByName(name);
-    return lua::pushboolean(L, fs::is_directory(worldsDir));
+    return lua::pushboolean(L, io::is_directory(worldsDir));
 }
 
 static int l_is_day(lua::State* L) {
@@ -123,122 +125,84 @@ static int l_get_generator(lua::State* L) {
 }
 
 static int l_get_chunk_data(lua::State* L) {
-    int x = (int)lua::tointeger(L, 1);
-    int y = (int)lua::tointeger(L, 2);
-    const auto& chunk = level->chunks->getChunk(x, y);
-    if (chunk == nullptr) {
-        lua::pushnil(L);
-        return 0;
-    }
+    int x = static_cast<int>(lua::tointeger(L, 1));
+    int z = static_cast<int>(lua::tointeger(L, 2));
+    const auto& chunk = level->chunks->getChunk(x, z);
 
-    bool compress = false;
-    if (lua::gettop(L) >= 3) {
-        compress = lua::toboolean(L, 3);
-    }
-    std::vector<ubyte> chunk_data;
-    if (compress) {
-        size_t rle_compressed_size;
-        size_t gzip_compressed_size;
-        const auto& data_ptr = chunk->encode();
-        ubyte* data = data_ptr.get();
-        const auto& rle_compressed_data_ptr = compression::compress(
-            data,
-            CHUNK_DATA_LEN,
-            rle_compressed_size,
-            compression::Method::EXTRLE16
-        );
-        const auto& gzip_compressed_data = compression::compress(
-            rle_compressed_data_ptr.get(),
-            rle_compressed_size,
-            gzip_compressed_size,
-            compression::Method::GZIP
-        );
-        auto tmp = dataio::h2le(rle_compressed_size);
-        chunk_data.reserve(gzip_compressed_size + sizeof(tmp));
-        chunk_data.insert(
-            chunk_data.begin() + 0, (char*)&tmp, ((char*)&tmp) + sizeof(tmp)
-        );
-        chunk_data.insert(
-            chunk_data.begin() + sizeof(tmp),
-            gzip_compressed_data.get(),
-            gzip_compressed_data.get() + gzip_compressed_size
-        );
+    std::vector<ubyte> chunkData;
+    if (chunk == nullptr) {
+        auto& regions = level->getWorld()->wfile->getRegions();
+        auto voxelData = regions.getVoxels(x, z);
+        if (voxelData == nullptr) {
+            return 0;
+        }
+        static util::Buffer<ubyte> rleBuffer(CHUNK_DATA_LEN * 2);
+        auto metadata = regions.getBlocksData(x, z);
+        chunkData =
+            compressed_chunks::encode(voxelData.get(), metadata, rleBuffer);
     } else {
-        const auto& data = chunk->encode();
-        chunk_data.reserve(CHUNK_DATA_LEN);
-        chunk_data.insert(
-            chunk_data.begin(), data.get(), data.get() + CHUNK_DATA_LEN
-        );
+        chunkData = compressed_chunks::encode(*chunk);
     }
-    return lua::newuserdata<lua::LuaBytearray>(L, chunk_data);
+    return lua::newuserdata<lua::LuaBytearray>(L, std::move(chunkData));
+}
+
+static void integrate_chunk_client(Chunk& chunk) {
+    int x = chunk.x;
+    int z = chunk.z;
+
+    chunk.flags.loadedLights = false;
+    chunk.flags.lighted = false;
+    chunk.lightmap.clear();
+    Lighting::prebuildSkyLight(chunk, *indices);
+
+    for (int lz = -1; lz <= 1; lz++) {
+        for (int lx = -1; lx <= 1; lx++) {
+            if (std::abs(lx) + std::abs(lz) != 1) {
+                continue;
+            }
+            if (auto other = level->chunks->getChunk(x + lx, z + lz)) {
+                other->flags.modified = true;
+            }
+        }
+    }
 }
 
 static int l_set_chunk_data(lua::State* L) {
-    int x = (int)lua::tointeger(L, 1);
-    int y = (int)lua::tointeger(L, 2);
-    auto buffer = lua::touserdata<lua::LuaBytearray>(L, 3);
-    bool is_compressed = false;
-    if (lua::gettop(L) >= 4) {
-        is_compressed = lua::toboolean(L, 4);
+    if (level == nullptr) {
+        throw std::runtime_error("no open world");
     }
-    auto chunk = level->chunks->getChunk(x, y);
+
+    int x = static_cast<int>(lua::tointeger(L, 1));
+    int z = static_cast<int>(lua::tointeger(L, 2));
+    auto buffer = lua::require_bytearray(L, 3);
+
+    auto chunk = level->chunks->getChunk(x, z);
     if (chunk == nullptr) {
-        return 0;
+        return lua::pushboolean(L, false);
     }
-    if (is_compressed) {
-        std::vector<ubyte>& raw_data = buffer->data();
-        size_t gzip_decompressed_size =
-            dataio::le2h(*(size_t*)(raw_data.data()));
-        const auto& rle_data = compression::decompress(
-            raw_data.data() + sizeof(gzip_decompressed_size),
-            buffer->data().size() - sizeof(gzip_decompressed_size),
-            gzip_decompressed_size,
-            compression::Method::GZIP
-        );
-        const auto& data = compression::decompress(
-            rle_data.get(),
-            gzip_decompressed_size,
-            CHUNK_DATA_LEN,
-            compression::Method::EXTRLE16
-        );
-        chunk->decode(data.get());
-    } else {
-        chunk->decode(buffer->data().data());
+    compressed_chunks::decode(
+        *chunk, buffer.data(), buffer.size(), *content->getIndices()
+    );
+    if (controller->getChunksController()->lighting == nullptr) {
+        return lua::pushboolean(L, true);
+    }
+    integrate_chunk_client(*chunk);
+    return lua::pushboolean(L, true);
+}
+
+static int l_save_chunk_data(lua::State* L) {
+    if (level == nullptr) {
+        throw std::runtime_error("no open world");
     }
 
-    auto chunksController = controller->getChunksController();
-    if (chunksController == nullptr) {
-        return 1;
-    }
+    int x = static_cast<int>(lua::tointeger(L, 1));
+    int z = static_cast<int>(lua::tointeger(L, 2));
+    auto buffer = lua::require_bytearray(L, 3);
 
-    Lighting& lighting = *chunksController->lighting;
-    chunk->updateHeights();
-    lighting.buildSkyLight(x, y);
-    chunk->flags.modified = true;
-    lighting.onChunkLoaded(x, y, true);
-
-    chunk = level->chunks->getChunk(x - 1, y);
-    if (chunk != nullptr) {
-        chunk->flags.modified = true;
-        lighting.onChunkLoaded(x - 1, y, true);
-    }
-    chunk = level->chunks->getChunk(x + 1, y);
-    if (chunk != nullptr) {
-        chunk->flags.modified = true;
-        lighting.onChunkLoaded(x + 1, y, true);
-    }
-    chunk = level->chunks->getChunk(x, y - 1);
-    if (chunk != nullptr) {
-        chunk->flags.modified = true;
-        lighting.onChunkLoaded(x, y - 1, true);
-    }
-    chunk = level->chunks->getChunk(x, y + 1);
-    if (chunk != nullptr) {
-        chunk->flags.modified = true;
-        lighting.onChunkLoaded(x, y + 1, true);
-    }
-
-    return 1;
+    compressed_chunks::save(
+        x, z, std::move(buffer), level->getWorld()->wfile->getRegions()
+    );
+    return 0;
 }
 
 static int l_count_chunks(lua::State* L) {
@@ -246,6 +210,17 @@ static int l_count_chunks(lua::State* L) {
         return 0;
     }
     return lua::pushinteger(L, level->chunks->size());
+}
+
+static int l_reload_script(lua::State* L) {
+    auto packid = lua::require_string(L, 1);
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
+    auto& writeableContent = *engine->getWriteableContent();
+    auto pack = writeableContent.getPackRuntime(packid);
+    ContentLoader::loadWorldScript(*pack);
+    return 0;
 }
 
 const luaL_Reg worldlib[] = {
@@ -263,6 +238,8 @@ const luaL_Reg worldlib[] = {
     {"exists", lua::wrap<l_exists>},
     {"get_chunk_data", lua::wrap<l_get_chunk_data>},
     {"set_chunk_data", lua::wrap<l_set_chunk_data>},
+    {"save_chunk_data", lua::wrap<l_save_chunk_data>},
     {"count_chunks", lua::wrap<l_count_chunks>},
+    {"reload_script", lua::wrap<l_reload_script>},
     {NULL, NULL}
 };

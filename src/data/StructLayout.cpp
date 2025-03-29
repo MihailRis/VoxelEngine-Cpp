@@ -44,6 +44,9 @@ StructLayout StructLayout::create(const std::vector<Field>& fields) {
     }
     std::sort(builtFields.begin(), builtFields.end(), 
         [](const Field& a, const Field& b) {
+            if (a.size == b.size) {
+                return a.name < b.name;
+            }
             return a.size > b.size;
         }
     );

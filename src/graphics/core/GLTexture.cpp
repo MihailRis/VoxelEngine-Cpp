@@ -108,16 +108,21 @@ void GLTexture::setNearestFilter() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void GLTexture::setMipMapping(bool flag) {
+void GLTexture::setMipMapping(bool flag, bool pixelated) {
     VOXELENGINE_PROFILE_GPU("GLTexture::setMipMapping");
-
     bind();
     if (flag) {
         glTexParameteri(
-            GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST
+            GL_TEXTURE_2D,
+            GL_TEXTURE_MIN_FILTER,
+            pixelated ? GL_NEAREST : GL_LINEAR_MIPMAP_NEAREST
         );
     } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(
+            GL_TEXTURE_2D,
+            GL_TEXTURE_MIN_FILTER,
+            pixelated ? GL_NEAREST : GL_LINEAR
+        );
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 }

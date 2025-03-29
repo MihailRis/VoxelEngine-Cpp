@@ -44,6 +44,7 @@
 #include "graphics/core/Font.hpp"
 #include "BlockWrapsRenderer.hpp"
 #include "ParticlesRenderer.hpp"
+#include "PrecipitationRenderer.hpp"
 #include "TextsRenderer.hpp"
 #include "ChunksRenderer.hpp"
 #include "GuidesRenderer.hpp"
@@ -71,10 +72,6 @@ WorldRenderer::WorldRenderer(
       modelBatch(std::make_unique<ModelBatch>(
           MODEL_BATCH_CAPACITY, assets, *player.chunks, engine.getSettings()
       )),
-      particles(std::make_unique<ParticlesRenderer>(
-          assets, level, *player.chunks, &engine.getSettings().graphics
-      )),
-      texts(std::make_unique<TextsRenderer>(*batch3d, assets, *frustumCulling)),
       guides(std::make_unique<GuidesRenderer>()),
       chunks(std::make_unique<ChunksRenderer>(
           &level,
@@ -84,12 +81,19 @@ WorldRenderer::WorldRenderer(
           frontend.getContentGfxCache(),
           engine.getSettings()
       )),
+      particles(std::make_unique<ParticlesRenderer>(
+        assets, level, *player.chunks, &engine.getSettings().graphics
+      )),
+      texts(std::make_unique<TextsRenderer>(*batch3d, assets, *frustumCulling)),
       blockWraps(
           std::make_unique<BlockWrapsRenderer>(assets, level, *player.chunks)
-      ) {
+      ),
+      precipitation(std::make_unique<PrecipitationRenderer>(
+          assets, level, *player.chunks, &engine.getSettings().graphics
+      )) {
     auto& settings = engine.getSettings();
     level.events->listen(
-        EVT_CHUNK_HIDDEN,
+        LevelEventType::CHUNK_HIDDEN,
         [this](LevelEventType, Chunk* chunk) { chunks->unload(chunk); }
     );
     auto assets = engine.getAssets();
@@ -115,6 +119,9 @@ void WorldRenderer::setupWorldShader(
     shader.uniform1f("u_gamma", settings.graphics.gamma.get());
     shader.uniform1f("u_fogFactor", fogFactor);
     shader.uniform1f("u_fogCurve", settings.graphics.fogCurve.get());
+    shader.uniform1f("u_weatherFogOpacity", weather.fogOpacity());
+    shader.uniform1f("u_weatherFogDencity", weather.fogDencity());
+    shader.uniform1f("u_weatherFogCurve", weather.fogCurve());
     shader.uniform1f("u_dayTime", level.getWorld()->getInfo().daytime);
     shader.uniform2f("u_lightDir", skybox->getLightDir());
     shader.uniform3f("u_cameraPos", camera.position);
@@ -160,6 +167,7 @@ void WorldRenderer::renderLevel(
     }
 
     entityShader.uniform1i("u_alphaClip", true);
+    entityShader.uniform1f("u_opacity", 1.0f);
     level.entities->render(
         assets,
         *modelBatch,
@@ -186,6 +194,21 @@ void WorldRenderer::renderLevel(
 
     if (!pause) {
         scripting::on_frontend_render();
+    }
+
+    setupWorldShader(entityShader, camera, settings, fogFactor);
+
+    std::array<const WeatherPreset*, 2> weatherInstances {&weather.a, &weather.b};
+    for (const auto& weather : weatherInstances) {
+        float maxIntensity = weather->fall.maxIntensity;
+        float zero = weather->fall.minOpacity;
+        float one = weather->fall.maxOpacity;
+        float t = (weather->intensity * (one - zero)) * maxIntensity + zero;
+        entityShader.uniform1i("u_alphaClip", weather->fall.opaque);
+        entityShader.uniform1f("u_opacity", weather->fall.opaque ? t * t : t);
+        if (weather->intensity > 1.e-3f && !weather->fall.texture.empty()) {
+            precipitation->render(camera, pause ? 0.0f : delta, *weather);
+        }
     }
 
     skybox->unbind();
@@ -274,8 +297,9 @@ void WorldRenderer::renderHands(
                  glm::mat4(1.0f), -glm::pi<float>() * 0.5f, glm::vec3(0, 1, 0)
              );
     prevRotation = rotation;
+    glm::vec3 cameraRotation = player.getRotation();
     auto offset = -(camera.position - player.getPosition());
-    float angle = glm::radians(player.rotation.x - 90);
+    float angle = glm::radians(cameraRotation.x - 90);
     float cos = glm::cos(angle);
     float sin = glm::sin(angle);
 
@@ -305,36 +329,46 @@ void WorldRenderer::draw(
     Camera& camera,
     bool hudVisible,
     bool pause,
-    float delta,
-    PostProcessing* postProcessing
+    float uiDelta,
+    PostProcessing& postProcessing
 ) {
-    timer += delta * !pause;
+    float delta = uiDelta * !pause;
+    timer += delta;
+    weather.update(delta);
+
     auto world = level.getWorld();
+
     const Viewport& vp = pctx.getViewport();
     camera.aspect = vp.getWidth() / static_cast<float>(vp.getHeight());
 
     const auto& settings = engine.getSettings();
     const auto& worldInfo = world->getInfo();
+    
+    float sqrtT = glm::sqrt(weather.t);
+    float clouds = weather.b.clouds * sqrtT +
+                   weather.a.clouds * (1.0f - sqrtT);
+    clouds = glm::max(worldInfo.fog, clouds);
+    float mie = 1.0f + glm::max(worldInfo.fog, clouds * 0.5f) * 2.0f;
 
-    skybox->refresh(pctx, worldInfo.daytime, 1.0f + worldInfo.fog * 2.0f, 4);
+    skybox->refresh(pctx, worldInfo.daytime, mie, 4);
 
     const auto& assets = *engine.getAssets();
     auto& linesShader = assets.require<Shader>("lines");
 
     /* World render scope with diegetic HUD included */ {
         DrawContext wctx = pctx.sub();
-        postProcessing->use(wctx);
+        postProcessing.use(wctx);
 
         Window::clearDepth();
 
         // Drawing background sky plane
-        skybox->draw(pctx, camera, assets, worldInfo.daytime, worldInfo.fog);
-        
+        skybox->draw(pctx, camera, assets, worldInfo.daytime, clouds);
+
         /* Actually world render with depth buffer on */ {
             DrawContext ctx = wctx.sub();
             ctx.setDepthTest(true);
             ctx.setCullFace(true);
-            renderLevel(ctx, camera, settings, delta, pause, hudVisible);
+            renderLevel(ctx, camera, settings, uiDelta, pause, hudVisible);
             // Debug lines
             if (hudVisible) {
                 if (debug) {
@@ -343,7 +377,7 @@ void WorldRenderer::draw(
                     );
                 }
                 if (player.currentCamera == player.fpCamera) {
-                    renderHands(camera, delta * !pause);
+                    renderHands(camera, delta);
                 }
             }
         }
@@ -354,12 +388,12 @@ void WorldRenderer::draw(
         renderBlockOverlay(wctx);
     }
 
-    // Rendering fullscreen quad with
+    // Rendering fullscreen quad
     auto screenShader = assets.get<Shader>("screen");
     screenShader->use();
     screenShader->uniform1f("u_timer", timer);
     screenShader->uniform1f("u_dayTime", worldInfo.daytime);
-    postProcessing->render(pctx, screenShader);
+    postProcessing.render(pctx, screenShader);
 }
 
 void WorldRenderer::renderBlockOverlay(const DrawContext& wctx) {
@@ -412,4 +446,8 @@ void WorldRenderer::clear() {
 
 void WorldRenderer::setDebug(bool flag) {
     debug = flag;
+}
+
+Weather& WorldRenderer::getWeather() {
+    return weather;
 }

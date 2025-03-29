@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "coders/commons.hpp"
+#include "coders/BasicParser.hpp"
 #include "util/stringutil.hpp"
 
 using namespace cmd;
@@ -17,7 +17,7 @@ inline bool is_cmd_identifier_start(char c) {
     return (is_identifier_start(c) || c == '.' || c == '$');
 }
 
-class CommandParser : BasicParser {
+class CommandParser : BasicParser<char> {
     std::string parseIdentifier(bool allowColon) {
         char c = peek();
         if (!is_identifier_start(c) && c != '$') {

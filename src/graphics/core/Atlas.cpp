@@ -97,7 +97,7 @@ std::unique_ptr<Atlas> AtlasBuilder::build(uint extrusion, bool prepare, uint ma
         uint y = rect.y;
         uint w = rect.width;
         uint h = rect.height;
-        canvas->blit(entry.image.get(), rect.x, rect.y);
+        canvas->blit(*entry.image, rect.x, rect.y);
         for (uint j = 0; j < extrusion; j++) {
             canvas->extrude(x - j, y - j, w + j*2, h + j*2);
         }

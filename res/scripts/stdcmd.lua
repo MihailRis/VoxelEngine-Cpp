@@ -260,7 +260,34 @@ console.add_command(
     "chat text:str",
     "Send chat message",
     function (args, kwargs)
-        console.log("[you] "..args[1])
+        console.chat("[you] "..args[1])
+    end
+)
+
+console.add_command(
+    "weather.set name:str time:num=1",
+    "Change weather",
+    function (args, kwargs)
+        local filename = file.find("presets/weather/"..args[1]..".json")
+        if not filename then
+            return "weather preset not found"
+        end
+        local preset = json.parse(file.read(filename))
+        gfx.weather.change(preset, args[2], args[1])
+        return "weather set to "..filename.." preset ("..tostring(args[2]).." s)"
+    end
+)
+
+console.add_command(
+    "weather",
+    "Display current weather preset name",
+    function (args, kwargs)
+        local name = gfx.weather.get_current()
+        if name == "" then
+            return "unnamed " .. json.tostring(gfx.weather.get_current_data(), true)
+        else
+            return name
+        end
     end
 )
 
@@ -271,5 +298,6 @@ console.cheats = {
     "time.set",
     "time.daycycle",
     "entity.despawn",
-    "player.respawn"
+    "player.respawn",
+    "weather.set",
 }
