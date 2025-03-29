@@ -170,7 +170,7 @@ inventory.decrement(
 -- creating a local `uses` property if none.
 -- Removes one item from the slot when the counter reaches zero.
 -- Does nothing if the `uses` property is not specified in the item's JSON.
--- See [property `uses`](../../item-properties.md#number-of-uses-durability---uses)
+-- See an item property `uses`
 inventory.use(
     -- inventory id
     invid: int,
