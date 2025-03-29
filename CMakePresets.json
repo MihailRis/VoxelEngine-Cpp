@@ -89,6 +89,7 @@
         {
             "name": "default-vs-msvc-windows",
             "configurePreset": "default-vs-msvc-windows",
+            "configuration": "Debug",
             "output": {
                 "outputOnFailure": true
             }
@@ -96,6 +97,7 @@
         {
             "name": "default-ninja-gnu-linux",
             "configurePreset": "default-ninja-gnu-linux",
+            "configuration": "Debug",
             "output": {
                 "outputOnFailure": true
             }
@@ -103,6 +105,7 @@
         {
             "name": "default-ninja-clang-macos",
             "configurePreset": "default-ninja-clang-macos",
+            "configuration": "Debug",
             "output": {
                 "outputOnFailure": true
             }
@@ -110,6 +113,7 @@
         {
             "name": "profiler-tracy-vs-msvc-windows",
             "configurePreset": "profiler-tracy-vs-msvc-windows",
+            "configuration": "RelWithDebInfo",
             "output": {
                 "outputOnFailure": true
             }
@@ -117,6 +121,7 @@
         {
             "name": "profiler-tracy-ninja-gnu-linux",
             "configurePreset": "profiler-tracy-ninja-gnu-linux",
+            "configuration": "RelWithDebInfo",
             "output": {
                 "outputOnFailure": true
             }
