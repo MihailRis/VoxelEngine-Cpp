@@ -25,8 +25,9 @@ Mesh<VertexStructure>::Mesh(const VertexStructure* vertexBuffer, size_t vertices
     for (int i = 0; attrs[i].count; i++) {
         vertexSize += attrs[i].size();
     }
-    size_t tmp = sizeof(VertexStructure);
-    assert(vertexSize==tmp);
+    if(vertexSize!=sizeof(VertexStructure)){
+        throw std::runtime_error("Vertex size mismatch!");
+    }
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
