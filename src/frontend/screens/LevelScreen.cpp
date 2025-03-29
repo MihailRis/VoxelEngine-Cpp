@@ -8,6 +8,7 @@
 #include "engine/Engine.hpp"
 #include "engine/Profiler.hpp"
 #include "engine/ProfilerGpu.hpp"
+#include "frontend/ContentGfxCache.hpp"
 #include "frontend/hud.hpp"
 #include "frontend/LevelFrontend.hpp"
 #include "graphics/core/DrawContext.hpp"

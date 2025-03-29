@@ -20,6 +20,7 @@
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
+#include "debug/Logger.hpp"
 #include "engine/Profiler.hpp"
 #include "engine/ProfilerGpu.hpp"
 #include "frontend/locale.hpp"
