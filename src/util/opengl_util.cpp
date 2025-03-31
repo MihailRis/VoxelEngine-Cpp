@@ -1,6 +1,6 @@
 #include "opengl_util.hpp"
 #include <GL/glew.h>
-#include <string>
+#include <cstring>
 
 bool isGlExtensionSupported(const char *extension) {
     if (!extension || !*extension) {
