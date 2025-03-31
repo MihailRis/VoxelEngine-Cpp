@@ -160,9 +160,9 @@ CursorShape UINode::getCursor() const {
 
 glm::vec2 UINode::calcPos() const {
     if (parent) {
-        return pos + parent->calcPos() + parent->getContentOffset();
+        return glm::ivec2(pos + parent->calcPos() + parent->getContentOffset());
     }
-    return pos;
+    return glm::ivec2(pos);
 }
 
 void UINode::scrolled(int value) {
