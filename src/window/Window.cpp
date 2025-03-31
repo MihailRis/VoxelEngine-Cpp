@@ -15,6 +15,7 @@
 #include "Events.hpp"
 
 #include "util/platform.hpp"
+#include "util/opengl_util.hpp"
 
 static debug::Logger logger("window");
 
@@ -223,10 +224,10 @@ int Window::initialize(DisplaySettings* settings) {
         }
     }
 
-    #ifndef __APPLE__
+    if (isGlExtensionSupported("GL_KHR_debug")) {
         glEnable(GL_DEBUG_OUTPUT);
-        glDebugMessageCallback(gl_message_callback, 0);
-    #endif
+        glDebugMessageCallback(gl_message_callback, nullptr);
+    }
 
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 1);
