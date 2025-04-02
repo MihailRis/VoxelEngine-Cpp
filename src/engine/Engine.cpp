@@ -136,6 +136,18 @@ void Engine::initialize(CoreParameters coreParameters) {
     content = std::make_unique<ContentControl>(paths, *input, [this]() {
         langs::setup(langs::get_current(), paths.resPaths.collectRoots());
         if (!isHeadless()) {
+            for (auto& pack : content->getAllContentPacks()) {
+                auto configFolder = pack.folder / "config";
+                auto bindsFile = configFolder / "bindings.toml";
+                if (io::is_regular_file(bindsFile)) {
+                    input->getBindings().read(
+                        toml::parse(
+                            bindsFile.string(), io::read_string(bindsFile)
+                        ),
+                        BindType::BIND
+                    );
+                }
+            }
             loadAssets();
         }
     });

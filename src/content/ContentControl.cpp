@@ -2,7 +2,6 @@
 
 #include "io/io.hpp"
 #include "io/engine_paths.hpp"
-#include "coders/toml.hpp"
 #include "Content.hpp"
 #include "ContentPack.hpp"
 #include "ContentBuilder.hpp"
@@ -10,18 +9,10 @@
 #include "PacksManager.hpp"
 #include "objects/rigging.hpp"
 #include "logic/scripting/scripting.hpp"
-#include "window/input.hpp"
 #include "core_defs.hpp"
 
 static void load_configs(Input& input, const io::path& root) {
     auto configFolder = root / "config";
-    auto bindsFile = configFolder / "bindings.toml";
-    if (io::is_regular_file(bindsFile)) {
-        input.getBindings().read(
-            toml::parse(bindsFile.string(), io::read_string(bindsFile)),
-            BindType::BIND
-        );
-    }
 }
 
 ContentControl::ContentControl(
