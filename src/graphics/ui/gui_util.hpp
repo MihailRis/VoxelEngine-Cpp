@@ -3,11 +3,15 @@
 #include <memory>
 #include <string>
 
-#include "GUI.hpp"
 #include "delegates.hpp"
 #include "typedefs.hpp"
 
 class Engine;
+
+namespace gui {
+    class GUI;
+    class UINode;
+}
 
 namespace guiutil {
     /// @brief Create element from XML

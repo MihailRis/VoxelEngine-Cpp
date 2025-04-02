@@ -2,6 +2,7 @@
 #include "assets/Assets.hpp"
 #include "engine/Engine.hpp"
 #include "frontend/locale.hpp"
+#include "graphics/ui/GUI.hpp"
 #include "graphics/ui/elements/Button.hpp"
 #include "graphics/ui/elements/Canvas.hpp"
 #include "graphics/ui/elements/CheckBox.hpp"

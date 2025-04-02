@@ -16,6 +16,7 @@
 #include "frontend/menu.hpp"
 #include "frontend/screens/LevelScreen.hpp"
 #include "frontend/screens/MenuScreen.hpp"
+#include "graphics/ui/GUI.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 #include "graphics/ui/gui_util.hpp"
 #include "objects/Players.hpp"

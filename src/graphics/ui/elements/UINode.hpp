@@ -225,11 +225,11 @@ namespace gui {
         virtual glm::vec2 calcPos() const;
         virtual void setPos(glm::vec2 pos);
         virtual glm::vec2 getPos() const;
-        virtual glm::vec2 getSize() const;
+        glm::vec2 getSize() const;
         virtual void setSize(glm::vec2 size);
-        virtual glm::vec2 getMinSize() const;
+        glm::vec2 getMinSize() const;
         virtual void setMinSize(glm::vec2 size);
-        virtual glm::vec2 getMaxSize() const;
+        glm::vec2 getMaxSize() const;
         virtual void setMaxSize(glm::vec2 size);
         /// @brief Called in containers when new element added
         virtual void refresh() {};

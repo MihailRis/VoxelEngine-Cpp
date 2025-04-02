@@ -9,6 +9,7 @@
 #include "content/ContentControl.hpp"
 #include "content/PacksManager.hpp"
 #include "engine/Engine.hpp"
+#include "graphics/ui/GUI.hpp"
 #include "graphics/ui/gui_util.hpp"
 #include "graphics/ui/elements/Menu.hpp"
 #include "frontend/locale.hpp"
