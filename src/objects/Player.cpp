@@ -82,6 +82,17 @@ void Player::updateEntity() {
                           "will be respawned";
         eid = ENTITY_AUTO;
     }
+    auto hitbox = getHitbox();
+    if (hitbox == nullptr) {
+        return;
+    }
+    hitbox->linearDamping = PLAYER_GROUND_DAMPING;
+    hitbox->verticalDamping = flight;
+    hitbox->gravityScale = flight ? 0.0f : 1.0f;
+    if (flight || !hitbox->grounded) {
+        hitbox->linearDamping = PLAYER_AIR_DAMPING;
+    }
+    hitbox->type = noclip ? BodyType::KINEMATIC : BodyType::DYNAMIC;
 }
 
 Hitbox* Player::getHitbox() {
@@ -129,12 +140,7 @@ void Player::updateInput(PlayerInput& input, float delta) {
         dir = glm::normalize(dir);
         hitbox->velocity += dir * speed * delta * 9.0f;
     }
-
-    hitbox->linearDamping = PLAYER_GROUND_DAMPING;
-    hitbox->verticalDamping = flight;
-    hitbox->gravityScale = flight ? 0.0f : 1.0f;
     if (flight) {
-        hitbox->linearDamping = PLAYER_AIR_DAMPING;
         if (input.jump) {
             hitbox->velocity.y += speed * delta * 9;
         }
@@ -142,15 +148,9 @@ void Player::updateInput(PlayerInput& input, float delta) {
             hitbox->velocity.y -= speed * delta * 9;
         }
     }
-    if (!hitbox->grounded) {
-        hitbox->linearDamping = PLAYER_AIR_DAMPING;
-    }
-
     if (input.jump && hitbox->grounded) {
         hitbox->velocity.y = JUMP_FORCE;
     }
-
-    hitbox->type = noclip ? BodyType::KINEMATIC : BodyType::DYNAMIC;
 }
 
 void Player::updateSelectedEntity() {
