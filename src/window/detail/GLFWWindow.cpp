@@ -18,20 +18,16 @@
 
 static debug::Logger logger("window");
 
-static std::unordered_set<std::string> extensions_cache;
+static std::unordered_set<std::string> supported_gl_extensions;
 
-static void init_gl_extensions_cache() {
-    if (!extensions_cache.empty()) {
-        return;
-    }
-
+static void init_gl_extensions_list() {
     GLint numExtensions = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
     for (GLint i = 0; i < numExtensions; ++i) {
         const char *ext = reinterpret_cast<const char *>(glGetStringi(GL_EXTENSIONS, i));
         if (ext) {
-            extensions_cache.insert(ext);
+            supported_gl_extensions.insert(ext);
         }
     }
 }
@@ -40,8 +36,7 @@ static bool is_gl_extension_supported(const char *extension) {
     if (!extension || !*extension) {
         return false;
     }
-    init_gl_extensions_cache();
-    return extensions_cache.find(extension) != extensions_cache.end();
+    return supported_gl_extensions.find(extension) != supported_gl_extensions.end();
 }
 
 static const char* gl_error_name(int error) {
@@ -669,6 +664,7 @@ std::tuple<
         }
     }
 
+    init_gl_extensions_list();
     if (is_gl_extension_supported("GL_KHR_debug")) {
         glEnable(GL_DEBUG_OUTPUT);
         glDebugMessageCallback(gl_message_callback, nullptr);
