@@ -6,6 +6,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <unordered_set>
 
 #include "debug/Logger.hpp"
 #include "graphics/core/ImageData.hpp"
@@ -15,7 +16,6 @@
 #include "Events.hpp"
 
 #include "util/platform.hpp"
-#include "util/opengl_util.hpp"
 
 static debug::Logger logger("window");
 
@@ -33,6 +33,7 @@ bool Window::fullscreen = false;
 CursorShape Window::cursor = CursorShape::ARROW;
 
 static util::ObjectsKeeper observers_keeper;
+static std::unordered_set<std::string> extensionsCache;
 
 static const char* gl_error_name(int error) {
     switch (error) {
@@ -503,4 +504,30 @@ void Window::setIcon(const ImageData* image) {
         static_cast<int>(image->getHeight()),
         image->getData()};
     glfwSetWindowIcon(window, 1, &icon);
+}
+
+static void initGlExtensionsCache() {
+    if (!extensionsCache.empty()) {
+        return;
+    }
+
+    GLint numExtensions = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
+
+    for (GLint i = 0; i < numExtensions; ++i) {
+        const char *ext = reinterpret_cast<const char *>(glGetStringi(GL_EXTENSIONS, i));
+        if (ext) {
+            extensionsCache.insert(ext);
+        }
+    }
+}
+
+bool Window::isGlExtensionSupported(const char *extension) {
+    if (!extension || !*extension) {
+        return false;
+    }
+
+    initGlExtensionsCache();
+
+    return extensionsCache.find(extension) != extensionsCache.end();
 }
