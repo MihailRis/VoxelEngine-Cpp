@@ -51,7 +51,7 @@ void LabelCache::update(std::wstring_view text, bool multiline, bool wrap) {
             if (text[i] == L'\n') {
                 lines.push_back(LineScheme {i+1, false});
                 len = 0;
-            } else if (i > 0 && wrap && text[i+1] != L'\n') {
+            } else if (i > 0 && i+1 < text.length() && wrap && text[i+1] != L'\n') {
                 size_t width = font->calcWidth(text, i-len-1, i-(i-len)+2);
                 if (width >= wrapWidth) {
                     // starting a fake line
