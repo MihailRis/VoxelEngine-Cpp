@@ -24,6 +24,7 @@ class Window {
     static CursorShape cursor;
 
     static bool tryToMaximize(GLFWwindow* window, GLFWmonitor* monitor);
+    static bool isGlExtensionSupported(const char *extension);
 public:
     static int posX;
     static int posY;
