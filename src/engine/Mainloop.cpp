@@ -2,8 +2,10 @@
 
 #include "Engine.hpp"
 #include "debug/Logger.hpp"
-#include "frontend/screens/MenuScreen.hpp"
+#include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "frontend/screens/LevelScreen.hpp"
+#include "frontend/screens/MenuScreen.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
 
@@ -30,9 +32,12 @@ void Mainloop::run() {
 
     logger.info() << "starting menu screen";
     engine.setScreen(std::make_shared<MenuScreen>(engine));
-    
+
     logger.info() << "main loop started";
-    while (!Window::isShouldClose()){
+    while (!Window::isShouldClose()) {
+        VOXELENGINE_PROFILE;
+        VOXELENGINE_PROFILE_GPU("Mainloop::run");
+
         time.update(Window::time());
         engine.updateFrontend();
         if (!Window::isIconified()) {

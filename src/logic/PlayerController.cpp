@@ -4,9 +4,10 @@
 #include <algorithm>
 #include <cmath>
 
+#include "BlocksController.hpp"
 #include "content/Content.hpp"
 #include "core_defs.hpp"
-#include "settings.hpp"
+#include "engine/Profiler.hpp"
 #include "items/Inventory.hpp"
 #include "items/ItemDef.hpp"
 #include "items/ItemStack.hpp"
@@ -16,6 +17,7 @@
 #include "objects/Players.hpp"
 #include "physics/Hitbox.hpp"
 #include "physics/PhysicsSolver.hpp"
+#include "scripting/scripting.hpp"
 #include "settings.hpp"
 #include "voxels/Block.hpp"
 #include "voxels/Chunks.hpp"
@@ -25,8 +27,6 @@
 #include "window/Window.hpp"
 #include "window/input.hpp"
 #include "world/Level.hpp"
-#include "BlocksController.hpp"
-#include "scripting/scripting.hpp"
 
 const float INTERACTION_RELOAD = 0.160f;
 const float STEPS_SPEED = 2.2f;
@@ -40,9 +40,7 @@ const float RUN_ZOOM = 1.1f;
 const float C_ZOOM = 0.1f;
 const float CROUCH_SHIFT_Y = -0.2f;
 
-CameraControl::CameraControl(
-    Player& player, const CameraSettings& settings
-)
+CameraControl::CameraControl(Player& player, const CameraSettings& settings)
     : player(player),
       camera(player.fpCamera),
       settings(settings),
@@ -155,7 +153,9 @@ void CameraControl::switchCamera() {
         std::find_if(
             playerCameras.begin(),
             playerCameras.end(),
-            [this](auto& ptr) { return ptr.get() == player.currentCamera.get(); }
+            [this](auto& ptr) {
+                return ptr.get() == player.currentCamera.get();
+            }
         )
     );
     if (static_cast<size_t>(index) != playerCameras.size()) {
@@ -205,8 +205,8 @@ void CameraControl::update(
         tpCamera->front = camera->front;
         tpCamera->right = camera->right;
     }
-    if (player.currentCamera == spCamera ||
-        player.currentCamera == tpCamera || player.currentCamera == camera) {
+    if (player.currentCamera == spCamera || player.currentCamera == tpCamera ||
+        player.currentCamera == camera) {
         player.currentCamera->setFov(glm::radians(settings.fov.get()));
     }
 }
@@ -239,10 +239,7 @@ void PlayerController::onFootstep(const Hitbox& hitbox) {
                     continue;
                 }
                 blocksController.onBlockInteraction(
-                    &player,
-                    glm::ivec3(x, y, z),
-                    def,
-                    BlockInteraction::step
+                    &player, glm::ivec3(x, y, z), def, BlockInteraction::step
                 );
                 return;
             }
@@ -266,6 +263,7 @@ void PlayerController::updateFootsteps(float delta) {
 }
 
 void PlayerController::update(float delta, bool input) {
+    VOXELENGINE_PROFILE;
     if (input) {
         updateKeyboard();
         player.updateSelectedEntity();
@@ -276,6 +274,7 @@ void PlayerController::update(float delta, bool input) {
 }
 
 void PlayerController::postUpdate(float delta, bool input, bool pause) {
+    VOXELENGINE_PROFILE;
     if (!pause) {
         updateFootsteps(delta);
     }
@@ -417,7 +416,9 @@ voxel* PlayerController::updateSelection(float maxDistance) {
     return vox;
 }
 
-void PlayerController::processRightClick(const Block& def, const Block& target) {
+void PlayerController::processRightClick(
+    const Block& def, const Block& target
+) {
     const auto& selection = player.selection;
     auto& chunks = *player.chunks;
     auto camera = player.fpCamera.get();
@@ -427,8 +428,8 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
 
     if (!input.shift && target.rt.funcsset.oninteract) {
         if (scripting::on_block_interact(
-            &player, target, selection.actualPosition
-        )) {
+                &player, target, selection.actualPosition
+            )) {
             return;
         }
     }
@@ -443,7 +444,8 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
     if (def.obstacle) {
         const auto& hitboxes = def.rt.hitboxes[state.rotation];
         for (const AABB& blockAABB : hitboxes) {
-            if (level.entities->hasBlockingInside(blockAABB.translated(coord))) {
+            if (level.entities->hasBlockingInside(blockAABB.translated(coord)
+                )) {
                 return;
             }
         }
@@ -466,7 +468,7 @@ void PlayerController::processRightClick(const Block& def, const Block& target) 
     if (chosenBlock != vox->id && chosenBlock) {
         if (!player.isInfiniteItems()) {
             auto& slot = player.getInventory()->getSlot(player.getChosenSlot());
-            slot.setCount(slot.getCount()-1);
+            slot.setCount(slot.getCount() - 1);
         }
         blocksController.placeBlock(
             &player, def, state, coord.x, coord.y, coord.z
@@ -493,7 +495,7 @@ void PlayerController::updateEntityInteraction(
 void PlayerController::updateInteraction(float delta) {
     auto indices = level.content.getIndices();
     const auto& selection = player.selection;
-    
+
     if (interactionTimer > 0.0f) {
         interactionTimer -= delta;
     }
@@ -501,10 +503,10 @@ void PlayerController::updateInteraction(float delta) {
     float maxDistance = xkey ? 200.0f : 10.0f;
     bool longInteraction = interactionTimer <= 0 || xkey;
     bool lclick = Events::jactive(BIND_PLAYER_DESTROY) ||
-        (longInteraction && Events::active(BIND_PLAYER_DESTROY));
+                  (longInteraction && Events::active(BIND_PLAYER_DESTROY));
     bool lattack = Events::jactive(BIND_PLAYER_ATTACK);
     bool rclick = Events::jactive(BIND_PLAYER_BUILD) ||
-        (longInteraction && Events::active(BIND_PLAYER_BUILD));
+                  (longInteraction && Events::active(BIND_PLAYER_BUILD));
     if (lclick || rclick) {
         interactionTimer = INTERACTION_RELOAD;
     }
@@ -527,8 +529,8 @@ void PlayerController::updateInteraction(float delta) {
     auto iend = selection.position;
     if (lclick && !input.shift && item.rt.funcsset.on_block_break_by) {
         if (scripting::on_item_break_block(
-            &player, item, iend.x, iend.y, iend.z
-        )) {
+                &player, item, iend.x, iend.y, iend.z
+            )) {
             return;
         }
     }

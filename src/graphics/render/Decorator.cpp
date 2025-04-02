@@ -1,25 +1,27 @@
 #include "Decorator.hpp"
 
-#include "ParticlesRenderer.hpp"
-#include "WorldRenderer.hpp"
-#include "TextsRenderer.hpp"
-#include "TextNote.hpp"
 #include "assets/assets_util.hpp"
+#include "audio/audio.hpp"
 #include "content/Content.hpp"
-#include "voxels/Chunks.hpp"
-#include "voxels/Chunk.hpp"
-#include "voxels/Block.hpp"
-#include "world/Level.hpp"
-#include "window/Camera.hpp"
+#include "engine/Engine.hpp"
+#include "engine/Engine.hpp"
+#include "engine/Profiler.hpp"
+#include "io/io.hpp"
+#include "logic/LevelController.hpp"
+#include "maths/util.hpp"
+#include "objects/Entities.hpp"
 #include "objects/Player.hpp"
 #include "objects/Players.hpp"
-#include "objects/Entities.hpp"
-#include "logic/LevelController.hpp"
+#include "ParticlesRenderer.hpp"
+#include "TextNote.hpp"
+#include "TextsRenderer.hpp"
 #include "util/stringutil.hpp"
-#include "engine/Engine.hpp"
-#include "io/io.hpp"
-#include "audio/audio.hpp"
-#include "maths/util.hpp"
+#include "voxels/Block.hpp"
+#include "voxels/Chunk.hpp"
+#include "voxels/Chunks.hpp"
+#include "window/Camera.hpp"
+#include "world/Level.hpp"
+#include "WorldRenderer.hpp"
 
 namespace fs = std::filesystem;
 
@@ -45,11 +47,14 @@ Decorator::Decorator(
       player(player),
       renderer(renderer) {
     controller.getBlocksController()->listenBlockInteraction(
-    [this](auto player, const auto& pos, const auto& def, BlockInteraction type) {
-        if (type == BlockInteraction::placing && def.particles) {
-            addParticles(def, pos);
+        [this](
+            auto player, const auto& pos, const auto& def, BlockInteraction type
+        ) {
+            if (type == BlockInteraction::placing && def.particles) {
+                addParticles(def, pos);
+            }
         }
-    });
+    );
     for (const auto& [id, player] : *level.players) {
         if (id == this->player.getId()) {
             continue;
@@ -68,12 +73,11 @@ Decorator::Decorator(
 void Decorator::addParticles(const Block& def, const glm::ivec3& pos) {
     const auto& found = blockEmitters.find(pos);
     if (found == blockEmitters.end()) {
-        auto treg = util::get_texture_region(
-            assets, def.particles->texture, ""
-        );
+        auto treg =
+            util::get_texture_region(assets, def.particles->texture, "");
         blockEmitters[pos] = renderer.particles->add(std::make_unique<Emitter>(
             level,
-            glm::vec3{pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
+            glm::vec3 {pos.x + 0.5, pos.y + 0.5, pos.z + 0.5},
             *def.particles,
             treg.texture,
             treg.region,
@@ -174,6 +178,7 @@ void Decorator::update(
 }
 
 void Decorator::updateBlockEmitters(const Camera& camera) {
+    VOXELENGINE_PROFILE;
     const auto& chunks = *player.chunks;
     const auto& indices = *level.content.getIndices();
     auto iter = blockEmitters.begin();

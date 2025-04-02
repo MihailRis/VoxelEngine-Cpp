@@ -1,36 +1,45 @@
 #include "Engine.hpp"
 
-#ifndef GLEW_STATIC
-#define GLEW_STATIC
-#endif
+#include <assert.h>
 
-#include "debug/Logger.hpp"
+#include <functional>
+#include <glm/glm.hpp>
+#include <iostream>
+#include <unordered_set>
+#include <utility>
+
+
 #include "assets/AssetsLoader.hpp"
 #include "audio/audio.hpp"
+#include "coders/commons.hpp"
 #include "coders/GLSLExtension.hpp"
 #include "coders/imageio.hpp"
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
-#include "coders/commons.hpp"
 #include "content/Content.hpp"
 #include "content/ContentBuilder.hpp"
 #include "content/ContentLoader.hpp"
 #include "core_defs.hpp"
-#include "io/io.hpp"
+#include "debug/Logger.hpp"
+#include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "frontend/locale.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/Screen.hpp"
-#include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Shader.hpp"
+#include "graphics/render/ModelsGenerator.hpp"
 #include "graphics/ui/GUI.hpp"
-#include "objects/rigging.hpp"
-#include "logic/EngineController.hpp"
+#include "io/io.hpp"
 #include "logic/CommandsInterpreter.hpp"
-#include "logic/scripting/scripting.hpp"
+#include "logic/EngineController.hpp"
 #include "logic/scripting/scripting_hud.hpp"
+#include "logic/scripting/scripting.hpp"
+#include "Mainloop.hpp"
 #include "network/Network.hpp"
+#include "objects/rigging.hpp"
+#include "ServerMainloop.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
 #include "window/Camera.hpp"
@@ -38,15 +47,6 @@
 #include "window/input.hpp"
 #include "window/Window.hpp"
 #include "world/Level.hpp"
-#include "Mainloop.hpp"
-#include "ServerMainloop.hpp"
-
-#include <iostream>
-#include <assert.h>
-#include <glm/glm.hpp>
-#include <unordered_set>
-#include <functional>
-#include <utility>
 
 static debug::Logger logger("engine");
 
@@ -97,7 +97,7 @@ void Engine::initialize(CoreParameters coreParameters) {
 
     controller = std::make_unique<EngineController>(*this);
     if (!params.headless) {
-        if (Window::initialize(&settings.display)){
+        if (Window::initialize(&settings.display)) {
             throw initialize_error("could not initialize window");
         }
         time.set(Window::time());
@@ -188,12 +188,14 @@ void Engine::run() {
 }
 
 void Engine::postUpdate() {
+    VOXELENGINE_PROFILE;
     network->update();
     postRunnables.run();
     scripting::process_post_runnables();
 }
 
 void Engine::updateFrontend() {
+    VOXELENGINE_PROFILE;
     double delta = time.getDelta();
     updateHotkeys();
     audio::update(delta);
@@ -203,6 +205,9 @@ void Engine::updateFrontend() {
 }
 
 void Engine::nextFrame() {
+    VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("Engine::nextFrame");
+
     Window::setFramerate(
         Window::isIconified() && settings.display.limitFpsIconified.get()
             ? 20
@@ -210,9 +215,13 @@ void Engine::nextFrame() {
     );
     Window::swapBuffers();
     Events::pollEvents();
+    VOXELENGINE_PROFILE_FRAME;
 }
 
 void Engine::renderFrame() {
+    VOXELENGINE_PROFILE;
+    VOXELENGINE_PROFILE_GPU("Engine::renderFrame");
+
     screen->draw(time.getDelta());
 
     Viewport viewport(Window::width, Window::height);
@@ -291,9 +300,9 @@ void Engine::loadAssets() {
 
     // no need
     // correct log messages order is more useful
-    bool threading = false; // look at two upper lines
+    bool threading = false;  // look at two upper lines
     if (threading) {
-        auto task = loader.startTask([=](){});
+        auto task = loader.startTask([=]() {});
         task->waitForEnd();
     } else {
         while (loader.hasNext()) {
@@ -358,9 +367,7 @@ void Engine::loadContent() {
     auto corePack = ContentPack::createCore(paths);
 
     // Setup filesystem entry points
-    std::vector<PathsRoot> resRoots {
-        {"core", corePack.folder}
-    };
+    std::vector<PathsRoot> resRoots {{"core", corePack.folder}};
     for (auto& pack : contentPacks) {
         resRoots.push_back({pack.id, pack.folder});
     }

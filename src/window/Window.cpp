@@ -8,13 +8,14 @@
 #include <thread>
 #include <unordered_set>
 
+#include "Events.hpp"
 #include "debug/Logger.hpp"
+#include "engine/Profiler.hpp"
+#include "engine/ProfilerGpu.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/Texture.hpp"
 #include "settings.hpp"
 #include "util/ObjectsKeeper.hpp"
-#include "Events.hpp"
-
 #include "util/platform.hpp"
 
 static debug::Logger logger("window");
@@ -177,9 +178,8 @@ int Window::initialize(DisplaySettings* settings) {
     Window::width = settings->width.get();
     Window::height = settings->height.get();
 
-    std::string title = "VoxelCore v" +
-                        std::to_string(ENGINE_VERSION_MAJOR) + "." +
-                        std::to_string(ENGINE_VERSION_MINOR);
+    std::string title = "VoxelCore v" + std::to_string(ENGINE_VERSION_MAJOR) +
+                        "." + std::to_string(ENGINE_VERSION_MINOR);
     if (ENGINE_DEBUG_BUILD) {
         title += " [debug]";
     }
@@ -224,6 +224,7 @@ int Window::initialize(DisplaySettings* settings) {
             return -1;
         }
     }
+    VOXELENGINE_PROFILE_GPU_CONTEXT;
 
     if (isGlExtensionSupported("GL_KHR_debug")) {
         glEnable(GL_DEBUG_OUTPUT);
@@ -424,7 +425,15 @@ bool Window::isFullscreen() {
 }
 
 void Window::swapBuffers() {
+    VOXELENGINE_PROFILE;
+
     glfwSwapBuffers(window);
+
+    VOXELENGINE_PROFILE_GPU_COLLECT;  // This call so slow, be careful when
+                                      // checking perf in this mode. Undef
+                                      // VOXELENGINE_PROFILER_GPU macro in cmake
+                                      // for disable GPU profiling
+
     Window::resetScissor();
     if (framerate > 0) {
         auto elapsedTime = time() - prevSwap;
@@ -502,7 +511,8 @@ void Window::setIcon(const ImageData* image) {
     GLFWimage icon {
         static_cast<int>(image->getWidth()),
         static_cast<int>(image->getHeight()),
-        image->getData()};
+        image->getData()
+    };
     glfwSetWindowIcon(window, 1, &icon);
 }
 
