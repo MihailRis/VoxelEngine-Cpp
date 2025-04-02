@@ -87,7 +87,7 @@ namespace gui {
         /// @brief Set maxLocalCaret to local (line) caret position
         void resetMaxLocalCaret();
 
-        void performEditingKeyboardEvents(keycode key);
+        void performEditingKeyboardEvents(Keycode key);
 
         void refreshLabel();
 
@@ -238,7 +238,7 @@ namespace gui {
         virtual void draw(const DrawContext& pctx, const Assets& assets) override;
         virtual void drawBackground(const DrawContext& pctx, const Assets& assets) override;
         virtual void typed(unsigned int codepoint) override; 
-        virtual void keyPressed(keycode key) override;
+        virtual void keyPressed(Keycode key) override;
         virtual std::shared_ptr<UINode> getAt(const glm::vec2& pos) override;
         virtual void setOnUpPressed(const runnable &callback);
         virtual void setOnDownPressed(const runnable &callback);

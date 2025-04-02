@@ -252,15 +252,15 @@ void Hud::updateHotbarControl() {
         player.setChosenSlot(slot);
     }
     for (
-        int i = static_cast<int>(keycode::NUM_1); 
-        i <= static_cast<int>(keycode::NUM_9); 
+        int i = static_cast<int>(Keycode::NUM_1); 
+        i <= static_cast<int>(Keycode::NUM_9); 
         i++
     ) {
-        if (input.jpressed(static_cast<keycode>(i))) {
-            player.setChosenSlot(i - static_cast<int>(keycode::NUM_1));
+        if (input.jpressed(static_cast<Keycode>(i))) {
+            player.setChosenSlot(i - static_cast<int>(Keycode::NUM_1));
         }
     }
-    if (input.jpressed(keycode::NUM_0)) {
+    if (input.jpressed(Keycode::NUM_0)) {
         player.setChosenSlot(9);
     }
 }

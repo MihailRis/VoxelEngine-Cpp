@@ -68,11 +68,11 @@ void guiutil::alert(
     panel->refresh();
 
     auto& input = engine.getInput();
-    panel->keepAlive(input.addKeyCallback(keycode::ENTER, [on_hidden_final]() {
+    panel->keepAlive(input.addKeyCallback(Keycode::ENTER, [on_hidden_final]() {
         on_hidden_final();
         return true;
     }));
-    panel->keepAlive(input.addKeyCallback(keycode::ESCAPE, [on_hidden_final]() {
+    panel->keepAlive(input.addKeyCallback(Keycode::ESCAPE, [on_hidden_final]() {
         on_hidden_final();
         return true;
     }));
@@ -138,11 +138,11 @@ void guiutil::confirm(
     }));
 
     panel->add(subpanel);
-    panel->keepAlive(input.addKeyCallback(keycode::ENTER, [=]() {
+    panel->keepAlive(input.addKeyCallback(Keycode::ENTER, [=]() {
         on_confirm_final();
         return true;
     }));
-    panel->keepAlive(input.addKeyCallback(keycode::ESCAPE, [=]() {
+    panel->keepAlive(input.addKeyCallback(Keycode::ESCAPE, [=]() {
         on_deny_final();
         return true;
     }));

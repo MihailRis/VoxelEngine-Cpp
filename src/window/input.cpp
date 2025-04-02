@@ -56,7 +56,7 @@ static std::unordered_map<std::string, int> mousecodes {
 static std::unordered_map<int, std::string> keynames {};
 static std::unordered_map<int, std::string> buttonsnames{};
 
-std::string input_util::get_name(mousecode code) {
+std::string input_util::get_name(Mousecode code) {
     auto found = buttonsnames.find(static_cast<int>(code));
     if (found == buttonsnames.end()) {
         return "unknown";
@@ -64,7 +64,7 @@ std::string input_util::get_name(mousecode code) {
     return found->second;
 }
 
-std::string input_util::get_name(keycode code) {
+std::string input_util::get_name(Keycode code) {
     auto found = keynames.find(static_cast<int>(code));
     if (found == keynames.end()) {
         return "unknown";
@@ -72,17 +72,17 @@ std::string input_util::get_name(keycode code) {
     return found->second;
 }
 
-void Binding::reset(inputtype type, int code) {
+void Binding::reset(InputType type, int code) {
     this->type = type;
     this->code = code;
 }
 
-void Binding::reset(keycode code) {
-    reset(inputtype::keyboard, static_cast<int>(code));
+void Binding::reset(Keycode code) {
+    reset(InputType::KEYBOARD, static_cast<int>(code));
 }
 
-void Binding::reset(mousecode code) {
-    reset(inputtype::mouse, static_cast<int>(code));
+void Binding::reset(Mousecode code) {
+    reset(InputType::MOUSE, static_cast<int>(code));
 }
 
 void input_util::initialize() {
@@ -103,23 +103,23 @@ void input_util::initialize() {
     }
 }
 
-keycode input_util::keycode_from(const std::string& name) {
+Keycode input_util::keycode_from(const std::string& name) {
     const auto& found = keycodes.find(name);
     if (found == keycodes.end()) {
-        return keycode::UNKNOWN;
+        return Keycode::UNKNOWN;
     }
-    return static_cast<keycode>(found->second);
+    return static_cast<Keycode>(found->second);
 }
 
-mousecode input_util::mousecode_from(const std::string& name) {
+Mousecode input_util::mousecode_from(const std::string& name) {
     const auto& found = mousecodes.find(name);
     if (found == mousecodes.end()) {
-        return mousecode::UNKNOWN;
+        return Mousecode::UNKNOWN;
     }
-    return static_cast<mousecode>(found->second);
+    return static_cast<Mousecode>(found->second);
 }
 
-std::string input_util::to_string(keycode code) {
+std::string input_util::to_string(Keycode code) {
     int icode_repr = static_cast<int>(code);
     const char* name =
         glfwGetKeyName(icode_repr, glfwGetKeyScancode(icode_repr));
@@ -212,21 +212,21 @@ std::string input_util::to_string(keycode code) {
     return std::string(name);
 }
 
-std::string input_util::to_string(mousecode code) {
+std::string input_util::to_string(Mousecode code) {
     switch (code) {
-        case mousecode::BUTTON_1:
+        case Mousecode::BUTTON_1:
             return "LMB";
-        case mousecode::BUTTON_2:
+        case Mousecode::BUTTON_2:
             return "RMB";
-        case mousecode::BUTTON_3:
+        case Mousecode::BUTTON_3:
             return "MMB";
-        case mousecode::BUTTON_4:
-        case mousecode::BUTTON_5:
-        case mousecode::BUTTON_6:
-        case mousecode::BUTTON_7:
-        case mousecode::BUTTON_8:
+        case Mousecode::BUTTON_4:
+        case Mousecode::BUTTON_5:
+        case Mousecode::BUTTON_6:
+        case Mousecode::BUTTON_7:
+        case Mousecode::BUTTON_8:
             return "XButton " + std::to_string(static_cast<int>(code) - 
-                static_cast<int>(mousecode::BUTTON_3));
+                static_cast<int>(Mousecode::BUTTON_3));
         default:
             return "unknown button";
     }
@@ -251,13 +251,13 @@ void Bindings::read(const dv::value& map, BindType bindType) {
         for (auto& [name, value] : section.asObject()) {
             auto key = sectionName + "." + name;
             auto [prefix, codename] = util::split_at(value.asString(), ':');
-            inputtype type;
+            InputType type;
             int code;
             if (prefix == "key") {
-                type = inputtype::keyboard;
+                type = InputType::KEYBOARD;
                 code = static_cast<int>(input_util::keycode_from(codename));
             } else if (prefix == "mouse") {
-                type = inputtype::mouse;
+                type = InputType::MOUSE;
                 code = static_cast<int>(input_util::mousecode_from(codename));
             } else {
                 logger.error()
@@ -282,15 +282,15 @@ std::string Bindings::write() const {
         const auto& binding = entry.second;
         std::string value;
         switch (binding.type) {
-            case inputtype::keyboard:
+            case InputType::KEYBOARD:
                 value =
                     "key:" +
-                    input_util::get_name(static_cast<keycode>(binding.code));
+                    input_util::get_name(static_cast<Keycode>(binding.code));
                 break;
-            case inputtype::mouse:
+            case InputType::MOUSE:
                 value =
                     "mouse:" +
-                    input_util::get_name(static_cast<mousecode>(binding.code));
+                    input_util::get_name(static_cast<Mousecode>(binding.code));
                 break;
             default:
                 throw std::runtime_error("unsupported control type");

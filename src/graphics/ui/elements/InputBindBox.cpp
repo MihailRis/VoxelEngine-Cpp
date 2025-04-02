@@ -25,15 +25,15 @@ void InputBindBox::drawBackground(const DrawContext& pctx, const Assets&) {
     label->setText(util::str2wstr_utf8(binding.text()));
 }
 
-void InputBindBox::clicked(mousecode button) {
+void InputBindBox::clicked(Mousecode button) {
     if (isFocused()) {
         binding.reset(button);
         defocus();
     }
 }
 
-void InputBindBox::keyPressed(keycode key) {
-    if (key != keycode::ESCAPE) {
+void InputBindBox::keyPressed(Keycode key) {
+    if (key != Keycode::ESCAPE) {
         binding.reset(key);
     }
     defocus();

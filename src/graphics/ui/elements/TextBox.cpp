@@ -824,10 +824,10 @@ void TextBox::onInput() {
     refreshSyntax();
 }
 
-void TextBox::performEditingKeyboardEvents(keycode key) {
-    bool shiftPressed = gui.getInput().pressed(keycode::LEFT_SHIFT);
+void TextBox::performEditingKeyboardEvents(Keycode key) {
+    bool shiftPressed = gui.getInput().pressed(Keycode::LEFT_SHIFT);
     bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
-    if (key == keycode::BACKSPACE) {
+    if (key == Keycode::BACKSPACE) {
         if (!eraseSelected() && caret > 0 && input.length() > 0) {
             if (caret > input.length()) {
                 caret = input.length();
@@ -839,7 +839,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
                 onInput();
             }
         }
-    } else if (key == keycode::DELETE) {
+    } else if (key == Keycode::DELETE) {
         if (!eraseSelected() && caret < input.length()) {
             historian->onErase(caret, input.substr(caret, 1));
             input = input.substr(0, caret) + input.substr(caret + 1);
@@ -847,7 +847,7 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
                 onInput();
             }
         }
-    } else if (key == keycode::ENTER) {
+    } else if (key == Keycode::ENTER) {
         if (multiline) {
             paste(L"\n");
         } else {
@@ -856,42 +856,42 @@ void TextBox::performEditingKeyboardEvents(keycode key) {
                 consumer(getText());
             }
         }
-    } else if (key == keycode::TAB) {
+    } else if (key == Keycode::TAB) {
         paste(L"    ");
-    } else if (key == keycode::LEFT) {
+    } else if (key == Keycode::LEFT) {
         stepLeft(shiftPressed, breakSelection);
-    } else if (key == keycode::RIGHT) {
+    } else if (key == Keycode::RIGHT) {
         stepRight(shiftPressed, breakSelection);
-    } else if (key == keycode::UP && onUpPressed) {
+    } else if (key == Keycode::UP && onUpPressed) {
         onUpPressed();
-    } else if (key == keycode::DOWN && onDownPressed) {
+    } else if (key == Keycode::DOWN && onDownPressed) {
         onDownPressed();
     }
 }
 
-void TextBox::keyPressed(keycode key) {
+void TextBox::keyPressed(Keycode key) {
     const auto& inputEvents = gui.getInput();
     if (editable) {
         performEditingKeyboardEvents(key);
     }
-    if (inputEvents.pressed(keycode::LEFT_CONTROL) && key != keycode::LEFT_CONTROL) {
+    if (inputEvents.pressed(Keycode::LEFT_CONTROL) && key != Keycode::LEFT_CONTROL) {
         if (controlCombinationsHandler) {
             if (controlCombinationsHandler(static_cast<int>(key))) {
                 return;
             }
         }
         // Copy selected text to clipboard
-        if (key == keycode::C || key == keycode::X) {
+        if (key == Keycode::C || key == Keycode::X) {
             std::string text = util::wstr2str_utf8(getSelection());
             if (!text.empty()) {
                 gui.getInput().setClipboardText(text.c_str());
             }
-            if (editable && key == keycode::X) {
+            if (editable && key == Keycode::X) {
                 eraseSelected();
             }
         }
         // Paste text from clipboard
-        if (key == keycode::V && editable) {
+        if (key == Keycode::V && editable) {
             const char* text = inputEvents.getClipboardText();
             if (text) {
                 historian->sync(); // flush buffer before combination
@@ -902,18 +902,18 @@ void TextBox::keyPressed(keycode key) {
             }
         }
         // Select/deselect all
-        if (key == keycode::A) {
+        if (key == Keycode::A) {
             if (selectionStart == selectionEnd) {
                 select(0, input.length());
             } else {
                 resetSelection();
             }
         }
-        if (key == keycode::Z) {
+        if (key == Keycode::Z) {
             historian->undo();
             refreshSyntax();
         }
-        if (key == keycode::Y) {
+        if (key == Keycode::Y) {
             historian->redo();
             refreshSyntax();
         }
@@ -948,11 +948,11 @@ std::shared_ptr<UINode> TextBox::getAt(const glm::vec2& pos) {
 void TextBox::setOnUpPressed(const runnable& callback) {
     if (callback == nullptr) {
         onUpPressed = [this]() {
-            if (inputEvents.pressed(keycode::LEFT_CONTROL)) {
+            if (inputEvents.pressed(Keycode::LEFT_CONTROL)) {
                 scrolled(1);
                 return;
             }
-            bool shiftPressed = inputEvents.pressed(keycode::LEFT_SHIFT);
+            bool shiftPressed = inputEvents.pressed(Keycode::LEFT_SHIFT);
             bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
             stepDefaultUp(shiftPressed, breakSelection);
         };
@@ -964,11 +964,11 @@ void TextBox::setOnUpPressed(const runnable& callback) {
 void TextBox::setOnDownPressed(const runnable& callback) {
     if (callback == nullptr) {
         onDownPressed = [this]() {
-            if (inputEvents.pressed(keycode::LEFT_CONTROL)) {
+            if (inputEvents.pressed(Keycode::LEFT_CONTROL)) {
                 scrolled(-1);
                 return;
             }
-            bool shiftPressed = inputEvents.pressed(keycode::LEFT_SHIFT);
+            bool shiftPressed = inputEvents.pressed(Keycode::LEFT_SHIFT);
             bool breakSelection = getSelectionLength() != 0 && !shiftPressed;
             stepDefaultDown(shiftPressed, breakSelection);
         };

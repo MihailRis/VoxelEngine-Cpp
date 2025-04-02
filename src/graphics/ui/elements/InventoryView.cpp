@@ -281,7 +281,7 @@ bool SlotView::isHighlighted() const {
 
 void SlotView::performLeftClick(ItemStack& stack, ItemStack& grabbed) {
     const auto& input = gui.getInput();
-    if (layout.taking && input.pressed(keycode::LEFT_SHIFT)) {
+    if (layout.taking && input.pressed(Keycode::LEFT_SHIFT)) {
         if (layout.shareFunc) {
             layout.shareFunc(layout.index, stack);
         }
@@ -348,7 +348,7 @@ void SlotView::performRightClick(ItemStack& stack, ItemStack& grabbed) {
     }
 }
 
-void SlotView::clicked(mousecode button) {
+void SlotView::clicked(Mousecode button) {
     if (bound == nullptr)
         return;
     auto exchangeSlot =
@@ -359,9 +359,9 @@ void SlotView::clicked(mousecode button) {
     ItemStack& grabbed = exchangeSlot->getStack();
     ItemStack& stack = *bound;
     
-    if (button == mousecode::BUTTON_1) {
+    if (button == Mousecode::BUTTON_1) {
         performLeftClick(stack, grabbed);
-    } else if (button == mousecode::BUTTON_2) {
+    } else if (button == Mousecode::BUTTON_2) {
         performRightClick(stack, grabbed);
     }
     if (layout.updateFunc) {
@@ -370,7 +370,7 @@ void SlotView::clicked(mousecode button) {
 }
 
 void SlotView::onFocus() {
-    clicked(mousecode::BUTTON_1);
+    clicked(Mousecode::BUTTON_1);
 }
 
 const std::wstring& SlotView::getTooltip() const {

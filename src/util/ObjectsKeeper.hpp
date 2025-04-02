@@ -9,7 +9,7 @@ namespace util {
     /// @brief Keeps shared pointers alive until destruction
     class ObjectsKeeper {
         std::vector<std::shared_ptr<void>> ptrs;
-        std::vector<observer_handler> handlers;
+        std::vector<ObserverHandler> handlers;
     public:
         ObjectsKeeper() = default;
 
@@ -29,7 +29,7 @@ namespace util {
             ptrs.push_back(std::move(ptr));
         }
 
-        virtual void keepAlive(observer_handler&& ptr) {
+        virtual void keepAlive(ObserverHandler&& ptr) {
             handlers.emplace_back(std::move(ptr));
         }
 

@@ -2,21 +2,21 @@
 
 #include <functional>
 
-class observer_handler {
+class ObserverHandler {
 public:
-    observer_handler() = default;
+    ObserverHandler() = default;
 
-    observer_handler(std::function<void()> destructor)
+    ObserverHandler(std::function<void()> destructor)
         : destructor(std::move(destructor)) {
     }
 
-    observer_handler(const observer_handler&) = delete;
+    ObserverHandler(const ObserverHandler&) = delete;
 
-    observer_handler(observer_handler&& handler) noexcept
+    ObserverHandler(ObserverHandler&& handler) noexcept
         : destructor(std::move(handler.destructor)) {
     }
 
-    ~observer_handler() {
+    ~ObserverHandler() {
         if (destructor) {
             destructor();
         }
@@ -26,9 +26,9 @@ public:
         return destructor == nullptr;
     }
 
-    observer_handler& operator=(const observer_handler& handler) = delete;
+    ObserverHandler& operator=(const ObserverHandler& handler) = delete;
 
-    observer_handler& operator=(observer_handler&& handler) noexcept {
+    ObserverHandler& operator=(ObserverHandler&& handler) noexcept {
         if (destructor) {
             destructor();
         }

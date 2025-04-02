@@ -180,13 +180,13 @@ void LevelScreen::saveWorldPreview() {
 void LevelScreen::updateHotkeys() {
     auto& settings = engine.getSettings();
 
-    if (input.jpressed(keycode::O)) {
+    if (input.jpressed(Keycode::O)) {
         settings.graphics.frustumCulling.toggle();
     }
-    if (input.jpressed(keycode::F1)) {
+    if (input.jpressed(Keycode::F1)) {
         hudVisible = !hudVisible;
     }
-    if (input.jpressed(keycode::F3)) {
+    if (input.jpressed(Keycode::F3)) {
         debug = !debug;
         hud->setDebug(debug);
         renderer->setDebug(debug);

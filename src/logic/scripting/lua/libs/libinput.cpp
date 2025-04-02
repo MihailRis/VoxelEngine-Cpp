@@ -36,7 +36,7 @@ static int l_add_callback(lua::State* L) {
 
     lua::pushvalue(L, 2);
     auto actual_callback = lua::create_simple_handler(L);
-    observer_handler handler;
+    ObserverHandler handler;
 
     auto& gui = engine->getGUI();
     auto& input = engine->getInput();

@@ -174,13 +174,13 @@ void Engine::loadControls() {
 }
 
 void Engine::updateHotkeys() {
-    if (input->jpressed(keycode::F2)) {
+    if (input->jpressed(Keycode::F2)) {
         saveScreenshot();
     }
-    if (input->jpressed(keycode::F8)) {
+    if (input->jpressed(Keycode::F8)) {
         gui->toggleDebug();
     }
-    if (input->jpressed(keycode::F11)) {
+    if (input->jpressed(Keycode::F11)) {
         settings.display.fullscreen.toggle();
     }
 }

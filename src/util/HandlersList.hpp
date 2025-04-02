@@ -31,12 +31,12 @@ namespace util {
             nextid = o.nextid;
         }
 
-        observer_handler add(std::function<bool(Types...)> handler) {
+        ObserverHandler add(std::function<bool(Types...)> handler) {
             std::lock_guard lock(mutex);
             int id = nextid++;
             handlers[id] = std::move(handler);
             order.push_back(id);
-            return observer_handler([this, id]() {
+            return ObserverHandler([this, id]() {
                 std::lock_guard lock(mutex);
                 handlers.erase(id);
                 order.erase(

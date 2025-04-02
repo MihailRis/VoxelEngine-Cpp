@@ -5,7 +5,7 @@
 
 using scriptenv = std::shared_ptr<int>;
 
-class observer_handler;
+class ObserverHandler;
 
 /// @brief dynamic integer type (64 bit signed integer)
 using integer_t = int64_t;

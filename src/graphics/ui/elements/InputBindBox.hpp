@@ -19,8 +19,8 @@ namespace gui {
             const DrawContext& pctx, const Assets& assets
         ) override;
 
-        virtual void clicked(mousecode button) override;
-        virtual void keyPressed(keycode key) override;
+        virtual void clicked(Mousecode button) override;
+        virtual void keyPressed(Keycode key) override;
         virtual bool isFocuskeeper() const override {
             return true;
         }

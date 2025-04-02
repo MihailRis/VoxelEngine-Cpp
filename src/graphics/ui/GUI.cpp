@@ -135,7 +135,7 @@ void GUI::actMouse(float delta, const CursorState& cursor) {
     }
     this->hover = hover;
 
-    if (input.jclicked(mousecode::BUTTON_1)) {
+    if (input.jclicked(Mousecode::BUTTON_1)) {
         if (pressed == nullptr && this->hover) {
             pressed = hover;
             if (doubleClickTimer < doubleClickDelay) {
@@ -158,13 +158,13 @@ void GUI::actMouse(float delta, const CursorState& cursor) {
             focus->defocus();
             focus = nullptr;
         }
-    } else if (!input.clicked(mousecode::BUTTON_1) && pressed) {
+    } else if (!input.clicked(Mousecode::BUTTON_1) && pressed) {
         pressed->mouseRelease(cursor.pos.x, cursor.pos.y);
         pressed = nullptr;
     }
 
     if (hover) {
-        for (mousecode code : MOUSECODES_ALL) {
+        for (Mousecode code : MOUSECODES_ALL) {
             if (input.jclicked(code)) {
                 hover->clicked(code);
             }
@@ -173,7 +173,7 @@ void GUI::actMouse(float delta, const CursorState& cursor) {
 }
 
 void GUI::actFocused() {
-    if (input.jpressed(keycode::ESCAPE)) {
+    if (input.jpressed(Keycode::ESCAPE)) {
         focus->defocus();
         focus = nullptr;
         return;
@@ -187,8 +187,8 @@ void GUI::actFocused() {
 
     const auto& cursor = input.getCursor();
     if (!cursor.locked) {
-        if (input.clicked(mousecode::BUTTON_1) &&
-            (input.jclicked(mousecode::BUTTON_1) || cursor.delta.x ||
+        if (input.clicked(Mousecode::BUTTON_1) &&
+            (input.jclicked(Mousecode::BUTTON_1) || cursor.delta.x ||
              cursor.delta.y)) {
             if (!doubleClicked) {
                 focus->mouseMove(cursor.pos.x, cursor.pos.y);
