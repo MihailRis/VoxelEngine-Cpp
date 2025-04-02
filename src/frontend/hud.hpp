@@ -18,7 +18,6 @@ class Inventory;
 class LevelFrontend;
 class UiDocument;
 class DrawContext;
-class Viewport;
 class ImageData;
 class Input;
 
@@ -131,7 +130,7 @@ class Hud : public util::ObjectsKeeper {
     std::shared_ptr<gui::InventoryView> createHotbar();
 
     void processInput(bool visible);
-    void updateElementsPosition(const Viewport& viewport);
+    void updateElementsPosition(const glm::uvec2& viewport);
     void updateHotbarControl();
     void cleanup();
 

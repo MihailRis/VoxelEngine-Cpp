@@ -237,8 +237,8 @@ void Label::draw(const DrawContext& pctx, const Assets& assets) {
     textYOffset = pos.y-calcPos().y;
     totalLineHeight = lineHeight;
 
-    auto& viewport = pctx.getViewport();
-    glm::vec4 bounds {0, 0, viewport.getWidth(), viewport.getHeight()};
+    const auto& viewport = pctx.getViewport();
+    glm::vec4 bounds {0, 0, viewport.x, viewport.y};
     if (parent) {
         auto ppos = parent->calcPos();
         auto psize = parent->getSize();

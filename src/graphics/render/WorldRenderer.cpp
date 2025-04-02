@@ -339,7 +339,7 @@ void WorldRenderer::draw(
     auto world = level.getWorld();
 
     const auto& vp = pctx.getViewport();
-    camera.setAspectRatio(vp.getRatio());
+    camera.setAspectRatio(vp.x / static_cast<float>(vp.y));
 
     const auto& settings = engine.getSettings();
     const auto& worldInfo = world->getInfo();

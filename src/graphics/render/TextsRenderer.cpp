@@ -85,14 +85,14 @@ void TextsRenderer::renderNote(
             }
             pos /= projpos.w;
             pos.z = 0;
-            xvec = {2.0f / viewport.getWidth() * scale, 0, 0};
-            yvec = {0, 2.0f / viewport.getHeight() * scale, 0};
+            xvec = {2.0f / viewport.x * scale, 0, 0};
+            yvec = {0, 2.0f / viewport.y * scale, 0};
         } else {
             auto matrix = camera.getProjView();
             auto screenPos = matrix * glm::vec4(pos, 1.0f);
 
-            xvec = glm::vec3(2.0f / viewport.getWidth() * scale, 0, 0);
-            yvec = glm::vec3(0, 2.0f / viewport.getHeight() * scale, 0);
+            xvec = glm::vec3(2.0f / viewport.x * scale, 0, 0);
+            yvec = glm::vec3(0, 2.0f / viewport.y * scale, 0);
 
             pos = screenPos / screenPos.w;
         }

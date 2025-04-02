@@ -197,8 +197,8 @@ void GUI::actFocused() {
     }
 }
 
-void GUI::act(float delta, const Viewport& vp) {
-    container->setSize(vp.size());
+void GUI::act(float delta, const glm::uvec2& vp) {
+    container->setSize(vp);
     container->act(delta);
     auto prevfocus = focus;
 
@@ -233,7 +233,6 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
     auto ctx = pctx.sub(batch2D.get());
 
     auto& viewport = ctx.getViewport();
-    glm::vec2 wsize = viewport.size();
 
     auto& page = menu->getCurrent();
     if (page.panel) {
@@ -243,9 +242,9 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
             panel->cropToContent();
         }
     }
-    menu->setPos((wsize - menu->getSize()) / 2.0f);
-    uicamera->setFov(wsize.y);
-    uicamera->setAspectRatio(viewport.getRatio());
+    menu->setPos((glm::vec2(viewport) - menu->getSize()) / 2.0f);
+    uicamera->setFov(viewport.y);
+    uicamera->setAspectRatio(viewport.x / static_cast<float>(viewport.y));
 
     auto uishader = assets.get<Shader>("ui");
     uishader->use();
@@ -277,11 +276,11 @@ void GUI::draw(const DrawContext& pctx, const Assets& assets) {
         batch2D->untexture();
         auto node = hover->getParent();
         while (node) {
-            auto pos = node->calcPos();
+            auto parentPos = node->calcPos();
             auto size = node->getSize();
 
             batch2D->setColor(0, 255, 255);
-            batch2D->lineRect(pos.x, pos.y, size.x-1, size.y-1);
+            batch2D->lineRect(parentPos.x, parentPos.y, size.x-1, size.y-1);
 
             node = node->getParent();
         }

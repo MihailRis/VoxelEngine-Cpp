@@ -29,7 +29,7 @@ DrawContext::DrawContext(
     Batch2D* g2d
 ) : window(window),
     parent(parent), 
-    viewport({window.getSize()}),
+    viewport(window.getSize()),
     g2d(g2d),
     flushable(g2d)
 {}
@@ -55,11 +55,7 @@ DrawContext::~DrawContext() {
         }
     }
 
-    glViewport(
-        0, 0,
-        parent->viewport.getWidth(), 
-        parent->viewport.getHeight()
-    );
+    glViewport(0, 0, parent->viewport.x, parent->viewport.y);
 
     if (depthMask != parent->depthMask) {
         glDepthMask(parent->depthMask);
@@ -80,7 +76,7 @@ DrawContext::~DrawContext() {
     }
 }
 
-const Viewport& DrawContext::getViewport() const {
+const glm::uvec2& DrawContext::getViewport() const {
     return viewport;
 }
 
@@ -99,13 +95,9 @@ DrawContext DrawContext::sub(Flushable* flushable) const {
     return ctx;
 }
 
-void DrawContext::setViewport(const Viewport& viewport) {
+void DrawContext::setViewport(const glm::uvec2& viewport) {
     this->viewport = viewport;
-    glViewport(
-        0, 0,
-        viewport.getWidth(),
-        viewport.getHeight()
-    );
+    glViewport(0, 0, viewport.x, viewport.y);
 }
 
 void DrawContext::setFramebuffer(Framebuffer* fbo) {

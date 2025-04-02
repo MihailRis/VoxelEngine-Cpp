@@ -13,7 +13,6 @@
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/Shader.hpp"
 #include "graphics/core/Texture.hpp"
-#include "graphics/core/Viewport.hpp"
 #include "graphics/commons/Model.hpp"
 
 #include <glm/ext.hpp>
@@ -127,7 +126,7 @@ std::unique_ptr<Atlas> BlocksPreview::build(
                     glm::vec3(0, 1, 0)));
 
     AtlasBuilder builder;
-    ctx.setViewport(Viewport(iconSize, iconSize));
+    ctx.setViewport({iconSize, iconSize});
     display::setBgColor(glm::vec4(0.0f));
     
     fbo.bind();

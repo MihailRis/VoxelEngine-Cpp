@@ -9,7 +9,6 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-class Viewport;
 class DrawContext;
 class Assets;
 class Camera;
@@ -106,7 +105,7 @@ namespace gui {
         /// @brief Main input handling and logic update method 
         /// @param delta delta time
         /// @param viewport window size
-        void act(float delta, const Viewport& viewport);
+        void act(float delta, const glm::uvec2& viewport);
 
         /// @brief Draw all visible elements on main container 
         /// @param pctx parent graphics context

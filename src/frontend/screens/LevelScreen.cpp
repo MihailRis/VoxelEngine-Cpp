@@ -13,7 +13,6 @@
 #include "graphics/core/DrawContext.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "graphics/core/PostProcessing.hpp"
-#include "graphics/core/Viewport.hpp"
 #include "graphics/render/Decorator.hpp"
 #include "graphics/render/WorldRenderer.hpp"
 #include "graphics/ui/GUI.hpp"

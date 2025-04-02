@@ -211,7 +211,7 @@ void Engine::updateFrontend() {
     double delta = time.getDelta();
     updateHotkeys();
     audio::update(delta);
-    gui->act(delta, Viewport(window->getSize()));
+    gui->act(delta, window->getSize());
     screen->update(delta);
     gui->postAct();
 }
@@ -229,7 +229,6 @@ void Engine::nextFrame() {
 void Engine::renderFrame() {
     screen->draw(time.getDelta());
 
-    Viewport viewport(window->getSize());
     DrawContext ctx(nullptr, *window, nullptr);
     gui->draw(ctx, *assets);
 }
