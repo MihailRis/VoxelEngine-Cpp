@@ -21,8 +21,7 @@ Level::Level(
     const Content& content,
     EngineSettings& settings
 )
-    : settings(settings),
-      world(std::move(worldPtr)),
+    : world(std::move(worldPtr)),
       content(content),
       chunks(std::make_unique<GlobalChunks>(*this)),
       physics(std::make_unique<PhysicsSolver>(glm::vec3(0, -22.6f, 0))),

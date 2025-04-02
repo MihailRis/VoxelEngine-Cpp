@@ -9,6 +9,9 @@
 
 #include "stringutil.hpp"
 #include "typedefs.hpp"
+#include "debug/Logger.hpp"
+
+static debug::Logger logger("platform");
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -65,17 +68,21 @@ int platform::get_process_id() {
 #else // _WIN32
 
 #include <unistd.h>
+#include "frontend/locale.hpp"
 
 void platform::configure_encoding() {
 }
 
 std::string platform::detect_locale() {
-    std::string programLocaleName = setlocale(LC_ALL, nullptr);
-    std::string preferredLocaleName =
+    const char* const programLocaleName = setlocale(LC_ALL, nullptr);
+    const char* const preferredLocaleName =
         setlocale(LC_ALL, "");  // locale name format: ll_CC.encoding
-    setlocale(LC_ALL, programLocaleName.c_str());
+    if (programLocaleName && preferredLocaleName) {
+        setlocale(LC_ALL, programLocaleName);
 
-    return preferredLocaleName.substr(0, 5);
+        return std::string(preferredLocaleName, 5);
+    }
+    return langs::FALLBACK_DEFAULT;
 }
 
 void platform::sleep(size_t millis) {
@@ -99,6 +106,9 @@ void platform::open_folder(const std::filesystem::path& folder) {
     ShellExecuteW(NULL, L"open", folder.wstring().c_str(), NULL, NULL, SW_SHOWDEFAULT);
 #else
     auto cmd = "xdg-open " + util::quote(folder.u8string());
-    system(cmd.c_str());
+    if (int res = system(cmd.c_str())) {
+        logger.warning() << "'" << cmd << "' returned code " << res;
+    }
+
 #endif
 }

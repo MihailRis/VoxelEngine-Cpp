@@ -19,7 +19,7 @@ Emitter::Emitter(
 )
     : level(level),
       origin(std::move(origin)),
-      prototype({this, 0, {}, preset.velocity, preset.lifetime, region}),
+      prototype({this, 0, {}, preset.velocity, preset.lifetime, region, 0, 0}),
       texture(texture),
       count(count),
       preset(std::move(preset)) {

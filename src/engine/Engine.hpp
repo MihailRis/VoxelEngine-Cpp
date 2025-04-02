@@ -4,29 +4,22 @@
 #include "typedefs.hpp"
 #include "settings.hpp"
 
-#include "assets/Assets.hpp"
-#include "content/content_fwd.hpp"
-#include "content/ContentPack.hpp"
-#include "content/PacksManager.hpp"
-#include "files/engine_paths.hpp"
-#include "files/settings_io.hpp"
+#include "io/engine_paths.hpp"
+#include "io/settings_io.hpp"
 #include "util/ObjectsKeeper.hpp"
 #include "PostRunnables.hpp"
 #include "Time.hpp"
 
-#include <filesystem>
 #include <memory>
-#include <stdexcept>
 #include <string>
-#include <vector>
 
+class Window;
+class Assets;
 class Level;
 class Screen;
-class EnginePaths;
-class ResPaths;
+class ContentControl;
 class EngineController;
-class SettingsHandler;
-struct EngineSettings;
+class Input;
 
 namespace gui {
     class GUI;
@@ -48,8 +41,8 @@ public:
 struct CoreParameters {
     bool headless = false;
     bool testMode = false;
-    std::filesystem::path resFolder {"res"};
-    std::filesystem::path userFolder {"."};
+    std::filesystem::path resFolder = "res";
+    std::filesystem::path userFolder = ".";
     std::filesystem::path scriptFile;
 };
 
@@ -63,13 +56,12 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<SettingsHandler> settingsHandler;
     std::unique_ptr<Assets> assets;
     std::shared_ptr<Screen> screen;
-    std::vector<ContentPack> contentPacks;
-    std::unique_ptr<Content> content;
-    std::unique_ptr<ResPaths> resPaths;
+    std::unique_ptr<ContentControl> content;
     std::unique_ptr<EngineController> controller;
-    std::unique_ptr<cmd::CommandsInterpreter> interpreter;
+    std::unique_ptr<cmd::CommandsInterpreter> cmd;
     std::unique_ptr<network::Network> network;
-    std::vector<std::string> basePacks;
+    std::unique_ptr<Window> window;
+    std::unique_ptr<Input> input;
     std::unique_ptr<gui::GUI> gui;
     PostRunnables postRunnables;
     Time time;
@@ -88,6 +80,7 @@ public:
     static Engine& getInstance();
 
     void initialize(CoreParameters coreParameters);
+    void close();
 
     static void terminate();
 
@@ -99,9 +92,6 @@ public:
     void updateFrontend();
     void renderFrame();
     void nextFrame();
-
-    /// @brief Called after assets loading when all engine systems are initialized
-    void onAssetsLoaded();
     
     /// @brief Set screen (scene).
     /// nullptr may be used to delete previous screen before creating new one,
@@ -109,29 +99,8 @@ public:
     /// @param screen nullable screen
     void setScreen(std::shared_ptr<Screen> screen);
     
-    /// @brief Change locale to specified
-    /// @param locale isolanguage_ISOCOUNTRY (example: en_US)
-    void setLanguage(std::string locale);
-
-    /// @brief Load all selected content-packs and reload assets
-    void loadContent();
-
-    /// @brief Reset content to base packs list
-    void resetContent();
-    
-    /// @brief Collect world content-packs and load content
-    /// @see loadContent
-    /// @param folder world folder
-    void loadWorldContent(const fs::path& folder);
-
-    /// @brief Collect all available content-packs from res/content
-    void loadAllPacks();
-
     /// @brief Get active assets storage instance
     Assets* getAssets();
-    
-    /// @brief Get main UI controller
-    gui::GUI* getGUI();
 
     /// @brief Get writeable engine settings structure instance
     EngineSettings& getSettings();
@@ -140,7 +109,7 @@ public:
     EnginePaths& getPaths();
 
     /// @brief Get engine resource paths controller
-    ResPaths* getResPaths();
+    ResPaths& getResPaths();
 
     void onWorldOpen(std::unique_ptr<Level> level, int64_t localPlayer);
     void onWorldClosed();
@@ -148,16 +117,6 @@ public:
     void quit();
 
     bool isQuitSignal() const;
-
-    /// @brief Get current Content instance
-    const Content* getContent() const;
-
-    /// @brief Get selected content packs
-    std::vector<ContentPack>& getContentPacks();
-
-    std::vector<ContentPack> getAllContentPacks();
-
-    std::vector<std::string>& getBasePacks();
 
     /// @brief Get current screen
     std::shared_ptr<Screen> getScreen();
@@ -170,19 +129,36 @@ public:
     void saveScreenshot();
 
     EngineController* getController();
-    cmd::CommandsInterpreter* getCommandsInterpreter();
-
-    PacksManager createPacksManager(const fs::path& worldFolder);
 
     void setLevelConsumer(OnWorldOpen levelConsumer);
 
     SettingsHandler& getSettingsHandler();
-
-    network::Network& getNetwork();
 
     Time& getTime();
 
     const CoreParameters& getCoreParameters() const;
 
     bool isHeadless() const;
+
+    ContentControl& getContentControl();
+
+    gui::GUI& getGUI() {
+        return *gui;
+    }
+
+    Input& getInput() {
+        return *input;
+    }
+
+    Window& getWindow() {
+        return *window;
+    }
+
+    network::Network& getNetwork() {
+        return *network;
+    }
+
+    cmd::CommandsInterpreter& getCmd() {
+        return *cmd;
+    }
 };

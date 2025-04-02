@@ -7,23 +7,23 @@ AppDir:
     icon: VoxelCore
     version: latest
     exec: usr/bin/VoxelEngine
-    exec_args: --dir $HOME/.voxeng --res $APPDIR/usr/share/VoxelCore/res $@
+    exec_args: --dir $HOME/.config/voxelcore --res $APPDIR/usr/share/VoxelCore/res $@
   apt:
     arch: amd64
     sources:
-    - sourceline: deb http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy main restricted universe multiverse
       key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3b4fe6acc0b21f32'
       key_url: 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x871920D1991BC93C'
-    - sourceline: deb http://archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse
-    - sourceline: deb http://archive.ubuntu.com/ubuntu/ focal-backports main restricted universe multiverse
-    - sourceline: deb http://archive.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy-updates main restricted universe multiverse
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy-backports main restricted universe multiverse
+    - sourceline: deb http://archive.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
     include:
     - libbz2-1.0
     - libexpat1
     - libfam0
     - libgcrypt20
     - libglfw3
-    - libglew2.1
+    - libglew2.2
     - libpng16-16
     - libopenal1
     - libasound2

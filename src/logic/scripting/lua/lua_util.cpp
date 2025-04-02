@@ -1,4 +1,5 @@
 #include "lua_util.hpp"
+#include "lua_engine.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -162,20 +163,23 @@ int lua::call(State* L, int argc, int nresults) {
     int handler_pos = gettop(L) - argc;
     pushcfunction(L, l_error_handler);
     insert(L, handler_pos);
+    int top = gettop(L);
     if (lua_pcall(L, argc, nresults, handler_pos)) {
         std::string log = tostring(L, -1);
         pop(L);
         remove(L, handler_pos);
         throw luaerror(log);
     }
+    int added = gettop(L) - (top - argc - 1);
     remove(L, handler_pos);
-    return nresults == -1 ? 1 : nresults;
+    return added;
 }
 
 int lua::call_nothrow(State* L, int argc, int nresults) {
     int handler_pos = gettop(L) - argc;
     pushcfunction(L, l_error_handler);
     insert(L, handler_pos);
+    int top = gettop(L);
     if (lua_pcall(L, argc, -1, handler_pos)) {
         auto errorstr = tostring(L, -1);
         if (errorstr) {
@@ -187,8 +191,9 @@ int lua::call_nothrow(State* L, int argc, int nresults) {
         remove(L, handler_pos);
         return 0;
     }
+    int added = gettop(L) - (top - argc - 1);
     remove(L, handler_pos);
-    return 1;
+    return added;
 }
 
 void lua::dump_stack(State* L) {
@@ -228,6 +233,7 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
     return std::shared_ptr<std::string>(
         new std::string(name),
         [=](std::string* name) {
+            auto L = lua::get_main_state();
             requireglobal(L, LAMBDAS_TABLE);
             pushnil(L);
             setfield(L, *name);
@@ -240,6 +246,7 @@ static std::shared_ptr<std::string> create_lambda_handler(State* L) {
 runnable lua::create_runnable(State* L) {
     auto funcptr = create_lambda_handler(L);
     return [=]() {
+        auto L = lua::get_main_state();
         if (!get_from(L, LAMBDAS_TABLE, *funcptr, false))
             return;
         call_nothrow(L, 0, 0);

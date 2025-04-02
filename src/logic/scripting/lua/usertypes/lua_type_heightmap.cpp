@@ -9,7 +9,7 @@
 #define FNL_IMPL
 #include "maths/FastNoiseLite.h"
 #include "coders/imageio.hpp"
-#include "files/util.hpp"
+#include "io/util.hpp"
 #include "graphics/core/ImageData.hpp"
 #include "maths/Heightmap.hpp"
 #include "engine/Engine.hpp"
@@ -50,9 +50,8 @@ const float* LuaHeightmap::getValues() const {
 }
 
 static int l_dump(lua::State* L) {
-    const auto& paths = scripting::engine->getPaths();
     if (auto heightmap = touserdata<LuaHeightmap>(L, 1)) {
-        auto file = paths.resolve(require_string(L, 2));
+        io::path file = require_string(L, 2);
         uint w = heightmap->getWidth();
         uint h = heightmap->getHeight();
         ImageData image(ImageFormat::rgb888, w, h);
@@ -68,7 +67,7 @@ static int l_dump(lua::State* L) {
                 raster[i*3 + 2] = val;
             }
         }
-        imageio::write(file.u8string(), &image);
+        imageio::write(file, &image);
     }
     return 0;
 }

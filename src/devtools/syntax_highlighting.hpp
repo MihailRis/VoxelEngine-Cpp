@@ -11,6 +11,6 @@ namespace devtools {
     };
 
     std::unique_ptr<FontStylesScheme> syntax_highlight(
-        const std::string& lang, std::string_view source
+        const std::string& lang, std::wstring_view source
     );
 }

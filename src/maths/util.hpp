@@ -20,6 +20,8 @@ namespace util {
     class PseudoRandom {
         unsigned short seed;
     public:
+        PseudoRandom(unsigned short seed) : seed(seed) {}
+
         PseudoRandom() {
             seed = static_cast<unsigned short>(time(0));
         }
@@ -33,6 +35,12 @@ namespace util {
             seed = (seed ^ 0xba49 ^ (seed >> 8));
 
             return static_cast<int>(seed);
+        }
+
+        void rand(unsigned char* dst, size_t n) {
+            for (size_t i = 0; i < n; i++) {
+                dst[i] = rand();
+            }
         }
 
         int32_t rand32() {

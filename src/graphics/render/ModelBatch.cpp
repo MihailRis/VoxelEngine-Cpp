@@ -6,7 +6,6 @@
 #include "graphics/core/Atlas.hpp"
 #include "graphics/core/Texture.hpp"
 #include "assets/Assets.hpp"
-#include "window/Window.hpp"
 #include "voxels/Chunks.hpp"
 #include "lighting/Lightmap.hpp"
 #include "settings.hpp"
@@ -51,11 +50,10 @@ ModelBatch::ModelBatch(
     const Chunks& chunks,
     const EngineSettings& settings
 )
-    : batch(std::make_unique<MainBatch>(capacity)),
-      assets(assets),
+    : assets(assets),
       chunks(chunks),
-      settings(settings) {
-}
+      settings(settings),
+      batch(std::make_unique<MainBatch>(capacity)) {}
 
 ModelBatch::~ModelBatch() = default;
 

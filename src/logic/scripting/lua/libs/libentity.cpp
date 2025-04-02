@@ -63,8 +63,10 @@ static int l_spawn(lua::State* L) {
     if (lua::gettop(L) > 2) {
         args = lua::tovalue(L, 3);
     }
-    level->entities->spawn(def, pos, std::move(args));
-    return 1;
+    entityid_t id = level->entities->spawn(def, pos, std::move(args));
+    lua::get_from(L, "entities", "get", true);
+    lua::pushinteger(L, id);
+    return lua::call_nothrow(L, 1);
 }
 
 static int l_despawn(lua::State* L) {
@@ -223,6 +225,18 @@ static int l_raycast(lua::State* L) {
     return 0;
 }
 
+static int l_reload_component(lua::State* L) {
+    std::string name = lua::require_string(L, 1);
+    size_t pos = name.find(':');
+    if (pos == std::string::npos) {
+        throw std::runtime_error("missing entry point");
+    }
+    auto filename = name.substr(0, pos + 1) + "scripts/components/" +
+                    name.substr(pos + 1) + ".lua";
+    scripting::load_entity_component(name, filename, filename);
+    return 0;
+}
+
 const luaL_Reg entitylib[] = {
     {"exists", lua::wrap<l_exists>},
     {"def_index", lua::wrap<l_def_index>},
@@ -238,5 +252,6 @@ const luaL_Reg entitylib[] = {
     {"get_all_in_box", lua::wrap<l_get_all_in_box>},
     {"get_all_in_radius", lua::wrap<l_get_all_in_radius>},
     {"raycast", lua::wrap<l_raycast>},
+    {"reload_component", lua::wrap<l_reload_component>},
     {NULL, NULL}
 };

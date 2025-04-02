@@ -1,4 +1,5 @@
 #include "audio/audio.hpp"
+#include "assets/Assets.hpp"
 #include "engine/Engine.hpp"
 #include "api_lua.hpp"
 
@@ -31,6 +32,9 @@ inline audio::speakerid_t play_sound(
         return 0;
     }
     auto assets = scripting::engine->getAssets();
+    if (assets == nullptr) {
+        return 0;
+    }
     auto sound = assets->get<audio::Sound>(name);
     if (sound == nullptr) {
         return 0;
@@ -63,9 +67,15 @@ inline audio::speakerid_t play_stream(
     if (channel == -1) {
         return 0;
     }
-    auto paths = scripting::engine->getResPaths();
+    io::path file;
+    if (std::strchr(filename, ':')) {
+        file = std::string(filename);
+    } else {
+        const auto& paths = scripting::engine->getResPaths();
+        file = paths.find(filename);
+    }
     return audio::play_stream(
-        paths->find(filename),
+        file,
         glm::vec3(
             static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)
         ),

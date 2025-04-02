@@ -1,6 +1,9 @@
 #include <iostream>
+#include <zlib.h>
 
 #include "libs/api_lua.hpp"
+
+using namespace scripting;
 
 /// @brief Modified version of luaB_print from lbaselib.c
 int l_print(lua::State* L) {
@@ -16,10 +19,34 @@ int l_print(lua::State* L) {
                 L,
                 LUA_QL("tostring") " must return a string to " LUA_QL("print")
             );
-        if (i > 1) std::cout << "\t";
-        std::cout << s;
+        if (i > 1) *output_stream << "\t";
+        *output_stream << s;
         lua::pop(L); /* pop result */
     }
-    std::cout << std::endl;
+    *output_stream << std::endl;
     return 0;
+}
+
+int l_crc32(lua::State* L) {
+    auto value = lua::tointeger(L, 2);
+    if (lua::isstring(L, 1)) {
+        auto string = lua::tolstring(L, 1);
+        return lua::pushinteger(
+            L,
+            crc32(
+                value,
+                reinterpret_cast<const ubyte*>(string.data()),
+                string.length()
+            )
+        );
+    } else if (auto bytearray = lua::touserdata<lua::LuaBytearray>(L, 1)) {
+        auto& bytes = bytearray->data();
+        return lua::pushinteger(L, crc32(value, bytes.data(), bytes.size()));
+    } else if (lua::istable(L, 1)) {
+        std::vector<ubyte> bytes;
+        lua::read_bytes_from_table(L, 1, bytes);
+        return lua::pushinteger(L, crc32(value, bytes.data(), bytes.size()));
+    } else {
+        throw std::runtime_error("invalid argument 1");
+    }
 }

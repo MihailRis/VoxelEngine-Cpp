@@ -14,6 +14,7 @@
 ///    int l_function_name(lua::State* L);
 
 // Libraries
+extern const luaL_Reg applib[];
 extern const luaL_Reg audiolib[];
 extern const luaL_Reg base64lib[];
 extern const luaL_Reg bjsonlib[];
@@ -38,7 +39,6 @@ extern const luaL_Reg packlib[];
 extern const luaL_Reg particleslib[]; // gfx.particles
 extern const luaL_Reg playerlib[];
 extern const luaL_Reg quatlib[];
-extern const luaL_Reg applib[];
 extern const luaL_Reg text3dlib[]; // gfx.text3d
 extern const luaL_Reg timelib[];
 extern const luaL_Reg tomllib[];
@@ -46,7 +46,9 @@ extern const luaL_Reg utf8lib[];
 extern const luaL_Reg vec2lib[];  // vecn.cpp
 extern const luaL_Reg vec3lib[];  // vecn.cpp
 extern const luaL_Reg vec4lib[];  // vecn.cpp
+extern const luaL_Reg weatherlib[];
 extern const luaL_Reg worldlib[];
+extern const luaL_Reg yamllib[];
 
 // Components
 extern const luaL_Reg skeletonlib[];
@@ -55,6 +57,7 @@ extern const luaL_Reg transformlib[];
 
 // Lua Overrides
 extern int l_print(lua::State* L);
+extern int l_crc32(lua::State* L);
 
 namespace lua {
     inline uint check_argc(lua::State* L, int a) {

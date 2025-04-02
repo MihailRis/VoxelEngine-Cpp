@@ -88,6 +88,18 @@ std::wstring util::rfill(std::wstring s, uint length, wchar_t c) {
     return ss.str();
 }
 
+static size_t length_utf8_codepoint(uint32_t c) {
+    if (c < 0x80) {
+        return 1;
+    } else if (c < 0x0800) {
+        return 2;
+    } else if (c < 0x010000) {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+
 uint util::encode_utf8(uint32_t c, ubyte* bytes) {
     if (c < 0x80) {
         bytes[0] = ((c >> 0) & 0x7F) | 0x00;
@@ -179,8 +191,16 @@ size_t util::length_utf8(std::string_view s) {
     return length;
 }
 
+size_t util::length_utf8(std::wstring_view s) {
+    size_t length = 0;
+    for (size_t i = 0; i < s.length(); i++) {
+        length += length_utf8_codepoint(s[i]);
+    }
+    return length;
+}
+
 template<class C>
-std::string xstr2str_utf8(const std::basic_string<C>& xs) {
+std::string xstr2str_utf8(std::basic_string_view<C> xs) {
     std::vector<char> chars;
     ubyte buffer[4];
     for (C xc : xs) {
@@ -193,16 +213,16 @@ std::string xstr2str_utf8(const std::basic_string<C>& xs) {
     return std::string(chars.data(), chars.size());
 }
 
-std::string util::wstr2str_utf8(const std::wstring& ws) {
+std::string util::wstr2str_utf8(std::wstring_view ws) {
     return xstr2str_utf8(ws);
 }
 
-std::string util::u32str2str_utf8(const std::u32string& ws) {
+std::string util::u32str2str_utf8(std::u32string_view ws) {
     return xstr2str_utf8(ws);
 }
 
 template<class C>
-std::basic_string<C> str2xstr_utf8(const std::string& s) {
+std::basic_string<C> str2xstr_utf8(std::string_view s) {
     std::vector<C> chars;
     size_t pos = 0;
     uint size = 0;
@@ -213,7 +233,7 @@ std::basic_string<C> str2xstr_utf8(const std::string& s) {
     return std::basic_string<C>(chars.data(), chars.size());
 }
 
-std::wstring util::str2wstr_utf8(const std::string& s) {
+std::wstring util::str2wstr_utf8(std::string_view s) {
     return str2xstr_utf8<wchar_t>(s);
 }
 
@@ -286,6 +306,12 @@ const char B64ABC[] =
     "0123456789"
     "+/";
 
+const char URLSAFE_B64ABC[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789"
+    "-_";
+
 inline ubyte base64_decode_char(char c) {
     if (c >= 'A' && c <= 'Z') return c - 'A';
     if (c >= 'a' && c <= 'z') return c - 'a' + 26;
@@ -295,16 +321,27 @@ inline ubyte base64_decode_char(char c) {
     return 0;
 }
 
-inline void base64_encode_(const ubyte* segment, char* output) {
-    output[0] = B64ABC[(segment[0] & 0b11111100) >> 2];
-    output[1] =
-        B64ABC[((segment[0] & 0b11) << 4) | ((segment[1] & 0b11110000) >> 4)];
-    output[2] =
-        B64ABC[((segment[1] & 0b1111) << 2) | ((segment[2] & 0b11000000) >> 6)];
-    output[3] = B64ABC[segment[2] & 0b111111];
+inline ubyte base64_urlsafe_decode_char(char c) {
+    if (c >= 'A' && c <= 'Z') return c - 'A';
+    if (c >= 'a' && c <= 'z') return c - 'a' + 26;
+    if (c >= '0' && c <= '9') return c - '0' + 52;
+    if (c == '-') return 62;
+    if (c == '_') return 63;
+    return 0;
 }
 
-std::string util::base64_encode(const ubyte* data, size_t size) {
+template <const char* ABC>
+static void base64_encode_(const ubyte* segment, char* output) {
+    output[0] = ABC[(segment[0] & 0b11111100) >> 2];
+    output[1] =
+        ABC[((segment[0] & 0b11) << 4) | ((segment[1] & 0b11110000) >> 4)];
+    output[2] =
+        ABC[((segment[1] & 0b1111) << 2) | ((segment[2] & 0b11000000) >> 6)];
+    output[3] = ABC[segment[2] & 0b111111];
+}
+
+template <const char* ABC>
+static std::string base64_encode_impl(const ubyte* data, size_t size) {
     std::stringstream ss;
 
     size_t fullsegments = (size / 3) * 3;
@@ -312,7 +349,7 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
     size_t i = 0;
     for (; i < fullsegments; i += 3) {
         char output[] = "====";
-        base64_encode_(data + i, output);
+        base64_encode_<ABC>(data + i, output);
         ss << output;
     }
 
@@ -323,16 +360,25 @@ std::string util::base64_encode(const ubyte* data, size_t size) {
     size_t trailing = size - fullsegments;
     if (trailing) {
         char output[] = "====";
-        output[0] = B64ABC[(ending[0] & 0b11111100) >> 2];
+        output[0] = ABC[(ending[0] & 0b11111100) >> 2];
         output[1] =
-            B64ABC[((ending[0] & 0b11) << 4) | ((ending[1] & 0b11110000) >> 4)];
+            ABC[((ending[0] & 0b11) << 4) | ((ending[1] & 0b11110000) >> 4)];
         if (trailing > 1)
-            output[2] = B64ABC
-                [((ending[1] & 0b1111) << 2) | ((ending[2] & 0b11000000) >> 6)];
-        if (trailing > 2) output[3] = B64ABC[ending[2] & 0b111111];
+            output[2] =
+                ABC[((ending[1] & 0b1111) << 2) |
+                    ((ending[2] & 0b11000000) >> 6)];
+        if (trailing > 2) output[3] = ABC[ending[2] & 0b111111];
         ss << output;
     }
     return ss.str();
+}
+
+std::string util::base64_encode(const ubyte* data, size_t size) {
+    return base64_encode_impl<B64ABC>(data, size);
+}
+
+std::string util::base64_urlsafe_encode(const ubyte* data, size_t size) {
+    return base64_encode_impl<URLSAFE_B64ABC>(data, size);
 }
 
 std::string util::tohex(uint64_t value) {
@@ -346,7 +392,8 @@ std::string util::mangleid(uint64_t value) {
     return tohex(value);
 }
 
-util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
+template <ubyte(base64_decode_char)(char)>
+static util::Buffer<ubyte> base64_decode_impl(const char* str, size_t size) {
     util::Buffer<ubyte> bytes((size / 4) * 3);
     ubyte* dst = bytes.data();
     for (size_t i = 0; i < (size / 4) * 4;) {
@@ -367,23 +414,52 @@ util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
     return bytes;
 }
 
+util::Buffer<ubyte> util::base64_urlsafe_decode(const char* str, size_t size) {
+    return base64_decode_impl<base64_urlsafe_decode_char>(str, size);
+}
+
+util::Buffer<ubyte> util::base64_decode(const char* str, size_t size) {
+    return base64_decode_impl<base64_decode_char>(str, size);
+}
+
+util::Buffer<ubyte> util::base64_urlsafe_decode(std::string_view str) {
+    return base64_urlsafe_decode(str.data(), str.size());
+}
+
 util::Buffer<ubyte> util::base64_decode(std::string_view str) {
     return base64_decode(str.data(), str.size());
 }
 
-int util::replaceAll(
-    std::string& str, const std::string& from, const std::string& to
+template <typename CharT>
+static int replace_all(
+    std::basic_string<CharT>& str, 
+    const std::basic_string<CharT>& from, 
+    const std::basic_string<CharT>& to
 ) {
     int count = 0;
     size_t offset = 0;
     while (true) {
         size_t start_pos = str.find(from, offset);
-        if (start_pos == std::string::npos) break;
+        if (start_pos == std::basic_string<CharT>::npos) {
+            break;
+        }
         str.replace(start_pos, from.length(), to);
         offset = start_pos + to.length();
         count++;
     }
     return count;
+}
+
+int util::replaceAll(
+    std::string& str, const std::string& from, const std::string& to
+) {
+    return replace_all(str, from, to);
+}
+
+int util::replaceAll(
+    std::wstring& str, const std::wstring& from, const std::wstring& to
+) {
+    return replace_all(str, from, to);
 }
 
 // replace it with std::from_chars in the far far future

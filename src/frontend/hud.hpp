@@ -18,11 +18,12 @@ class Inventory;
 class LevelFrontend;
 class UiDocument;
 class DrawContext;
-class Viewport;
 class ImageData;
+class Input;
 
 namespace gui {
     class GUI;
+    class Menu;
     class UINode;
     class Panel;
     class Container;
@@ -30,26 +31,26 @@ namespace gui {
     class SlotView;
 }
 
-enum class hud_element_mode {
+enum class HudElementMode {
     // element is hidden if menu or inventory open
-    ingame,
+    INGAME,
     // element is visible if hud is visible
-    permanent,
+    PERMANENT,
     // element is visible in inventory mode
-    inventory_any,
+    INVENTORY_ANY,
     // element will be removed on inventory close
-    inventory_bound
+    INVENTORY
 };
 
 class HudElement {
-    hud_element_mode mode;
+    HudElementMode mode;
     UiDocument* document;
     std::shared_ptr<gui::UINode> node;
 
     bool debug;
     bool removed = false;
 public:
-    HudElement(hud_element_mode mode, UiDocument* document, std::shared_ptr<gui::UINode> node, bool debug);
+    HudElement(HudElementMode mode, UiDocument* document, std::shared_ptr<gui::UINode> node, bool debug);
 
     void update(bool pause, bool inventoryOpen, bool debug);
 
@@ -57,7 +58,7 @@ public:
     std::shared_ptr<gui::UINode> getNode() const;
 
     bool isInventoryBound() const {
-        return mode == hud_element_mode::inventory_bound;
+        return mode == HudElementMode::INVENTORY;
     }
 
     void setRemoved() {
@@ -71,9 +72,11 @@ public:
 
 class Hud : public util::ObjectsKeeper {
     Engine& engine;
+    Input& input;
     Assets& assets;
-    std::unique_ptr<Camera> uicamera;
     gui::GUI& gui;
+    gui::Menu& menu;
+    std::unique_ptr<Camera> uicamera;
     LevelFrontend& frontend;
     Player& player;
 
@@ -127,7 +130,7 @@ class Hud : public util::ObjectsKeeper {
     std::shared_ptr<gui::InventoryView> createHotbar();
 
     void processInput(bool visible);
-    void updateElementsPosition(const Viewport& viewport);
+    void updateElementsPosition(const glm::uvec2& viewport);
     void updateHotbarControl();
     void cleanup();
 
@@ -135,7 +138,7 @@ class Hud : public util::ObjectsKeeper {
     void dropExchangeSlot();
 
     void showExchangeSlot();
-    void updateWorldGenDebugVisualization();
+    void updateWorldGenDebug();
 public:
     Hud(Engine& engine, LevelFrontend& frontend, Player& player);
     ~Hud();

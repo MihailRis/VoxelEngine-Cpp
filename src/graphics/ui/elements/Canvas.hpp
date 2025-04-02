@@ -9,17 +9,21 @@ class Texture;
 namespace gui {
     class Canvas final : public UINode {
     public:
-        explicit Canvas(ImageFormat inFormat, glm::uvec2 inSize);
+        explicit Canvas(GUI& gui, ImageFormat inFormat, glm::uvec2 inSize);
 
         ~Canvas() override = default;
 
         void draw(const DrawContext& pctx, const Assets& assets) override;
 
-        [[nodiscard]] std::shared_ptr<::Texture> texture() const {
+        [[nodiscard]] auto texture() const {
             return mTexture;
+        }
+
+        [[nodiscard]] auto data() const {
+            return mData;
         }
     private:
         std::shared_ptr<::Texture> mTexture;
-        std::unique_ptr<ImageData> mData;
+        std::shared_ptr<ImageData> mData;
     };
 }

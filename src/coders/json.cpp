@@ -7,19 +7,20 @@
 #include <sstream>
 
 #include "util/stringutil.hpp"
-#include "commons.hpp"
+#include "BasicParser.hpp"
 
 using namespace json;
 
 namespace {
-    class Parser : BasicParser {
-        dv::value parseList();
-        dv::value parseObject();
-        dv::value parseValue();
-    public:
+    class Parser : BasicParser<char> {
+        public:
         Parser(std::string_view filename, std::string_view source);
 
         dv::value parse();
+    private:
+        dv::value parseList();
+        dv::value parseObject();
+        dv::value parseValue();
     };
 }
 
@@ -41,7 +42,8 @@ void stringifyObj(
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
-    bool nice
+    bool nice,
+    bool escapeUtf8
 );
 
 void stringifyList(
@@ -49,7 +51,8 @@ void stringifyList(
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
-    bool nice
+    bool nice,
+    bool escapeUtf8
 );
 
 void stringifyValue(
@@ -57,16 +60,17 @@ void stringifyValue(
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
-    bool nice
+    bool nice,
+    bool escapeUtf8
 ) {
     using dv::value_type;
 
     switch (value.getType()) {
         case value_type::object:
-            stringifyObj(value, ss, indent, indentstr, nice);
+            stringifyObj(value, ss, indent, indentstr, nice, escapeUtf8);
             break;
         case value_type::list:
-            stringifyList(value, ss, indent, indentstr, nice);
+            stringifyList(value, ss, indent, indentstr, nice, escapeUtf8);
             break;
         case value_type::bytes: {
             const auto& bytes = value.asBytes();
@@ -75,7 +79,7 @@ void stringifyValue(
             break;
         }
         case value_type::string:
-            ss << util::escape(value.asString(), !nice);
+            ss << util::escape(value.asString(), escapeUtf8);
             break;
         case value_type::number:
             ss << std::setprecision(15) << value.asNumber();
@@ -97,7 +101,8 @@ void stringifyList(
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
-    bool nice
+    bool nice,
+    bool escapeUtf8
 ) {
     if (list.empty()) {
         ss << "[]";
@@ -109,7 +114,7 @@ void stringifyList(
             newline(ss, nice, indent, indentstr);
         }
         const auto& value = list[i];
-        stringifyValue(value, ss, indent + 1, indentstr, nice);
+        stringifyValue(value, ss, indent + 1, indentstr, nice, escapeUtf8);
         if (i + 1 < list.size()) {
             ss << ',';
         }
@@ -125,7 +130,8 @@ void stringifyObj(
     std::stringstream& ss,
     int indent,
     const std::string& indentstr,
-    bool nice
+    bool nice,
+    bool escapeUtf8
 ) {
     if (obj.empty()) {
         ss << "{}";
@@ -138,7 +144,7 @@ void stringifyObj(
             newline(ss, nice, indent, indentstr);
         }
         ss << util::escape(key) << ": ";
-        stringifyValue(value, ss, indent + 1, indentstr, nice);
+        stringifyValue(value, ss, indent + 1, indentstr, nice, escapeUtf8);
         index++;
         if (index < obj.size()) {
             ss << ',';
@@ -151,10 +157,13 @@ void stringifyObj(
 }
 
 std::string json::stringify(
-    const dv::value& value, bool nice, const std::string& indent
+    const dv::value& value,
+    bool nice,
+    const std::string& indent,
+    bool escapeUtf8
 ) {
     std::stringstream ss;
-    stringifyValue(value, ss, 1, indent, nice);
+    stringifyValue(value, ss, 1, indent, nice, escapeUtf8);
     return ss.str();
 }
 

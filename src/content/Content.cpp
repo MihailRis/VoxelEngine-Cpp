@@ -34,12 +34,14 @@ Content::Content(
     UptrsMap<std::string, ContentPackRuntime> packs,
     UptrsMap<std::string, BlockMaterial> blockMaterials,
     UptrsMap<std::string, rigging::SkeletonConfig> skeletons,
-    ResourceIndicesSet resourceIndices
+    ResourceIndicesSet resourceIndices,
+    dv::value defaults
 )
     : indices(std::move(indices)),
       packs(std::move(packs)),
       blockMaterials(std::move(blockMaterials)),
       skeletons(std::move(skeletons)),
+      defaults(std::move(defaults)),
       blocks(std::move(blocks)),
       items(std::move(items)),
       entities(std::move(entities)),
@@ -70,6 +72,14 @@ const BlockMaterial* Content::findBlockMaterial(const std::string& id) const {
 }
 
 const ContentPackRuntime* Content::getPackRuntime(const std::string& id) const {
+    auto found = packs.find(id);
+    if (found == packs.end()) {
+        return nullptr;
+    }
+    return found->second.get();
+}
+
+ContentPackRuntime* Content::getPackRuntime(const std::string& id) {
     auto found = packs.find(id);
     if (found == packs.end()) {
         return nullptr;

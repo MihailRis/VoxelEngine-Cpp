@@ -4,11 +4,11 @@
 
 #include "coders/json.hpp"
 #include "constants.hpp"
-#include "files/files.hpp"
+#include "io/io.hpp"
 #include "items/ItemDef.hpp"
 #include "voxels/Block.hpp"
 #include "world/World.hpp"
-#include "files/WorldFiles.hpp"
+#include "world/files/WorldFiles.hpp"
 #include "Content.hpp"
 
 ContentReport::ContentReport(
@@ -41,13 +41,13 @@ static void process_blocks_data(
             continue;
         }
         if (def->dataStruct == nullptr) {
-            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
+            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE, {}};
             report.issues.push_back(issue);
             report.dataLoss.push_back(name + ": discard data");
             continue;
         }
         if (layout != *def->dataStruct) {
-            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE};
+            ContentIssue issue {ContentIssueType::BLOCK_DATA_LAYOUTS_UPDATE, {}};
             report.issues.push_back(issue);
             report.dataLayoutsUpdated = true;
         }
@@ -67,7 +67,7 @@ static void process_blocks_data(
 
 std::shared_ptr<ContentReport> ContentReport::create(
     const std::shared_ptr<WorldFiles>& worldFiles,
-    const fs::path& filename,
+    const io::path& filename,
     const Content* content
 ) {
     auto worldInfo = worldFiles->readWorldInfo();
@@ -75,7 +75,7 @@ std::shared_ptr<ContentReport> ContentReport::create(
         return nullptr;
     }
 
-    auto root = files::read_json(filename);
+    auto root = io::read_json(filename);
     uint regionsVersion = 2U; // old worlds compatibility (pre 0.23)
     root.at("region-version").get(regionsVersion);
     auto& blocklist = root["blocks"];
@@ -111,10 +111,10 @@ static void build_issues(
 ) {
     auto type = report.getContentType();
     if (report.hasContentReorder()) {
-        issues.push_back(ContentIssue {ContentIssueType::REORDER, type});
+        issues.push_back(ContentIssue {ContentIssueType::REORDER, {type}});
     }
     if (report.hasMissingContent()) {
-        issues.push_back(ContentIssue {ContentIssueType::MISSING, type});
+        issues.push_back(ContentIssue {ContentIssueType::MISSING, {type}});
     }
 }
 
@@ -126,7 +126,7 @@ void ContentReport::buildIssues() {
         for (int layer = REGION_LAYER_VOXELS; 
              layer < REGION_LAYERS_COUNT; 
              layer++) {
-            ContentIssue issue {ContentIssueType::REGION_FORMAT_UPDATE};
+            ContentIssue issue {ContentIssueType::REGION_FORMAT_UPDATE, {}};
             issue.regionLayer = static_cast<RegionLayerIndex>(layer);
             issues.push_back(issue);
         }

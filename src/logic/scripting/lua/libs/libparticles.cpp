@@ -1,11 +1,8 @@
-#include "api_lua.hpp"
+#include "libhud.hpp"
 
-#include "logic/scripting/scripting_hud.hpp"
-#include "graphics/render/WorldRenderer.hpp"
 #include "graphics/render/ParticlesRenderer.hpp"
 #include "graphics/render/Emitter.hpp"
 #include "assets/assets_util.hpp"
-#include "engine/Engine.hpp"
 
 using namespace scripting;
 
@@ -62,7 +59,6 @@ static int l_get_origin(lua::State* L) {
 static int l_set_origin(lua::State* L) {
     u64id_t id = lua::touinteger(L, 1);
     if (auto emitter = renderer->particles->getEmitter(id)) {
-        EmitterOrigin origin;
         if (lua::istable(L, 2)) {
             emitter->setOrigin(lua::tovec3(L, 2));
         } else {
@@ -81,10 +77,10 @@ static int l_is_alive(lua::State* L) {
 }
 
 const luaL_Reg particleslib[] = {
-    {"emit", lua::wrap<l_emit>},
-    {"stop", lua::wrap<l_stop>},
-    {"is_alive", lua::wrap<l_is_alive>},
-    {"get_origin", lua::wrap<l_get_origin>},
-    {"set_origin", lua::wrap<l_set_origin>},
+    {"emit", wrap_hud<l_emit>},
+    {"stop", wrap_hud<l_stop>},
+    {"is_alive", wrap_hud<l_is_alive>},
+    {"get_origin", wrap_hud<l_get_origin>},
+    {"set_origin", wrap_hud<l_set_origin>},
     {NULL, NULL}
 };

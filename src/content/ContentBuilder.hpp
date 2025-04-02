@@ -73,6 +73,7 @@ public:
     ContentUnitBuilder<EntityDef> entities {allNames, ContentType::ENTITY};
     ContentUnitBuilder<GeneratorDef> generators {allNames, ContentType::GENERATOR};
     ResourceIndicesSet resourceIndices {};
+    dv::value defaults = nullptr;
 
     ~ContentBuilder();
 

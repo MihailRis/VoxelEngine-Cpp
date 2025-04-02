@@ -5,7 +5,7 @@
 
 using namespace gui;
 
-Menu::Menu() : Container(glm::vec2(1)){
+Menu::Menu(GUI& gui) : Container(gui, glm::vec2(1)){
 }
 
 bool Menu::has(const std::string& name) {
@@ -55,7 +55,7 @@ void Menu::setPage(const std::string &name, bool history) {
 
 void Menu::setPage(Page page, bool history) {
     if (current.panel) {
-        Container::remove(current.panel);
+        Container::remove(current.panel.get());
         if (history && !current.temporal) {
             pageStack.push(current);
         }
@@ -104,7 +104,7 @@ void Menu::clearHistory() {
 void Menu::reset() {
     clearHistory();
     if (current.panel) {
-        Container::remove(current.panel);
+        Container::remove(current.panel.get());
         current = Page {"", nullptr};
     }
 }

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "data/dv.hpp"
-
-#include <memory>
+#include "data/dv_fwd.hpp"
 
 class Serializable {
 public:

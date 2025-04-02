@@ -60,7 +60,13 @@ Common element methods:
 
 ## Containers
 
-Common methods for containers (elements: container, panel, button, pagebox):
+Common properties for containers (elements: container, panel, button, pagebox):
+
+| Name   | Type   | Read | Write | Description     |
+| ------ | ------ | ---- | ----- | --------------- |
+| scroll | string | yes  | yes   | scroll contents |
+
+Common methods:
 
 | Method                          | Description                                                                                  |
 | ------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -79,6 +85,7 @@ Properties:
 | hint        | string | yes  | yes   | text to display when nothing is entered                                              |
 | caret       | int    | yes  | yes   | carriage position. `textbox.caret = -1` will set the position to the end of the text |
 | editable    | bool   | yes  | yes   | text mutability                                                                      |
+| edited      | bool   | yes  | yes\* | is text edited since the last set / edited status reset                              |
 | multiline   | bool   | yes  | yes   | multiline support                                                                    |
 | lineNumbers | bool   | yes  | yes   | display line numbers                                                                 |
 | textWrap    | bool   | yes  | yes   | automatic text wrapping (only with multiline: "true")                                |
@@ -86,6 +93,8 @@ Properties:
 | textColor   | vec4   | yes  | yes   | text color                                                                           |
 | syntax      | string | yes  | yes   | syntax highlighting ("lua" - Lua)                                                    |
 | markup      | string | yes  | yes   | text markup language ("md" - Markdown)                                               |
+
+\* - false only
 
 Methods:
 
@@ -166,13 +175,22 @@ Properties:
 
 Methods:
 
+Here, *color* can be specified in the following ways:
+- rgba: int
+- r: int, g: int, b: int
+- r: int, g: int, b: int, a: int
+
 | Method                                                   | Description                                             |
 |----------------------------------------------------------|---------------------------------------------------------|
 | data:at(x: int, y: int)                                  | returns an RGBA pixel at the given coordinates          |
-| data:set(x: int, y: int, rgba: int)                      | updates an RGBA pixel at the given coordinates          |
-| data:set(x: int, y: int, r: int, g: int, b: int)         | updates an RGBA pixel at the given coordinates          |
-| data:set(x: int, y: int, r: int, g: int, b: int, a: int) | updates an RGBA pixel at the given coordinates          |
+| data:set(x: int, y: int, *color*)                        | updates an RGBA pixel at the given coordinates          |
+| data:line(x1: int, y1: int, x2: int, y2: int, *color*)   | draws a line with the specified RGBA color              |
+| data:blit(src: Canvas, dst_x: int, dst_y: int)           | draws the src canvas at the specified coordinates       |
+| data:clear()                                             | clears the canvas                                       |
+| data:clear(*color*)                                      | fills the canvas with the specified RGBA color          |
 | data:update()                                            | applies changes to the canvas and uploads it to the GPU |
+| data:set_data(data: table<int>)                          | replaces pixel data (width * height * 4 numbers)        |
+| data:create_texture(name: str)                           | creates and shares texture to renderer                  |
 
 
 ## Inventory

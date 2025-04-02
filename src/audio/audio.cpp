@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include "io/io.hpp"
 #include "coders/ogg.hpp"
 #include "coders/wav.hpp"
 #include "AL/ALAudio.hpp"
@@ -16,12 +17,12 @@ static debug::Logger logger("audio");
 using namespace audio;
 
 namespace {
-    static speakerid_t nextId = 1;
-    static Backend* backend;
-    static std::unordered_map<speakerid_t, std::unique_ptr<Speaker>> speakers;
-    static std::unordered_map<speakerid_t, std::shared_ptr<Stream>> streams;
-    static std::vector<std::unique_ptr<Channel>> channels;
-    static util::ObjectsKeeper objects_keeper {};
+    speakerid_t nextId = 1;
+    Backend* backend;
+    std::unordered_map<speakerid_t, std::unique_ptr<Speaker>> speakers;
+    std::unordered_map<speakerid_t, std::shared_ptr<Stream>> streams;
+    std::vector<std::unique_ptr<Channel>> channels;
+    util::ObjectsKeeper objects_keeper {};
 }
 
 Channel::Channel(std::string name) : name(std::move(name)) {
@@ -181,11 +182,11 @@ void audio::initialize(bool enabled, AudioSettings& settings) {
     }
 }
 
-std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
-    if (!fs::exists(file)) {
-        throw std::runtime_error("file not found '" + file.u8string() + "'");
+std::unique_ptr<PCM> audio::load_PCM(const io::path& file, bool headerOnly) {
+    if (!io::exists(file)) {
+        throw std::runtime_error("file not found '" + file.string() + "'");
     }
-    std::string ext = file.extension().u8string();
+    std::string ext = file.extension();
     if (ext == ".wav" || ext == ".WAV") {
         return wav::load_pcm(file, headerOnly);
     } else if (ext == ".ogg" || ext == ".OGG") {
@@ -194,7 +195,7 @@ std::unique_ptr<PCM> audio::load_PCM(const fs::path& file, bool headerOnly) {
     throw std::runtime_error("unsupported audio format");
 }
 
-std::unique_ptr<Sound> audio::load_sound(const fs::path& file, bool keepPCM) {
+std::unique_ptr<Sound> audio::load_sound(const io::path& file, bool keepPCM) {
     std::shared_ptr<PCM> pcm(
         load_PCM(file, !keepPCM && backend->isDummy()).release()
     );
@@ -207,8 +208,8 @@ std::unique_ptr<Sound> audio::create_sound(
     return backend->createSound(std::move(pcm), keepPCM);
 }
 
-std::unique_ptr<PCMStream> audio::open_PCM_stream(const fs::path& file) {
-    std::string ext = file.extension().u8string();
+std::unique_ptr<PCMStream> audio::open_PCM_stream(const io::path& file) {
+    std::string ext = file.extension();
     if (ext == ".wav" || ext == ".WAV") {
         return wav::create_stream(file);
     } else if (ext == ".ogg" || ext == ".OGG") {
@@ -218,7 +219,7 @@ std::unique_ptr<PCMStream> audio::open_PCM_stream(const fs::path& file) {
 }
 
 std::unique_ptr<Stream> audio::open_stream(
-    const fs::path& file, bool keepSource
+    const io::path& file, bool keepSource
 ) {
     if (!keepSource && backend->isDummy()) {
         auto header = load_PCM(file, true);
@@ -338,7 +339,7 @@ speakerid_t audio::play(
 }
 
 speakerid_t audio::play_stream(
-    const fs::path& file,
+    const io::path& file,
     glm::vec3 position,
     bool relative,
     float volume,

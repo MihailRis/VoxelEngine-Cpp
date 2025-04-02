@@ -1,6 +1,5 @@
 #pragma once
 
-#include <filesystem>
 #include <functional>
 #include <map>
 #include <set>
@@ -14,10 +13,16 @@
 #include "typedefs.hpp"
 #include "Assets.hpp"
 #include "data/dv.hpp"
+#include "io/fwd.hpp"
 
 class ResPaths;
 class AssetsLoader;
 class Content;
+class Engine;
+
+namespace gui {
+    class GUI;
+}
 
 struct AssetCfg {
     virtual ~AssetCfg() {
@@ -25,9 +30,10 @@ struct AssetCfg {
 };
 
 struct LayoutCfg : AssetCfg {
+    gui::GUI* gui;
     scriptenv env;
 
-    LayoutCfg(scriptenv env) : env(std::move(env)) {
+    LayoutCfg(gui::GUI* gui, scriptenv env) : gui(gui), env(std::move(env)) {
     }
 };
 
@@ -51,7 +57,7 @@ struct AtlasCfg : AssetCfg {
 
 using aloader_func = std::function<
     assetload::
-        postfunc(AssetsLoader*, const ResPaths*, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
+        postfunc(AssetsLoader*, const ResPaths&, const std::string&, const std::string&, std::shared_ptr<AssetCfg>)>;
 
 struct aloader_entry {
     AssetType tag;
@@ -61,11 +67,12 @@ struct aloader_entry {
 };
 
 class AssetsLoader {
-    Assets* assets;
+    Engine& engine;
+    Assets& assets;
     std::map<AssetType, aloader_func> loaders;
     std::queue<aloader_entry> entries;
     std::set<std::pair<AssetType, std::string>> enqueued;
-    const ResPaths* paths;
+    const ResPaths& paths;
 
     void tryAddSound(const std::string& name);
 
@@ -73,10 +80,10 @@ class AssetsLoader {
         AssetType tag, const std::string& name, const dv::value& map
     );
     void processPreloadList(AssetType tag, const dv::value& list);
-    void processPreloadConfig(const std::filesystem::path& file);
+    void processPreloadConfig(const io::path& file);
     void processPreloadConfigs(const Content* content);
 public:
-    AssetsLoader(Assets* assets, const ResPaths* paths);
+    AssetsLoader(Engine& engine, Assets& assets, const ResPaths& paths);
     void addLoader(AssetType tag, aloader_func func);
 
     /// @brief Enqueue asset load
@@ -98,7 +105,7 @@ public:
 
     std::shared_ptr<Task> startTask(runnable onDone);
 
-    const ResPaths* getPaths() const;
+    const ResPaths& getPaths() const;
     aloader_func getLoader(AssetType tag);
 
     /// @brief Enqueue core and content assets
@@ -109,6 +116,8 @@ public:
     static bool loadExternalTexture(
         Assets* assets,
         const std::string& name,
-        const std::vector<std::filesystem::path>& alternatives
+        const std::vector<io::path>& alternatives
     );
+
+    Engine& getEngine();
 };

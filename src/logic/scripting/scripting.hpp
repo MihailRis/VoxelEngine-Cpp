@@ -1,11 +1,10 @@
 #pragma once
 
-#include <filesystem>
 #include <glm/glm.hpp>
 #include <memory>
-#include <string>
 #include <vector>
 
+#include "io/fwd.hpp"
 #include "data/dv.hpp"
 #include "delegates.hpp"
 #include "typedefs.hpp"
@@ -15,6 +14,7 @@ class Engine;
 class Content;
 struct ContentPack;
 class ContentIndices;
+class ContentControl;
 class Level;
 class Block;
 class Chunk;
@@ -39,9 +39,12 @@ namespace scripting {
     extern Engine* engine;
     extern const Content* content;
     extern const ContentIndices* indices;
+    extern ContentControl* content_control;
     extern Level* level;
     extern BlocksController* blocks;
     extern LevelController* controller;
+    extern std::ostream* output_stream;
+    extern std::ostream* error_stream;
 
     void initialize(Engine* engine);
 
@@ -61,7 +64,7 @@ namespace scripting {
     void process_post_runnables();
 
     std::unique_ptr<Process> start_coroutine(
-        const std::filesystem::path& script
+        const io::path& script
     );
 
     void on_world_load(LevelController* controller);
@@ -150,7 +153,7 @@ namespace scripting {
     void load_content_script(
         const scriptenv& env,
         const std::string& prefix,
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& fileName,
         BlockFuncsSet& funcsset
     );
@@ -164,7 +167,7 @@ namespace scripting {
     void load_content_script(
         const scriptenv& env,
         const std::string& prefix,
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& fileName,
         ItemFuncsSet& funcsset
     );
@@ -175,13 +178,13 @@ namespace scripting {
     /// @param fileName script file path using the engine format
     void load_entity_component(
         const std::string& name,
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& fileName
     );
 
     std::unique_ptr<GeneratorScript> load_generator(
         const GeneratorDef& def,
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& dirPath
     );
 
@@ -193,7 +196,7 @@ namespace scripting {
     void load_world_script(
         const scriptenv& env,
         const std::string& packid,
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& fileName,
         WorldFuncsSet& funcsset
     );
@@ -207,7 +210,7 @@ namespace scripting {
     void load_layout_script(
         const scriptenv& env,
         const std::string& prefix,
-        const std::filesystem::path& file,
+        const io::path& file,
         const std::string& fileName,
         uidocscript& script
     );

@@ -7,30 +7,19 @@
 #include <sstream>
 
 #include "data/setting.hpp"
-#include "files/settings_io.hpp"
+#include "io/settings_io.hpp"
 #include "util/stringutil.hpp"
-#include "commons.hpp"
+#include "BasicParser.hpp"
 
 using namespace toml;
 
-class TomlReader : BasicParser {
+class TomlReader : BasicParser<char> {
     dv::value root;
-
-    void skipWhitespace() override {
-        BasicParser::skipWhitespace();
-        if (hasNext() && source[pos] == '#') {
-            skipLine();
-            if (hasNext() && is_whitespace(peek())) {
-                skipWhitespace();
-            }
-        }
-    }
 
     // modified version of BaseParser.parseString
     // todo: extract common part
     std::string parseMultilineString() {
         pos += 2;
-        char next = peek();
 
         std::stringstream ss;
         while (hasNext()) {
@@ -215,6 +204,7 @@ class TomlReader : BasicParser {
 public:
     TomlReader(std::string_view file, std::string_view source)
         : BasicParser(file, source), root(dv::object()) {
+        hashComment = true;
     }
 
     dv::value read() {

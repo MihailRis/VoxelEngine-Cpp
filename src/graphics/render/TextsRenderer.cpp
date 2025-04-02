@@ -4,12 +4,13 @@
 #include "maths/util.hpp"
 #include "assets/Assets.hpp"
 #include "window/Camera.hpp"
-#include "window/Window.hpp"
 #include "maths/FrustumCulling.hpp"
 #include "graphics/core/Font.hpp"
 #include "graphics/core/Batch3D.hpp"
 #include "graphics/core/Shader.hpp"
+#include "graphics/core/DrawContext.hpp"
 #include "presets/NotePreset.hpp"
+#include "constants.hpp"
 
 TextsRenderer::TextsRenderer(
     Batch3D& batch, const Assets& assets, const Frustum& frustum
@@ -44,7 +45,7 @@ void TextsRenderer::renderNote(
         }
         opacity = preset.xrayOpacity;
     }
-    const auto& font = assets.require<Font>("normal");
+    const auto& font = assets.require<Font>(FONT_DEFAULT);
 
     glm::vec3 xvec = note.getAxisX();
     glm::vec3 yvec = note.getAxisY();
@@ -65,6 +66,7 @@ void TextsRenderer::renderNote(
         xvec *= 1.0f + scale;
         yvec *= 1.0f + scale;
     }
+    const auto& viewport = context.getViewport();
     if (preset.displayMode == NoteDisplayMode::PROJECTED) {
         float scale = 1.0f;
         if (glm::abs(preset.perspective) > 0.0001f) {
@@ -83,14 +85,14 @@ void TextsRenderer::renderNote(
             }
             pos /= projpos.w;
             pos.z = 0;
-            xvec = {2.0f/Window::width*scale, 0, 0};
-            yvec = {0, 2.0f/Window::height*scale, 0};
+            xvec = {2.0f / viewport.x * scale, 0, 0};
+            yvec = {0, 2.0f / viewport.y * scale, 0};
         } else {
             auto matrix = camera.getProjView();
             auto screenPos = matrix * glm::vec4(pos, 1.0f);
-            
-            xvec = glm::vec3(2.0f/Window::width*scale, 0, 0);
-            yvec = glm::vec3(0, 2.0f/Window::height*scale, 0);
+
+            xvec = glm::vec3(2.0f / viewport.x * scale, 0, 0);
+            yvec = glm::vec3(0, 2.0f / viewport.y * scale, 0);
 
             pos = screenPos / screenPos.w;
         }

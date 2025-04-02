@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "data/dv.hpp"
+#include "data/dv_fwd.hpp"
 #include "delegates.hpp"
 #include "typedefs.hpp"
 
@@ -12,6 +12,12 @@ namespace scripting {
     using value_to_string_func = std::function<std::string(const dv::value&)>;
 
     runnable create_runnable(
+        const scriptenv& env,
+        const std::string& src,
+        const std::string& file = "[string]"
+    );
+
+    key_handler create_key_handler(
         const scriptenv& env,
         const std::string& src,
         const std::string& file = "[string]"

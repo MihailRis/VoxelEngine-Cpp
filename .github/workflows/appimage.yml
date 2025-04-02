@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
 
     runs-on: ${{ matrix.os }}
 
@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev \
+          sudo apt-get install -y build-essential libglfw3-dev libglfw3 libglew-dev libglew2.2 \
             libglm-dev libpng-dev libopenal-dev libluajit-5.1-dev libvorbis-dev \
             libcurl4-openssl-dev libgtest-dev cmake squashfs-tools valgrind
           # fix luajit paths
@@ -32,11 +32,11 @@ jobs:
           # install EnTT
           git clone https://github.com/skypjack/entt.git
           cd entt/build
-          cmake -DCMAKE_BUILD_TYPE=Release -DENTT_INSTALL=on ..
+          cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release -DENTT_INSTALL=on ..
           sudo make install
           cd ../..
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1 -DVOXELENGINE_BUILD_TESTS=ON
+        run: cmake -S . -B build -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_BUILD_TYPE=Release -DVOXELENGINE_BUILD_APPDIR=1 -DVOXELENGINE_BUILD_TESTS=ON
       - name: Build
         run: cmake --build build -t install
       - name: Run tests

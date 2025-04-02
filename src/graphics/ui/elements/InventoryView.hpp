@@ -4,15 +4,18 @@
 #include "Container.hpp"
 #include "typedefs.hpp"
 #include "constants.hpp"
+#include "items/ItemStack.hpp"
 
 #include <vector>
 #include <functional>
 #include <glm/glm.hpp>
 
+class Font;
 class Assets;
+struct ItemDef;
+class Batch2D;
 class DrawContext;
 class Content;
-class ItemStack;
 class ContentIndices;
 class LevelFrontend;
 class Inventory;
@@ -49,6 +52,11 @@ namespace gui {
     };
 
     class SlotView : public gui::UINode {
+        struct {
+            ItemStack stack {};
+            std::wstring countStr;
+        } cache;
+    
         const Content* content = nullptr;
         SlotLayout layout;
         bool highlighted = false;
@@ -56,21 +64,37 @@ namespace gui {
         int64_t inventoryid = 0;
         ItemStack* bound = nullptr;
 
-        std::wstring tooltip;
-        itemid_t prevItem = 0;
-
         void performLeftClick(ItemStack& stack, ItemStack& grabbed);
         void performRightClick(ItemStack& stack, ItemStack& grabbed);
+
+        void drawItemIcon(
+            Batch2D& batch,
+            const ItemStack& stack,
+            const ItemDef& item,
+            const Assets& assets,
+            const glm::vec4& tint,
+            const glm::vec2& pos
+        );
+
+        void drawItemInfo(
+            Batch2D& batch,
+            const ItemStack& stack,
+            const ItemDef& item,
+            const Font& font,
+            const glm::vec2& pos
+        );
+
+        void refreshTooltip(const ItemStack& stack, const ItemDef& item);
     public:
-        SlotView(SlotLayout layout);
+        SlotView(GUI& gui, SlotLayout layout);
 
         virtual void draw(const DrawContext& pctx, const Assets& assets) override;
 
         void setHighlighted(bool flag);
         bool isHighlighted() const;
 
-        virtual void clicked(gui::GUI*, mousecode) override;
-        virtual void onFocus(gui::GUI*) override;
+        virtual void clicked(Mousecode) override;
+        virtual void onFocus() override;
         virtual const std::wstring& getTooltip() const override;
 
         void bind(
@@ -93,7 +117,7 @@ namespace gui {
         std::vector<SlotView*> slots;
         glm::vec2 origin {};
     public:
-        InventoryView();
+        InventoryView(GUI& gui);
         virtual ~InventoryView();
 
         virtual void setPos(glm::vec2 pos) override;
@@ -121,9 +145,10 @@ namespace gui {
     };
 
     class InventoryBuilder {
+        GUI& gui;
         std::shared_ptr<InventoryView> view;
     public:
-        InventoryBuilder();
+        InventoryBuilder(GUI& gui);
 
         /// @brief Add slots grid to inventory view 
         /// @param cols grid columns

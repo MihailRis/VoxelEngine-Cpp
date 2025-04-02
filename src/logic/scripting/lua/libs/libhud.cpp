@@ -1,11 +1,12 @@
+#include "libhud.hpp"
+
 #include <glm/glm.hpp>
-#include <iostream>
 
 #include "assets/Assets.hpp"
 #include "content/Content.hpp"
-#include "engine/Engine.hpp"
 #include "frontend/UiDocument.hpp"
 #include "frontend/hud.hpp"
+#include "content/ContentControl.hpp"
 #include "graphics/ui/elements/InventoryView.hpp"
 #include "items/Inventories.hpp"
 #include "logic/BlocksController.hpp"
@@ -16,11 +17,7 @@
 #include "voxels/voxel.hpp"
 #include "voxels/blocks_agent.hpp"
 #include "world/Level.hpp"
-#include "api_lua.hpp"
 
-namespace scripting {
-    extern Hud* hud;
-}
 using namespace scripting;
 
 static int l_open_inventory(lua::State*) {
@@ -175,23 +172,41 @@ static int l_set_allow_pause(lua::State* L) {
     return 0;
 }
 
+static int l_reload_script(lua::State* L) {
+    auto packid = lua::require_string(L, 1);
+    if (content == nullptr) {
+        throw std::runtime_error("content is not initialized");
+    }
+    auto& writeableContent = *content_control->get();
+    auto pack = writeableContent.getPackRuntime(packid);
+    const auto& info = pack->getInfo();
+    scripting::load_hud_script(
+        pack->getEnvironment(),
+        packid,
+        info.folder / "scripts/hud.lua",
+        pack->getId() + ":scripts/hud.lua"
+    );
+    return 0;
+}
+
 const luaL_Reg hudlib[] = {
-    {"open_inventory", lua::wrap<l_open_inventory>},
-    {"close_inventory", lua::wrap<l_close_inventory>},
-    {"open", lua::wrap<l_open>},
-    {"open_block", lua::wrap<l_open_block>},
-    {"open_permanent", lua::wrap<l_open_permanent>},
-    {"show_overlay", lua::wrap<l_show_overlay>},
-    {"get_block_inventory", lua::wrap<l_get_block_inventory>},
-    {"close", lua::wrap<l_close>},
-    {"pause", lua::wrap<l_pause>},
-    {"resume", lua::wrap<l_resume>},
-    {"is_paused", lua::wrap<l_is_paused>},
-    {"is_inventory_open", lua::wrap<l_is_inventory_open>},
-    {"get_player", lua::wrap<l_get_player>},
-    {"_is_content_access", lua::wrap<l_is_content_access>},
-    {"_set_content_access", lua::wrap<l_set_content_access>},
-    {"_set_debug_cheats", lua::wrap<l_set_debug_cheats>},
-    {"set_allow_pause", lua::wrap<l_set_allow_pause>},
+    {"open_inventory", wrap_hud<l_open_inventory>},
+    {"close_inventory", wrap_hud<l_close_inventory>},
+    {"open", wrap_hud<l_open>},
+    {"open_block", wrap_hud<l_open_block>},
+    {"open_permanent", wrap_hud<l_open_permanent>},
+    {"show_overlay", wrap_hud<l_show_overlay>},
+    {"get_block_inventory", wrap_hud<l_get_block_inventory>},
+    {"close", wrap_hud<l_close>},
+    {"pause", wrap_hud<l_pause>},
+    {"resume", wrap_hud<l_resume>},
+    {"is_paused", wrap_hud<l_is_paused>},
+    {"is_inventory_open", wrap_hud<l_is_inventory_open>},
+    {"get_player", wrap_hud<l_get_player>},
+    {"_is_content_access", wrap_hud<l_is_content_access>},
+    {"_set_content_access", wrap_hud<l_set_content_access>},
+    {"_set_debug_cheats", wrap_hud<l_set_debug_cheats>},
+    {"set_allow_pause", wrap_hud<l_set_allow_pause>},
+    {"reload_script", wrap_hud<l_reload_script>},
     {NULL, NULL}
 };

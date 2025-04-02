@@ -4,12 +4,14 @@
 #include "api_lua.hpp"
 #include "coders/png.hpp"
 #include "constants.hpp"
+#include "assets/Assets.hpp"
 #include "content/Content.hpp"
+#include "content/ContentControl.hpp"
 #include "debug/Logger.hpp"
 #include "engine/Engine.hpp"
-#include "files/engine_paths.hpp"
-#include "files/files.hpp"
-#include "files/settings_io.hpp"
+#include "io/engine_paths.hpp"
+#include "io/io.hpp"
+#include "io/settings_io.hpp"
 #include "frontend/menu.hpp"
 #include "frontend/screens/MenuScreen.hpp"
 #include "graphics/core/Texture.hpp"
@@ -17,8 +19,6 @@
 #include "logic/LevelController.hpp"
 #include "util/listutil.hpp"
 #include "util/platform.hpp"
-#include "window/Events.hpp"
-#include "window/Window.hpp"
 #include "world/Level.hpp"
 #include "world/generator/WorldGenerator.hpp"
 
@@ -31,7 +31,7 @@ static int l_get_version(lua::State* L) {
 }
 
 static int l_load_content(lua::State* L) {
-    engine->loadContent();
+    content_control->loadContent();
     return 0;
 }
 
@@ -39,7 +39,7 @@ static int l_reset_content(lua::State* L) {
     if (level != nullptr) {
         throw std::runtime_error("world must be closed before");
     }
-    engine->resetContent();
+    content_control->resetContent();
     return 0;
 }
 
@@ -259,8 +259,7 @@ static int l_load_texture(lua::State* L) {
 }
 
 static int l_open_folder(lua::State* L) {
-    auto path = engine->getPaths().resolve(lua::require_string(L, 1));
-    platform::open_folder(path);
+    platform::open_folder(io::resolve(lua::require_string(L, 1)));
     return 0;
 }
 
@@ -272,6 +271,33 @@ static int l_quit(lua::State*) {
 
 static int l_blank(lua::State*) {
     return 0;
+}
+
+static int l_capture_output(lua::State* L) {
+    int argc = lua::gettop(L) - 1;
+    if (!lua::isfunction(L, 1)) {
+        throw std::runtime_error("function expected as argument 1");
+    }
+    for (int i = 0; i < argc; i++) {
+        lua::pushvalue(L, i + 2);
+    }
+    lua::pushvalue(L, 1);
+
+    auto prev_output = output_stream;
+    auto prev_error = error_stream;
+
+    std::stringstream captured_output;
+
+    output_stream = &captured_output;
+    error_stream = &captured_output;
+    
+    lua::call_nothrow(L, argc, 0);
+
+    output_stream = prev_output;
+    error_stream = prev_error;
+    
+    lua::pushstring(L, captured_output.str());
+    return 1;
 }
 
 const luaL_Reg corelib[] = {
@@ -293,6 +319,7 @@ const luaL_Reg corelib[] = {
     {"get_setting_info", lua::wrap<l_get_setting_info>},
     {"open_folder", lua::wrap<l_open_folder>},
     {"quit", lua::wrap<l_quit>},
+    {"capture_output", lua::wrap<l_capture_output>},
     {"__load_texture", lua::wrap<l_load_texture>},
     {NULL, NULL}
 };

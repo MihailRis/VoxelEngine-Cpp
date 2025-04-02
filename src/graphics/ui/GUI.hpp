@@ -9,11 +9,14 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-class Viewport;
 class DrawContext;
 class Assets;
 class Camera;
 class Batch2D;
+struct CursorState;
+class Engine;
+class Input;
+class Window;
 
 /*
  Some info about padding and margin.
@@ -55,6 +58,8 @@ namespace gui {
 
     /// @brief The main UI controller
     class GUI {
+        Engine& engine;
+        Input& input;
         std::unique_ptr<Batch2D> batch2D;
         std::shared_ptr<Container> container;
         std::shared_ptr<UINode> hover;
@@ -73,13 +78,14 @@ namespace gui {
         float doubleClickTimer = 0.0f;
         float doubleClickDelay = 0.5f;
         bool doubleClicked = false;
+        bool debug = false;
 
-        void actMouse(float delta);
+        void actMouse(float delta, const CursorState& cursor);
         void actFocused();
         void updateTooltip(float delta);
         void resetTooltip();
     public:
-        GUI();
+        GUI(Engine& engine);
         ~GUI();
 
         void setPageLoader(PageLoaderFunc pageLoader);
@@ -99,7 +105,7 @@ namespace gui {
         /// @brief Main input handling and logic update method 
         /// @param delta delta time
         /// @param viewport window size
-        void act(float delta, const Viewport& viewport);
+        void act(float delta, const glm::uvec2& viewport);
 
         /// @brief Draw all visible elements on main container 
         /// @param pctx parent graphics context
@@ -113,7 +119,11 @@ namespace gui {
         void add(std::shared_ptr<UINode> node);
 
         /// @brief Remove node from the main container
-        void remove(std::shared_ptr<UINode> node) noexcept;
+        void remove(UINode* node) noexcept;
+
+        void remove(const std::shared_ptr<UINode>& node) noexcept {
+            return remove(node.get());
+        }
 
         /// @brief Store node in the GUI nodes dictionary 
         /// (does not add node to the main container)
@@ -144,5 +154,10 @@ namespace gui {
 
         void setDoubleClickDelay(float delay);
         float getDoubleClickDelay() const;
+
+        void toggleDebug();
+        const Input& getInput() const;
+        Input& getInput();
+        Window& getWindow();
     };
 }

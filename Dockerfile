@@ -1,9 +1,9 @@
-# Build docker container: docker build -t voxel-engine .
-# Build project: docker run --rm -it -v$(pwd):/project voxel-engine bash -c "cmake -DCMAKE_BUILD_TYPE=Release -Bbuild && cmake --build build"
-# Run project in docker: docker run --rm -it -v$(pwd):/project -v/tmp/.X11-unix:/tmp/.X11-unix -v${XAUTHORITY}:/home/user/.Xauthority:ro -eDISPLAY --network=host voxel-engine ./build/VoxelEngine
+# Build docker container: docker build -t voxelcore .
+# Build project: docker run --rm -it -v$(pwd):/project voxelcore bash -c "cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE -Bbuild && cmake --build build"
+# Run project in docker: docker run --rm -it -v$(pwd):/project -v/tmp/.X11-unix:/tmp/.X11-unix -v${XAUTHORITY}:/home/user/.Xauthority:ro -eDISPLAY --network=host voxelcore ./build/VoxelEngine
 
-FROM debian:bullseye-slim
-LABEL Description="Docker container for building VoxelEngine for Linux"
+FROM debian:bookworm-slim
+LABEL Description="Docker container for building VoxelCore for Linux"
 
 # Install dependencies
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libglfw3-dev \
     libglfw3 \
     libglew-dev \
+    libglew2.2 \
     libglm-dev \
     libpng-dev \
     libopenal-dev \
@@ -29,7 +30,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 # Install EnTT
 RUN git clone https://github.com/skypjack/entt.git && \
     cd entt/build && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DENTT_INSTALL=on .. && \
     make install && \
     cd ../.. && rm -rf entt
 
