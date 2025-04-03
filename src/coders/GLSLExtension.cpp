@@ -9,7 +9,6 @@
 #include "typedefs.hpp"
 #include "util/stringutil.hpp"
 #include "coders/BasicParser.hpp"
-#include "graphics/core/PostEffect.hpp"
 
 static debug::Logger logger("glsl-extension");
 
@@ -26,7 +25,9 @@ void GLSLExtension::loadHeader(const std::string& name) {
     io::path file = paths->find("shaders/lib/" + name + ".glsl");
     std::string source = io::read_string(file);
     addHeader(name, "");
-    addHeader(name, process(file, source, true));
+
+    auto [code, _] = process(file, source, true);
+    addHeader(name, std::move(code));
 }
 
 void GLSLExtension::addHeader(const std::string& name, std::string source) {
@@ -123,60 +124,72 @@ public:
         clikeComment = true;
     }
 
+    bool processIncludeDirective() {
+        skipWhitespace(false);
+        if (peekNoJump() != '<') {
+            throw error("'<' expected");
+        }
+        skip(1);
+        skipWhitespace(false);
+        auto headerName = parseName();
+        skipWhitespace(false);
+        if (peekNoJump() != '>') {
+            throw error("'>' expected");
+        }
+        skip(1);
+        skipWhitespace(false);
+        skipLine();
+
+        if (!glsl.hasHeader(headerName)) {
+            glsl.loadHeader(headerName);
+        }
+        ss << glsl.getHeader(headerName) << '\n';
+        source_line(ss, line);
+        return false;
+    }
+
+    bool processVersionDirective() {
+        parsing_warning(filename, line, "removed #version directive");
+        source_line(ss, line);
+        skipLine();
+        return false;
+    }
+
+    bool processParamDirective() {
+        skipWhitespace(false);
+        auto typeName = parseName();
+        auto type = param_type_from(typeName);
+        if (!type.has_value()) {
+            throw error("unsupported param type " + util::quote(typeName));
+        }
+        skipWhitespace(false);
+        auto paramName = parseName();
+        if (params.find(paramName) != params.end()) {
+            throw error("duplicating param " + util::quote(paramName));
+        }
+        skipLine();
+
+        ss << "uniform " << typeName << " " << paramName << ";\n";
+        params[paramName] = PostEffect::Param(type.value());
+        return false;
+    }
+
     bool processPreprocessorDirective() {
         skip(1);
 
         auto name = parseName();
 
         if (name == "version") {
-            parsing_warning(filename, line, "removed #version directive");
-            source_line(ss, line);
-            skipLine();
-            return false;
+            return processVersionDirective();
         } else if (name == "include") {
-            skipWhitespace(false);
-            if (peekNoJump() != '<') {
-                throw error("'<' expected");
-            }
-            skip(1);
-            skipWhitespace(false);
-            auto headerName = parseName();
-            skipWhitespace(false);
-            if (peekNoJump() != '>') {
-                throw error("'>' expected");
-            }
-            skip(1);
-            skipWhitespace(false);
-            skipLine();
-
-            if (!glsl.hasHeader(headerName)) {
-                glsl.loadHeader(headerName);
-            }
-            ss << glsl.getHeader(headerName) << '\n';
-            source_line(ss, line);
-            return false;
+            return processIncludeDirective();
         } else if (name == "param") {
-            skipWhitespace(false);
-            auto typeName = parseName();
-            auto type = param_type_from(typeName);
-            if (!type.has_value()) {
-                throw error("unsupported param type " + util::quote(typeName));
-            }
-            skipWhitespace(false);
-            auto paramName = parseName();
-            if (params.find(paramName) != params.end()) {
-                throw error("duplicating param " + util::quote(paramName));
-            }
-            skipLine();
-
-            ss << "uniform " << typeName << " " << paramName << ";\n";
-            params[paramName] = PostEffect::Param(type.value());
-            return false;
+            return processParamDirective();
         }
         return true;
     }
 
-    std::string process() {
+    GLSLExtension::ProcessingResult process() {
         while (hasNext()) {
             skipWhitespace(false);
             if (!hasNext()) {
@@ -188,7 +201,7 @@ public:
                 skip(1);
             }
         }
-        return ss.str();
+        return {ss.str(), std::move(params)};
     }
 private:
     GLSLExtension& glsl;
@@ -196,7 +209,7 @@ private:
     std::stringstream ss;
 };
 
-std::string GLSLExtension::process(
+GLSLExtension::ProcessingResult GLSLExtension::process(
     const io::path& file, const std::string& source, bool header
 ) {
     std::string filename = file.string();

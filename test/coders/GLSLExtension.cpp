@@ -24,7 +24,7 @@ TEST(GLSLExtension, processing) {
             "    return mix(color, 1.0 - color, p_intensity);\n"
             "}\n",
         false);
-        std::cout << processed << std::endl;
+        std::cout << processed.code << std::endl;
     } catch (const parsing_error& err) {
         std::cerr << err.errorLog() << std::endl;
         throw;

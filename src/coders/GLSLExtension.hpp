@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "io/io.hpp"
+#include "graphics/core/PostEffect.hpp"
 
 class ResPaths;
 
@@ -25,7 +26,12 @@ public:
     bool hasDefine(const std::string& name) const;
     void loadHeader(const std::string& name);
 
-    std::string process(
+    struct ProcessingResult {
+        std::string code;
+        std::unordered_map<std::string, PostEffect::Param> params;
+    };
+
+    ProcessingResult process(
         const io::path& file,
         const std::string& source,
         bool header = false

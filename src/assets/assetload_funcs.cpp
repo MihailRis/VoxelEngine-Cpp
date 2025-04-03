@@ -73,9 +73,10 @@ assetload::postfunc assetload::shader(
     std::string vertexSource = io::read_string(vertexFile);
     std::string fragmentSource = io::read_string(fragmentFile);
 
-    vertexSource = Shader::preprocessor->process(vertexFile, vertexSource);
-    fragmentSource =
-        Shader::preprocessor->process(fragmentFile, fragmentSource);
+    auto& preprocessor = *Shader::preprocessor;
+
+    vertexSource = preprocessor.process(vertexFile, vertexSource).code;
+    fragmentSource = preprocessor.process(fragmentFile, fragmentSource).code;
 
     return [=](auto assets) {
         assets->store(
