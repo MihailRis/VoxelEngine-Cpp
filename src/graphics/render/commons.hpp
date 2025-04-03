@@ -3,7 +3,6 @@
 #include <vector>
 #include <array>
 #include <memory>
-#include <GL/glew.h>
 #include <glm/vec3.hpp>
 
 #include "graphics/core/MeshData.hpp"
