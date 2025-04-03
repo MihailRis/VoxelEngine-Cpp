@@ -9,15 +9,8 @@
 class ResPaths;
 
 class GLSLExtension {
-    std::unordered_map<std::string, std::string> headers;
-    std::unordered_map<std::string, std::string> defines;
-    std::string version = "330 core";
-
-    const ResPaths* paths = nullptr;
-    void loadHeader(const std::string& name);
 public:
     void setPaths(const ResPaths* paths);
-    void setVersion(std::string version);
 
     void define(const std::string& name, std::string value);
     void undefine(const std::string& name);
@@ -26,12 +19,22 @@ public:
     const std::string& getHeader(const std::string& name) const;
     const std::string& getDefine(const std::string& name) const;
 
+    const std::unordered_map<std::string, std::string>& getDefines() const;
+
     bool hasHeader(const std::string& name) const;
     bool hasDefine(const std::string& name) const;
+    void loadHeader(const std::string& name);
 
     std::string process(
         const io::path& file,
         const std::string& source,
         bool header = false
     );
+
+    static inline std::string VERSION = "330 core";
+private:
+    std::unordered_map<std::string, std::string> headers;
+    std::unordered_map<std::string, std::string> defines;
+
+    const ResPaths* paths = nullptr;
 };
