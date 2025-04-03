@@ -8,9 +8,9 @@
 
 /// @brief Vertex attribute info
 struct VertexAttribute {
-    uint32_t type;
-    bool normalized;
-    ubyte count;
+    uint32_t type = 0;
+    bool normalized = false;
+    ubyte count = 0;
 
 
     [[nodiscard]] uint32_t size() const {
