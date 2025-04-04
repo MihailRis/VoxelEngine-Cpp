@@ -15,9 +15,10 @@ public:
         using Value = std::variant<float, glm::vec2, glm::vec3, glm::vec4>;
 
         Type type;
+        Value defValue;
 
         Param();
-        Param(Type type);
+        Param(Type type, Value defValue);
     };
 
     PostEffect(std::unique_ptr<Shader> shader);

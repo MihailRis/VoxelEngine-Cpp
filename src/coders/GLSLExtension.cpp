@@ -8,11 +8,14 @@
 #include "io/engine_paths.hpp"
 #include "typedefs.hpp"
 #include "util/stringutil.hpp"
+#include "coders/json.hpp"
+#include "data/dv_util.hpp"
 #include "coders/BasicParser.hpp"
 
 static debug::Logger logger("glsl-extension");
 
 using Type = PostEffect::Param::Type;
+using Value = PostEffect::Param::Value;
 
 void GLSLExtension::setPaths(const ResPaths* paths) {
     this->paths = paths;
@@ -92,10 +95,10 @@ inline void source_line(std::stringstream& ss, uint linenum) {
     ss << "#line " << linenum << "\n";
 }
 
-static std::optional<PostEffect::Param::Type> param_type_from(
+static std::optional<Type> param_type_from(
     const std::string& name
 ) {
-    static const std::unordered_map<std::string, PostEffect::Param::Type> typeNames {
+    static const std::unordered_map<std::string, Type> typeNames {
         {"float", Type::FLOAT},
         {"vec2", Type::VEC2},
         {"vec3", Type::VEC3},
@@ -106,6 +109,21 @@ static std::optional<PostEffect::Param::Type> param_type_from(
         return std::nullopt;
     }
     return found->second;
+}
+
+static Value default_value_for(Type type) {
+    switch (type) {
+        case Type::FLOAT:
+            return 0.0f;
+        case Type::VEC2:
+            return glm::vec2 {0.0f, 0.0f};
+        case Type::VEC3:
+            return glm::vec3 {0.0f, 0.0f, 0.0f};
+        case Type::VEC4:
+            return glm::vec4 {0.0f, 0.0f, 0.0f, 0.0f};
+        default:
+            throw std::runtime_error("unsupported type");
+    }
 }
 
 class GLSLParser : public BasicParser<char> {
@@ -155,22 +173,68 @@ public:
         return false;
     }
 
+    template<int n>
+    Value parseVectorValue() {
+        if (peekNoJump() != '[') {
+            throw error("'[' expected");
+        }
+        // may be more efficient but ok
+        auto value = json::parse(
+            filename,
+            std::string_view(source.data() + pos, source.size() - pos)
+        );
+        glm::vec<n, float> vec {};
+        try {
+            dv::get_vec<n>(value, vec);
+            return vec;
+        } catch (const std::exception& err) {
+            throw error(err.what());
+        }
+    }
+
+    Value parseDefaultValue(Type type, const std::string& name) {
+        switch (type) {
+            case Type::FLOAT:
+                return static_cast<float>(parseNumber(1).asNumber());
+            case Type::VEC2:
+                return parseVectorValue<2>();
+            case Type::VEC3:
+                return parseVectorValue<3>();
+            case Type::VEC4:
+                return parseVectorValue<4>();
+            default:
+                throw error("unsupported default value for type " + name);
+        }
+    }
+
     bool processParamDirective() {
         skipWhitespace(false);
+        // Parse type name
         auto typeName = parseName();
         auto type = param_type_from(typeName);
         if (!type.has_value()) {
             throw error("unsupported param type " + util::quote(typeName));
         }
         skipWhitespace(false);
+        // Parse parameter name
         auto paramName = parseName();
         if (params.find(paramName) != params.end()) {
             throw error("duplicating param " + util::quote(paramName));
         }
+        skipWhitespace(false);
+        ss << "uniform " << typeName << " " << paramName << ";\n";
+        
+        auto defValue = default_value_for(type.value());
+        // Parse default value
+        if (peekNoJump() == '=') {
+            skip(1);
+            skipWhitespace(false);
+            defValue = parseDefaultValue(type.value(), typeName);
+        }
+
         skipLine();
 
-        ss << "uniform " << typeName << " " << paramName << ";\n";
-        params[paramName] = PostEffect::Param(type.value());
+        params[paramName] = PostEffect::Param(type.value(), std::move(defValue));
         return false;
     }
 

@@ -18,6 +18,7 @@ TEST(GLSLExtension, processing) {
             "\n"
             "#include /* hell\no */  <   sum     >\n"
             "#param float p_intensity\n"
+            "#param vec3 p_pos = [0, 0, 0]\n"
             "\n"
             "vec4 effect() {\n"
             "    vec4 color = texture(u_screen, v_uv);\n"
