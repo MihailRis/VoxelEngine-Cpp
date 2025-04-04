@@ -21,10 +21,20 @@ public:
         Param(Type type, Value defValue);
     };
 
-    PostEffect(std::unique_ptr<Shader> shader);
+    PostEffect(
+        std::unique_ptr<Shader> shader,
+        std::unordered_map<std::string, Param> params
+    );
 
-    void use();
+    Shader& use();
+
+    void setIntensity(float value);
+
+    bool isActive() {
+        return intensity > 1e-4f;
+    }
 private:
     std::unique_ptr<Shader> shader;
     std::unordered_map<std::string, Param> params;
+    float intensity = 0.0f;
 };

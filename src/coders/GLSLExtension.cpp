@@ -27,21 +27,21 @@ void GLSLExtension::loadHeader(const std::string& name) {
     }
     io::path file = paths->find("shaders/lib/" + name + ".glsl");
     std::string source = io::read_string(file);
-    addHeader(name, "");
-
-    auto [code, _] = process(file, source, true);
-    addHeader(name, std::move(code));
+    addHeader(name, {});
+    addHeader(name, process(file, source, true));
 }
 
-void GLSLExtension::addHeader(const std::string& name, std::string source) {
-    headers[name] = std::move(source);
+void GLSLExtension::addHeader(const std::string& name, ProcessingResult header) {
+    headers[name] = std::move(header);
 }
 
 void GLSLExtension::define(const std::string& name, std::string value) {
     defines[name] = std::move(value);
 }
 
-const std::string& GLSLExtension::getHeader(const std::string& name) const {
+const GLSLExtension::ProcessingResult& GLSLExtension::getHeader(
+    const std::string& name
+) const {
     auto found = headers.find(name);
     if (found == headers.end()) {
         throw std::runtime_error("no header '" + name + "' loaded");
@@ -161,7 +161,11 @@ public:
         if (!glsl.hasHeader(headerName)) {
             glsl.loadHeader(headerName);
         }
-        ss << glsl.getHeader(headerName) << '\n';
+        const auto& header = glsl.getHeader(headerName);
+        for (const auto& [name, param] : header.params) {
+            params[name] = param;
+        }
+        ss << header.code << '\n';
         source_line(ss, line);
         return false;
     }

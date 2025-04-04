@@ -6,10 +6,13 @@
 TEST(GLSLExtension, processing) {
     GLSLExtension glsl;
     glsl.addHeader("sum", 
-        "// sum function for glsl\n"
-        "float sum(float a, float b) {\n"
-        "    return a + b;\n"
-        "}\n"
+        glsl.process("sum.glsl",
+            "// sum function for glsl\n"
+            "float sum(float a, float b) {\n"
+            "    return a + b;\n"
+            "}\n",
+            true
+        )
     );
     try {
         auto processed = glsl.process("test.glsl",

@@ -11,13 +11,20 @@ class ResPaths;
 
 class GLSLExtension {
 public:
+    using ParamsMap = std::unordered_map<std::string, PostEffect::Param>;
+
+    struct ProcessingResult {
+        std::string code;
+        ParamsMap params;
+    };
+
     void setPaths(const ResPaths* paths);
 
     void define(const std::string& name, std::string value);
     void undefine(const std::string& name);
-    void addHeader(const std::string& name, std::string source);
+    void addHeader(const std::string& name, ProcessingResult header);
 
-    const std::string& getHeader(const std::string& name) const;
+    const ProcessingResult& getHeader(const std::string& name) const;
     const std::string& getDefine(const std::string& name) const;
 
     const std::unordered_map<std::string, std::string>& getDefines() const;
@@ -25,12 +32,7 @@ public:
     bool hasHeader(const std::string& name) const;
     bool hasDefine(const std::string& name) const;
     void loadHeader(const std::string& name);
-
-    struct ProcessingResult {
-        std::string code;
-        std::unordered_map<std::string, PostEffect::Param> params;
-    };
-
+    
     ProcessingResult process(
         const io::path& file,
         const std::string& source,
@@ -39,7 +41,7 @@ public:
 
     static inline std::string VERSION = "330 core";
 private:
-    std::unordered_map<std::string, std::string> headers;
+    std::unordered_map<std::string, ProcessingResult> headers;
     std::unordered_map<std::string, std::string> defines;
 
     const ResPaths* paths = nullptr;
