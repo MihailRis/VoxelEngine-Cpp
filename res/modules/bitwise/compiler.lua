@@ -57,7 +57,7 @@ local function compile(str, args, asFunction)
 			if not b then
 				util.stack.push(stack, fun..'('..a..')')
 			else
-				util.stack.push(stack, fun..'('..a..','..b..')')
+				util.stack.push(stack, fun..'('..b..','..a..')')
 			end
 		end
 	end
