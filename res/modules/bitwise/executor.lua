@@ -42,7 +42,7 @@ local function execute(str, args, ...)
 
 		local comp = compiler(str, expArgs)
 
-		cache[argsHash] = { }
+		if not cache[argsHash] then cache[argsHash] = { } end
 
 		cache[argsHash][str] = comp
 
