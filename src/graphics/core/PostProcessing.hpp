@@ -21,7 +21,7 @@ class PostProcessing {
     std::unique_ptr<Mesh> quadMesh;
     std::vector<std::shared_ptr<PostEffect>> effectSlots;
 public:
-    PostProcessing();
+    PostProcessing(size_t effectSlotsCount);
     ~PostProcessing();
 
     /// @brief Prepare and bind framebuffer
@@ -33,6 +33,10 @@ public:
     /// @param context graphics context
     /// @throws std::runtime_error if use(...) wasn't called before
     void render(const DrawContext& context, const Assets& assets, float timer);
+
+    void setEffect(size_t slot, std::shared_ptr<PostEffect> effect);
+
+    PostEffect* getEffect(size_t slot);
 
     /// @brief Make an image from the last rendered frame
     std::unique_ptr<ImageData> toImage();

@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
+#include "data/dv_fwd.hpp"
+
 class Shader;
 
 class PostEffect {
@@ -16,25 +18,32 @@ public:
 
         Type type;
         Value defValue;
+        Value value;
+        bool dirty = true;
 
         Param();
         Param(Type type, Value defValue);
     };
 
     PostEffect(
-        std::unique_ptr<Shader> shader,
+        std::shared_ptr<Shader> shader,
         std::unordered_map<std::string, Param> params
     );
 
+    explicit PostEffect(const PostEffect&) = default;
+
     Shader& use();
 
+    float getIntensity() const;
     void setIntensity(float value);
+
+    void setParam(const std::string& name, const dv::value& value);
 
     bool isActive() {
         return intensity > 1e-4f;
     }
 private:
-    std::unique_ptr<Shader> shader;
+    std::shared_ptr<Shader> shader;
     std::unordered_map<std::string, Param> params;
     float intensity = 0.0f;
 };

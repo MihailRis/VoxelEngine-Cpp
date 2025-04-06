@@ -9,7 +9,8 @@
 
 #include <stdexcept>
 
-PostProcessing::PostProcessing() {
+PostProcessing::PostProcessing(size_t effectSlotsCount)
+    : effectSlots(effectSlotsCount) {
     // Fullscreen quad mesh bulding
     float vertices[] {
         -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,  1.0f,
@@ -75,6 +76,14 @@ void PostProcessing::render(
         }
         currentPass++;
     }
+}
+
+void PostProcessing::setEffect(size_t slot, std::shared_ptr<PostEffect> effect) {
+    effectSlots.at(slot) = std::move(effect);
+}
+
+PostEffect* PostProcessing::getEffect(size_t slot) {
+    return effectSlots.at(slot).get();
 }
 
 std::unique_ptr<ImageData> PostProcessing::toImage() {
