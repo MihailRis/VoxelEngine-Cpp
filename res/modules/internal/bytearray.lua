@@ -118,20 +118,22 @@ local bytearray_mt = {
     end
 }
 
-local utf8tostring = utf8.tostring
-
-function utf8.tostring(bytes)
-    local type = _type(bytes)
-    if type == "cdata" then
-        return FFI.string(bytes.bytes, bytes.size)
-    else
-        return utf8tostring(bytes)
-    end
-end
-
 local bytearray_type = FFI.metatype("bytearray_t", bytearray_mt)
 
-return function (n)
+local function FFIBytearray (n)
+    local t = type(n)
+    if t == "string" then
+        local buffer = malloc(#n)
+        FFI.copy(buffer, n, #n)
+        return bytearray_type(buffer, #n, #n)
+    elseif t == "table" then
+        local capacity = math.max(#n, MIN_CAPACITY)
+        local buffer = malloc(capacity)
+        for i=1,#n do
+            buffer[i - 1] = n[i]
+        end
+        return bytearray_type(buffer, #n, capacity)
+    end
     n = n or 0
     if n < MIN_CAPACITY then
         return bytearray_type(malloc(MIN_CAPACITY), n, MIN_CAPACITY)
@@ -139,3 +141,23 @@ return function (n)
         return bytearray_type(malloc(n), n, n)
     end
 end
+
+local function FFIBytearray_as_string(bytes)
+    local t = type(bytes)
+    if t == "cdata" then
+        return FFI.string(bytes.bytes, bytes.size)
+    elseif t == "table" then
+        local buffer = FFI.new("unsigned char[?]", #bytes)
+        for i=1, #bytes do
+            buffer[i - 1] = bytes[i]
+        end
+        return FFI.string(buffer, #bytes)
+    else
+        error("Bytearray expected, got "..type(bytes))
+    end
+end
+
+return {
+    FFIBytearray = FFIBytearray,
+    FFIBytearray_as_string = FFIBytearray_as_string
+}
