@@ -158,7 +158,7 @@ struct Binding {
     InputType type;
     int code;
     bool state = false;
-    bool justChange = false;
+    bool justChanged = false;
     bool enabled = true;
 
     Binding() = default;
@@ -170,7 +170,7 @@ struct Binding {
     }
 
     bool jactive() const {
-        return state && justChange;
+        return state && justChanged;
     }
 
     void reset(InputType, int);
