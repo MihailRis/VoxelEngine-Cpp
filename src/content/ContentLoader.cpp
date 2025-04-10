@@ -590,169 +590,119 @@ void ContentLoader::loadBlockMaterial(
     }
 }
 
-void ContentLoader::loadContent(const dv::value& root) {
+template <typename DefT>
+static void load_defs(
+    const ContentPack& pack,
+    const dv::value& root,
+    const std::string& defsDir,
+    ContentUnitBuilder<DefT>& builder,
+    size_t& defCounter,
+    std::function<void(DefT&, const std::string&, const std::string&)> loader
+) {
+    auto found = root.at(defsDir);
+    if (!found) {
+        return;
+    }
+    const auto& defsArr = *found;
+
     std::vector<std::pair<std::string, std::string>> pendingDefs;
-    auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
-            auto configFile = pack->folder / (prefix + "/" + name + ".json");
-            std::string parent;
-            if (io::exists(configFile)) {
-                auto root = io::read_json(configFile);
-                root.at("parent").get(parent);
-            }
-            return parent;
-        };
-    auto processName = [this](const std::string& name) {
+    auto getJsonParent = [&pack](const std::string& prefix, const std::string& name) {
+        auto configFile = pack.folder / (prefix + "/" + name + ".json");
+        std::string parent;
+        if (io::exists(configFile)) {
+            auto root = io::read_json(configFile);
+            root.at("parent").get(parent);
+        }
+        return parent;
+    };
+    auto processName = [&pack](const std::string& name) {
         auto colon = name.find(':');
         auto new_name = name;
         std::string full =
-            colon == std::string::npos ? pack->id + ":" + name : name;
+            colon == std::string::npos ? pack.id + ":" + name : name;
         if (colon != std::string::npos) new_name[colon] = '/';
 
         return std::make_pair(full, new_name);
     };
 
-    if (auto found = root.at("blocks")) {
-        const auto& blocksarr = *found;
-        for (size_t i = 0; i < blocksarr.size(); i++) {
-            auto [full, name] = processName(blocksarr[i].asString());
-            auto parent = getJsonParent("blocks", name);
-            if (parent.empty() || builder.blocks.get(parent)) {
-                // No dependency or dependency already loaded/exists in another
-                // content pack
-                bool created;
-                auto& def = builder.blocks.create(full, &created);
-                loadBlock(def, full, name);
-                stats->totalBlocks += created;
-            } else {
-                // Dependency not loaded yet, add to pending items
-                pendingDefs.emplace_back(full, name);
-            }
-        }
-
-        // Resolve dependencies for pending items
-        bool progressMade = true;
-        while (!pendingDefs.empty() && progressMade) {
-            progressMade = false;
-
-            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
-                auto parent = getJsonParent("blocks", it->second);
-                if (builder.blocks.get(parent)) {
-                    // Dependency resolved or parent exists in another pack,
-                    // load the item
-                    bool created;
-                    auto& def = builder.blocks.create(it->first, &created);
-                    loadBlock(def, it->first, it->second);
-                    stats->totalBlocks += created;
-                    it = pendingDefs.erase(it);  // Remove resolved item
-                    progressMade = true;
-                } else {
-                    ++it;
-                }
-            }
-        }
-
-        if (!pendingDefs.empty()) {
-            // Handle circular dependencies or missing dependencies
-            // You can log an error or throw an exception here if necessary
-            throw std::runtime_error("Unresolved block dependencies detected.");
+    for (size_t i = 0; i < defsArr.size(); i++) {
+        auto [full, name] = processName(defsArr[i].asString());
+        auto parent = getJsonParent(defsDir, name);
+        if (parent.empty() || builder.get(parent)) {
+            // No dependency or dependency already loaded/exists in another
+            // content pack
+            bool created;
+            auto& def = builder.create(full, &created);
+            loader(def, full, name);
+            defCounter += created;
+        } else {
+            // Dependency not loaded yet, add to pending content units
+            pendingDefs.emplace_back(full, name);
         }
     }
 
-    if (auto found = root.at("items")) {
-        const auto& itemsarr = *found;
-        for (size_t i = 0; i < itemsarr.size(); i++) {
-            auto [full, name] = processName(itemsarr[i].asString());
-            auto parent = getJsonParent("items", name);
-            if (parent.empty() || builder.items.get(parent)) {
-                // No dependency or dependency already loaded/exists in another
-                // content pack
+    // Resolve dependencies for pending content units
+    bool progressMade = true;
+    while (!pendingDefs.empty() && progressMade) {
+        progressMade = false;
+
+        for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
+            auto parent = getJsonParent(defsDir, it->second);
+            if (builder.get(parent)) {
+                // Dependency resolved or parent exists in another pack,
+                // load the content unit
                 bool created;
-                auto& def = builder.items.create(full, &created);
-                loadItem(def, full, name);
-                stats->totalItems += created;
+                auto& def = builder.create(it->first, &created);
+                loader(def, it->first, it->second);
+                defCounter += created;
+                it = pendingDefs.erase(it);  // Remove resolved content unit
+                progressMade = true;
             } else {
-                // Dependency not loaded yet, add to pending items
-                pendingDefs.emplace_back(full, name);
+                ++it;
             }
-        }
-
-        // Resolve dependencies for pending items
-        bool progressMade = true;
-        while (!pendingDefs.empty() && progressMade) {
-            progressMade = false;
-
-            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
-                auto parent = getJsonParent("items", it->second);
-                if (builder.items.get(parent)) {
-                    // Dependency resolved or parent exists in another pack,
-                    // load the item
-                    bool created;
-                    auto& def = builder.items.create(it->first, &created);
-                    loadItem(def, it->first, it->second);
-                    stats->totalItems += created;
-                    it = pendingDefs.erase(it);  // Remove resolved item
-                    progressMade = true;
-                } else {
-                    ++it;
-                }
-            }
-        }
-
-        if (!pendingDefs.empty()) {
-            // Handle circular dependencies or missing dependencies
-            // You can log an error or throw an exception here if necessary
-            throw std::runtime_error("Unresolved item dependencies detected.");
         }
     }
 
-    if (auto found = root.at("entities")) {
-        const auto& entitiesarr = *found;
-        for (size_t i = 0; i < entitiesarr.size(); i++) {
-            auto [full, name] = processName(entitiesarr[i].asString());
-            auto parent = getJsonParent("entities", name);
-            if (parent.empty() || builder.entities.get(parent)) {
-                // No dependency or dependency already loaded/exists in another
-                // content pack
-                bool created;
-                auto& def = builder.entities.create(full, &created);
-                loadEntity(def, full, name);
-                stats->totalEntities += created;
-            } else {
-                // Dependency not loaded yet, add to pending items
-                pendingDefs.emplace_back(full, name);
-            }
-        }
-
-        // Resolve dependencies for pending items
-        bool progressMade = true;
-        while (!pendingDefs.empty() && progressMade) {
-            progressMade = false;
-
-            for (auto it = pendingDefs.begin(); it != pendingDefs.end();) {
-                auto parent = getJsonParent("entities", it->second);
-                if (builder.entities.get(parent)) {
-                    // Dependency resolved or parent exists in another pack,
-                    // load the item
-                    bool created;
-                    auto& def = builder.entities.create(it->first, &created);
-                    loadEntity(def, it->first, it->second);
-                    stats->totalEntities += created;
-                    it = pendingDefs.erase(it);  // Remove resolved item
-                    progressMade = true;
-                } else {
-                    ++it;
-                }
-            }
-        }
-
-        if (!pendingDefs.empty()) {
-            // Handle circular dependencies or missing dependencies
-            // You can log an error or throw an exception here if necessary
-            throw std::runtime_error(
-                "Unresolved entities dependencies detected."
-            );
-        }
+    if (!pendingDefs.empty()) {
+        // Handle circular dependencies or missing dependencies
+        // You can log an error or throw an exception here if necessary
+        throw std::runtime_error(
+            "Unresolved " + defsDir + " dependencies detected."
+        );
     }
+}
+
+void ContentLoader::loadContent(const dv::value& root) {
+    load_defs<Block>(
+        *pack,
+        root,
+        "blocks",
+        builder.blocks,
+        stats->totalBlocks,
+        [this](auto& def, const auto& name, const auto& file) {
+            return loadBlock(def, name, file);
+        }
+    );
+    load_defs<ItemDef>(
+        *pack,
+        root,
+        "items",
+        builder.items,
+        stats->totalItems,
+        [this](auto& def, const auto& name, const auto& file) {
+            return loadItem(def, name, file);
+        }
+    );
+    load_defs<EntityDef>(
+        *pack,
+        root,
+        "entities",
+        builder.entities,
+        stats->totalEntities,
+        [this](auto& def, const auto& name, const auto& file) {
+            return loadEntity(def, name, file);
+        }
+    );
 }
 
 static inline void foreach_file(
