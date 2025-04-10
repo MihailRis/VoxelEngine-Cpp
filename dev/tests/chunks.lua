@@ -24,6 +24,12 @@ for i=1,25 do
     app.tick()
 end
 
+player.set_pos(pid1, 0, 0, 0)
+app.sleep_until(function () return block.get(0, 0, 0) ~= -1 end)
+
+block.place(0, 0, 0, block.index("base:stone"), 65287, pid1)
+assert(block.get_states(0, 0, 0) == 65287)
+
 player.delete(pid2)
 
 app.close_world(true)
