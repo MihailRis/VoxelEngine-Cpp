@@ -263,6 +263,10 @@ entities.get_all = function(uids)
         return stdcomp.get_all(uids)
     end
 end
+local bytearray = require "core:internal/bytearray"
+Bytearray = bytearray.FFIBytearray
+Bytearray_as_string = bytearray.FFIBytearray_as_string
+ffi = nil
 
 math.randomseed(time.uptime() * 1536227939)
 
