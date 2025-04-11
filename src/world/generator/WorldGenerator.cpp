@@ -355,9 +355,7 @@ void WorldGenerator::generateHeightmap(
 
 void WorldGenerator::update(int centerX, int centerY, int loadDistance) {
     surroundMap.setCenter(centerX, centerY);
-    // 3 is safety padding preventing ChunksController rounding problem
-    // FIXME
-    surroundMap.resize(loadDistance + 3);
+    surroundMap.resize(loadDistance);
     surroundMap.setCenter(centerX, centerY);
 }
 
