@@ -311,7 +311,8 @@ void Hud::updateWorldGenDebug() {
 
 void Hud::update(bool visible) {
     const auto& chunks = *player.chunks;
-    const auto& menu = gui.getMenu();
+    auto& menu = *gui.getMenu();
+    bool is_menu_open = menu.hasOpenPage();
 
     debugPanel->setVisible(
         debug && visible && !(inventoryOpen && inventoryView == nullptr)
@@ -320,13 +321,13 @@ void Hud::update(bool visible) {
     if (!visible && inventoryOpen) {
         closeInventory();
     }
-    if (pause && !menu->hasOpenPage()) {
+    if (pause && !is_menu_open) {
         setPause(false);
     }
     if (!gui.isFocusCaught()) {
         processInput(visible);
     }
-    if ((menu->hasOpenPage() || inventoryOpen) == Events::isCursorLocked()) {
+    if ((is_menu_open || inventoryOpen) == Events::isCursorLocked()) {
         Events::toggleCursor();
     }
 
@@ -346,6 +347,8 @@ void Hud::update(bool visible) {
     contentAccessPanel->setSize(glm::vec2(caSize.x, Window::height));
     contentAccess->setMinSize(glm::vec2(1, Window::height));
     hotbarView->setVisible(visible && !(secondUI && !inventoryView));
+    darkOverlay->setVisible(is_menu_open);
+    menu.setVisible(is_menu_open);
 
     if (visible) {
         for (auto& element : elements) {
@@ -357,7 +360,7 @@ void Hud::update(bool visible) {
     }
     cleanup();
 
-    debugMinimap->setVisible(debug && showGeneratorMinimap);
+    debugMinimap->setVisible(debug && showGeneratorMinimap && visible);
     if (debug && showGeneratorMinimap) {
         updateWorldGenDebug();
     }
@@ -591,10 +594,6 @@ void Hud::draw(const DrawContext& ctx){
     const uint width = viewport.getWidth();
     const uint height = viewport.getHeight();
     auto menu = gui.getMenu();
-
-    bool is_menu_open = menu->hasOpenPage();
-    darkOverlay->setVisible(is_menu_open);
-    menu->setVisible(is_menu_open);
 
     updateElementsPosition(viewport);
 
