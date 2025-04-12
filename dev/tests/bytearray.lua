@@ -10,3 +10,6 @@ end
 for i, v in ipairs(arr) do
     assert(v == 10 - i)
 end
+
+Bytearray.remove(arr, 2)
+assert(#arr == 9)

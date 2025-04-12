@@ -747,7 +747,7 @@ namespace lua {
     }
 
     inline int create_bytearray(lua::State* L, const void* bytes, size_t size) {
-        lua::requireglobal(L, "Bytearray");
+        lua::requireglobal(L, "Bytearray_construct");
         lua::pushlstring(
             L, std::string_view(reinterpret_cast<const char*>(bytes), size)
         );

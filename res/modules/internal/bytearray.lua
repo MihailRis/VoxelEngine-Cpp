@@ -47,37 +47,50 @@ local function append(self, b)
     self.size = self.size + elems
 end
 
+local function insert(self, index, b)
+    if index == nil then
+        index = self.size + 1
+    end
+    if index <= 0 or index > self.size + 1 then
+        return
+    end
+    local elems = count_elements(b)
+    if self.size + elems > self.capacity then
+        grow_buffer(self, elems)
+    end
+    for i=self.size, index - 1, -1 do
+        self.bytes[i + elems] = self.bytes[i]
+    end
+    if _type(b) == "number" then
+        self.bytes[index - 1] = b
+    else
+        for i=1, #b do
+            self.bytes[index + i - 2] = b[i]
+        end
+    end
+    self.size = self.size + elems
+end
+
+local function remove(self, index, elems)
+    if index <= 0 or index > self.size then
+        return
+    end
+    if elems == nil then
+        elems = 1
+    end
+    if index + elems > self.size then
+        elems = self.size - index + 1
+    end
+    for i=index, self.size - elems do
+        self.bytes[i] = self.bytes[i + elems]
+    end
+    self.size = self.size - elems
+end
+
 local bytearray_methods = {
     append=append,
-    insert=function(self, index, b)
-        local elems = count_elements(b)
-        if self.size + elems >= self.capacity then
-            grow_buffer(self, elems)
-        end
-        if _type(b) == "number" then
-            self.bytes[index] = b
-        else
-            for i=1, #b do
-                self.bytes[index + i - 1] = b[i]
-            end
-        end
-        self.size = self.size + elems
-    end,
-    remove=function(self, index, elems)
-        if index <= 0 or index > self.size then
-            return
-        end
-        if elems == nil then
-            elems = 1
-        end
-        if index + elems > self.size then
-            elems = self.size - index + 1
-        end
-        for i=index, self.size - elems do
-            self.bytes[i] = self.bytes[i + elems]
-        end
-        self.size = self.size - elems
-    end,
+    insert=insert,
+    remove=remove,
     clear=function(self)
         self.size = 0
     end,
@@ -133,27 +146,32 @@ local bytearray_mt = {
 
 local bytearray_type = FFI.metatype("bytearray_t", bytearray_mt)
 
-local function FFIBytearray (n)
-    local t = type(n)
-    if t == "string" then
-        local buffer = malloc(#n)
-        FFI.copy(buffer, n, #n)
-        return bytearray_type(buffer, #n, #n)
-    elseif t == "table" then
-        local capacity = math.max(#n, MIN_CAPACITY)
-        local buffer = malloc(capacity)
-        for i=1,#n do
-            buffer[i - 1] = n[i]
+local FFIBytearray = {
+    __call = function (n)
+        local t = type(n)
+        if t == "string" then
+            local buffer = malloc(#n)
+            FFI.copy(buffer, n, #n)
+            return bytearray_type(buffer, #n, #n)
+        elseif t == "table" then
+            local capacity = math.max(#n, MIN_CAPACITY)
+            local buffer = malloc(capacity)
+            for i=1,#n do
+                buffer[i - 1] = n[i]
+            end
+            return bytearray_type(buffer, #n, capacity)
         end
-        return bytearray_type(buffer, #n, capacity)
-    end
-    n = n or 0
-    if n < MIN_CAPACITY then
-        return bytearray_type(malloc(MIN_CAPACITY), n, MIN_CAPACITY)
-    else
-        return bytearray_type(malloc(n), n, n)
-    end
-end
+        n = n or 0
+        if n < MIN_CAPACITY then
+            return bytearray_type(malloc(MIN_CAPACITY), n, MIN_CAPACITY)
+        else
+            return bytearray_type(malloc(n), n, n)
+        end
+    end,
+    append = append,
+    insert = insert,
+    remove = remove,
+}
 
 local function FFIBytearray_as_string(bytes)
     local t = type(bytes)
@@ -171,6 +189,6 @@ local function FFIBytearray_as_string(bytes)
 end
 
 return {
-    FFIBytearray = FFIBytearray,
+    FFIBytearray = setmetatable(FFIBytearray, FFIBytearray),
     FFIBytearray_as_string = FFIBytearray_as_string
 }
