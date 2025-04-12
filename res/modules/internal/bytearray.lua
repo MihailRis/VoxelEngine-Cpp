@@ -32,21 +32,23 @@ local function count_elements(b)
     return elems
 end
 
+local function append(self, b)
+    local elems = count_elements(b)
+    if self.size + elems > self.capacity then
+        grow_buffer(self, elems)
+    end
+    if _type(b) == "number" then
+        self.bytes[self.size] = b
+    else
+        for i=1, #b do
+            self.bytes[self.size + i - 1] = b[i]
+        end
+    end
+    self.size = self.size + elems
+end
+
 local bytearray_methods = {
-    append=function(self, b)
-        local elems = count_elements(b)
-        if self.size + elems > self.capacity then
-            grow_buffer(self, elems)
-        end
-        if _type(b) == "number" then
-            self.bytes[self.size] = b
-        else
-            for i=1, #b do
-                self.bytes[self.size + i - 1] = b[i]
-            end
-        end
-        self.size = self.size + elems
-    end,
+    append=append,
     insert=function(self, index, b)
         local elems = count_elements(b)
         if self.size + elems >= self.capacity then
@@ -102,7 +104,9 @@ local bytearray_mt = {
         return self.bytes[key - 1]
     end,
     __newindex = function(self, key, value)
-        if key <= 0 or key > self.size then
+        if key == self.size + 1 then
+            return append(self, value)
+        elseif key <= 0 or key > self.size then
             return
         end
         self.bytes[key - 1] = value
