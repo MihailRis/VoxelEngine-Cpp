@@ -22,3 +22,6 @@ assert(#arr == 13)
 for i=1,10 do
     assert(arr[i] == 10 - i)
 end
+print(#arr, arr:get_capacity())
+arr:trim()
+assert(#arr == arr:get_capacity())

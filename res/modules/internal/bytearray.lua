@@ -24,6 +24,18 @@ local function grow_buffer(self, elems)
     free(prev)
 end
 
+local function trim_buffer(self)
+    if self.size == self.capacity then
+        return
+    end
+    local size = self.size
+    local prev = self.bytes
+    self.bytes = malloc(size)
+    FFI.copy(self.bytes, prev, self.size)
+    self.capacity = size
+    free(prev)
+end
+
 local function count_elements(b)
     local elems = 1
     if _type(b) ~= "number" then
@@ -88,23 +100,33 @@ local function remove(self, index, elems)
     self.size = self.size - elems
 end
 
+local function clear(self)
+    self.size = 0
+end
+
+local function reserve(self, new_capacity)
+    if new_capacity <= self.capacity then
+        return
+    end
+    local prev = self.bytes
+    self.bytes = malloc(new_capacity)
+    FFI.copy(self.bytes, prev, self.size)
+    self.capacity = new_capacity
+    free(prev)
+end
+
+local function get_capacity(self)
+    return self.capacity
+end
+
 local bytearray_methods = {
     append=append,
     insert=insert,
     remove=remove,
-    clear=function(self)
-        self.size = 0
-    end,
-    reserve=function(self, new_capacity)
-        if new_capacity <= self.capacity then
-            return
-        end
-        local prev = self.bytes
-        self.bytes = malloc(new_capacity)
-        FFI.copy(self.bytes, prev, self.size)
-        self.capacity = new_capacity
-        free(prev)
-    end,
+    trim=trim_buffer,
+    clear=clear,
+    reserve=reserve,
+    get_capacity=get_capacity,
 }
 
 local bytearray_mt = {
@@ -172,6 +194,10 @@ local FFIBytearray = {
     append = append,
     insert = insert,
     remove = remove,
+    trim = trim_buffer,
+    clear = clear,
+    reserve = reserve,
+    get_capacity = get_capacity,
 }
 
 local function FFIBytearray_as_string(bytes)
