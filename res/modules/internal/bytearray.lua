@@ -119,6 +119,15 @@ local bytearray_mt = {
     end,
     __gc = function(self)
         free(self.bytes)
+    end,
+    __ipairs = function(self)
+        local i = 0
+        return function()
+            i = i + 1
+            if i <= self.size then
+                return i, self.bytes[i - 1]
+            end
+        end
     end
 }
 

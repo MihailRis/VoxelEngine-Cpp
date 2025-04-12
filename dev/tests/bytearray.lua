@@ -6,3 +6,7 @@ for i=1,10 do
     assert(#arr == i)
     assert(arr[i] == 10 - i)
 end
+
+for i, v in ipairs(arr) do
+    assert(v == 10 - i)
+end
