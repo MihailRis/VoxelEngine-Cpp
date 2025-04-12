@@ -191,14 +191,8 @@ local FFIBytearray = {
             return bytearray_type(malloc(n), n, n)
         end
     end,
-    append = append,
-    insert = insert,
-    remove = remove,
-    trim = trim_buffer,
-    clear = clear,
-    reserve = reserve,
-    get_capacity = get_capacity,
 }
+table.merge(FFIBytearray, bytearray_methods)
 
 local function FFIBytearray_as_string(bytes)
     local t = type(bytes)
