@@ -1,7 +1,7 @@
 #include "syntax_highlighting.hpp"
 
 #include "coders/commons.hpp"
-#include "coders/lua_parsing.hpp"
+#include "coders/syntax_parser.hpp"
 #include "graphics/core/Font.hpp"
 
 using namespace devtools;
@@ -60,7 +60,7 @@ std::unique_ptr<FontStylesScheme> devtools::syntax_highlight(
 ) {
     try {
         if (lang == "lua") {
-            auto tokens = lua::tokenize("<string>", source);
+            auto tokens = tokenize("<string>", source);
             return build_styles(tokens);
         } else {
             return nullptr;

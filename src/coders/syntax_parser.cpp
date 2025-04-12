@@ -1,10 +1,9 @@
-#include "lua_parsing.hpp"
+#include "syntax_parser.hpp"
 
 #include <set>
 
 #include "BasicParser.hpp"
 
-using namespace lua;
 using namespace devtools;
 
 static std::set<std::wstring_view> keywords {
@@ -188,6 +187,8 @@ public:
     }
 };
 
-std::vector<Token> lua::tokenize(std::string_view file, std::wstring_view source) {
+std::vector<Token> devtools::tokenize(
+    std::string_view file, std::wstring_view source
+) {
     return Tokenizer(file, source).tokenize();
 }
