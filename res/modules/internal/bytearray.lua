@@ -48,7 +48,8 @@ local function append(self, b)
 end
 
 local function insert(self, index, b)
-    if index == nil then
+    if b == nil then
+        b = index
         index = self.size + 1
     end
     if index <= 0 or index > self.size + 1 then
@@ -81,7 +82,7 @@ local function remove(self, index, elems)
     if index + elems > self.size then
         elems = self.size - index + 1
     end
-    for i=index, self.size - elems do
+    for i=index - 1, self.size - elems - 1 do
         self.bytes[i] = self.bytes[i + elems]
     end
     self.size = self.size - elems

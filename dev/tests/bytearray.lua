@@ -13,3 +13,12 @@ end
 
 Bytearray.remove(arr, 2)
 assert(#arr == 9)
+
+Bytearray.insert(arr, {5, 3, 6})
+
+assert(#arr == 12)
+Bytearray.insert(arr, 2, 8)
+assert(#arr == 13)
+for i=1,10 do
+    assert(arr[i] == 10 - i)
+end
