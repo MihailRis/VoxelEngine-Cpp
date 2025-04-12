@@ -144,7 +144,7 @@ public:
     ~Hud();
 
     void update(bool hudVisible);
-    void draw(const DrawContext& context, bool hudVisible);
+    void draw(const DrawContext& context);
 
     /// @brief Check if inventory mode on
     bool isInventoryOpen() const;

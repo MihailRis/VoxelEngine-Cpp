@@ -360,7 +360,7 @@ void Hud::update(bool visible) {
     }
     cleanup();
 
-    debugMinimap->setVisible(debug && showGeneratorMinimap && visible);
+    debugMinimap->setVisible(debug && showGeneratorMinimap);
     if (debug && showGeneratorMinimap) {
         updateWorldGenDebug();
     }
@@ -590,7 +590,7 @@ void Hud::setDebug(bool flag) {
     debug = flag;
 }
 
-void Hud::draw(const DrawContext& ctx, bool hudVisible){
+void Hud::draw(const DrawContext& ctx){
     const auto& viewport = ctx.getViewport();
 
     bool is_menu_open = menu.hasOpenPage();
@@ -610,7 +610,7 @@ void Hud::draw(const DrawContext& ctx, bool hudVisible){
     uishader.uniformMatrix("u_projview", uicamera->getProjView());
 
     // Crosshair
-    if (!pause && !inventoryOpen && !debug && hudVisible) {
+    if (!pause && !inventoryOpen && !debug) {
         DrawContext chctx = ctx.sub(batch);
         chctx.setBlendMode(BlendMode::inversion);
         auto texture = assets.get<Texture>("gui/crosshair");

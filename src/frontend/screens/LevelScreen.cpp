@@ -258,7 +258,9 @@ void LevelScreen::draw(float delta) {
         ctx, *camera, hudVisible, hud->isPause(), delta, *postProcessing
     );
 
-    hud->draw(ctx, hudVisible);
+    if (hudVisible) {
+        hud->draw(ctx);
+    }
 }
 
 void LevelScreen::onEngineShutdown() {
