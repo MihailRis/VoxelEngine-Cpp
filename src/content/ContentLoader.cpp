@@ -186,11 +186,7 @@ void ContentUnitLoader<DefT>::loadUnit(
 void ContentLoader::loadBlockMaterial(
     BlockMaterial& def, const io::path& file
 ) {
-    auto root = io::read_json(file);
-    root.at("steps-sound").get(def.stepsSound);
-    root.at("place-sound").get(def.placeSound);
-    root.at("break-sound").get(def.breakSound);
-    root.at("hit-sound").get(def.hitSound);
+    def.deserialize(io::read_json(file));
     if (def.hitSound.empty()) {
         def.hitSound = def.stepsSound;
     }

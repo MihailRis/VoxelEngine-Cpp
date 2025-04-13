@@ -243,7 +243,7 @@ void scripting::on_content_load(Content* content) {
         const auto& materials = content->getBlockMaterials();
         lua::createtable(L, 0, materials.size());
         for (const auto& [name, material] : materials) {
-            lua::pushvalue(L, material->serialize());
+            lua::pushvalue(L, material->toTable());
             lua::setfield(L, name);
         }
         lua::setfield(L, "materials");
