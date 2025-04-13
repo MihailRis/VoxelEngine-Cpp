@@ -1,3 +1,4 @@
+#define VC_ENABLE_REFLECTION
 #include "libgui.hpp"
 #include "assets/Assets.hpp"
 #include "engine/Engine.hpp"
@@ -422,7 +423,7 @@ static int p_get_line_pos(UINode*, lua::State* L) {
 }
 
 static int p_get_cursor(UINode* node, lua::State* L) {
-    return lua::pushstring(L, to_string(node->getCursor()));
+    return lua::pushlstring(L, CursorShapeMeta.getName(node->getCursor()));
 }
 
 static int p_get_scroll(UINode* node, lua::State* L) {
@@ -660,9 +661,9 @@ static void p_set_focused(
 }
 
 static void p_set_cursor(UINode* node, lua::State* L, int idx) {
-    if (auto cursor = CursorShape_from(lua::require_string(L, idx))) {
-        node->setCursor(*cursor);
-    }
+    auto cursor = CursorShape::ARROW; // reset to default
+    CursorShapeMeta.getItem(lua::require_string(L, idx), cursor);
+    node->setCursor(cursor);
 }
 
 static int p_set_scroll(UINode* node, lua::State* L, int idx) {
