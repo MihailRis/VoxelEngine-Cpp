@@ -4,30 +4,16 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <iostream>
-#include <memory>
-#include <string>
 
-#include "Content.hpp"
+#include "loading/ContentUnitLoader.hpp"
 #include "ContentBuilder.hpp"
 #include "ContentPack.hpp"
-#include "coders/json.hpp"
-#include "core_defs.hpp"
 #include "debug/Logger.hpp"
-#include "io/io.hpp"
-#include "items/ItemDef.hpp"
 #include "logic/scripting/scripting.hpp"
 #include "objects/rigging.hpp"
-#include "typedefs.hpp"
 #include "util/listutil.hpp"
 #include "util/stringutil.hpp"
-#include "voxels/Block.hpp"
-#include "data/dv_util.hpp"
-#include "data/StructLayout.hpp"
-#include "presets/ParticlesPreset.hpp"
 #include "io/engine_paths.hpp"
-
-namespace fs = std::filesystem;
-using namespace data;
 
 static debug::Logger logger("content-loader");
 
@@ -61,8 +47,7 @@ static void detect_defs(
             auto map = io::read_object(file);
             std::string id = prefix.empty() ? name : prefix + ":" + name;
             detected.emplace_back(id);
-        } else if (io::is_directory(file) && 
-                    file.extension() != fs::u8path(".files")) {
+        } else if (io::is_directory(file) && file.extension() != ".files") {
             detect_defs(file, name, detected);
         }
     }
@@ -91,8 +76,7 @@ static void detect_defs_pairs(
             } catch (const std::runtime_error& err) {
                 logger.error() << err.what();
             }
-        } else if (io::is_directory(file) && 
-                    file.extension() != fs::u8path(".files")) {
+        } else if (io::is_directory(file) && file.extension() != ".files") {
             detect_defs_pairs(file, name, detected);
         }
     }
@@ -165,31 +149,7 @@ void ContentLoader::fixPackIndices() {
     }
 }
 
-static void perform_user_block_fields(
-    const std::string& blockName, StructLayout& layout
-) {
-    if (layout.size() > MAX_USER_BLOCK_FIELDS_SIZE) {
-        throw std::runtime_error(
-            util::quote(blockName) + 
-            " fields total size exceeds limit (" + 
-            std::to_string(layout.size()) + "/" +
-            std::to_string(MAX_USER_BLOCK_FIELDS_SIZE) + ")");
-    }
-    for (const auto& field : layout) {
-        if (field.name.at(0) == '.') {
-            throw std::runtime_error(
-                util::quote(blockName) + " field " + field.name + 
-                ": user field may not start with '.'");
-        }
-    }
-
-    std::vector<Field> fields;
-    fields.insert(fields.end(), layout.begin(), layout.end());
-    // add built-in fields here
-    layout = StructLayout::create(fields);
-}
-
-static void process_method(
+void process_method(
     dv::value& properties,
     const std::string& method,
     const std::string& name,
@@ -214,363 +174,13 @@ static void process_method(
     }
 }
 
-void ContentLoader::loadBlock(
-    Block& def, const std::string& name, const io::path& file
+template<typename DefT> 
+void ContentUnitLoader<DefT>::loadUnit(
+    DefT& def, const std::string& full, const std::string& name
 ) {
-    auto root = io::read_json(file);
-    if (def.properties == nullptr) {
-        def.properties = dv::object();
-        def.properties["name"] = name;
-    }
-    for (auto& [key, value] : root.asObject()) {
-        auto pos = key.rfind('@');
-        if (pos == std::string::npos) {
-            def.properties[key] = value;
-            continue;
-        }
-        auto field = key.substr(0, pos);
-        auto suffix = key.substr(pos + 1);
-        process_method(def.properties, suffix, field, value);
-    }
-
-    if (root.has("parent")) {
-        const auto& parentName = root["parent"].asString();
-        auto parentDef = this->builder.blocks.get(parentName);
-        if (parentDef == nullptr) {
-            throw std::runtime_error(
-                "Failed to find parent(" + parentName + ") for " + name
-            );
-        }
-        parentDef->cloneTo(def);
-    }
-
-    root.at("caption").get(def.caption);
-
-    // block texturing
-    if (root.has("texture")) {
-        const auto& texture = root["texture"].asString();
-        for (uint i = 0; i < 6; i++) {
-            def.textureFaces[i] = texture;
-        }
-    } else if (root.has("texture-faces")) {
-        const auto& texarr = root["texture-faces"];
-        for (uint i = 0; i < 6; i++) {
-            def.textureFaces[i] = texarr[i].asString();
-        }
-    }
-
-    // block model
-    std::string modelTypeName = BlockModelMeta.getNameString(def.model);
-    root.at("model").get(modelTypeName);
-    root.at("model-name").get(def.modelName);
-    if (BlockModelMeta.getItem(modelTypeName, def.model)) {
-        if (def.model == BlockModel::custom && def.customModelRaw == nullptr) {
-            if (root.has("model-primitives")) {
-                def.customModelRaw = root["model-primitives"];
-            } else if (def.modelName.empty()) {
-                throw std::runtime_error(name + ": no 'model-primitives' or 'model-name' found");
-            }
-        }
-    } else if (!modelTypeName.empty()) {
-        logger.error() << "unknown model: " << modelTypeName;
-        def.model = BlockModel::none;
-    }
-
-    std::string cullingModeName = CullingModeMeta.getNameString(def.culling);
-    root.at("culling").get(cullingModeName);
-    if (!CullingModeMeta.getItem(cullingModeName, def.culling)) {
-        logger.error() << "unknown culling mode: " << cullingModeName;
-    }
-
-    root.at("material").get(def.material);
-
-    // rotation profile
-    std::string profile = def.rotations.name;
-    root.at("rotation").get(profile);
-
-    def.rotatable = profile != "none";
-    if (profile == BlockRotProfile::PIPE_NAME) {
-        def.rotations = BlockRotProfile::PIPE;
-    } else if (profile == BlockRotProfile::PANE_NAME) {
-        def.rotations = BlockRotProfile::PANE;
-    } else if (profile != "none") {
-        logger.error() << "unknown rotation profile " << profile;
-        def.rotatable = false;
-    }
-
-    // block hitbox AABB [x, y, z, width, height, depth]
-    if (auto found = root.at("hitboxes")) {
-        const auto& boxarr = *found;
-        def.hitboxes.resize(boxarr.size());
-        for (uint i = 0; i < boxarr.size(); i++) {
-            const auto& box = boxarr[i];
-            auto& hitboxesIndex = def.hitboxes[i];
-            hitboxesIndex.a = glm::vec3(
-                box[0].asNumber(), box[1].asNumber(), box[2].asNumber()
-            );
-            hitboxesIndex.b = glm::vec3(
-                box[3].asNumber(), box[4].asNumber(), box[5].asNumber()
-            );
-            hitboxesIndex.b += hitboxesIndex.a;
-        }
-    } else if (auto found = root.at("hitbox")) {
-        const auto& box = *found;
-        AABB aabb;
-        aabb.a = glm::vec3(
-            box[0].asNumber(), box[1].asNumber(), box[2].asNumber()
-        );
-        aabb.b = glm::vec3(
-            box[3].asNumber(), box[4].asNumber(), box[5].asNumber()
-        );
-        aabb.b += aabb.a;
-        def.hitboxes = {aabb};
-    }
-
-    // block light emission [r, g, b] where r,g,b in range [0..15]
-    if (auto found = root.at("emission")) {
-        const auto& emissionarr = *found;
-        for (size_t i = 0; i < 3; i++) {
-            def.emission[i] = std::clamp(emissionarr[i].asInteger(), static_cast<integer_t>(0), static_cast<integer_t>(15));
-        }
-    }
-
-    // block size
-    if (auto found = root.at("size")) {
-        const auto& sizearr = *found;
-        def.size.x = sizearr[0].asInteger();
-        def.size.y = sizearr[1].asInteger();
-        def.size.z = sizearr[2].asInteger();
-        if (def.size.x < 1 || def.size.y < 1 || def.size.z < 1) {
-            throw std::runtime_error(
-                "block " + util::quote(def.name) + ": invalid block size"
-            );
-        }
-        if (def.model == BlockModel::block &&
-            (def.size.x != 1 || def.size.y != 1 || def.size.z != 1)) {
-            def.model = BlockModel::aabb;
-            def.hitboxes = {AABB(def.size)};
-        }
-    }
-
-    // primitive properties
-    root.at("obstacle").get(def.obstacle);
-    root.at("replaceable").get(def.replaceable);
-    root.at("light-passing").get(def.lightPassing);
-    root.at("sky-light-passing").get(def.skyLightPassing);
-    root.at("shadeless").get(def.shadeless);
-    root.at("ambient-occlusion").get(def.ambientOcclusion);
-    root.at("breakable").get(def.breakable);
-    root.at("selectable").get(def.selectable);
-    root.at("grounded").get(def.grounded);
-    root.at("hidden").get(def.hidden);
-    root.at("draw-group").get(def.drawGroup);
-    root.at("picking-item").get(def.pickingItem);
-    root.at("surface-replacement").get(def.surfaceReplacement);
-    root.at("script-name").get(def.scriptName);
-    root.at("ui-layout").get(def.uiLayout);
-    root.at("inventory-size").get(def.inventorySize);
-    root.at("tick-interval").get(def.tickInterval);
-    root.at("overlay-texture").get(def.overlayTexture);
-    root.at("translucent").get(def.translucent);
-
-    if (root.has("fields")) {
-        def.dataStruct = std::make_unique<StructLayout>();
-        def.dataStruct->deserialize(root["fields"]);
-
-        perform_user_block_fields(def.name, *def.dataStruct);
-    }
-
-    if (root.has("particles")) {
-        def.particles = std::make_unique<ParticlesPreset>();
-        def.particles->deserialize(root["particles"]);
-    }
-
-    if (def.tickInterval == 0) {
-        def.tickInterval = 1;
-    }
-
-    if (def.hidden && def.pickingItem == def.name + BLOCK_ITEM_SUFFIX) {
-        def.pickingItem = CORE_EMPTY;
-    }
-    def.scriptFile = pack->id + ":scripts/" + def.scriptName + ".lua";
-}
-
-void ContentLoader::loadItem(
-    ItemDef& def, const std::string& name, const io::path& file
-) {
-    auto root = io::read_json(file);
-    def.properties = root;
-
-    if (root.has("parent")) {
-        const auto& parentName = root["parent"].asString();
-        auto parentDef = this->builder.items.get(parentName);
-        if (parentDef == nullptr) {
-            throw std::runtime_error(
-                "Failed to find parent(" + parentName + ") for " + name
-            );
-        }
-        parentDef->cloneTo(def);
-    }
-    root.at("caption").get(def.caption);
-
-    std::string iconTypeStr = "";
-    root.at("icon-type").get(iconTypeStr);
-    if (iconTypeStr == "none") {
-        def.iconType = ItemIconType::NONE;
-    } else if (iconTypeStr == "block") {
-        def.iconType = ItemIconType::BLOCK;
-    } else if (iconTypeStr == "sprite") {
-        def.iconType = ItemIconType::SPRITE;
-    } else if (iconTypeStr.length()) {
-        logger.error() << name << ": unknown icon type - " << iconTypeStr;
-    }
-    root.at("icon").get(def.icon);
-    root.at("placing-block").get(def.placingBlock);
-    root.at("script-name").get(def.scriptName);
-    root.at("model-name").get(def.modelName);
-    root.at("stack-size").get(def.stackSize);
-    root.at("uses").get(def.uses);
-
-    std::string usesDisplayStr = "";
-    root.at("uses-display").get(usesDisplayStr);
-    if (usesDisplayStr == "none") {
-        def.usesDisplay = ItemUsesDisplay::NONE;
-    } else if (usesDisplayStr == "number") {
-        def.usesDisplay = ItemUsesDisplay::NUMBER;
-    } else if (usesDisplayStr == "relation") {
-        def.usesDisplay = ItemUsesDisplay::RELATION;
-    } else if (usesDisplayStr == "vbar") {
-        def.usesDisplay = ItemUsesDisplay::VBAR;
-    } else if (usesDisplayStr.length()) {
-        logger.error() << name << ": unknown uses display mode - " << usesDisplayStr;
-    }
-
-    if (auto found = root.at("emission")) {
-        const auto& emissionarr = *found;
-        def.emission[0] = emissionarr[0].asNumber();
-        def.emission[1] = emissionarr[1].asNumber();
-        def.emission[2] = emissionarr[2].asNumber();
-    }
-
-    def.scriptFile = pack->id + ":scripts/" + def.scriptName + ".lua";
-}
-
-void ContentLoader::loadEntity(
-    EntityDef& def, const std::string& name, const io::path& file
-) {
-    auto root = io::read_json(file);
-
-    if (root.has("parent")) {
-        const auto& parentName = root["parent"].asString();
-        auto parentDef = this->builder.entities.get(parentName);
-        if (parentDef == nullptr) {
-            throw std::runtime_error(
-                "Failed to find parent(" + parentName + ") for " + name
-            );
-        }
-        parentDef->cloneTo(def);
-    }
-
-    if (auto found = root.at("components")) {
-        for (const auto& elem : *found) {
-            def.components.emplace_back(elem.asString());
-        }
-    }
-    if (auto found = root.at("hitbox")) {
-        const auto& arr = *found;
-        def.hitbox = glm::vec3(
-            arr[0].asNumber(), arr[1].asNumber(), arr[2].asNumber()
-        );
-    }
-    if (auto found = root.at("sensors")) {
-        const auto& arr = *found;
-        for (size_t i = 0; i < arr.size(); i++) {
-            const auto& sensorarr = arr[i];
-            const auto& sensorType = sensorarr[0].asString();
-            if (sensorType == "aabb") {
-                def.boxSensors.emplace_back(
-                    i,
-                    AABB {
-                        {sensorarr[1].asNumber(),
-                            sensorarr[2].asNumber(),
-                            sensorarr[3].asNumber()},
-                        {sensorarr[4].asNumber(),
-                            sensorarr[5].asNumber(),
-                            sensorarr[6].asNumber()}
-                    }
-                );
-            } else if (sensorType == "radius") {
-                def.radialSensors.emplace_back(i, sensorarr[1].asNumber());
-            } else {
-                logger.error()
-                    << name << ": sensor #" << i << " - unknown type "
-                    << util::quote(sensorType);
-            }
-        }
-    }
-    root.at("save").get(def.save.enabled);
-    root.at("save-skeleton-pose").get(def.save.skeleton.pose);
-    root.at("save-skeleton-textures").get(def.save.skeleton.textures);
-    root.at("save-body-velocity").get(def.save.body.velocity);
-    root.at("save-body-settings").get(def.save.body.settings);
-
-    std::string bodyTypeName;
-    root.at("body-type").get(bodyTypeName);
-    BodyTypeMeta.getItem(bodyTypeName, def.bodyType);
-
-    root.at("skeleton-name").get(def.skeletonName);
-    root.at("blocking").get(def.blocking);
-}
-
-void ContentLoader::loadEntity(
-    EntityDef& def, const std::string& full, const std::string& name
-) {
-    auto folder = pack->folder;
-    auto configFile = folder / ("entities/" + name + ".json");
-    if (io::exists(configFile)) loadEntity(def, full, configFile);
-}
-
-void ContentLoader::loadBlock(
-    Block& def, const std::string& full, const std::string& name
-) {
-    auto folder = pack->folder;
-    auto configFile = folder / ("blocks/" + name + ".json");
-    if (io::exists(configFile)) loadBlock(def, full, configFile);
-
-    if (!def.hidden) {
-        bool created;
-        auto& item = builder.items.create(full + BLOCK_ITEM_SUFFIX, &created);
-        item.generated = true;
-        item.caption = def.caption;
-        item.iconType = ItemIconType::BLOCK;
-        item.icon = full;
-        item.placingBlock = full;
-
-        for (uint j = 0; j < 4; j++) {
-            item.emission[j] = def.emission[j];
-        }
-        stats->totalItems += created;
-    }
-}
-
-void ContentLoader::loadItem(
-    ItemDef& def, const std::string& full, const std::string& name
-) {
-    auto folder = pack->folder;
-    auto configFile = folder / ("items/" + name + ".json");
-    if (io::exists(configFile)) loadItem(def, full, configFile);
-}
-
-static std::tuple<std::string, std::string, std::string> create_unit_id(
-    const std::string& packid, const std::string& name
-) {
-    size_t colon = name.find(':');
-    if (colon == std::string::npos) {
-        return {packid, packid + ":" + name, name};
-    }
-    auto otherPackid = name.substr(0, colon);
-    auto full = otherPackid + ":" + name;
-    return {otherPackid, full, otherPackid + "/" + name};
+    auto folder = pack.folder;
+    auto configFile = folder / (defsDir + "/" + name + ".json");
+    if (io::exists(configFile)) loadUnit(def, full, configFile);
 }
 
 void ContentLoader::loadBlockMaterial(
@@ -587,14 +197,7 @@ void ContentLoader::loadBlockMaterial(
 }
 
 template <typename DefT>
-static void load_defs(
-    const ContentPack& pack,
-    const dv::value& root,
-    const std::string& defsDir,
-    ContentUnitBuilder<DefT>& builder,
-    size_t& defCounter,
-    std::function<void(DefT&, const std::string&, const std::string&)> loader
-) {
+void ContentUnitLoader<DefT>::loadDefs(const dv::value& root) {
     auto found = root.at(defsDir);
     if (!found) {
         return;
@@ -602,7 +205,7 @@ static void load_defs(
     const auto& defsArr = *found;
 
     std::vector<std::pair<std::string, std::string>> pendingDefs;
-    auto getJsonParent = [&pack](const std::string& prefix, const std::string& name) {
+    auto getJsonParent = [this](const std::string& prefix, const std::string& name) {
         auto configFile = pack.folder / (prefix + "/" + name + ".json");
         std::string parent;
         if (io::exists(configFile)) {
@@ -611,7 +214,7 @@ static void load_defs(
         }
         return parent;
     };
-    auto processName = [&pack](const std::string& name) {
+    auto processName = [this](const std::string& name) {
         auto colon = name.find(':');
         auto new_name = name;
         std::string full =
@@ -629,8 +232,10 @@ static void load_defs(
             // content pack
             bool created;
             auto& def = builder.create(full, &created);
-            loader(def, full, name);
-            defCounter += created;
+            loadUnit(def, full, name);
+            if (postFunc) {
+                postFunc(def);
+            }
         } else {
             // Dependency not loaded yet, add to pending content units
             pendingDefs.emplace_back(full, name);
@@ -649,8 +254,10 @@ static void load_defs(
                 // load the content unit
                 bool created;
                 auto& def = builder.create(it->first, &created);
-                loader(def, it->first, it->second);
-                defCounter += created;
+                loadUnit(def, it->first, it->second);
+                if (postFunc) {
+                    postFunc(def);
+                }
                 it = pendingDefs.erase(it);  // Remove resolved content unit
                 progressMade = true;
             } else {
@@ -669,36 +276,35 @@ static void load_defs(
 }
 
 void ContentLoader::loadContent(const dv::value& root) {
-    load_defs<Block>(
-        *pack,
-        root,
-        "blocks",
-        builder.blocks,
-        stats->totalBlocks,
-        [this](auto& def, const auto& name, const auto& file) {
-            return loadBlock(def, name, file);
+    ContentPackStats prevStats {
+        builder.blocks.defs.size(),
+        builder.items.defs.size(),
+        builder.entities.defs.size(),
+    };
+
+    ContentUnitLoader<Block>(*pack, builder.blocks, "blocks", 
+        [this](Block& def) {
+        if (!def.hidden) {
+            bool created;
+            auto& item = builder.items.create(def.name + BLOCK_ITEM_SUFFIX, &created);
+            item.generated = true;
+            item.caption = def.caption;
+            item.iconType = ItemIconType::BLOCK;
+            item.icon = def.name;
+            item.placingBlock = def.name;
+    
+            for (uint j = 0; j < 4; j++) {
+                item.emission[j] = def.emission[j];
+            }
         }
-    );
-    load_defs<ItemDef>(
-        *pack,
-        root,
-        "items",
-        builder.items,
-        stats->totalItems,
-        [this](auto& def, const auto& name, const auto& file) {
-            return loadItem(def, name, file);
-        }
-    );
-    load_defs<EntityDef>(
-        *pack,
-        root,
-        "entities",
-        builder.entities,
-        stats->totalEntities,
-        [this](auto& def, const auto& name, const auto& file) {
-            return loadEntity(def, name, file);
-        }
-    );
+    }).loadDefs(root);
+
+    ContentUnitLoader(*pack, builder.items, "items").loadDefs(root);
+    ContentUnitLoader(*pack, builder.entities, "entities").loadDefs(root);
+
+    stats->totalBlocks = builder.blocks.defs.size() - prevStats.totalBlocks;
+    stats->totalItems = builder.items.defs.size() - prevStats.totalItems;
+    stats->totalEntities = builder.entities.defs.size() - prevStats.totalEntities;
 }
 
 static inline void foreach_file(
@@ -713,6 +319,18 @@ static inline void foreach_file(
         }
         handler(path);
     }
+}
+
+static std::tuple<std::string, std::string, std::string> create_unit_id(
+    const std::string& packid, const std::string& name
+) {
+    size_t colon = name.find(':');
+    if (colon == std::string::npos) {
+        return {packid, packid + ":" + name, name};
+    }
+    auto otherPackid = name.substr(0, colon);
+    auto full = otherPackid + ":" + name;
+    return {otherPackid, full, otherPackid + "/" + name};
 }
 
 void ContentLoader::load() {
