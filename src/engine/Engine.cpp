@@ -12,6 +12,7 @@
 #include "coders/json.hpp"
 #include "coders/toml.hpp"
 #include "coders/commons.hpp"
+#include "devtools/Editor.hpp"
 #include "content/ContentControl.hpp"
 #include "core_defs.hpp"
 #include "io/io.hpp"
@@ -73,6 +74,7 @@ Engine& Engine::getInstance() {
 void Engine::initialize(CoreParameters coreParameters) {
     params = std::move(coreParameters);
     settingsHandler = std::make_unique<SettingsHandler>(settings);
+    editor = std::make_unique<devtools::Editor>(*this);
     cmd = std::make_unique<cmd::CommandsInterpreter>();
     network = network::Network::create(settings.network);
 
@@ -134,6 +136,7 @@ void Engine::initialize(CoreParameters coreParameters) {
         );
     }
     content = std::make_unique<ContentControl>(paths, *input, [this]() {
+        editor->loadTools();
         langs::setup(langs::get_current(), paths.resPaths.collectRoots());
         if (!isHeadless()) {
             for (auto& pack : content->getAllContentPacks()) {

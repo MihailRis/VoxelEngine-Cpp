@@ -74,7 +74,6 @@
                     multiline='true'
                     line-numbers='true'
                     oncontrolkey='on_control_combination'
-                    syntax='lua'
                     size-func="-1,40"
                     text-wrap='false'
                     scroll-step='50'

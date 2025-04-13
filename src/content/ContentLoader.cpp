@@ -1,3 +1,4 @@
+#define VC_ENABLE_REFLECTION
 #include "ContentLoader.hpp"
 
 #include <algorithm>
@@ -259,28 +260,25 @@ void ContentLoader::loadBlock(
     }
 
     // block model
-    std::string modelTypeName = to_string(def.model);
+    std::string modelTypeName = BlockModelMeta.getNameString(def.model);
     root.at("model").get(modelTypeName);
     root.at("model-name").get(def.modelName);
-    if (auto model = BlockModel_from(modelTypeName)) {
-        if (*model == BlockModel::custom && def.customModelRaw == nullptr) {
+    if (BlockModelMeta.getItem(modelTypeName, def.model)) {
+        if (def.model == BlockModel::custom && def.customModelRaw == nullptr) {
             if (root.has("model-primitives")) {
                 def.customModelRaw = root["model-primitives"];
             } else if (def.modelName.empty()) {
                 throw std::runtime_error(name + ": no 'model-primitives' or 'model-name' found");
             }
         }
-        def.model = *model;
     } else if (!modelTypeName.empty()) {
         logger.error() << "unknown model: " << modelTypeName;
         def.model = BlockModel::none;
     }
 
-    std::string cullingModeName = to_string(def.culling);
+    std::string cullingModeName = CullingModeMeta.getNameString(def.culling);
     root.at("culling").get(cullingModeName);
-    if (auto mode = CullingMode_from(cullingModeName)) {
-        def.culling = *mode;
-    } else {
+    if (!CullingModeMeta.getItem(cullingModeName, def.culling)) {
         logger.error() << "unknown culling mode: " << cullingModeName;
     }
 
@@ -518,9 +516,7 @@ void ContentLoader::loadEntity(
 
     std::string bodyTypeName;
     root.at("body-type").get(bodyTypeName);
-    if (auto bodyType = BodyType_from(bodyTypeName)) {
-        def.bodyType = *bodyType;
-    }
+    BodyTypeMeta.getItem(bodyTypeName, def.bodyType);
 
     root.at("skeleton-name").get(def.skeletonName);
     root.at("blocking").get(def.blocking);
@@ -749,8 +745,9 @@ void ContentLoader::load() {
     if (io::exists(resourcesFile)) {
         auto resRoot = io::read_json(resourcesFile);
         for (const auto& [key, arr] : resRoot.asObject()) {
-            if (auto resType = ResourceType_from(key)) {
-                loadResources(*resType, arr);
+            ResourceType type;
+            if (ResourceTypeMeta.getItem(key, type)) {
+                loadResources(type, arr);
             } else {
                 // Ignore unknown resources
                 logger.warning() << "unknown resource type: " << key;
@@ -763,8 +760,9 @@ void ContentLoader::load() {
     if (io::exists(aliasesFile)) {
         auto resRoot = io::read_json(aliasesFile);
         for (const auto& [key, arr] : resRoot.asObject()) {
-            if (auto resType = ResourceType_from(key)) {
-                loadResourceAliases(*resType, arr);
+            ResourceType type;
+            if (ResourceTypeMeta.getItem(key, type)) {
+                loadResourceAliases(type, arr);
             } else {
                 // Ignore unknown resources
                 logger.warning() << "unknown resource type: " << key;
