@@ -197,6 +197,7 @@ function open_file_in_editor(filename, line, mutable)
     editor.scroll = 0
     editor.text = source
     editor.focused = true
+    editor.syntax = file.ext(filename)
     if line then
         time.post_runnable(function()
             editor.caret = editor:linePos(line)

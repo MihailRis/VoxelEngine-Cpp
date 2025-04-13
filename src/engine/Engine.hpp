@@ -33,6 +33,10 @@ namespace network {
     class Network;
 }
 
+namespace devtools {
+    class Editor;
+}
+
 class initialize_error : public std::runtime_error {
 public:
     initialize_error(const std::string& message) : std::runtime_error(message) {}
@@ -63,6 +67,7 @@ class Engine : public util::ObjectsKeeper {
     std::unique_ptr<Window> window;
     std::unique_ptr<Input> input;
     std::unique_ptr<gui::GUI> gui;
+    std::unique_ptr<devtools::Editor> editor;
     PostRunnables postRunnables;
     Time time;
     OnWorldOpen levelConsumer;
@@ -160,5 +165,9 @@ public:
 
     cmd::CommandsInterpreter& getCmd() {
         return *cmd;
+    }
+
+    devtools::Editor& getEditor() {
+        return *editor;
     }
 };
