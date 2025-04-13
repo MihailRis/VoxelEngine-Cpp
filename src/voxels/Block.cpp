@@ -8,7 +8,7 @@
 #include "presets/ParticlesPreset.hpp"
 #include "util/stringutil.hpp"
 
-dv::value BlockMaterial::serialize() const {
+dv::value BlockMaterial::toTable() const {
     return dv::object({
         {"name", name},
         {"stepsSound", stepsSound},
@@ -16,6 +16,24 @@ dv::value BlockMaterial::serialize() const {
         {"breakSound", breakSound},
         {"hitSound", hitSound}
     });
+}
+
+dv::value BlockMaterial::serialize() const {
+    return dv::object({
+        {"name", name},
+        {"steps-sound", stepsSound},
+        {"place-sound", placeSound},
+        {"break-sound", breakSound},
+        {"hit-sound", hitSound}
+    });
+}
+
+void BlockMaterial::deserialize(const dv::value& src) {
+    src.at("name").get(name);
+    src.at("steps-sound").get(stepsSound);
+    src.at("place-sound").get(placeSound);
+    src.at("break-sound").get(breakSound);
+    src.at("hit-sound").get(hitSound);
 }
 
 CoordSystem::CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ)

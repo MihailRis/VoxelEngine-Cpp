@@ -10,6 +10,7 @@
 #include "maths/aabb.hpp"
 #include "typedefs.hpp"
 #include "util/EnumMetadata.hpp"
+#include "interfaces/Serializable.hpp"
 
 struct ParticlesPreset;
 
@@ -116,14 +117,16 @@ VC_ENUM_END
 using BoxModel = AABB;
 
 /// @brief Common kit of block properties applied to groups of blocks
-struct BlockMaterial {
+struct BlockMaterial : Serializable {
     std::string name;
     std::string stepsSound;
     std::string placeSound;
     std::string breakSound;
     std::string hitSound;
 
-    dv::value serialize() const;
+    dv::value toTable() const; // for compatibility
+    dv::value serialize() const override;
+    void deserialize(const dv::value& src) override;
 };
 
 /// @brief Block properties definition
