@@ -1,3 +1,4 @@
+#define VC_ENABLE_REFLECTION
 #include "gui_xml.hpp"
 
 #include <stdexcept>
@@ -168,8 +169,9 @@ static void read_uinode(
         node.setTooltipDelay(element.attr("tooltip-delay").asFloat());
     }
     if (element.has("cursor")) {
-        if (auto cursor = CursorShape_from(element.attr("cursor").getText())) {
-            node.setCursor(*cursor);
+        CursorShape cursor;
+        if (CursorShapeMeta.getItem(element.attr("cursor").getText(), cursor)) {
+            node.setCursor(cursor);
         }
     }
 

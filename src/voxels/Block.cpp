@@ -18,62 +18,6 @@ dv::value BlockMaterial::serialize() const {
     });
 }
 
-std::string to_string(BlockModel model) {
-    switch (model) {
-        case BlockModel::none:
-            return "none";
-        case BlockModel::block:
-            return "block";
-        case BlockModel::xsprite:
-            return "X";
-        case BlockModel::aabb:
-            return "aabb";
-        case BlockModel::custom:
-            return "custom";
-        default:
-            return "unknown";
-    }
-}
-
-std::optional<BlockModel> BlockModel_from(std::string_view str) {
-    if (str == "none") {
-        return BlockModel::none;
-    } else if (str == "block") {
-        return BlockModel::block;
-    } else if (str == "X") {
-        return BlockModel::xsprite;
-    } else if (str == "aabb") {
-        return BlockModel::aabb;
-    } else if (str == "custom") {
-        return BlockModel::custom;
-    }
-    return std::nullopt;
-}
-
-std::string to_string(CullingMode mode) {
-    switch (mode) {
-        case CullingMode::DEFAULT:
-            return "default";
-        case CullingMode::OPTIONAL:
-            return "optional";
-        case CullingMode::DISABLED:
-            return "disabled";
-        default:
-            return "unknown";
-    }
-}
-
-std::optional<CullingMode> CullingMode_from(std::string_view str) {
-    if (str == "default") {
-        return CullingMode::DEFAULT;
-    } else if (str == "optional") {
-        return CullingMode::OPTIONAL;
-    } else if (str == "disabled") {
-        return CullingMode::DISABLED;
-    }
-    return std::nullopt;
-}
-
 CoordSystem::CoordSystem(glm::ivec3 axisX, glm::ivec3 axisY, glm::ivec3 axisZ)
     : axes({axisX, axisY, axisZ}) {
     fix = glm::ivec3(0);
