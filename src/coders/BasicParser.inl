@@ -103,6 +103,7 @@ void BasicParser<CharT>::skipWhitespaceCLikeComment(bool newline) {
                 if (hasNext() && (is_whitespace(source[pos]) || source[pos] == '/')) {
                     skipWhitespaceCLikeComment(newline);
                 }
+                break;
             default:
                 pos--;
                 break;

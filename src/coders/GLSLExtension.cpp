@@ -202,7 +202,7 @@ public:
         skipWhitespace(false);
         // Parse type name
         auto typeName = parseName();
-        Param::Type type;
+        Param::Type type {};
         if (!Param::TypeMeta.getItem(typeName, type)) {
             throw error("unsupported param type " + util::quote(typeName));
         }
