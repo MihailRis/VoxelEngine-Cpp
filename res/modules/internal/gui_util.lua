@@ -102,6 +102,7 @@ end
 setmetatable(RadioGroup, RadioGroup)
 
 gui_util.Document = Document
+gui_util.Element = Element
 gui_util.RadioGroup = RadioGroup
 
 return gui_util

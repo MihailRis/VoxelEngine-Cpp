@@ -186,8 +186,13 @@ end
 gui_util = require "core:internal/gui_util"
 
 Document = gui_util.Document
+Element = gui_util.Element
 RadioGroup = gui_util.RadioGroup
 __vc_page_loader = gui_util.load_page
+
+function __vc_get_document_node(docname, nodeid)
+    return Element.new(docname, nodeid)
+end
 
 _GUI_ROOT = Document.new("core:root")
 _MENU = _GUI_ROOT.menu

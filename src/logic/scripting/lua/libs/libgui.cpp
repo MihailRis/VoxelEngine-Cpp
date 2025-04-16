@@ -341,6 +341,29 @@ static int p_get_data(UINode* node, lua::State* L) {
     return 0;
 }
 
+static int p_get_parent(UINode* node, lua::State* L) {
+    auto parent = node->getParent();
+    if (!parent) {
+        return 0;
+    }
+    auto id = parent->getId();
+    if (id.empty()) {
+        id = "#" + std::to_string(reinterpret_cast<std::ptrdiff_t>(parent));
+    }
+    parent->setId(id);
+
+    auto docname = lua::require_string(L, 1);
+    auto element = lua::require_string(L, 2);
+    auto docnode = get_document_node_impl(L, docname, element);
+    UINode::getIndices(
+        parent->shared_from_this(), docnode.document->getMapWriteable()
+    );
+    lua::requireglobal(L, "__vc_get_document_node");
+    lua::pushvalue(L, 1);
+    lua::pushstring(L, id);
+    return lua::call(L, 2, 1);
+}
+
 static int p_get_add(UINode* node, lua::State* L) {
     if (dynamic_cast<Container*>(node)) {
         return lua::pushcfunction(L, lua::wrap<l_container_add>);
@@ -492,6 +515,7 @@ static int l_gui_getattr(lua::State* L) {
             {"focused", p_get_focused},
             {"cursor", p_get_cursor},
             {"data", p_get_data},
+            {"parent", p_get_parent},
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {
