@@ -60,6 +60,17 @@ function Element.new(docname, name)
         end,
         __newindex=function(self, k, v)
             gui.setattr(self.docname, self.name, k, v)
+        end,
+        __ipairs=function(self)
+            local i = 0
+            return function()
+                i = i + 1
+                local elem = gui.getattr(self.docname, self.name, i)
+                if elem == nil then
+                    return
+                end
+                return i, elem
+            end
         end
     })
 end
