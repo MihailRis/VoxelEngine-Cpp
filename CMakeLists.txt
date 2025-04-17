@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(VoxelEngine)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -37,6 +37,10 @@ target_link_libraries(VoxelEngine PRIVATE VoxelEngineSrc
 target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie>)
 
 # Deploy res to build dir
+if(NOT EXISTS $<TARGET_FILE_DIR:VoxelEngine>/res)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION $<TARGET_FILE_DIR:VoxelEngine>/res)
+endif()
+
 add_custom_command(
     TARGET VoxelEngine
     POST_BUILD
