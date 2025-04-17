@@ -37,8 +37,8 @@ target_link_libraries(VoxelEngine PRIVATE VoxelEngineSrc
 target_link_options(VoxelEngine PRIVATE $<$<CXX_COMPILER_ID:GNU>:-no-pie>)
 
 # Deploy res to build dir
-if(NOT EXISTS $<TARGET_FILE_DIR:VoxelEngine>/res)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION $<TARGET_FILE_DIR:VoxelEngine>/res)
+if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/res)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if(VOXELENGINE_BUILD_TESTS)
