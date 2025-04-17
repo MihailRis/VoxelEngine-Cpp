@@ -41,6 +41,7 @@ jobs:
         timeout-minutes: 1
       - name: Package for Windows
         run: |
+          tree
           mkdir packaged
           cp -r build/Release/* packaged/
           cp build/vctest/Release/vctest.exe packaged/
