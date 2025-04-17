@@ -341,6 +341,43 @@ static int p_get_data(UINode* node, lua::State* L) {
     return 0;
 }
 
+static const std::string& request_node_id(const DocumentNode& docnode) {
+    std::string id = docnode.node->getId();
+    if (id.empty()) {
+        id = "#" + std::to_string(
+            reinterpret_cast<std::ptrdiff_t>(docnode.node.get()));
+    }
+    docnode.node->setId(std::move(id));
+    UINode::getIndices(
+        docnode.node, docnode.document->getMapWriteable()
+    );
+    return docnode.node->getId();
+}
+
+/// @brief Push UI-document node object to stack
+/// using lua argument at 1 as document name
+/// @param id UI-node id
+static int push_document_node(lua::State* L, const std::string& id) {
+    lua::requireglobal(L, "__vc_get_document_node");
+    lua::pushvalue(L, 1);
+    lua::pushstring(L, id);
+    return lua::call(L, 2, 1);
+}
+
+static int p_get_parent(UINode* node, lua::State* L) {
+    auto parent = node->getParent();
+    if (!parent) {
+        return 0;
+    }
+    auto docname = lua::require_string(L, 1);
+    auto element = lua::require_string(L, 2);
+    auto docnode = get_document_node_impl(L, docname, element);
+
+    const auto& id = request_node_id(docnode);
+
+    return push_document_node(L, id);
+}
+
 static int p_get_add(UINode* node, lua::State* L) {
     if (dynamic_cast<Container*>(node)) {
         return lua::pushcfunction(L, lua::wrap<l_container_add>);
@@ -436,6 +473,21 @@ static int p_get_scroll(UINode* node, lua::State* L) {
 static int l_gui_getattr(lua::State* L) {
     auto docname = lua::require_string(L, 1);
     auto element = lua::require_string(L, 2);
+    if (lua::isnumber(L, 3)) {
+        auto docnode = get_document_node_impl(L, docname, element);
+        auto container = dynamic_cast<Container*>(docnode.node.get());
+        if (container == nullptr) {
+            return 0;
+        }
+        size_t index = lua::tointeger(L, 3) - 1;
+        const auto& nodes = container->getNodes();
+        if (index >= nodes.size()) {
+            return 0;
+        }
+        const auto& node = nodes.at(index);
+        const auto& id = request_node_id(DocumentNode {docnode.document, node});
+        return push_document_node(L, id);
+    }
     auto attr = lua::require_string(L, 3);
 
     static const std::unordered_map<
@@ -492,6 +544,7 @@ static int l_gui_getattr(lua::State* L) {
             {"focused", p_get_focused},
             {"cursor", p_get_cursor},
             {"data", p_get_data},
+            {"parent", p_get_parent},
         };
     auto func = getters.find(attr);
     if (func != getters.end()) {
