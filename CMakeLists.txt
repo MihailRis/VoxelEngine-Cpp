@@ -41,12 +41,6 @@ if(NOT EXISTS $<TARGET_FILE_DIR:VoxelEngine>/res)
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/res DESTINATION $<TARGET_FILE_DIR:VoxelEngine>/res)
 endif()
 
-add_custom_command(
-    TARGET VoxelEngine
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-            ${CMAKE_CURRENT_SOURCE_DIR}/res $<TARGET_FILE_DIR:VoxelEngine>/res)
-
 if(VOXELENGINE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
