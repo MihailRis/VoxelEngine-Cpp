@@ -49,3 +49,7 @@ void InlineFrame::setSize(glm::vec2 size) {
         root->setSize(size);
     }
 }
+
+const std::string& InlineFrame::getSrc() const {
+    return src;
+}

@@ -15,6 +15,8 @@ namespace gui {
 
         void act(float delta) override;
         void setSize(glm::vec2 size) override;
+
+        const std::string& getSrc() const;
     private:
         std::string src;
         std::shared_ptr<UiDocument> document;
