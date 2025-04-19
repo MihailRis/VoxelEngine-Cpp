@@ -12,6 +12,7 @@
 #include "elements/SplitBox.hpp"
 #include "elements/TrackBar.hpp"
 #include "elements/Image.hpp"
+#include "elements/InlineFrame.hpp"
 #include "elements/InputBindBox.hpp"
 #include "elements/InventoryView.hpp"
 #include "elements/Menu.hpp"
@@ -292,7 +293,7 @@ static std::wstring parse_inner_text(
     return text;
 }
 
-static std::shared_ptr<UINode> readLabel(
+static std::shared_ptr<UINode> read_label(
     const UiXmlReader& reader, const xml::xmlelement& element
 ) {
     std::wstring text = parse_inner_text(element, reader.getContext());
@@ -739,11 +740,24 @@ static std::shared_ptr<UINode> read_page_box(
     return menu;
 }
 
+static std::shared_ptr<UINode> read_iframe(
+    UiXmlReader& reader, const xml::xmlelement& element
+) {
+    auto& gui = reader.getGUI();
+    auto iframe = std::make_shared<InlineFrame>(gui);
+    read_container_impl(reader, element, *iframe);
+
+    std::string src = element.attr("src", "").getText();
+    iframe->setSrc(src);
+    return iframe;
+}
+
 UiXmlReader::UiXmlReader(gui::GUI& gui, const scriptenv& env) : gui(gui), env(env) {
     contextStack.emplace("");
     add("image", read_image);
     add("canvas", read_canvas);
-    add("label", readLabel);
+    add("iframe", read_iframe);
+    add("label", read_label);
     add("panel", read_panel);
     add("button", read_button);
     add("textbox", read_text_box);

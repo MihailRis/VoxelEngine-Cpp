@@ -368,3 +368,7 @@ Window& GUI::getWindow() {
 devtools::Editor& GUI::getEditor() {
     return engine.getEditor();
 }
+
+Engine& GUI::getEngine() {
+    return engine;
+}
