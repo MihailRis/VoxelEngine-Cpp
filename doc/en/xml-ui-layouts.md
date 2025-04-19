@@ -154,6 +154,12 @@ The key code for comparison can be obtained via `input.keycode("key_name")`
 - `supplier` - Lua function - value supplier
 - `change-on-release` - Call consumer on trackbar release only. Type: boolean. Default: false
 
+## Inline frame - *iframe*
+
+Container for embedding an external document. Content is scaling to the iframe size.
+
+- `src` - document id in the format `pack:name` (`pack/layouts/name.xml`)
+
 # Inventory elements
 
 ## *inventory*
